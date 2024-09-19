@@ -1,11 +1,11 @@
-import { LockOutlined, MailOutlined } from "@ant-design/icons";
-import { message } from "antd";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
+import { MailOutlined, LockOutlined } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../../firebase/firebase.config";
 import {
   activeAccount,
   createAccount,
@@ -14,12 +14,12 @@ import {
   loginWithEmailPass,
   submitOTPResetPass,
 } from "../../api/accountApi";
-import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
-import { auth } from "../../firebase/firebase.config";
-import { author, login } from "../../redux/features/authSlice";
+import { toast } from "react-toastify";
 import { decode } from "../../utils/jwtUtil";
-import ForgotPasswordModal from "./Account/ForgotPasswordModal";
+import { author, login } from "../../redux/features/authSlice";
+import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import OtpModal from "./Account/OtpModal";
+import ForgotPasswordModal from "./Account/ForgotPasswordModal";
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string()
@@ -65,7 +65,7 @@ const LoginPage = () => {
     console.log("Submitted OTP:", otp);
     const result = await activeAccount(email, otp);
     if (result.isSuccess) {
-      message.success("Verify successfully");
+      toast.success("Verify successfully");
       setIsModalVisible(false);
       setIsSignUp(false);
     }
@@ -78,10 +78,10 @@ const LoginPage = () => {
       data.newPassword
     );
     if (result.isSuccess) {
-      message.success("Reset password successfully");
+      toast.success("Reset password successfully");
     } else {
       for (var i = 0; i < result.messages.length; i++) {
-        message.error(result.messages[i]);
+        toast.error(result.messages[i]);
       }
     }
     setIsModalForgotPasswordVisible(false);
@@ -113,11 +113,11 @@ const LoginPage = () => {
           decode(localStorage.getItem("accessToken")).accountId,
           localStorage.getItem("accessToken")
         );
-        dispatch(author(result.result.mainRole));
+        dispatch(author(decode(localStorage.getItem("accessToken")).role));
         if (fetchAccount.isSuccess) {
           const userAccount = fetchAccount.result;
           dispatch(login(userAccount));
-          message.success("Đăng nhập thành công");
+          toast.success("Đăng nhập thành công");
           navigate("/");
         }
       }
@@ -160,16 +160,18 @@ const LoginPage = () => {
                         decode(localStorage.getItem("accessToken")).accountId,
                         localStorage.getItem("accessToken")
                       );
-                      dispatch(author(data?.result?.mainRole));
+                      dispatch(
+                        author(decode(localStorage.getItem("accessToken")).role)
+                      );
                       if (fetchAccount.isSuccess) {
                         const userAccount = fetchAccount.result;
                         dispatch(login(userAccount));
-                        message.success("Đăng nhập thành công");
+                        toast.success("Đăng nhập thành công");
                         navigate("/");
                       }
                     } else {
                       for (var i = 0; i < data.messages.length; i++) {
-                        message.error(data.messages[i]);
+                        toast.error(data.messages[i]);
                         if (
                           data.messages[i] ==
                           "Tài khoản này chưa được xác thực !"
@@ -261,7 +263,7 @@ const LoginPage = () => {
             </div>
             <div className="relative">
               <img
-                src="data:image/png;base64,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"
+                src="https://media.istockphoto.com/id/1151606826/vi/anh/n%E1%BB%99i-th%E1%BA%A5t-c%E1%BB%A7a-c%E1%BB%ADa-h%C3%A0ng-qu%E1%BA%A7n-%C3%A1o-th%E1%BB%9Di-trang-v%E1%BB%9Bi-qu%E1%BA%A7n-%C3%A1o-ph%E1%BB%A5-n%E1%BB%AF-kh%C3%A1c-nhau-tr%C3%AAn-m%C3%B3c-%C3%A1o-v%E1%BB%9Bi-nhi%E1%BB%81u-m%C3%A0u.jpg?s=170667a&w=0&k=20&c=8Otm5d6hO00u1ZcTjxeeiMwRwQYpHjwCcgvDvrUipQc="
                 alt="img"
                 className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
               />
@@ -314,7 +316,7 @@ const LoginPage = () => {
                         if (result.isSuccess === true) {
                           setEmail(values.email);
                           setIsModalVisible(true);
-                          message.success(
+                          toast.success(
                             "Registration successful! Please verify email."
                           );
                         } else {
@@ -322,14 +324,12 @@ const LoginPage = () => {
                             "Registration failed:",
                             result ? result.message : "Unknown error"
                           );
-                          message.error(
-                            "Registration failed. Please try again."
-                          );
+                          toast.error("Registration failed. Please try again.");
                         }
                         setIsLoading(false);
                       } catch (error) {
                         console.error("Error signing up:", error);
-                        message.error(
+                        toast.error(
                           "An error occurred. Please try again later."
                         );
                       }

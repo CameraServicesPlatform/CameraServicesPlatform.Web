@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Modal, Input, Button, Form } from "antd";
-import { sendResetPassOTP } from "../../api/AccountApi";
+import { sendResetPassOTP } from "../../../api/accountApi";
 import { toast } from "react-toastify";
 
 const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
@@ -63,8 +63,8 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
         step === 1
           ? "Step 1: Enter Email"
           : step === 2
-            ? "Step 2: Enter Verification Code"
-            : "Step 3: Enter new password"
+          ? "Step 2: Enter Verification Code"
+          : "Step 3: Enter new password"
       }
       open={visible}
       onCancel={onCancel}

@@ -1,38 +1,28 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-import { getAllAvailableEvent } from "../../api/eventApi";
-import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
-import {
-  calculateCountdown,
-  formatDate,
-  formatDateTime,
-} from "../../utils/util";
+import { formatDate, formatDateTime } from "../../utils/util";
 const Home = () => {
   const [events, setEvents] = useState([]);
   const [countdowns, setCountdowns] = useState({});
   const navigate = useNavigate();
-  const [isLoading,setIsLoading] = useState(false);
   const images = [
     {
       url: "https://images.pexels.com/photos/976862/pexels-photo-976862.jpeg?cs=srgb&dl=pexels-joshsorenson-976862.jpg&fm=jpg",
-      title: "Ánh sáng rực rỡ",
-      description:
-        "Những tia sáng lung linh, tỏa khắp không gian, tựa những vì sao lấp lánh trên bầu trời đêm.",
+      title: "Event 1",
+      description: "Description for Event 1",
     },
     {
       url: "https://images.pexels.com/photos/2020432/pexels-photo-2020432.jpeg?cs=srgb&dl=pexels-phreewil-2020432.jpg&fm=jpg",
-      title: "Điệu nhảy của sắc màu",
-      description:
-        "Các sắc màu đan xen, nhảy múa trong từng nhịp điệu, tạo nên một bữa tiệc đa sắc đầy cuốn hút.",
+      title: "Event 2",
+      description: "Description for Event 2",
     },
     {
       url: "https://wallpapers.com/images/hd/stage-light-background-kn0w04juezldy7et.jpg",
-      title: "Sân khấu ánh sáng",
-      description:
-        "Ánh đèn sân khấu chớp nhoáng, mời gọi khán giả bước vào thế giới kỳ diệu của nghệ thuật.",
+      title: "Event 3",
+      description: "Description for Event 3",
     },
   ];
   const settings = {
@@ -45,36 +35,6 @@ const Home = () => {
     autoplaySpeed: 3000,
   };
 
-  const fetchData = async () => {
-    setIsLoading(true)
-    const res = await getAllAvailableEvent(1, 10);
-    if (res.isSuccess) {
-      setIsLoading(false)
-      setEvents(res.result.items);
-      const initialCountdowns = {};
-      res.result.items.forEach((event, index) => {
-        initialCountdowns[index] = calculateCountdown(event.startEventDate);
-      });
-      setCountdowns(initialCountdowns);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const newCountdowns = {};
-      events.forEach((event, index) => {
-        newCountdowns[index] = calculateCountdown(event.startEventDate);
-      });
-      setCountdowns(newCountdowns);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [events]);
-  if (isLoading) {
-    return <LoadingComponent isLoading={true} />;
-  }
   return (
     <>
       <Slider {...settings}>
@@ -113,14 +73,14 @@ const Home = () => {
                   <div className="flex items-center mb-2">
                     <i className="fas fa-calendar-alt text-[#0c4a6e] mr-2"></i>
                     <span className="text-gray-600">
-                      {formatDate(event.startEventDate)}
+                      {formatDate(event.eventDate)}
                     </span>
                   </div>
                   <div className="flex items-center mb-2">
                     <i className="fas fa-clock text-[#0c4a6e] mr-2"></i>
                     <span className="text-gray-600">
-                      {formatDateTime(event.startEventDate)} -{" "}
-                      {formatDateTime(event.endEventDate)}
+                      {formatDateTime(event.startTime)} -{" "}
+                      {formatDateTime(event.endTime)}
                     </span>
                   </div>
                   <div className="flex items-center mb-2">

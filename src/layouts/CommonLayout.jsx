@@ -1,16 +1,17 @@
-import React from "react";
 import { Outlet } from "react-router-dom";
-import { Footer, Navbar } from "../components";
-import SlidebarCus from "../components/Siderbar/SlidebarCus";
+import Footer from "../components/Footer/Footer";
+import NavBar from "../components/Navbar/Navbar";
 
-function CommonLayout() {
+const CommonLayout = () => {
   return (
     <>
-      <Navbar />
-      <Outlet />
+      <NavBar />
+      <div className="container my-10">
+        <Outlet />
+      </div>
+
       <Footer />
     </>
   );
-}
-
+};
 export default CommonLayout;

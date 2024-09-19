@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Modal, Input, Button } from "antd";
-import { sendOTP } from "../../api/AccountApi";
+import { sendOTP } from "../../../api/accountApi";
 import { toast } from "react-toastify";
 
 const OtpModal = ({ visible, onCancel, onOtpSubmit, email }) => {
