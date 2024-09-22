@@ -1,4 +1,3 @@
-import moment from "moment-timezone";
 function formatPrice(gia) {
   /**
    * Định dạng giá tiền Việt Nam từ số nguyên thành chuỗi có dấu phân cách và ký tự đồng.
@@ -74,7 +73,7 @@ function differenceInDays(ngayGio1, ngayGio2) {
 function isEmptyObject(v) {
   return !!v && v.constructor === Object && Object.keys(v).length === 0;
 }
-function calculateCountdown(eventDate) {
+function calculateCountdown  (eventDate)  {
   const now = new Date();
   const eventDateObj = new Date(eventDate);
   const diff = eventDateObj - now;
@@ -85,16 +84,12 @@ function calculateCountdown(eventDate) {
   const seconds = Math.floor((diff / 1000) % 60);
 
   return `${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây`;
-}
-function formatDateToISOString(date) {
-  return moment(date).format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
-}
+};
 export {
   formatPrice,
   formatDateTime,
   formatDate,
   differenceInDays,
   isEmptyObject,
-  calculateCountdown,
-  formatDateToISOString,
+  calculateCountdown
 };

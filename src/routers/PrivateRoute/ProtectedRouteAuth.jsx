@@ -1,6 +1,6 @@
-import { Navigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { decode } from "../../utils/jwtUtil";
+import { Navigate } from "react-router-dom";
 
 const ProtectedRouteAuth = ({ children }) => {
   if (localStorage.getItem("accessToken") === null) {

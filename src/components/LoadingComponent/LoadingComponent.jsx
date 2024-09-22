@@ -65,18 +65,15 @@ const LoadingText = styled.p`
   }
 `;
 
-const LoadingComponent = ({ isLoading, title }) => {
+const LoadingComponent = ({ isLoading }) => {
   return isLoading ? (
     <LoadingContainer>
       <LoadingSpinner />
       <LoadingText>
-        {" "}
-        {title ? title : `Cóc Event đang tải dữ liệu bạn chờ xíu nhé...`}{" "}
+        CameraServicePlatform đang tải dữ liệu bạn chờ xíu nhé...
       </LoadingText>
     </LoadingContainer>
-  ) : (
-    <></>
-  );
+  ) : null;
 };
 
 export default LoadingComponent;

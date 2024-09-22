@@ -1,20 +1,23 @@
-import "aos/dist/aos.css";
-import { Provider } from "react-redux";
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
 import { BrowserRouter } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { Provider } from "react-redux";
+import { persistor, store } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import { StateProvider } from "./context/StateProvider";
-import { persistor, store } from "./redux/store";
 import Routers from "./routers/Routers";
+import { ToastContainer } from "react-toastify";
+import "aos/dist/aos.css";
+import "react-toastify/dist/ReactToastify.css";
 
 import AOS from "aos";
-import { registerables } from "chart.js";
-import Chart from "chart.js/auto";
 import { AuthProvider } from "./context/AuthContext";
 AOS.init({
   duration: 1000,
 });
+import { registerables } from "chart.js";
+import Chart from "chart.js/auto";
 Chart.register(...registerables);
 
 function App() {
