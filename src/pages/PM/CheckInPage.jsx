@@ -20,7 +20,7 @@ const CheckInPage = () => {
     <div className="container grid grid-cols-2 gap-4 ">
       <div className="mt-10 w-full ">
         <h1 className="text-primary font-bold uppercase text-center text-md my-2">
-          Check in tự động cùng Cóc Event
+          Check in tự động cùng Camera Service Platform
         </h1>
         <div className=" p-4 rounded-md shadow-xl">
           <QrReader delay={300} onError={handleError} onScan={handleScan} />
