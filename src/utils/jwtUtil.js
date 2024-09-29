@@ -15,7 +15,11 @@ const assignRole = (userRole) => {
 };
 
 export const decode = (token) => {
-  const decoded = decode(accessToken);
+  if (!token || token.split(".").length !== 3) {
+    throw new Error("Invalid token specified: missing part #2");
+  }
+
+  const decoded = jwtDecode(token);
   const role =
     decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
   const roleName = assignRole(role);

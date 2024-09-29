@@ -6,8 +6,17 @@ export const loginWithEmailPass = async (email, password) => {
       email,
       password,
     });
-    return res.data;
+    console.log("Login response:", res.data); // Inspect the response
+
+    // Check if the structure matches your expectations
+    if (res.data && res.data.result && res.data.result.token) {
+      return res.data.result.token; // Ensure the token is available here
+    } else {
+      console.error("Unexpected response structure:", res.data);
+      return null; // Return null if the structure is unexpected
+    }
   } catch (err) {
+    console.error("Login error:", err);
     return null;
   }
 };
