@@ -136,7 +136,7 @@ const LoginPage = () => {
         <div className="flex items-center justify-center min-h-screen bg-base2">
           <div className="relative flex flex-col m-6 space-y-8 shadow-2xl rounded-2xl md:flex-row md:space-y-0">
             <div className="flex flex-col justify-center p-8 md:p-14">
-              <span className="mb-3 text-4xl font-bold">Cóc Event</span>
+              <span className="mb-3 text-4xl font-bold">Camera Services Platform</span>
               <span className="font-light text-gray-400 mb-8">
                 Bạn vui lòng nhập các thông tin chi tiết để đăng nhập
               </span>
@@ -263,15 +263,15 @@ const LoginPage = () => {
             </div>
             <div className="relative">
               <img
-                src="https://media.istockphoto.com/id/1151606826/vi/anh/n%E1%BB%99i-th%E1%BA%A5t-c%E1%BB%A7a-c%E1%BB%ADa-h%C3%A0ng-qu%E1%BA%A7n-%C3%A1o-th%E1%BB%9Di-trang-v%E1%BB%9Bi-qu%E1%BA%A7n-%C3%A1o-ph%E1%BB%A5-n%E1%BB%AF-kh%C3%A1c-nhau-tr%C3%AAn-m%C3%B3c-%C3%A1o-v%E1%BB%9Bi-nhi%E1%BB%81u-m%C3%A0u.jpg?s=170667a&w=0&k=20&c=8Otm5d6hO00u1ZcTjxeeiMwRwQYpHjwCcgvDvrUipQc="
+                src="/src/images/login_register.jpg"
                 alt="img"
                 className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
               />
               <div className="absolute hidden bottom-10 right-6 p-6 bg-white bg-opacity-40 backdrop-blur-sm rounded drop-shadow-lg md:block">
                 <span className="text-black italic text-xl">
-                  Cóc Event
+                Camera-Services.com
                   <br />
-                  Đem lại cho bạn trải nghiệm đặt vé vô cùng tiện lợi.
+                  Đem lại cho bạn trải nghiệm vô cùng tiện lợi.
                   <br />
                 </span>
               </div>
@@ -284,7 +284,7 @@ const LoginPage = () => {
             <div className="relative flex flex-col m-6 space-y-8 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0">
               <div className="flex flex-col justify-center px-8 md:p-14">
                 <span className="mb-3 text-4xl font-bold">
-                  Chào mừng bạn trở lại
+                Chào mừng bạn!
                 </span>
                 <span className="font-light text-gray-400 mb-2">
                   Vui lòng nhập thông tin để đăng ký tài khoản
@@ -475,16 +475,16 @@ const LoginPage = () => {
               </div>
               <div className="relative">
                 <img
-                  src="https://media.istockphoto.com/id/1151606826/vi/anh/n%E1%BB%99i-th%E1%BA%A5t-c%E1%BB%A7a-c%E1%BB%ADa-h%C3%A0ng-qu%E1%BA%A7n-%C3%A1o-th%E1%BB%9Di-trang-v%E1%BB%9Bi-qu%E1%BA%A7n-%C3%A1o-ph%E1%BB%A5-n%E1%BB%AF-kh%C3%A1c-nhau-tr%C3%AAn-m%C3%B3c-%C3%A1o-v%E1%BB%9Bi-nhi%E1%BB%81u-m%C3%A0u.jpg?s=170667a&w=0&k=20&c=8Otm5d6hO00u1ZcTjxeeiMwRwQYpHjwCcgvDvrUipQc="
+                  src="/src/images/login_register.jpg"
                   alt="img"
                   className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
                 />
                 <div className="absolute hidden bottom-10 right-6 p-6 bg-white bg-opacity-20 backdrop-blur-sm rounded drop-shadow-lg md:block">
                   <span className="text-black italic text-xl">
-                    We've been using Untitle to kick
+                    Camera-Services.com
                     <br />
-                    start every new project and can't <br />
-                    imagine working without it.
+                    Cung cấp các dịch vụ <br />
+                    về máy ảnh và phụ kiện máy ảnh.
                   </span>
                 </div>
               </div>
