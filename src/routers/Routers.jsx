@@ -23,6 +23,8 @@ function Routers() {
         { path: "login", element: <LoginPage /> },
         { path: "verify-payment/*", element: <VerifyPayment /> },
         { path: "check-in", element: <CheckInPage /> },
+        { path: "about", element: <About /> },
+
       ],
     },
     {
