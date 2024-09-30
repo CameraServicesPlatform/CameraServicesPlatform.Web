@@ -13,6 +13,7 @@ const Home = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [countdowns, setCountdowns] = useState({});
+  const [searchQuery, setSearchQuery] = useState(""); // Add a state for search query
 
   const images = [
     {
@@ -63,6 +64,10 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [events]);
 
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
   if (!events || events.length === 0) {
     return (
       <div className="container mx-auto py-8 text-center">
@@ -75,6 +80,23 @@ const Home = () => {
 
   return (
     <>
+      <header className="bg-white shadow-md py-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <h1 className="text-3xl font-bold">CameraServicePlatform</h1>
+          <div className="flex items-center">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Search events"
+              className="px-4 py-2 border border-gray-300 rounded-md"
+            />
+            <button className="bg-red-700 text-white px-4 py-2 rounded-md ml-2">
+              Search
+            </button>
+          </div>
+        </div>
+      </header>
       <Slider {...settings}>
         {images.map((image, index) => (
           <div key={index} className="relative">
@@ -99,7 +121,7 @@ const Home = () => {
             <div
               key={index}
               className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transform transition duration-300 hover:scale-105"
-              onClick={() => navigate(`/event/${event.id}`)}
+              onClick={() => navigate(`/ event/${event.id}`)}
             >
               <div className="p-6">
                 <h4 className="text-2xl font-bold text-red-700 mb-2">
@@ -141,6 +163,9 @@ const Home = () => {
           ))}
         </div>
       </div>
+      <footer className="bg-gray-200 py-4 text-center">
+        <p>Copyright 2023 CameraServicePlatform. All rights reserved.</p>
+      </footer>
     </>
   );
 };
