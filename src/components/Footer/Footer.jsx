@@ -21,12 +21,19 @@ const Footer = () => {
             <li className="mb-2">
               <a
                 href="https://www.facebook.com/modareinvented"
-                className="text-red-400 hover:text-red-300"
+                className="hover:text-red-300"
               >
                 Facebook
               </a>
             </li>
-            <li className="mb-2 text-red-400 hover:text-red-300">Tiktok</li>
+            <li className="mb-2">
+              <a
+                href="https://www.facebook.com/modareinvented"
+                className="hover:text-red-300"
+              >
+                Tiktok
+              </a>
+            </li>
           </ul>
         </div>
         <div className="px-5">
@@ -34,10 +41,10 @@ const Footer = () => {
             Dịch vụ chăm sóc khách hàng
           </h2>
           <ul className="opacity-75">
-            <li className="mb-2 text-red-400 hover:text-red-300">
+            {/* <li className="mb-2 hover:text-red-300">
               Trung tâm bảo hành
-            </li>
-            <li className="mb-2 text-red-400 hover:text-red-300">Chính sách</li>
+            </li> */}
+            <li className="mb-2 hover:text-red-300">Chính sách</li>
           </ul>
         </div>
         <div className="px-5">
