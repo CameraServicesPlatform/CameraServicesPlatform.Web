@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
-import { Formik, Form, Field } from "formik";
-import * as Yup from "yup";
-import { MailOutlined, LockOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
+import { message } from "antd";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { Field, Form, Formik } from "formik";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebase/firebase.config";
+import * as Yup from "yup";
 import {
   activeAccount,
   createAccount,
@@ -14,12 +13,14 @@ import {
   loginWithEmailPass,
   submitOTPResetPass,
 } from "../../api/accountApi";
-import { toast } from "react-toastify";
-import { decode } from "../../utils/jwtUtil";
-import { author, login } from "../../redux/features/authSlice";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
-import OtpModal from "./Account/OtpModal";
+import { auth } from "../../firebase/firebase.config";
+import loginImage from "../../images/login.jpg";
+import { author, login } from "../../redux/features/authSlice";
+import { decode } from "../../utils/jwtUtil";
 import ForgotPasswordModal from "./Account/ForgotPasswordModal";
+import OtpModal from "./Account/OtpModal";
+
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string()
@@ -31,6 +32,7 @@ const LoginSchema = Yup.object().shape({
       'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)'
     ),
 });
+
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string()
@@ -48,8 +50,9 @@ const SignUpSchema = Yup.object().shape({
     .required("Confirm password is required"),
   phoneNumber: Yup.number()
     .min(10, "Must be more than 10 characters")
-    .required("Phone number is requried"),
+    .required("Phone number is required"),
 });
+
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -61,15 +64,17 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const googleProvider = new GoogleAuthProvider();
   const navigate = useNavigate();
+
   const handleOtpSubmit = async (otp) => {
     console.log("Submitted OTP:", otp);
     const result = await activeAccount(email, otp);
     if (result.isSuccess) {
-      toast.success("Verify successfully");
+      message.success("Verify successfully");
       setIsModalVisible(false);
       setIsSignUp(false);
     }
   };
+
   const handleForgotSubmit = async (data) => {
     console.log(data);
     const result = await submitOTPResetPass(
@@ -78,57 +83,129 @@ const LoginPage = () => {
       data.newPassword
     );
     if (result.isSuccess) {
-      toast.success("Reset password successfully");
+      message.success("Reset password successfully");
     } else {
       for (var i = 0; i < result.messages.length; i++) {
-        toast.error(result.messages[i]);
+        message.error(result.messages[i]);
       }
     }
     setIsModalForgotPasswordVisible(false);
   };
+
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+
   const handleForgotCancel = () => {
     setIsModalForgotPasswordVisible(false);
   };
-  const showOtpModal = () => {
-    setIsModalVisible(true);
+
+  const onSubmit = async (values, { setSubmitting }) => {
+    try {
+      setIsLoading(true);
+      const data = await loginWithEmailPass(values.email, values.password);
+
+      // Check if data is null or if it doesn't have isSuccess
+      if (data && data.isSuccess) {
+        localStorage.setItem("token", data.result.token);
+        localStorage.setItem("refreshToken", data.result.refreshToken);
+
+        const token = localStorage.getItem("token");
+        if (token && token.split(".").length === 3) {
+          const decodedToken = jwtDecode(token);
+          const fetchAccount = await getAccountById(
+            decodedToken.accountId,
+            token
+          );
+          dispatch(author(data.result.mainRole));
+
+          if (fetchAccount.isSuccess) {
+            const userAccount = fetchAccount.result;
+            dispatch(login(userAccount));
+            message.success("Đăng nhập thành công");
+            navigate("/");
+          }
+        } else {
+          throw new Error("Invalid token format");
+        }
+      } else {
+        // Adjust error handling here
+        if (data && data.messages) {
+          for (let message of data.messages) {
+            message.error(message);
+            if (message === "Tài khoản này chưa được xác thực !") {
+              setEmail(values.email);
+              setIsModalVisible(true);
+            }
+          }
+        } else {
+          message.error("Login failed. Please try again.");
+        }
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      message.error("An error occurred during login. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    const userCred = await signInWithPopup(auth, googleProvider);
-    console.log("userCred: ", userCred);
+    try {
+      const userCred = await signInWithPopup(auth, googleProvider);
+      console.log("userCred: ", userCred);
 
-    if (userCred) {
-      const accessToken = userCred._tokenResponse.idToken;
-      console.log("Google Access Token: ", accessToken);
-      var result = await googleCallback(accessToken);
-      if (result.isSuccess) {
-        console.log("callback: ", result);
-        localStorage.setItem("accessToken", result?.result?.token);
-        localStorage.setItem("refreshToken", result?.result?.refreshToken);
-        var fetchAccount = await getAccountById(
-          decode(localStorage.getItem("accessToken")).accountId,
-          localStorage.getItem("accessToken")
-        );
-        dispatch(author(decode(localStorage.getItem("accessToken")).role));
-        if (fetchAccount.isSuccess) {
-          const userAccount = fetchAccount.result;
-          dispatch(login(userAccount));
-          toast.success("Đăng nhập thành công");
-          navigate("/");
+      if (userCred) {
+        const token = userCred._tokenResponse.idToken;
+        console.log("Google Access Token: ", token);
+
+        if (token && token.split(".").length === 3) {
+          var result = await googleCallback(token);
+          if (result.isSuccess) {
+            localStorage.setItem("token", result?.result?.token);
+            localStorage.setItem("refreshToken", result?.result?.refreshToken);
+
+            const token = localStorage.getItem("token");
+            if (token && token.split(".").length === 3) {
+              const decodedToken = decode(token);
+
+              if (decodedToken && decodedToken.accountId) {
+                const fetchAccount = await getAccountById(
+                  decodedToken.accountId,
+                  token
+                );
+                dispatch(author(result.result.mainRole));
+                if (fetchAccount.isSuccess) {
+                  const userAccount = fetchAccount.result;
+                  dispatch(login(userAccount));
+                  message.success("Đăng nhập thành công");
+                  navigate("/");
+                }
+              } else {
+                message.error("Invalid token structure.");
+              }
+            } else {
+              message.error("Invalid token structure.");
+            }
+          }
+        } else {
+          message.error("Invalid token received from Google");
         }
       }
+    } catch (error) {
+      console.error("Error during Google SignIn:", error);
+      message.error("An error occurred during sign-in.");
     }
     setIsLoading(false);
   };
+
   useEffect(() => {
     if (user) {
       navigate("/");
     }
   }, [user]);
+
   return (
     <>
       <LoadingComponent isLoading={isLoading} />
@@ -136,57 +213,18 @@ const LoginPage = () => {
         <div className="flex items-center justify-center min-h-screen bg-base2">
           <div className="relative flex flex-col m-6 space-y-8 shadow-2xl rounded-2xl md:flex-row md:space-y-0">
             <div className="flex flex-col justify-center p-8 md:p-14">
-              <span className="mb-3 text-4xl font-bold">Camera Services Platform</span>
+
+              <span className="mb-3 text-4xl font-bold">
+                Camera Service Platform
+              </span>
+
               <span className="font-light text-gray-400 mb-8">
                 Bạn vui lòng nhập các thông tin chi tiết để đăng nhập
               </span>
               <Formik
                 initialValues={{ email: "", password: "" }}
                 validationSchema={LoginSchema}
-                onSubmit={async (values, { setSubmitting }) => {
-                  try {
-                    setIsLoading(true);
-                    const data = await loginWithEmailPass(
-                      values.email,
-                      values.password
-                    );
-                    if (data.isSuccess) {
-                      localStorage.setItem("accessToken", data.result.token);
-                      localStorage.setItem(
-                        "refreshToken",
-                        data.result.refreshToken
-                      );
-                      var fetchAccount = await getAccountById(
-                        decode(localStorage.getItem("accessToken")).accountId,
-                        localStorage.getItem("accessToken")
-                      );
-                      dispatch(
-                        author(decode(localStorage.getItem("accessToken")).role)
-                      );
-                      if (fetchAccount.isSuccess) {
-                        const userAccount = fetchAccount.result;
-                        dispatch(login(userAccount));
-                        toast.success("Đăng nhập thành công");
-                        navigate("/");
-                      }
-                    } else {
-                      for (var i = 0; i < data.messages.length; i++) {
-                        toast.error(data.messages[i]);
-                        if (
-                          data.messages[i] ==
-                          "Tài khoản này chưa được xác thực !"
-                        ) {
-                          setEmail(values.email);
-                          setIsModalVisible(true);
-                        }
-                      }
-                    }
-                  } catch (err) {
-                    console.error(err);
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
+                onSubmit={onSubmit}
               >
                 {({ isSubmitting, errors, touched }) => (
                   <Form>
@@ -196,7 +234,6 @@ const LoginPage = () => {
                         className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
                         type="email"
                         name="email"
-                        prefix={<MailOutlined />}
                         placeholder="Email của bạn"
                       />
                       {errors.email && touched.email && (
@@ -209,34 +246,26 @@ const LoginPage = () => {
                         className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
                         type="password"
                         name="password"
-                        prefix={<LockOutlined />}
                         placeholder="Mật khẩu của bạn"
                       />
                       {errors.password && touched.password && (
-                        <div
-                          className="text-red-500"
-                          style={{ fontSize: "0.75rem", marginTop: "0.25rem" }}
-                        >
-                          {errors.password}
-                        </div>
+                        <div className="text-red-500">{errors.password}</div>
                       )}
                     </div>
-                    <div className="flex justify-between w-full py-4  mr-24">
+                    <div className="flex justify-between w-full py-4 mr-24">
                       <span
                         style={{ cursor: "pointer" }}
                         onClick={() => setIsModalForgotPasswordVisible(true)}
-                        className=" text-md w-full block text-baseGreen italic"
+                        className="text-md w-full block text-baseGreen italic"
                       >
                         Quên mật khẩu?
                       </span>
                     </div>
-
                     <button
                       type="submit"
-                      className="w-full mb-6 inline-block  px-4 py-2  text-xs text-center font-semibold leading-6 text-white bg-primary rounded-lg transition duration-200"
+                      className="w-full mb-6 inline-block px-4 py-2 text-xs text-center font-semibold leading-6 text-white bg-primary rounded-lg transition duration-200"
                       disabled={isSubmitting}
                     >
-                      {" "}
                       Đăng nhập
                     </button>
                     <button
@@ -253,7 +282,6 @@ const LoginPage = () => {
                         className="font-bold text-black hover:text-baseGreen"
                         onClick={() => setIsSignUp(true)}
                       >
-                        {" "}
                         Đăng kí ở đây
                       </a>
                     </div>
@@ -263,15 +291,16 @@ const LoginPage = () => {
             </div>
             <div className="relative">
               <img
-                src="/src/images/login_register.jpg"
+                 src="/src/images/login_register.jpg"
                 alt="img"
-                className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
+                 className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
               />
               <div className="absolute hidden bottom-10 right-6 p-6 bg-white bg-opacity-40 backdrop-blur-sm rounded drop-shadow-lg md:block">
                 <span className="text-black italic text-xl">
-                Camera-Services.com
+                  Camera Service Platform
                   <br />
-                  Đem lại cho bạn trải nghiệm vô cùng tiện lợi.
+                  Đem lại cho bạn trải nghiệm sản phẩm vô cùng tiện lợi.
+
                   <br />
                 </span>
               </div>
@@ -279,218 +308,193 @@ const LoginPage = () => {
           </div>
         </div>
       ) : (
-        <>
-          <div className="flex items-center justify-center min-h-screen bg-base2">
-            <div className="relative flex flex-col m-6 space-y-8 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0">
-              <div className="flex flex-col justify-center px-8 md:p-14">
-                <span className="mb-3 text-4xl font-bold">
-                Chào mừng bạn!
-                </span>
-                <span className="font-light text-gray-400 mb-2">
-                  Vui lòng nhập thông tin để đăng ký tài khoản
-                </span>
-                <Formik
-                  initialValues={{
-                    email: "",
-                    password: "",
-                    firstName: "",
-                    lastName: "",
-                    repassword: "",
-                    phoneNumber: "",
-                  }}
-                  validationSchema={SignUpSchema}
-                  onSubmit={async (values, { setSubmitting }) => {
-                    try {
-                      setIsLoading(true);
-                      try {
-                        const result = await createAccount(
-                          values.email,
-                          values.firstName,
-                          values.lastName,
-                          values.password,
-                          true,
-                          values.phoneNumber,
-                          "Customer"
-                        );
-                        console.log("Register result: ", result);
-                        if (result.isSuccess === true) {
-                          setEmail(values.email);
-                          setIsModalVisible(true);
-                          toast.success(
-                            "Registration successful! Please verify email."
-                          );
-                        } else {
-                          console.error(
-                            "Registration failed:",
-                            result ? result.message : "Unknown error"
-                          );
-                          toast.error("Registration failed. Please try again.");
-                        }
-                        setIsLoading(false);
-                      } catch (error) {
-                        console.error("Error signing up:", error);
-                        toast.error(
-                          "An error occurred. Please try again later."
-                        );
-                      }
-                    } catch (err) {
-                      console.error(err);
-                    } finally {
-                      setIsLoading(false);
-                    }
-                  }}
-                >
-                  {({ isSubmitting, errors, touched }) => (
-                    <Form>
-                      <div className="py-2">
-                        <span className="mb-2 text-md">Email</span>
-                        <Field
-                          className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
-                          type="email"
-                          name="email"
-                          prefix={<MailOutlined />}
-                          placeholder="Nhập email của bạn"
-                        />
-                        {errors.email && touched.email && (
-                          <div className="text-red-500">{errors.email}</div>
-                        )}
-                      </div>
 
-                      <div className="py-2 flex justify-start">
-                        <div className="flex flex-col justify-between  mr-5">
-                          <span className="mb-2 text-md mr-6">Tên</span>
-                          <Field
-                            className="w-full mr-2 p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
-                            name="firstName"
-                            placeholder=" Tên của bạn"
-                          />
-                          {errors.firstName && (
-                            <div className="text-red-500">
-                              {errors.firstName}
-                            </div>
-                          )}
-                          {touched.firstName && (
-                            <div className="text-red-500">
-                              {touched.firstName}
-                            </div>
-                          )}
+        <div className="flex items-center justify-center min-h-screen bg-base2">
+          <div className="relative flex flex-col m-6 space-y-8 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0">
+            <div className="flex flex-col justify-center px-8 md:p-14">
+              <span className="mb-3 text-4xl font-bold">
+                Chào mừng bạn trở lại
+              </span>
+              <span className="font-light text-gray-400 mb-2">
+                Vui lòng nhập thông tin để đăng ký tài khoản
+              </span>
+              <Formik
+                initialValues={{
+                  email: "",
+                  password: "",
+                  firstName: "",
+                  lastName: "",
+                  repassword: "",
+                  phoneNumber: "",
+                }}
+                validationSchema={SignUpSchema}
+                onSubmit={async (values, { setSubmitting }) => {
+                  try {
+                    setIsLoading(true);
+                    const result = await createAccount(
+                      values.email,
+                      values.firstName,
+                      values.lastName,
+                      values.password,
+                      true,
+                      values.phoneNumber,
+                      "Member"
+                    );
+                    console.log("Register result: ", result);
+                    if (result.isSuccess === true) {
+                      setEmail(values.email);
+                      setIsModalVisible(true);
+                      message.success(
+                        "Registration successful! Please verify email."
+                      );
+                    } else {
+                      console.error(
+                        "Registration failed:",
+                        result ? result.message : "Unknown error"
+                      );
+                      message.error("Registration failed. Please try again.");
+
+                    }
+                  } catch (error) {
+                    console.error("Error signing up:", error);
+                    message.error("An error occurred. Please try again later.");
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
+              >
+                {({ isSubmitting, errors, touched }) => (
+                  <Form>
+                    <div className="py-2">
+                      <span className="mb-2 text-md">Email</span>
+                      <Field
+                        className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
+                        type="email"
+                        name="email"
+                        placeholder="Nhập email của bạn"
+                      />
+                      {errors.email && touched.email && (
+                        <div className="text-red-500">{errors.email}</div>
+                      )}
+                    </div>
+                    <div className="py-2 flex justify-start">
+                      <div className="flex flex-col justify-between mr-5">
+                        <span className="mb-2 text-md mr-6">Tên</span>
+                        <Field
+                          className="w-full mr-2 p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
+                          name="firstName"
+                          placeholder="Tên của bạn"
+                        />
+                        {errors.firstName && (
+                          <div className="text-red-500">{errors.firstName}</div>
+                        )}
+                        {touched.firstName && (
+                          <div className="text-red-500">
+                            {touched.firstName}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col justify-between">
+                        <span className="mb-2 text-md mr-6">Họ và tên đệm</span>
+                        <Field
+                          className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
+                          name="lastName"
+                          placeholder="Họ và tên đệm"
+                        />
+                        {errors.lastName && (
+                          <div className="text-red-500">{errors.lastName}</div>
+                        )}
+                        {touched.lastName && (
+                          <div className="text-red-500">{touched.lastName}</div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="py-2">
+                      <span className="mb-2 text-md">Số điện thoại</span>
+                      <Field
+                        className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
+                        name="phoneNumber"
+                        placeholder="Nhập số điện thoại của bạn"
+                      />
+                      {errors.phoneNumber && (
+                        <div className="text-red-500">{errors.phoneNumber}</div>
+                      )}
+                      {touched.phoneNumber && (
+                        <div className="text-red-500">
+                          {touched.phoneNumber}
                         </div>
-                        <div className="flex flex-col justify-between ">
-                          <span className="mb-2 text-md mr-6">
-                            Họ và tên đệm
-                          </span>
-                          <Field
-                            className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
-                            name="lastName"
-                            placeholder="Họ và tên đệm"
-                          />
-                          {errors.lastName && (
-                            <div className="text-red-500">
-                              {errors.lastName}
-                            </div>
-                          )}
-                          {touched.lastName && (
-                            <div className="text-red-500">
-                              {touched.lastName}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="py-2">
-                        <span className="mb-2 text-md">Số điện thoại</span>
-                        <Field
-                          className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
-                          name="phoneNumber"
-                          placeholder="Nhập số điện thoại của bạn"
-                        />
-                        {errors.phoneNumber && (
-                          <div className="text-red-500">
-                            {errors.phoneNumber}
-                          </div>
-                        )}
-                        {touched.phoneNumber && (
-                          <div className="text-red-500">
-                            {touched.phoneNumber}
-                          </div>
-                        )}
-                      </div>
-                      <div className="py-2">
-                        <span className="mb-2 text-md">Mật khẩu</span>
-                        <Field
-                          className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
-                          type="password"
-                          name="password"
-                          prefix={<LockOutlined />}
-                          placeholder="Mật khẩu của bạn"
-                        />
-                        {errors.password && (
-                          <div className="text-red-500">{errors.password}</div>
-                        )}
-                        {touched.password && (
-                          <div className="text-red-500">{touched.password}</div>
-                        )}
-                      </div>
-                      <div className="py-2">
-                        <span className="mb-2 text-md">Nhập lại mật khẩu</span>
-                        <Field
-                          className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
-                          type="password"
-                          name="repassword"
-                          prefix={<LockOutlined />}
-                          placeholder="Nhập lại mật khẩu"
-                        />
-                        {errors.repassword && (
-                          <div className="text-red-500">
-                            {errors.repassword}
-                          </div>
-                        )}
-                        {touched.repassword && (
-                          <div className="text-red-500">
-                            {touched.repassword}
-                          </div>
-                        )}
-                      </div>
-                      <button
-                        htmlType="submit"
-                        className="w-full mb-3 inline-block  px-4 py-2 text-xs text-center font-semibold leading-6 text-white  bg-primary hover:bg-base4 rounded-lg transition duration-200"
-                        disabled={isSubmitting}
-                        loading={isLoading}
+                      )}
+                    </div>
+                    <div className="py-2">
+                      <span className="mb-2 text-md">Mật khẩu</span>
+                      <Field
+                        className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
+                        type="password"
+                        name="password"
+                        placeholder="Mật khẩu của bạn"
+                      />
+                      {errors.password && (
+                        <div className="text-red-500">{errors.password}</div>
+                      )}
+                      {touched.password && (
+                        <div className="text-red-500">{touched.password}</div>
+                      )}
+                    </div>
+                    <div className="py-2">
+                      <span className="mb-2 text-md">Nhập lại mật khẩu</span>
+                      <Field
+                        className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
+                        type="password"
+                        name="repassword"
+                        placeholder="Nhập lại mật khẩu"
+                      />
+                      {errors.repassword && (
+                        <div className="text-red-500">{errors.repassword}</div>
+                      )}
+                      {touched.repassword && (
+                        <div className="text-red-500">{touched.repassword}</div>
+                      )}
+                    </div>
+                    <button
+                      htmlType="submit"
+                      className="w-full mb-3 inline-block px-4 py-2 text-xs text-center font-semibold leading-6 text-white bg-primary hover:bg-base4 rounded-lg transition duration-200"
+                      disabled={isSubmitting}
+                      loading={isLoading}
+                    >
+                      Đăng ký tài khoản
+                    </button>
+                    <div className="text-center text-gray-400">
+                      Tôi đã có tài khoản ?
+                      <a
+                        style={{ cursor: "pointer" }}
+                        onClick={() => setIsSignUp(false)}
+                        className="font-bold text-black hover:text-baseGreen"
                       >
-                        Đăng ký tài khoản
-                      </button>
-                      <div className="text-center text-gray-400">
-                        Tôi đã có tài khoản ?
-                        <a
-                          style={{ cursor: "pointer" }}
-                          onClick={() => setIsSignUp(false)}
-                          className="font-bold text-black hover:text-baseGreen"
-                        >
-                          {" "}
-                          Đăng nhập ngay
-                        </a>
-                      </div>
-                    </Form>
-                  )}
-                </Formik>
-              </div>
-              <div className="relative">
-                <img
-                  src="/src/images/login_register.jpg"
-                  alt="img"
-                  className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
-                />
-                <div className="absolute hidden bottom-10 right-6 p-6 bg-white bg-opacity-20 backdrop-blur-sm rounded drop-shadow-lg md:block">
-                  <span className="text-black italic text-xl">
-                    Camera-Services.com
-                    <br />
-                    Cung cấp các dịch vụ <br />
-                    về máy ảnh và phụ kiện máy ảnh.
-                  </span>
-                </div>
+                        Đăng nhập ngay
+                      </a>
+                    </div>
+                  </Form>
+                )}
+              </Formik>
+            </div>
+            <div className="relative">
+              <img
+                src={loginImage}
+                alt="img"
+                className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
+              />
+              <div className="absolute hidden bottom-10 right-6 p-6 bg-white bg-opacity-20 backdrop-blur-sm rounded drop-shadow-lg md:block">
+                <span className="text-black italic text-xl">
+                  We've been using Untitle to kick
+                  <br />
+                  start every new project and can't <br />
+                  imagine working without it.
+                </span>
+
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
       <OtpModal
         visible={isModalVisible}
