@@ -214,9 +214,11 @@ const LoginPage = () => {
         <div className="flex items-center justify-center min-h-screen bg-base2">
           <div className="relative flex flex-col m-6 space-y-8 shadow-2xl rounded-2xl md:flex-row md:space-y-0">
             <div className="flex flex-col justify-center p-8 md:p-14">
+
               <span className="mb-3 text-4xl font-bold">
                 Camera Service Platform
               </span>
+
               <span className="font-light text-gray-400 mb-8">
                 Bạn vui lòng nhập các thông tin chi tiết để đăng nhập
               </span>
@@ -290,15 +292,16 @@ const LoginPage = () => {
             </div>
             <div className="relative">
               <img
-                src={loginImage}
-                alt="camera"
-                className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
+                 src="/src/images/login_register.jpg"
+                alt="img"
+                 className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
               />
               <div className="absolute hidden bottom-10 right-6 p-6 bg-white bg-opacity-40 backdrop-blur-sm rounded drop-shadow-lg md:block">
                 <span className="text-black italic text-xl">
                   Camera Service Platform
                   <br />
                   Đem lại cho bạn trải nghiệm sản phẩm vô cùng tiện lợi.
+
                   <br />
                 </span>
               </div>
@@ -306,6 +309,7 @@ const LoginPage = () => {
           </div>
         </div>
       ) : (
+
         <div className="flex items-center justify-center min-h-screen bg-base2">
           <div className="relative flex flex-col m-6 space-y-8 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0">
             <div className="flex flex-col justify-center px-8 md:p-14">
@@ -335,7 +339,7 @@ const LoginPage = () => {
                       values.password,
                       true,
                       values.phoneNumber,
-                      "Customer"
+                      "Member"
                     );
                     console.log("Register result: ", result);
                     if (result.isSuccess === true) {
@@ -350,6 +354,7 @@ const LoginPage = () => {
                         result ? result.message : "Unknown error"
                       );
                       message.error("Registration failed. Please try again.");
+
                     }
                   } catch (error) {
                     console.error("Error signing up:", error);
@@ -486,6 +491,7 @@ const LoginPage = () => {
                   start every new project and can't <br />
                   imagine working without it.
                 </span>
+
               </div>
             </div>
           </div>
