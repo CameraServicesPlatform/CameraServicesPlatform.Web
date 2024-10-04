@@ -25,7 +25,7 @@ const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string()
     .required("Password is required")
-    .min(8, "Password must be at least 8 characters")
+    .min(6, "Password must be at least 6 characters")
     .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
     .matches(
       /[!@#$%^&*(),.?":{}|<>]/,
@@ -37,7 +37,7 @@ const SignUpSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string()
     .required("Password is required")
-    .min(8, "Password must be at least 8 characters")
+    .min(6, "Password must be at least 6 characters")
     .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
     .matches(
       /[!@#$%^&*(),.?":{}|<>]/,
@@ -69,7 +69,7 @@ const LoginPage = () => {
     console.log("Submitted OTP:", otp);
     const result = await activeAccount(email, otp);
     if (result.isSuccess) {
-      message.success("Verify successfully");
+      message.success("Xác minh thành công!");
       setIsModalVisible(false);
       setIsSignUp(false);
     }
@@ -83,7 +83,7 @@ const LoginPage = () => {
       data.newPassword
     );
     if (result.isSuccess) {
-      message.success("Reset password successfully");
+      message.success("Đặt lại mật khẩu thành công!");
     } else {
       for (var i = 0; i < result.messages.length; i++) {
         message.error(result.messages[i]);
@@ -105,14 +105,15 @@ const LoginPage = () => {
       setIsLoading(true);
       const data = await loginWithEmailPass(values.email, values.password);
 
-      // Check if data is null or if it doesn't have isSuccess
       if (data && data.isSuccess) {
-        localStorage.setItem("token", data.result.token);
-        localStorage.setItem("refreshToken", data.result.refreshToken);
+        const token = data.result.token;
+        const refreshToken = data.result.refreshToken;
 
-        const token = localStorage.getItem("token");
+        localStorage.setItem("token", token);
+        localStorage.setItem("refreshToken", refreshToken);
+
         if (token && token.split(".").length === 3) {
-          const decodedToken = jwtDecode(token);
+          const decodedToken = decode(token);
           const fetchAccount = await getAccountById(
             decodedToken.accountId,
             token
@@ -126,25 +127,25 @@ const LoginPage = () => {
             navigate("/");
           }
         } else {
-          throw new Error("Invalid token format");
+          throw new Error("Token format không hợp lệ");
         }
       } else {
         // Adjust error handling here
         if (data && data.messages) {
-          for (let message of data.messages) {
-            message.error(message);
-            if (message === "Tài khoản này chưa được xác thực !") {
+          for (let messageText of data.messages) {
+            message.error(messageText);
+            if (messageText === "Tài khoản này chưa được xác minh!") {
               setEmail(values.email);
               setIsModalVisible(true);
             }
           }
         } else {
-          message.error("Login failed. Please try again.");
+          message.error("Đăng nhập không thành công. Vui lòng thử lại.");
         }
       }
     } catch (err) {
       console.error("Login error:", err);
-      message.error("An error occurred during login. Please try again.");
+      message.error("Đăng nhập không thành công. Vui lòng thử lại.");
     } finally {
       setIsLoading(false);
     }
@@ -183,7 +184,7 @@ const LoginPage = () => {
                   navigate("/");
                 }
               } else {
-                message.error("Invalid token structure.");
+                message.error("Invalid token sInvalid token structure.");
               }
             } else {
               message.error("Invalid token structure.");

@@ -1,8 +1,9 @@
+import "font-awesome/css/font-awesome.min.css"; // Nhập Font Awesome nếu bạn sử dụng
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import logo from "../../images/image.png"; // Update the path according to your structure
+import logo from "../../images/image.png"; // Đường dẫn tới logo của bạn
 import { logout } from "../../redux/features/authSlice";
 import { isEmptyObject } from "../../utils/util";
 
@@ -46,6 +47,9 @@ const NavBar = () => {
         >
           <li>
             <NavLink to="/personal-information">Tài khoản</NavLink>
+            <NavLink to="/personal-cart">Giỏ hàng</NavLink>
+            <NavLink to="/personal-review">Đánh giá</NavLink>
+            <NavLink to="/personal-order-history">Lịch sử đơn hàng</NavLink>
           </li>
           {roleName === "isAdmin" && (
             <NavLink to="/admin">
@@ -87,40 +91,76 @@ const NavBar = () => {
           to="/"
           className="flex items-center gap-2 no-underline text-black"
         >
-          <img src={logo} alt="Logo" className="h-10" /> {/* Add logo here */}
+          <img src={logo} alt="Logo" className="h-12" />
         </NavLink>
 
-        <div className="hidden md:flex items-center gap-4">
-          <NavLink
-            to="/"
-            className="text-base font-semibold hover:text-gray-500 no-underline text-black"
-            onClick={() => setExpand(false)}
-          >
-            Trang chủ
-          </NavLink>
+        <div className="relative hidden md:flex items-center">
+          <input
+            type="text"
+            placeholder="Nhập sản phẩm bạn đang tìm kiếm"
+            className="border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-80"
+          />
+          <button className="bg-red-500 text-white rounded-r-md px-6 py-2">
+            <i className="fa-solid fa-magnifying-glass"></i>
+          </button>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="md:hidden">
-            <button
-              className="text-black hover:text-gray-700 focus:outline-none"
-              onClick={() => setExpand(!expand)}
-            >
-              <i className="fa-solid fa-bars"></i>
-            </button>
-          </div>
-
           {user ? (
             renderDropDown()
           ) : (
-            <Link
-              to="/login"
-              className="hidden md:block no-underline font-semibold text-black hover:text-gray-500"
-            >
-              Đăng nhập
-            </Link>
+            <>
+              <Link
+                to="/login"
+                className="no-underline font-semibold text-black hover:text-gray-500"
+              >
+                Đăng nhập
+              </Link>
+              <Link
+                to="/register"
+                className="no-underline font-semibold text-black hover:text-gray-500"
+              >
+                Đăng ký
+              </Link>
+            </>
           )}
         </div>
+      </div>
+
+      <div className="hidden md:flex items-center flex-grow justify-center space-x-6">
+        <NavLink to="/" className="text-black hover:text-gray-500 no-underline">
+          Trang chủ
+        </NavLink>
+        <NavLink
+          to="/lien-he"
+          className="text-black hover:text-gray-500 no-underline"
+        >
+          Liên hệ
+        </NavLink>
+        <NavLink
+          to="/may-anh"
+          className="text-black hover:text-gray-500 no-underline"
+        >
+          Máy ảnh
+        </NavLink>
+        <NavLink
+          to="/lens"
+          className="text-black hover:text-gray-500 no-underline"
+        >
+          Lens
+        </NavLink>
+        <NavLink
+          to="/phu-kien"
+          className="text-black hover:text-gray-500 no-underline"
+        >
+          Phụ kiện
+        </NavLink>
+        <NavLink
+          to="/ve-chung-toi"
+          className="text-black hover:text-gray-500 no-underline"
+        >
+          Về chúng tôi
+        </NavLink>
       </div>
 
       {expand && (
@@ -129,7 +169,6 @@ const NavBar = () => {
             <Link
               to="/"
               className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-red-100"
-              onClick={() => setExpand(false)}
             >
               Trang chủ
             </Link>
