@@ -138,22 +138,22 @@ const NavBar = () => {
           Liên hệ
         </NavLink>
         <NavLink
-          to="/may-anh"
+          to="/san-pham-cho-thue"
           className="text-black hover:text-gray-500 no-underline"
         >
-          Máy ảnh
+          Sản phẩm cho thuê
         </NavLink>
         <NavLink
-          to="/lens"
+          to="/san-pham-mua"
           className="text-black hover:text-gray-500 no-underline"
         >
-          Lens
+          Sản phẩm mua
         </NavLink>
         <NavLink
-          to="/phu-kien"
+          to="/chinh-sach"
           className="text-black hover:text-gray-500 no-underline"
         >
-          Phụ kiện
+          Chính sách
         </NavLink>
         <NavLink
           to="/ve-chung-toi"
