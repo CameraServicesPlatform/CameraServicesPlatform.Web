@@ -12,6 +12,7 @@ import CheckInPage from "../pages/PM/CheckInPage";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 import ProductList from "../pages/Common/ProductList";
 import ProductDetail from "../pages/Common/ProductDetail";
+import Cart from "../pages/Common/Cart";
 
 
 function Routers() {
@@ -32,6 +33,7 @@ function Routers() {
         { path: "lien-he", element: <Contact /> },
         { path: "product-list", element: <ProductList /> },
         { path: "product-detail", element: <ProductDetail /> },
+        { path: "cart", element: <Cart /> },
 
       ],
     },

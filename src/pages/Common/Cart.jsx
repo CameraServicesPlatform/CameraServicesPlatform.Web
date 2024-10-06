@@ -1,143 +1,150 @@
-import { message } from "antd";
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { createOrderWithPament } from "../../api/orderApi";
-import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
-import {
-  decreaseQuantity,
-  increaseQuantity,
-  removeFromCart,
-  resetCart,
-} from "../../redux/features/cartSlice";
-import { formatDateTime, formatPrice, isEmptyObject } from "../../utils/util";
+import React from 'react';
 
 const Cart = () => {
-  const cartItems = useSelector((state) => state.cart || []);
-  const user = useSelector((state) => state.user.user || {});
-  const [isLoading, setIsLoading] = useState(false);
-  const dispatch = useDispatch();
-  const selectTotal = (state) =>
-    state.cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  const total = useSelector(selectTotal || 0);
-
-  console.log(cartItems);
-
-  const checkOut = async () => {
-    setIsLoading(true);
-    const data = {
-      seatRank: cartItems.map((item) => ({
-        id: item.id,
-        quantity: item.quantity,
-      })),
-      accountId: user?.id,
-      content: "Đặt hàng ",
-    };
-    console.log(data);
-
-    const response = await createOrderWithPament(data);
-    if (response) {
-      debugger;
-      setIsLoading(false);
-    }
-    if (response.isSuccess) {
-      message.success("Đặt hàng thành công");
-      dispatch(resetCart());
-      window.location.href = response.result;
-    } else {
-      response.messages.forEach((mess) => {
-        message.error(mess);
-      });
-    }
-  };
-  console.log(user);
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <LoadingComponent
-        isLoading={isLoading}
-        title={"Hệ thống đang xử lý đơn hàng"}
-      />
-      <h2 className="text-3xl font-bold text-gray-900 mb-8">Giỏ hàng</h2>
-      {cartItems.length > 0 ? (
-        <>
-          <div className="bg-white shadow-lg rounded-lg divide-y divide-gray-200">
-            {cartItems.map((item) => (
-              <div
-                key={item.id}
-                className="p-6 flex items-center justify-between w-full"
-              >
-                <div className="flex items-center">
-                  <div>
-                    <div className="flex ">
-                      <strong className="text-lg mr-2">Event:</strong>
-                      <h3 className="text-lg  text-gray-900">
-                        {item.event?.title}
-                      </h3>
-                    </div>
+    <div className="p-8">
+      {/* Breadcrumb */}
+      <div className="text-sm text-gray-500 mb-4">
+        <a className="text-gray-500 hover:underline" href="#">
+          Trang chủ
+        </a>
+        /
+        <span className="text-black"> Giỏ hàng</span>
+      </div>
 
-                    <p className="text-gray-500">
-                      Giá: {formatPrice(item.price)}
-                    </p>
-                    <p className="text-gray-500">
-                      Thời gian mở bán: {formatDateTime(item.startTime)}
-                    </p>
-                    <p className="text-gray-500">
-                      Thời gian kết thuc: {formatDateTime(item.endTime)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center">
-                  <div className="flex items-center bg-gray-100 rounded-lg">
-                    <button
-                      onClick={() => dispatch(decreaseQuantity(item.id))}
-                      className="px-3 py-2 text-gray-600 hover:text-gray-800 focus:outline-none"
-                    >
-                      -
-                    </button>
-                    <span className="px-4 py-2 text-gray-800">
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => dispatch(increaseQuantity(item.id))}
-                      className="px-3 py-2 text-gray-600 hover:text-gray-800 focus:outline-none"
-                    >
-                      +
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => dispatch(removeFromCart(item.id))}
-                    className="ml-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 focus:outline-none"
-                  >
-                    Xoá
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 bg-white shadow-lg rounded-lg p-6 flex justify-between items-center">
-            <h3 className="text-xl font-bold text-gray-900">Tổng tiền</h3>
-            <span className="text-2xl font-bold text-gray-900">
-              {formatPrice(total)}
-            </span>
-          </div>
-          {!isEmptyObject(user) ? (
-            <div className="flex justify-center">
-              <button
-                onClick={checkOut}
-                className="mt-8 px-8 py-3 bg-primary text-white rounded-lg hover:bg-blue-600 focus:outline-none"
-              >
-                Thanh toán ngay
-              </button>
+      {/* Cart Item */}
+      <div className="flex justify-between items-center border-b pb-4 mb-4">
+        <div className="flex items-center">
+          <img
+            alt="Canon EOS R5 camera"
+            className="w-24 h-24 mr-4"
+            src="https://placehold.co/100x100"
+          />
+          <div>
+            <h2 className="text-xl font-bold">Canon EOS R5</h2>
+            <div className="flex items-center mt-2">
+              <select className="border rounded p-2 mr-2">
+                <option>Lenscap: Damage</option>
+              </select>
+              <i className="fas fa-question-circle text-teal-500"></i>
             </div>
-          ) : (
-            <p className="text-red-600 text-xl mt-4 text-center">
-              Vui lòng đăng nhập để thanh toán
-            </p>
-          )}
-        </>
-      ) : (
-        <p className="text-gray-500">Giỏ hàng chưa có sản phẩm nào.</p>
-      )}
+          </div>
+        </div>
+        <div className="flex items-center">
+          <div className="mr-8">
+            <h3 className="text-lg font-bold">Sl:</h3>
+            <input
+              className="border rounded p-2 w-16 text-center"
+              type="number"
+              value="2"
+            />
+          </div>
+          <div className="mr-8">
+            <h3 className="text-lg font-bold">Giá:</h3>
+            <p className="text-lg">$350.00</p>
+          </div>
+          {/* <div>
+                        <h3 className="text-lg font-bold">Coverage:</h3>
+                        <p className="text-lg">$48.00</p>
+                    </div> */}
+        </div>
+      </div>
+
+      {/* Order Summary */}
+      <div className="w-1/3 ml-auto p-4 border rounded-lg shadow-lg">
+        <div className="text-right text-teal-500 text-2xl font-bold mb-4">
+          $398.00 / <span className="text-lg">4 giờ</span>
+        </div>
+
+        {/* Date Selectors */}
+        <div className="flex justify-between mb-4">
+          <div>
+            <label className="block text-gray-700">Ngày bắt đầu</label>
+            <input
+              className="border rounded p-2 w-full"
+              type="date"
+              value="2024-08-12"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">Ngày kết thúc</label>
+            <input
+              className="border rounded p-2 w-full"
+              type="date"
+              value="2024-08-19"
+            />
+          </div>
+        </div>
+
+        {/* <div className="mb-4">
+                    <h3 className="text-lg font-bold mb-2">Shipping:</h3>
+                    <div className="flex items-center mb-2">
+                        <input className="mr-2" name="shipping" type="radio" /> Delivery
+                    </div>
+                    <div className="flex items-center mb-2">
+                        <input className="mr-2" name="shipping" type="radio" /> FedEx Office
+                    </div>
+                    <div className="flex items-center mb-4">
+                        <input className="mr-2" name="shipping" type="radio" /> Pickup
+                    </div>
+                    <input
+                        className="border rounded p-2 w-full mb-4"
+                        placeholder="Zip Code"
+                        type="text"
+                    />
+                    <select className="border rounded p-2 w-full">
+                        <option>Let LR Decide - $30.00</option>
+                    </select>
+                    <p className="text-gray-500 text-sm mt-2">
+                        We may choose either FedEx or UPS based on transit time and reliability.
+                    </p>
+                </div> */}
+
+        {/* <div className="mb-4">
+                    <h3 className="text-lg font-bold mb-2">Lensrentals HD:</h3>
+                    <div className="flex items-center mb-2">
+                        <i className="fas fa-shipping-fast text-teal-500 mr-2"></i>
+                        <p className="text-gray-700">
+                            Get free FedEx standard shipping for a year with Lensrentals HD.{' '}
+                            <a className="text-teal-500 hover:underline" href="#">
+                                Learn More
+                            </a>
+                        </p>
+                    </div>
+                    <div className="flex items-center">
+                        <input className="mr-2" type="checkbox" /> Enroll in HD for $99 annually
+                    </div>
+                </div> */}
+
+        {/* Summary */}
+        <div className="border-t pt-4">
+          <div className="flex justify-between mb-2">
+            <span className="text-gray-700">Giá thuê</span>
+            <span className="text-gray-700">$350.00</span>
+          </div>
+          <div className="flex justify-between mb-2">
+            <span className="text-gray-700">Phí cọc</span>
+            <span className="text-gray-700">$48.00</span>
+          </div>
+          {/* <div className="flex justify-between mb-4">
+                        <span className="text-gray-700">Shipping</span>
+                        <span className="text-gray-700">$30.00</span>
+                    </div> */}
+          <div className="flex justify-between text-lg font-bold mb-4">
+            <span>Tổng (đã bao gồm thuế)</span>
+            <span>$428.00</span>
+          </div>
+          <button className="bg-teal-500 text-white w-full py-2 rounded mb-4">
+            TIẾN HÀNH THANH TOÁN
+          </button>
+          <button className="bg-gray-200 text-gray-700 w-full py-2 rounded mb-4">
+            Tiếp tục mua sắm
+          </button>
+          <button className="bg-gray-200 text-gray-700 w-full py-2 rounded">
+            Lưu giỏ hàng này
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
