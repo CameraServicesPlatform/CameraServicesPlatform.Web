@@ -1,7 +1,7 @@
+import { Button, Form, Input, Modal } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, Input, Button, Form } from "antd";
-import { sendResetPassOTP } from "../../../api/accountApi";
 import { toast } from "react-toastify";
+import { sendResetPassOTP } from "../../../api/accountApi";
 
 const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
   const [step, setStep] = useState(1);

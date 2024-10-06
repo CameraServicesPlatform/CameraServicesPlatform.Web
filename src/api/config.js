@@ -1,8 +1,9 @@
 import axios from "axios";
-const baseUrl = "http://localhost:5275";
+// const baseUrl = "http://localhost:5275";
+const baseUrl = "http://14.225.220.108:2602";
 const config = {
   baseUrl,
-  timeout: 3000000,
+  timeout: 300000,
 };
 const api = axios.create(config);
 api.defaults.baseURL = baseUrl;
