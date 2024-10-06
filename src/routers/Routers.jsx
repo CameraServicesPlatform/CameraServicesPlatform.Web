@@ -10,6 +10,9 @@ import LoginPage from "../pages/Common/LoginPage";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
+import About from "../pages/Common/About";
+import ProductList from "../pages/Common/ProductList";
+
 
 function Routers() {
   const routing = useRoutes([
@@ -27,6 +30,8 @@ function Routers() {
         { path: "check-in", element: <CheckInPage /> },
         { path: "ve-chung-toi", element: <About /> },
         { path: "lien-he", element: <Contact /> },
+        { path: "product-list", element: <ProductList /> },
+
       ],
     },
     {

@@ -23,7 +23,7 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
     setIsLoading(true);
     const result = await sendResetPassOTP(email);
     if (result.isSuccess) {
-      toast.success("OTP has just been sent to your email");
+      toast.success("Mã OTP sẽ được gửi đến email của bạn");
       setIsLoading(false);
       setStep(2);
       setCountdown(30); // start countdown from 30 seconds
@@ -61,10 +61,10 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
     <Modal
       title={
         step === 1
-          ? "Step 1: Enter Email"
+          ? "Bước 1: Nhập Email"
           : step === 2
-          ? "Step 2: Enter Verification Code"
-          : "Step 3: Enter new password"
+          ? "Bước 2: Nhập Verification Code"
+          : "Bước 3: Nhập password mới"
       }
       open={visible}
       onCancel={onCancel}
@@ -79,11 +79,11 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
             rules={[
               {
                 required: true,
-                message: "Please input your email!",
+                message: "Nhập email của bạn!",
               },
               {
                 type: "email",
-                message: "The input is not a valid email!",
+                message: "Email không hợp lệ!",
               },
             ]}
           >
@@ -95,7 +95,7 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
             htmlType="submit"
             className=" inline-block  px-4  text-xs text-center font-semibold leading-6 text-white bg-baseGreen hover:bg-green-600 rounded-lg transition duration-200"
           >
-            Next
+            Tiếp
           </Button>
         </Form>
       )}
@@ -108,7 +108,7 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
             rules={[
               {
                 required: true,
-                message: "Please input the verification code!",
+                message: "Nhập verification code!",
               },
             ]}
           >
@@ -122,7 +122,7 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
             htmlType="submit"
             className=" inline-block  px-4  text-xs text-center font-semibold leading-6 text-white bg-baseGreen hover:bg-green-600 rounded-lg transition duration-200"
           >
-            Next
+            Tiếp
           </Button>
           <span
             style={{ position: "absolute", bottom: "2.2rem", right: "1rem" }}
@@ -130,7 +130,7 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
           >
             <Button type="link">
               {" "}
-              Resend OTP Code {countdown !== null && `(${countdown}s)`}
+              Gửi lại mã OTP {countdown !== null && `(${countdown}s)`}
             </Button>
           </span>
         </Form>
@@ -138,25 +138,25 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
       {step === 3 && (
         <Form onFinish={handleVerificationSubmit}>
           <Form.Item
-            label="New Password"
+            label="Password mới"
             name="newPassword"
             rules={[
               {
                 required: true,
-                message: "Please input your new password!",
+                message: "Nhập password mới!",
               },
               {
                 min: 8,
-                message: "Password must be at least 8 characters!",
+                message: "Password phải có ít nhất 8 ký tự!",
               },
               {
                 pattern: /[A-Z]/,
-                message: "Password must contain at least one uppercase letter!",
+                message: "Password phải chứa ít nhất 1 chữ cái viết hoa!",
               },
               {
                 pattern: /[!@#$%^&*(),.?":{}|<>]/,
                 message:
-                  'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)!',
+                  'Password phải có ít nhất 1 ký tự đặc biệt (!@#$%^&*(),.?":{}|<>)!',
               },
             ]}
           >
@@ -172,7 +172,7 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
             htmlType="submit"
             className=" inline-block  px-4  text-xs text-center font-semibold leading-6 text-white bg-baseGreen hover:bg-green-600 rounded-lg transition duration-200"
           >
-            Submit
+            Gửi
           </Button>
         </Form>
       )}
