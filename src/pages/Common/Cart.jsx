@@ -1,13 +1,10 @@
-import { message } from "antd";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createOrderWithPament } from "../../api/orderApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import {
   decreaseQuantity,
   increaseQuantity,
   removeFromCart,
-  resetCart,
 } from "../../redux/features/cartSlice";
 import { formatDateTime, formatPrice, isEmptyObject } from "../../utils/util";
 
@@ -16,39 +13,12 @@ const Cart = () => {
   const user = useSelector((state) => state.user.user || {});
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
-  const selectTotal = (state) =>
-    state.cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  const total = useSelector(selectTotal || 0);
+  // const selectTotal = (state) =>
+  //   state.cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  // const total = useSelector(selectTotal || 0);
 
   console.log(cartItems);
 
-  const checkOut = async () => {
-    setIsLoading(true);
-    const data = {
-      seatRank: cartItems.map((item) => ({
-        id: item.id,
-        quantity: item.quantity,
-      })),
-      accountId: user?.id,
-      content: "Đặt hàng ",
-    };
-    console.log(data);
-
-    const response = await createOrderWithPament(data);
-    if (response) {
-      debugger;
-      setIsLoading(false);
-    }
-    if (response.isSuccess) {
-      message.success("Đặt hàng thành công");
-      dispatch(resetCart());
-      window.location.href = response.result;
-    } else {
-      response.messages.forEach((mess) => {
-        message.error(mess);
-      });
-    }
-  };
   console.log(user);
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -72,6 +42,10 @@ const Cart = () => {
                       <h3 className="text-lg  text-gray-900">
                         {item.event?.title}
                       </h3>
+                    </div>
+                    <div className="flex ">
+                      <strong className="text-lg mr-2">Hạng vé:</strong>
+                      <h3 className="text-lg  text-gray-900">{item.name}</h3>
                     </div>
 
                     <p className="text-gray-500">
