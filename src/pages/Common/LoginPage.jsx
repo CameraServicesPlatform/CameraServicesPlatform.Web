@@ -22,35 +22,38 @@ import ForgotPasswordModal from "./Account/ForgotPasswordModal";
 import OtpModal from "./Account/OtpModal";
 
 const LoginSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Email is required"),
+  email: Yup.string().email("Email không hợp lệ").required("Bắt buộc nhập email"),
   password: Yup.string()
     .required("Password is required")
     .min(6, "Password must be at least 6 characters")
     .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+
     .matches(
       /[!@#$%^&*(),.?":{}|<>]/,
-      'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)'
+      'Password phải chứa ít nhất 1 ký tự đặc biệt (!@#$%^&*(),.?":{}|<>)'
     ),
 });
 
 const SignUpSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Email is required"),
+  email: Yup.string().email("Email không hợp lệ").required("Bắt buộc nhập email"),
   password: Yup.string()
     .required("Password is required")
     .min(6, "Password must be at least 6 characters")
     .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+
     .matches(
       /[!@#$%^&*(),.?":{}|<>]/,
-      'Password must contain at least one special character (!@#$%^&*(),.?":{}|<>)'
+      'Password phải chứa ít nhất 1 ký tự đặc biệt (!@#$%^&*(),.?":{}|<>)'
     ),
-  firstName: Yup.string().required("First name is required"),
-  lastName: Yup.string().required("Last name is required"),
+  firstName: Yup.string().required("Bắt buộc nhập tên"),
+  lastName: Yup.string().required("Bắt buộc nhập họ và tên đệm"),
   repassword: Yup.string()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
-    .required("Confirm password is required"),
+    .required("Bắt buộc nhập confirm password"),
   phoneNumber: Yup.number()
     .min(10, "Must be more than 10 characters")
     .required("Phone number is required"),
+
 });
 
 const LoginPage = () => {
