@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const Cart = () => {
+const CartRent = () => {
   return (
     <div className="p-8">
       {/* Breadcrumb */}
@@ -134,9 +135,11 @@ const Cart = () => {
             <span>Tổng (đã bao gồm thuế)</span>
             <span>$428.00</span>
           </div>
-          <button className="bg-teal-500 text-white w-full py-2 rounded mb-4">
-            TIẾN HÀNH THANH TOÁN
-          </button>
+          <Link to="/checkout">
+            <button className="bg-teal-500 text-white w-full py-2 rounded mb-4">
+              TIẾN HÀNH THANH TOÁN
+            </button>
+          </Link>
           <button className="bg-gray-200 text-gray-700 w-full py-2 rounded mb-4">
             Tiếp tục mua sắm
           </button>
@@ -149,4 +152,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default CartRent;

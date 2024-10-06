@@ -138,7 +138,7 @@ const NavBar = () => {
                   Đăng kí
                 </Link> */}
                 <Link
-                  to="/"
+                  to="/login"
                   className="hidden md:block no-underline font-semibold text-white bg-orange-500 px-5 py-3 rounded-full hover:text-gray-500">
                   Đăng kí cho thuê
                 </Link>

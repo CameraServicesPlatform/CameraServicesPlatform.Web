@@ -12,7 +12,12 @@ import CheckInPage from "../pages/PM/CheckInPage";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 import ProductList from "../pages/Common/ProductList";
 import ProductDetail from "../pages/Common/ProductDetail";
-import Cart from "../pages/Common/Cart";
+import CartRent from "../pages/Common/CartRent";
+import CartBuy from "../pages/Common/CartBuy";
+import Checkout from "../pages/Common/Checkout";
+import PaymentSuccess from "../pages/Common/PaymentSuccess";
+import PaymentFailed from "../pages/Common/PaymentFailed";
+import Account from "../pages/Common/Account";
 
 
 function Routers() {
@@ -33,7 +38,12 @@ function Routers() {
         { path: "lien-he", element: <Contact /> },
         { path: "product-list", element: <ProductList /> },
         { path: "product-detail", element: <ProductDetail /> },
-        { path: "cart", element: <Cart /> },
+        { path: "cart-rent", element: <CartRent /> },
+        { path: "cart-buy", element: <CartBuy /> },
+        { path: "checkout", element: <Checkout /> },
+        { path: "payment-success", element: <PaymentSuccess /> },
+        { path: "payment-fail", element: <PaymentFailed /> },
+        { path: "account", element: <Account /> },
 
       ],
     },
