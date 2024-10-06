@@ -165,7 +165,7 @@ const NavBar = () => {
           </div>
           <div className="hidden md:flex items-center gap-4">
             <NavLink
-              to="/"
+              to="/product-list"
               className="text-base font-semibold hover:text-gray-500 no-underline text-black"
               onClick={() => setExpand(false)}>
               Máy ảnh
@@ -189,7 +189,7 @@ const NavBar = () => {
           </div>
           <div className="hidden md:flex items-center gap-4">
             <NavLink
-              to="/"
+              to="/about"
               className="text-base font-semibold hover:text-gray-500 no-underline text-black"
               onClick={() => setExpand(false)}>
               Về chúng tôi

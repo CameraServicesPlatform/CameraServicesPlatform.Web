@@ -8,6 +8,9 @@ import LoginPage from "../pages/Common/LoginPage";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
+import About from "../pages/Common/About";
+import ProductList from "../pages/Common/ProductList";
+
 
 function Routers() {
   const routing = useRoutes([
@@ -24,7 +27,7 @@ function Routers() {
         { path: "verify-payment/*", element: <VerifyPayment /> },
         { path: "check-in", element: <CheckInPage /> },
         { path: "about", element: <About /> },
-
+        { path: "product-list", element: <ProductList /> },
       ],
     },
     {
