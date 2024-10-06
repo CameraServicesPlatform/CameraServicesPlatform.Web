@@ -2,6 +2,8 @@ import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import CommonLayout from "../layouts/CommonLayout";
 import ManagementLayOut from "../layouts/ManagementLayout/ManagementLayOut";
+import About from "../pages/Common/About";
+import Contact from "../pages/Common/Contact";
 import ErrorPage from "../pages/Common/ErrorPage";
 import Home from "../pages/Common/Home";
 import LoginPage from "../pages/Common/LoginPage";
@@ -26,8 +28,10 @@ function Routers() {
         { path: "login", element: <LoginPage /> },
         { path: "verify-payment/*", element: <VerifyPayment /> },
         { path: "check-in", element: <CheckInPage /> },
-        { path: "about", element: <About /> },
+        { path: "ve-chung-toi", element: <About /> },
+        { path: "lien-he", element: <Contact /> },
         { path: "product-list", element: <ProductList /> },
+
       ],
     },
     {
