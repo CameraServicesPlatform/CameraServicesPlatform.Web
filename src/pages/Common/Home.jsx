@@ -14,21 +14,33 @@ const Home = () => {
   const images = [
     {
       url: "https://th.bing.com/th/id/R.71e5cd9565219e6a53ef5805025b4bc6?rik=VDvYSPf2D5ty%2bw&pid=ImgRaw&r=0",
-      title: "Event 1",
-      description: "Description for Event 1",
+      title: "Nhanh tay lên!",
+      description: "Phiếu giảm giá lên tới 10%",
     },
     {
       url: "https://koala.sh/api/image/v2-3cfnz-6x48e.jpg?width=1344&height=768&dream",
-      title: "Event 2",
-      description: "Description for Event 2",
+      title: "Chạm đến sắc màu",
+      description: "Nắm trọn khoẳng khắc",
+      renderOverlay: () => null, // Add renderOverlay for consistency
     },
     {
       url: "https://th.bing.com/th/id/OIP.gm94XOQvsa0S89QhcaLtCwAAAA?w=474&h=287&rs=1&pid=ImgDetMain",
-      title: "Event 3",
-      description: "Description for Event 3",
+      title: "Nút chạm khácư ghi",
+      description: "Chỉ cần chạm nhẹ, bạn nắm trọn khoảng khắc bạn muốn ",
+      renderOverlay: () => null, // Add renderOverlay for consistency
     },
   ];
-
+  const logoSettings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+    cssEase: "linear",
+    arrows: true,
+  };
   const settings = {
     dots: true,
     infinite: true,
@@ -87,18 +99,6 @@ const Home = () => {
             </li>
           </ul>
         </nav>
-        {/* <div className="flex items-center">
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={handleSearch}
-            placeholder="Search events"
-            className="px-4 py-2 border border-gray-300 rounded-md"
-          />
-          <button className="bg-red-700 text-white px-4 py-2 rounded-md ml-2">
-            Search
-          </button>
-        </div> */}
       </header>
 
       <Slider {...settings}>
@@ -116,6 +116,201 @@ const Home = () => {
           </div>
         ))}
       </Slider>
+
+      <section className="my-8 px-4">
+        <h2 className="text-2xl font-bold mb-4">Đề xuất</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/200x200"
+              alt="Camera 1"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">Máy ảnh Canon EOS 1500D</h3>
+            <p className="text-red-500 font-bold">8.500.000đ</p>
+            <p className="text-gray-500 line-through">9.000.000đ</p>
+            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/200x200"
+              alt="Camera 2"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">Máy ảnh Sony Alpha A6000</h3>
+            <p className="text-red-500 font-bold">12.000.000đ</p>
+            <p className="text-gray-500 line-through">13.000.000đ</p>
+            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/200x200"
+              alt="Camera Lens"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">Ống kính Canon EF 50mm</h3>
+            <p className="text-red-500 font-bold">3.500.000đ</p>
+            <p className="text-gray-500 line-through">4.000.000đ</p>
+            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <h2 className="text-2xl font-bold mb-4">Các thương hiệu đồng hành </h2>
+
+      <Slider {...logoSettings}>
+        <div className="px-2">
+          {" "}
+          <img
+            src="https://upload.wikimedia.org/wikipedia/sq/thumb/5/54/Canon_logo.jpg/250px-Canon_logo.jpg"
+            alt="Canon"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+        <div className="px-2">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx0wgnyFOMBu_akXZK0Nuaf21w_cdJ8SI_Pr0FneO4essV4mSfVVzjbeuGEMW7i1f64Vk&usqp=CAU"
+            alt="Sony"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+        <div className="px-2">
+          <img
+            src="https://logos-world.net/wp-content/uploads/2023/03/Nikon-Logo-1965.png"
+            alt="Nikon"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+        <div className="px-2">
+          <img
+            src="https://logodix.com/logo/1145209.png"
+            alt="Fujifilm"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+        <div className="px-2">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSazCWo0bI2fIW0YdCpymFK-das9FQQlT8Rpw&s"
+            alt="Ricoh"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+        <div className="px-2">
+          <img
+            src="https://cnicphday.wordpress.com/wp-content/uploads/2018/10/logo-leica.png"
+            alt="Leica"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+      </Slider>
+
+      <section className="my-8 px-4 bg-gray-100 p-8">
+        <div className="flex flex-col md:flex-row items-center">
+          <div className="md:w-1/2">
+            <h2 className="text-2xl font-bold mb-4">
+              Nâng cao trải nghiệm chụp hình của bạn
+            </h2>
+            <p className="mb-4">
+              Khám phá các sản phẩm mới nhất của chúng tôi.
+            </p>
+            <button className="bg-green-500 text-white py-2 px-4 rounded">
+              Mua ngay
+            </button>
+          </div>
+          <div className="md:w-1/2">
+            <img
+              src="https://placehold.co/400x300"
+              alt="Camera promotion"
+              className="w-full"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="my-8 px-4">
+        <h2 className="text-2xl font-bold mb-4">Sản phẩm mới bật</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/200x200"
+              alt="Camera 3"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">Máy ảnh Canon EOS 200D</h3>
+            <p className="text-red-500 font-bold">10.000.000đ</p>
+            <p className="text-gray-500 line-through">11.000.000đ</p>
+            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/200x200"
+              alt="Camera 4"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">Máy ảnh Nikon D3500</h3>
+            <p className="text-red-500 font-bold">9.000.000đ</p>
+            <p className="text-gray-500 line-through">10.000.000đ</p>
+            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/200x200"
+              alt="Camera 5"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">Máy ảnh Fujifilm X-T200</h3>
+            <p className="text-red-500 font-bold">15.000.000đ</p>
+            <p className="text-gray-500 line-through">16.000.000đ</p>
+            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="my-8 px-4">
+        <h2 className="text-2xl font-bold mb-4">Có gì hot!!!</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/400x300"
+              alt="Hot product 1"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">PowerShot G7 X Mark II</h3>
+          </div>
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/400x300"
+              alt="Hot product 2"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">Bộ ống kính Fujifilm</h3>
+          </div>
+        </div>
+      </section>
     </>
   );
 };

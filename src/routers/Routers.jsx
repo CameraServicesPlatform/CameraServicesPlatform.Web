@@ -10,8 +10,8 @@ import LoginPage from "../pages/Common/LoginPage";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
-import About from "../pages/Common/About";
 import ProductList from "../pages/Common/ProductList";
+import ProductDetail from "../pages/Common/ProductDetail";
 
 
 function Routers() {
@@ -31,6 +31,7 @@ function Routers() {
         { path: "ve-chung-toi", element: <About /> },
         { path: "lien-he", element: <Contact /> },
         { path: "product-list", element: <ProductList /> },
+        { path: "product-detail", element: <ProductDetail /> },
 
       ],
     },

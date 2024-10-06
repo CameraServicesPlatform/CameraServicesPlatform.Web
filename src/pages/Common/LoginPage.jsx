@@ -24,9 +24,9 @@ import OtpModal from "./Account/OtpModal";
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Email không hợp lệ").required("Bắt buộc nhập email"),
   password: Yup.string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters")
-    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .required("Bắt buộc nhập password")
+    .min(6, "Password phải có ít nhất 6 ký tự")
+    .matches(/[A-Z]/, "Password phải chứa ít nhất 1 chữ cái viết hoa")
 
     .matches(
       /[!@#$%^&*(),.?":{}|<>]/,
@@ -37,9 +37,9 @@ const LoginSchema = Yup.object().shape({
 const SignUpSchema = Yup.object().shape({
   email: Yup.string().email("Email không hợp lệ").required("Bắt buộc nhập email"),
   password: Yup.string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters")
-    .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .required("Bắt buộc nhập password")
+    .min(6, "Password phải có ít nhất 6 ký tự")
+    .matches(/[A-Z]/, "Password phải chứa ít nhất 1 chữ cái viết hoa")
 
     .matches(
       /[!@#$%^&*(),.?":{}|<>]/,
@@ -48,11 +48,11 @@ const SignUpSchema = Yup.object().shape({
   firstName: Yup.string().required("Bắt buộc nhập tên"),
   lastName: Yup.string().required("Bắt buộc nhập họ và tên đệm"),
   repassword: Yup.string()
-    .oneOf([Yup.ref("password"), null], "Passwords must match")
+    .oneOf([Yup.ref("password"), null], "Mật khẩu phải khớp")
     .required("Bắt buộc nhập confirm password"),
   phoneNumber: Yup.number()
-    .min(10, "Must be more than 10 characters")
-    .required("Phone number is required"),
+    .min(10, "Phải nhiều hơn 10 ký tự")
+    .required("Bắt buộc nhập số điện thoại"),
 
 });
 
@@ -349,19 +349,19 @@ const LoginPage = () => {
                       setEmail(values.email);
                       setIsModalVisible(true);
                       message.success(
-                        "Registration successful! Please verify email."
+                        "Đăng ký thành công! Xác thực email của bạn."
                       );
                     } else {
                       console.error(
-                        "Registration failed:",
+                        "Đăng ký không thành công:",
                         result ? result.message : "Unknown error"
                       );
-                      message.error("Registration failed. Please try again.");
+                      message.error("Đăng ký không thành công. Vui lòng thử lại.");
 
                     }
                   } catch (error) {
                     console.error("Error signing up:", error);
-                    message.error("An error occurred. Please try again later.");
+                    message.error("Đã xảy ra lỗi. Vui lòng thử lại sau.");
                   } finally {
                     setIsLoading(false);
                   }
@@ -483,16 +483,16 @@ const LoginPage = () => {
             </div>
             <div className="relative">
               <img
-                src={loginImage}
+                src="/src/images/login_register.jpg"
                 alt="img"
                 className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
               />
               <div className="absolute hidden bottom-10 right-6 p-6 bg-white bg-opacity-20 backdrop-blur-sm rounded drop-shadow-lg md:block">
                 <span className="text-black italic text-xl">
-                  We've been using Untitle to kick
+                  Camera-Services.com
                   <br />
-                  start every new project and can't <br />
-                  imagine working without it.
+                  Đem lại cho bạn trải nghiệm sản <br />
+                  phẩm vô cùng tiện lợi.
                 </span>
 
               </div>

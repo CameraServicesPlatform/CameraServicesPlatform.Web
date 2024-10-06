@@ -1,121 +1,292 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import 'tailwindcss/tailwind.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
-function ProductList() {
-  // Dữ liệu mẫu sản phẩm
-  const products = [
-    { id: 1, name: 'Sản phẩm 1', price: 500000, status: 'for rent', type: 'type1', brand: 'brand1', image: 'link-to-image-1' },
-    { id: 2, name: 'Sản phẩm 2', price: 300000, status: 'for buy', type: 'type2', brand: 'brand2', image: 'link-to-image-2' },
-    { id: 3, name: 'Sản phẩm 3', price: 700000, status: 'for rent', type: 'type1', brand: 'brand3', image: 'link-to-image-3' },
-    { id: 4, name: 'Sản phẩm 4', price: 250000, status: 'for buy', type: 'type3', brand: 'brand1', image: 'link-to-image-4' },
-  ];
-
-  // State cho các bộ lọc
-  const [filters, setFilters] = useState({
-    priceRange: 'all',
-    status: 'all',
-    type: 'all',
-    brand: 'all',
-  });
-
-  // Hàm thay đổi bộ lọc
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name]: value,
-    }));
-  };
-
-  // Lọc sản phẩm dựa trên bộ lọc
-  const filteredProducts = products.filter((product) => {
-    const { priceRange, status, type, brand } = filters;
-    return (
-      (priceRange === 'all' || 
-       (priceRange === 'low' && product.price < 400000) || 
-       (priceRange === 'medium' && product.price >= 400000 && product.price <= 600000) || 
-       (priceRange === 'high' && product.price > 600000)) &&
-      (status === 'all' || product.status === status) &&
-      (type === 'all' || product.type === type) &&
-      (brand === 'all' || product.brand === brand)
-    );
-  });
-
+const ProductList = () => {
   return (
-    <div className="container mx-auto p-6 flex">
-      {/* Cột filter */}
-      <div className="w-1/4 pr-6">
-        <h2 className="text-2xl font-bold mb-4">Lọc sản phẩm</h2>
-        
-        {/* Lọc theo giá */}
-        <div className="mb-6">
-          <h3 className="font-semibold mb-2">Giá</h3>
-          <select name="priceRange" value={filters.priceRange} onChange={handleFilterChange} className="w-full p-2 border rounded">
-            <option value="all">Tất cả</option>
-            <option value="low">Dưới 400,000 VND</option>
-            <option value="medium">400,000 - 600,000 VND</option>
-            <option value="high">Trên 600,000 VND</option>
-          </select>
-        </div>
-
-        {/* Lọc theo tình trạng */}
-        <div className="mb-6">
-          <h3 className="font-semibold mb-2">Tình trạng</h3>
-          <select name="status" value={filters.status} onChange={handleFilterChange} className="w-full p-2 border rounded">
-            <option value="all">Tất cả</option>
-            <option value="for rent">Cho thuê</option>
-            <option value="for buy">Bán</option>
-          </select>
-        </div>
-
-        {/* Lọc theo loại sản phẩm */}
-        <div className="mb-6">
-          <h3 className="font-semibold mb-2">Loại sản phẩm</h3>
-          <select name="type" value={filters.type} onChange={handleFilterChange} className="w-full p-2 border rounded">
-            <option value="all">Tất cả</option>
-            <option value="type1">Loại 1</option>
-            <option value="type2">Loại 2</option>
-            <option value="type3">Loại 3</option>
-          </select>
-        </div>
-
-        {/* Lọc theo thương hiệu */}
-        <div className="mb-6">
-          <h3 className="font-semibold mb-2">Thương hiệu</h3>
-          <select name="brand" value={filters.brand} onChange={handleFilterChange} className="w-full p-2 border rounded">
-            <option value="all">Tất cả</option>
-            <option value="brand1">Thương hiệu 1</option>
-            <option value="brand2">Thương hiệu 2</option>
-            <option value="brand3">Thương hiệu 3</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Danh sách sản phẩm */}
-      <div className="w-3/4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <div key={product.id} className="border rounded-lg shadow-lg p-4">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-48 object-cover rounded-t-lg mb-4"
-              />
-              <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-              <p className="text-lg text-gray-700 mb-4">{product.price.toLocaleString('vi-VN')} VND</p>
-              <div className="flex justify-between items-center">
-                {/* <button className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                  Thêm vào giỏ hàng
-                </button> */}
-                <button className="text-blue-500 hover:underline">Xem chi tiết</button>
-              </div>
+    <div className="container mx-auto p-4">
+      <div className="flex">
+        <div className="w-1/4 pr-4 filter-section">
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h2 className="text-lg font-bold mb-4">
+              Filters:
+            </h2>
+            <div className="mb-4">
+              <h3 className="font-semibold">
+                Refine By
+              </h3>
+              <ul>
+                <li>
+                  <input type="checkbox" />
+                  Hide out of stock
+                </li>
+              </ul>
             </div>
-          ))
-        ) : (
-          <p className="text-center text-gray-500 col-span-4">Không có sản phẩm nào.</p>
-        )}
+            <div className="mb-4">
+              <h3 className="font-semibold">
+                For Rent
+              </h3>
+              <ul>
+                <li>
+                  <input type="checkbox" />
+                  Yes (48)
+                </li>
+              </ul>
+            </div>
+            <div className="mb-4">
+              <h3 className="font-semibold">
+                For Sale
+              </h3>
+              <ul>
+                <li>
+                  <input type="checkbox" />
+                  Yes (20)
+                </li>
+              </ul>
+            </div>
+            <div className="mb-4">
+              <h3 className="font-semibold">
+                Recommended For
+              </h3>
+              <ul>
+                <li>
+                  <input type="checkbox" />
+                  Staff Picks (1)
+                </li>
+              </ul>
+            </div>
+            <div className="mb-4">
+              <h3 className="font-semibold">
+                Brand
+              </h3>
+              <ul>
+                <li>
+                  <input type="checkbox" />
+                  Canon (148)
+                </li>
+              </ul>
+            </div>
+            <div className="mb-4">
+              <h3 className="font-semibold">
+                Item Type
+              </h3>
+              <ul>
+                <li>
+                  <input type="checkbox" />
+                  Camera (148)
+                </li>
+                <li>
+                  <input type="checkbox" />
+                  Packages (1)
+                </li>
+              </ul>
+            </div>
+            <div className="mb-4">
+              <h3 className="font-semibold">
+                Mount
+              </h3>
+              <ul>
+                <li>
+                  <input type="checkbox" />
+                  Canon EF (37)
+                </li>
+                <li>
+                  <input type="checkbox" />
+                  Canon EF-M (2)
+                </li>
+                <li>
+                  <input type="checkbox" />
+                  Canon RF (24)
+                </li>
+                <li>
+                  <input type="checkbox" />
+                  Fixed Lens (7)
+                </li>
+              </ul>
+            </div>
+            <div className="mb-4">
+              <h3 className="font-semibold">
+                Camcorder Type
+              </h3>
+              <ul>
+                <li>
+                  <input type="checkbox" />
+                  Cinema (1)
+                </li>
+              </ul>
+            </div>
+            <div className="mb-4">
+              <h3 className="font-semibold">
+                Camera Mount
+              </h3>
+              <ul>
+                <li>
+                  <input type="checkbox" />
+                  Canon EF (14)
+                </li>
+                <li>
+                  <input type="checkbox" />
+                  Canon EF-M (3)
+                </li>
+                <li>
+                  <input type="checkbox" />
+                  Canon RF (1)
+                </li>
+              </ul>
+            </div>
+            <div className="mb-4">
+              <h3 className="font-semibold">
+                Camera Type
+              </h3>
+              <ul>
+                <li>
+                  <input type="checkbox" />
+                  Cinema (1)
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div className="w-3/4 grid grid-cols-3 gap-4">
+          <div className="product-card">
+            <img alt="Canon EOS R6" src="https://placehold.co/150x150" />
+            <h3 className="font-semibold">
+              <Link to="/product-detail" className="text-blue-500 hover:underline">
+                Canon EOS R6
+              </Link>
+            </h3>
+            <p>
+              $119.00 for 7 days
+            </p>
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              ADD TO CART
+            </button>
+          </div>
+
+          <div className="product-card">
+            <img alt="Canon EOS R5 C Mirrorless Cinema Camera" src="https://placehold.co/150x150" />
+            <h3 className="font-semibold">
+              <Link to="/product-detail" className="text-blue-500 hover:underline">
+              Canon EOS R5 C Mirrorless
+              </Link>
+            </h3>
+            <p>
+              $216.00 for 7 days
+            </p>
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              ADD TO CART
+            </button>
+          </div>
+
+          <div className="product-card">
+            <img alt="Canon 6D Mark II" src="https://placehold.co/150x150" />
+            <h3 className="font-semibold">
+              <Link to="/product-detail" className="text-blue-500 hover:underline">
+              Canon 6D Mark II
+              </Link>
+            </h3>
+            <p>
+              $62.00 for 7 days
+            </p>
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              ADD TO CART
+            </button>
+          </div>
+
+          <div className="product-card">
+            <img alt="Canon EOS R7" src="https://placehold.co/150x150" />
+            <h3 className="font-semibold">
+              <Link to="/product-detail" className="text-blue-500 hover:underline">
+              Canon EOS R7
+              </Link>
+            </h3>
+            <p>
+              $81.00 for 7 days
+            </p>
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              ADD TO CART
+            </button>
+          </div>
+
+          <div className="product-card">
+            <img alt="Canon PowerShot G7 X Mark III (Black)" src="https://placehold.co/150x150" />
+            <h3 className="font-semibold">
+              <Link to="/product-detail" className="text-blue-500 hover:underline">
+              Canon PowerShot G7 X Mark III
+              </Link>
+            </h3>
+            <p>
+              $74.00 for 7 days
+            </p>
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              ADD TO CART
+            </button>
+          </div>
+
+          <div className="product-card">
+            <img alt="Canon EOS R" src="https://placehold.co/150x150" />
+            <h3 className="font-semibold">
+              <Link to="/product-detail" className="text-blue-500 hover:underline">
+                Canon EOS R
+              </Link>
+            </h3>
+            <p>
+              $85.00 for 7 days
+            </p>
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              ADD TO CART
+            </button>
+          </div>
+
+          <div className="product-card">
+            <img alt="Canon EOS R7" src="https://placehold.co/150x150" />
+            <h3 className="font-semibold">
+              <Link to="/product-detail" className="text-blue-500 hover:underline">
+                Canon EOS R
+              </Link>
+            </h3>
+            <p>
+              $81.00 for 7 days
+            </p>
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              ADD TO CART
+            </button>
+          </div>
+
+          <div className="product-card">
+            <img alt="Canon PowerShot G7 X Mark III (Black)" src="https://placehold.co/150x150" />
+            <h3 className="font-semibold">
+              <Link to="/product-detail" className="text-blue-500 hover:underline">
+                Canon EOS R
+              </Link>
+            </h3>
+            <p>
+              $74.00 for 7 days
+            </p>
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              ADD TO CART
+            </button>
+          </div>
+
+          <div className="product-card">
+            <img alt="Canon EOS R" src="https://placehold.co/150x150" />
+            <h3 className="font-semibold">
+              <Link to="/product-detail" className="text-blue-500 hover:underline">
+                Canon EOS R
+              </Link>
+            </h3>
+            <p>
+              $85.00 for 7 days
+            </p>
+            <button className="bg-green-500 text-white px-4 py-2 rounded">
+              ADD TO CART
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default ProductList;

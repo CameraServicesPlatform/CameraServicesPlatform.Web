@@ -18,6 +18,8 @@ AOS.init({
 });
 import { registerables } from "chart.js";
 import Chart from "chart.js/auto";
+
+
 Chart.register(...registerables);
 
 function App() {
@@ -41,7 +43,6 @@ function App() {
                   pauseOnHover
                   theme="light"
                 />
-                {/* Same as */}
                 <ToastContainer />
               </AuthProvider>
             </BrowserRouter>
