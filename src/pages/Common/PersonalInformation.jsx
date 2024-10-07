@@ -1,3 +1,4 @@
+import { message } from "antd";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -5,11 +6,10 @@ import {
   getAllOrderDetailsByOrderId,
   purchaseOrder,
 } from "../../api/orderApi";
+import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import { orderLabels } from "../../utils/constant";
 import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
-import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
-import { message } from "antd";
 const PersonalInformation = () => {
   const { user } = useSelector((state) => state.user || {});
   const [orders, setOrders] = useState([]);

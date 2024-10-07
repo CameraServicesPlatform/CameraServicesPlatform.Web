@@ -6,24 +6,9 @@ export const loginWithEmailPass = async (email, password) => {
       email,
       password,
     });
-    console.log("Login response:", res.data); // Inspect the response
-
-    // Check if the structure matches your expectations
-    if (res.data && res.data.isSuccess) {
-      return res.data; // Return the entire response object
-    } else {
-      console.error("Unexpected response structure:", res.data);
-      return {
-        isSuccess: false,
-        messages: ["Unexpected response from server"],
-      }; // Return a more explicit error
-    }
+    return res.data;
   } catch (err) {
-    console.error("Login error:", err);
-    return {
-      isSuccess: false,
-      messages: [err.message || "An error occurred during login"],
-    }; // Ensure there's a message to display
+    return null;
   }
 };
 
@@ -165,15 +150,6 @@ export const assignRoleToUser = async (userId, roleName) => {
   try {
     const res = await api.post(
       `/account/assign-role?userId=${userId}&roleName=${roleName}`
-    );
-    return res.data;
-  } catch (err) {}
-};
-
-export const assignUserIntoOrganization = async (userId, organizationId) => {
-  try {
-    const res = await api.post(
-      `/account/assign-user-into-organization?userId=${userId}&organizationId=${organizationId}`
     );
     return res.data;
   } catch (err) {}

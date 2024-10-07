@@ -21,7 +21,7 @@ const NavBar = () => {
     };
     window.addEventListener("scroll", scrollHandler);
     return () => window.removeEventListener("scroll", scrollHandler);
-  }, [roleName]);
+  }, []);
 
   const handleLogOut = () => {
     localStorage.removeItem("accessToken");
@@ -58,14 +58,14 @@ const NavBar = () => {
               </li>
             </NavLink>
           )}
-          {roleName === "isStaff" && (
+          {roleName === "STAFF" && (
             <NavLink to="/staff">
               <li>
                 <span>Trang quản trị</span>
               </li>
             </NavLink>
           )}
-          {roleName === "isShop" && (
+          {roleName === "SHOP" && (
             <NavLink to="/management-shop">
               <li>
                 <span>Trang quản trị</span>

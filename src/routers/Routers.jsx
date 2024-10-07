@@ -3,10 +3,13 @@ import { Navigate, useRoutes } from "react-router-dom";
 import CommonLayout from "../layouts/CommonLayout";
 import ManagementLayOut from "../layouts/ManagementLayout/ManagementLayOut";
 import About from "../pages/Common/About";
+import Cart from "../pages/Common/Cart";
 import Contact from "../pages/Common/Contact";
 import ErrorPage from "../pages/Common/ErrorPage";
 import Home from "../pages/Common/Home";
 import LoginPage from "../pages/Common/LoginPage";
+import PersonalInformation from "../pages/Common/PersonalInformation";
+import Policy from "../pages/Common/Policy";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
@@ -29,6 +32,7 @@ function Routers() {
         { path: "lien-he", element: <Contact /> },
         { path: "chinh-sach", element: <Policy /> },
         { path: "gio-hang", element: <Cart /> },
+        { path: "personal-information", element: <PersonalInformation /> },
       ],
     },
     {
@@ -44,7 +48,6 @@ function Routers() {
           path: "dashboard",
           element: <div>Dashboard</div>,
         },
-
         {
           path: "users",
           element: <div>Users</div>,
@@ -56,13 +59,15 @@ function Routers() {
       ],
     },
     {
-      path: "pm",
+      path: "supplier",
       element: <ManagementLayOut />,
       children: [
         { index: true, element: <Navigate to="create-event" replace /> },
       ],
     },
   ]);
+
   return routing;
 }
+
 export default Routers;
