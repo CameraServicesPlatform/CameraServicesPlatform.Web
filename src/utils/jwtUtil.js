@@ -1,10 +1,7 @@
 import { jwtDecode } from "jwt-decode";
 
 const assignRole = (userRoles) => {
-  // userRoles is an array of role objects, so check if it includes "ADMIN"
-  const roleNames = Array.isArray(userRoles)
-    ? userRoles.map((role) => role.name) // Extract role names from the role array
-    : [userRoles.name]; // Adjust for single string case if necessary
+  const roleNames = Array.isArray(userRoles) ? userRoles : [userRoles];
 
   if (roleNames.includes("ADMIN")) {
     return "ADMIN";
@@ -19,13 +16,15 @@ const assignRole = (userRoles) => {
 
 export const decode = (token) => {
   const decoded = jwtDecode(token);
+  console.log(decoded); // In ra để kiểm tra token chứa những thông tin gì
+
   const roles =
     decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-  const role = assignRole(roles);
+  const mainRole = assignRole(roles);
 
   return {
     accountId: decoded.AccountId,
     expire: decoded.exp,
-    role: role,
+    mainRole: mainRole, // Sử dụng mainRole thay vì role
   };
 };

@@ -65,21 +65,11 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const handleOtpSubmit = async (otp) => {
     console.log("Submitted OTP:", otp);
-    try {
-      const result = await activeAccount(email, otp);
-      console.log("Result from activeAccount:", result);
-      if (result && result.isSuccess) {
-        message.success("Verify successfully");
-        setIsModalVisible(false);
-        setIsSignUp(false);
-      } else {
-        message.error(
-          result.error || "Verification failed. Please check your OTP."
-        );
-      }
-    } catch (error) {
-      console.error("Error during OTP submission:", error);
-      message.error("An error occurred during verification.");
+    const result = await activeAccount(email, otp);
+    if (result.isSuccess) {
+      message.success("Verify successfully");
+      setIsModalVisible(false);
+      setIsSignUp(false);
     }
   };
 
