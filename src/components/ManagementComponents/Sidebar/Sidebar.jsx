@@ -22,7 +22,7 @@ const SideBar = () => {
   const location = useLocation();
 
   const menuItems = {
-    ORGANIZER: [
+    SUPPLIER: [
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
       { name: "Tổng Quan", link: "sponsor-overview", icon: <FaHome /> },
       {
@@ -85,7 +85,7 @@ const SideBar = () => {
     //     icon: <FaCalendarPlus />,
     //   },
     // ],
-    SPONSOR: [
+    STAFF: [
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
       { name: "Tổng Quan", link: "sponsor-overview", icon: <FaHome /> },
 

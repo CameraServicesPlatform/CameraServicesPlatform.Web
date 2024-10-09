@@ -25,3 +25,4 @@ const ProtectedRouteAdmin = ({ children }) => {
     return <Navigate to="/" replace />;
   }
 };
+export default ProtectedRouteAdmin;

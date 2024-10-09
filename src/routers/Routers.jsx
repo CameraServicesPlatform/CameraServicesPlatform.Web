@@ -4,6 +4,7 @@ import CommonLayout from "../layouts/CommonLayout";
 import ManagementLayOut from "../layouts/ManagementLayout/ManagementLayOut";
 import About from "../pages/Common/About";
 import Cart from "../pages/Common/Cart";
+import ManageUser from "../pages/Common/CommonManager/ManageUser";
 import Contact from "../pages/Common/Contact";
 import ErrorPage from "../pages/Common/ErrorPage";
 import Home from "../pages/Common/Home";
@@ -13,7 +14,6 @@ import Policy from "../pages/Common/Policy";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
-
 function Routers() {
   const routing = useRoutes([
     {
@@ -49,8 +49,8 @@ function Routers() {
           element: <div>Dashboard</div>,
         },
         {
-          path: "users",
-          element: <div>Users</div>,
+          path: "manage-user",
+          element: <ManageUser />,
         },
         {
           path: "settings",
