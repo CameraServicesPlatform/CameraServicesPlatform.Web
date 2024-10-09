@@ -65,8 +65,8 @@ const NavBar = () => {
               </li>
             </NavLink>
           )}
-          {roleName === "SHOP" && (
-            <NavLink to="/management-shop">
+          {roleName === "SUPPLIER" && (
+            <NavLink to="/supllier">
               <li>
                 <span>Trang quản trị</span>
               </li>

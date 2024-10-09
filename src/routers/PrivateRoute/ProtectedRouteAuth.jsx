@@ -8,7 +8,11 @@ const ProtectedRouteAuth = ({ children }) => {
     return <Navigate to="/login" replace />;
   } else {
     const role = decode(localStorage.getItem("accessToken"));
-    if (role.role !== "STAFF" && role.role != "ADMIN") {
+    if (
+      role.role !== "STAFF" &&
+      role.role != "ADMIN" &&
+      role.role != "SUPPLIER"
+    ) {
       toast.error("Bạn cần phải đăng nhập để thực hiện thao tác này!!");
       return <Navigate to="/login" replace />;
     }

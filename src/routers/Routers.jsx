@@ -5,6 +5,7 @@ import ManagementLayOut from "../layouts/ManagementLayout/ManagementLayOut";
 import About from "../pages/Common/About";
 import Cart from "../pages/Common/Cart";
 import ManageUser from "../pages/Common/CommonManager/ManageUser";
+import RegisterSupplier from "../pages/Common/CommonManager/RegisterSupplier";
 import Contact from "../pages/Common/Contact";
 import ErrorPage from "../pages/Common/ErrorPage";
 import Home from "../pages/Common/Home";
@@ -13,6 +14,7 @@ import PersonalInformation from "../pages/Common/PersonalInformation";
 import Policy from "../pages/Common/Policy";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import CheckInPage from "../pages/PM/CheckInPage";
+import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 function Routers() {
   const routing = useRoutes([
@@ -33,6 +35,7 @@ function Routers() {
         { path: "chinh-sach", element: <Policy /> },
         { path: "gio-hang", element: <Cart /> },
         { path: "personal-information", element: <PersonalInformation /> },
+        { path: "register-supplier", element: <RegisterSupplier /> },
       ],
     },
     {
@@ -62,7 +65,20 @@ function Routers() {
       path: "supplier",
       element: <ManagementLayOut />,
       children: [
-        { index: true, element: <Navigate to="create-event" replace /> },
+        { index: true, element: <Navigate to="dashboard" replace /> },
+        {
+          path: "dashboard",
+          element: <div>Dashboard</div>,
+        },
+      ],
+    },
+    {
+      path: "staff",
+      element: <ManagementLayOut />,
+      children: [
+        { index: true, element: <Navigate to="dashboard" replace /> },
+        { path: "dashboard", element: <div>Dashboard</div> },
+        { path: "manage-category", element: <ManageCategory /> },
       ],
     },
   ]);

@@ -1,9 +1,9 @@
-import { Button, message } from "antd";
+import { message } from "antd";
 import { useEffect, useState } from "react";
 import { getAllAccount } from "../../../api/accountApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
-import AssignUserModal from "../CommonManager/AssignUserModal ";
 import AssignRoleForm from "./AssignRoleForm";
+import AssignUserModal from "./AssignUserModal ";
 const ManageUser = () => {
   const [accounts, setAccounts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -123,7 +123,7 @@ const ManageUser = () => {
               <th className="text-center">Số điện thoại</th>
               <th className="text-center">Quyền</th>
               <th className="text-center">Trạng thái </th>
-              <th>Hành động</th>
+              {/* <th>Hành động</th> */}
             </tr>
           </thead>
           <tbody>
@@ -150,11 +150,11 @@ const ManageUser = () => {
                     )}
                   </td>
                   {/* <td>{renderPermissionButtons(item.role)}</td> */}
-                  <td>
+                  {/* <td>
                     <Button onClick={() => showModal(item.id)}>
                       Assign User to Supplier
                     </Button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
           </tbody>

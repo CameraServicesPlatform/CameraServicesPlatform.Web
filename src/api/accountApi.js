@@ -37,6 +37,36 @@ export const createAccount = async (
   }
 };
 
+export const registerSupplier = async (
+  email,
+  password,
+  firstName,
+  lastName,
+  supplierName,
+  supplierDescription,
+  supplierAddress,
+  contactNumber,
+  phoneNumber
+) => {
+  try {
+    const res = await api.post("/account/register/supplier", {
+      email,
+      password,
+      firstName,
+      lastName,
+      supplierName,
+      supplierDescription,
+      supplierAddress,
+      contactNumber,
+      phoneNumber,
+    });
+    return res.data;
+  } catch (err) {
+    console.error("Error registering supplier:", err);
+    return null;
+  }
+};
+
 export const sendOTP = async (email) => {
   try {
     const res = await api.post(`/account/send-email-for-activeCode/${email}`);
@@ -48,8 +78,11 @@ export const sendOTP = async (email) => {
 
 export const activeAccount = async (email, code) => {
   try {
+    // Correctly format the URL to include the email and verifyCode in the path
     const res = await api.put(
-      `/account/active-account?email=${email}&verifyCode=${code}`
+      `/account/active-account/${encodeURIComponent(
+        email
+      )}/${encodeURIComponent(code)}`
     );
     return res.data;
   } catch (err) {
@@ -144,7 +177,6 @@ export const updateAccount = async (data) => {
     return null;
   }
 };
-// Function to assign a role to a user
 
 export const assignRoleToUser = async (userId, roleName) => {
   try {
