@@ -1,6 +1,6 @@
 import { Button, Form, Input, message } from "antd";
 import React, { useState } from "react";
-import { registerSupplier } from "../../../api/accountApi";
+import { registerSupplier } from "../../api/accountApi";
 
 const RegisterSupplier = () => {
   const [loading, setLoading] = useState(false);

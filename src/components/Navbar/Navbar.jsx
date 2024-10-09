@@ -138,13 +138,13 @@ const NavBar = () => {
           Liên hệ
         </NavLink>
         <NavLink
-          to="/san-pham-cho-thue"
+          to="/product-for-rent"
           className="text-black hover:text-gray-500 no-underline"
         >
           Sản phẩm cho thuê
         </NavLink>
         <NavLink
-          to="/san-pham-mua"
+          to="/product-for-buy"
           className="text-black hover:text-gray-500 no-underline"
         >
           Sản phẩm mua

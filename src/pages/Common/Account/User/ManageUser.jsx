@@ -1,7 +1,7 @@
 import { message } from "antd";
 import { useEffect, useState } from "react";
-import { getAllAccount } from "../../../api/accountApi";
-import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
+import { getAllAccount } from "../../../../api/accountApi";
+import LoadingComponent from "../../../../components/LoadingComponent/LoadingComponent";
 import AssignRoleForm from "./AssignRoleForm";
 import AssignUserModal from "./AssignUserModal ";
 const ManageUser = () => {

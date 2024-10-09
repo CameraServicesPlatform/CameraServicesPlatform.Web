@@ -3,16 +3,17 @@ import { Navigate, useRoutes } from "react-router-dom";
 import CommonLayout from "../layouts/CommonLayout";
 import ManagementLayOut from "../layouts/ManagementLayout/ManagementLayOut";
 import About from "../pages/Common/About";
+import ManageUser from "../pages/Common/Account/User/ManageUser";
 import Cart from "../pages/Common/Cart";
-import ManageUser from "../pages/Common/CommonManager/ManageUser";
-import RegisterSupplier from "../pages/Common/CommonManager/RegisterSupplier";
 import Contact from "../pages/Common/Contact";
 import ErrorPage from "../pages/Common/ErrorPage";
 import Home from "../pages/Common/Home";
 import LoginPage from "../pages/Common/LoginPage";
 import PersonalInformation from "../pages/Common/PersonalInformation";
 import Policy from "../pages/Common/Policy";
+import ProductPage from "../pages/Common/Product/ProductPage";
 import VerifyPayment from "../pages/Common/VerifyPayment";
+import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
@@ -36,6 +37,9 @@ function Routers() {
         { path: "gio-hang", element: <Cart /> },
         { path: "personal-information", element: <PersonalInformation /> },
         { path: "register-supplier", element: <RegisterSupplier /> },
+        { path: "product", element: <ProductPage /> },
+        { path: "product-for-rent", element: <ProductPage /> },
+        { path: "product-for-buy", element: <ProductPage /> },
       ],
     },
     {

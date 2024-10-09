@@ -1,6 +1,6 @@
 import { Button, Form, message, Modal, Select, Spin } from "antd";
 import React, { useState } from "react";
-import { assignRoleToUser } from "../../../api/accountApi";
+import { assignRoleToUser } from "../../../../api/accountApi";
 
 const { Option } = Select;
 
