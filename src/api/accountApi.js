@@ -6,24 +6,9 @@ export const loginWithEmailPass = async (email, password) => {
       email,
       password,
     });
-    console.log("Login response:", res.data); // Inspect the response
-
-    // Check if the structure matches your expectations
-    if (res.data && res.data.isSuccess) {
-      return res.data; // Return the entire response object
-    } else {
-      console.error("Unexpected response structure:", res.data);
-      return {
-        isSuccess: false,
-        messages: ["Unexpected response from server"],
-      }; // Return a more explicit error
-    }
+    return res.data;
   } catch (err) {
-    console.error("Login error:", err);
-    return {
-      isSuccess: false,
-      messages: [err.message || "An error occurred during login"],
-    }; // Ensure there's a message to display
+    return null;
   }
 };
 
@@ -52,6 +37,36 @@ export const createAccount = async (
   }
 };
 
+export const registerSupplier = async (
+  email,
+  password,
+  firstName,
+  lastName,
+  supplierName,
+  supplierDescription,
+  supplierAddress,
+  contactNumber,
+  phoneNumber
+) => {
+  try {
+    const res = await api.post("/account/register/supplier", {
+      email,
+      password,
+      firstName,
+      lastName,
+      supplierName,
+      supplierDescription,
+      supplierAddress,
+      contactNumber,
+      phoneNumber,
+    });
+    return res.data;
+  } catch (err) {
+    console.error("Error registering supplier:", err);
+    return null;
+  }
+};
+
 export const sendOTP = async (email) => {
   try {
     const res = await api.post(`/account/send-email-for-activeCode/${email}`);
@@ -63,8 +78,11 @@ export const sendOTP = async (email) => {
 
 export const activeAccount = async (email, code) => {
   try {
+    // Correctly format the URL to include the email and verifyCode in the path
     const res = await api.put(
-      `/account/active-account?email=${email}&verifyCode=${code}`
+      `/account/active-account/${encodeURIComponent(
+        email
+      )}/${encodeURIComponent(code)}`
     );
     return res.data;
   } catch (err) {
@@ -159,21 +177,11 @@ export const updateAccount = async (data) => {
     return null;
   }
 };
-// Function to assign a role to a user
 
 export const assignRoleToUser = async (userId, roleName) => {
   try {
     const res = await api.post(
       `/account/assign-role?userId=${userId}&roleName=${roleName}`
-    );
-    return res.data;
-  } catch (err) {}
-};
-
-export const assignUserIntoOrganization = async (userId, organizationId) => {
-  try {
-    const res = await api.post(
-      `/account/assign-user-into-organization?userId=${userId}&organizationId=${organizationId}`
     );
     return res.data;
   } catch (err) {}

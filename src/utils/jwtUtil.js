@@ -1,29 +1,30 @@
 import { jwtDecode } from "jwt-decode";
-const assignRole = (userRole) => {
-  if (userRole.includes("ADMIN")) {
-    return "isAdmin";
-  } else if (userRole.includes("STAFF")) {
-    return "isStaff";
-  } else if (userRole.includes("SHOP")) {
-    return "isShop";
-  } else if (
-    !userRole.includes("ADMIN") &&
-    !userRole.includes("STAFF") &&
-    !userRole.includes("SHOP")
-  ) {
-    return "isUser";
+
+const assignRole = (userRoles) => {
+  const roleNames = Array.isArray(userRoles) ? userRoles : [userRoles];
+
+  if (roleNames.includes("ADMIN")) {
+    return "ADMIN";
+  } else if (roleNames.includes("STAFF")) {
+    return "STAFF";
+  } else if (roleNames.includes("SUPPLIER")) {
+    return "SUPPLIER";
+  } else {
+    return "MEMBER";
   }
 };
 
 export const decode = (token) => {
   const decoded = jwtDecode(token);
-  const role =
+  console.log(decoded); // In ra để kiểm tra token chứa những thông tin gì
+
+  const roles =
     decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-  const roleName = assignRole(role);
+  const mainRole = assignRole(roles);
 
   return {
     accountId: decoded.AccountId,
     expire: decoded.exp,
-    role: roleName,
+    mainRole: mainRole, // Sử dụng mainRole thay vì role
   };
 };

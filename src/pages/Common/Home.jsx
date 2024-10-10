@@ -1,33 +1,31 @@
-import { useEffect, useState } from "react";
+import { Card, Layout, Typography } from "antd";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Slider from "react-slick";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-import { calculateCountdown } from "../../utils/util";
+import { getAllProduct } from "../../api/productApi";
+import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
+
+const { Header, Content } = Layout;
+const { Title, Paragraph } = Typography;
 
 const Home = () => {
   const navigate = useNavigate();
-  const [events, setEvents] = useState([]);
-  const [countdowns, setCountdowns] = useState({});
-  const [searchQuery, setSearchQuery] = useState(""); // Add a state for search query
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const images = [
-    {
-      url: "https://th.bing.com/th/id/R.71e5cd9565219e6a53ef5805025b4bc6?rik=VDvYSPf2D5ty%2bw&pid=ImgRaw&r=0",
-      title: "Event 1",
-      description: "Description for Event 1",
-    },
-    {
-      url: "https://koala.sh/api/image/v2-3cfnz-6x48e.jpg?width=1344&height=768&dream",
-      title: "Event 2",
-      description: "Description for Event 2",
-    },
-    {
-      url: "https://th.bing.com/th/id/OIP.gm94XOQvsa0S89QhcaLtCwAAAA?w=474&h=287&rs=1&pid=ImgDetMain",
-      title: "Event 3",
-      description: "Description for Event 3",
-    },
-  ];
+  const logoSettings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+    cssEase: "linear",
+    arrows: true,
+  };
 
   const settings = {
     dots: true,
@@ -39,30 +37,28 @@ const Home = () => {
     autoplaySpeed: 3000,
   };
 
-  const fetchData = () => {
-    setTimeout(() => {
-      setEvents([]); // Simulating fetching data
-    }, 1000);
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllProduct(1, 100);
+      if (data && data.isSuccess) {
+        setProducts(data.result);
+      } else {
+        setError("Failed to fetch products");
+      }
+    } catch (err) {
+      setError("An error occurred while fetching products");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchProducts();
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const newCountdowns = {};
-      events.forEach((event, index) => {
-        newCountdowns[index] = calculateCountdown(event.eventDate);
-      });
-      setCountdowns(newCountdowns);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [events]);
-
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-  };
+  if (loading) return <LoadingComponent />;
+  if (error) return <div>{error}</div>;
 
   return (
     <>
@@ -87,35 +83,39 @@ const Home = () => {
             </li>
           </ul>
         </nav>
-        {/* <div className="flex items-center">
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={handleSearch}
-            placeholder="Search events"
-            className="px-4 py-2 border border-gray-300 rounded-md"
-          />
-          <button className="bg-red-700 text-white px-4 py-2 rounded-md ml-2">
-            Search
-          </button>
-        </div> */}
       </header>
 
-      <Slider {...settings}>
-        {images.map((image, index) => (
-          <div key={index} className="relative">
-            <img
-              className="w-full h-96 object-cover rounded-md"
-              src={image.url}
-              alt={`Slide ${index + 1}`}
-            />
-            <div className="absolute bottom-0 left-0 bg-black bg-opacity-50 text-white p-4">
-              <h2 className="text-2xl font-bold">{image.title}</h2>
-              <p>{image.description}</p>
-            </div>
-          </div>
-        ))}
-      </Slider>
+      <Content style={{ padding: "20px" }}>
+        <Title level={2}>Đề xuất</Title>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+          {products.map((item) => (
+            <Card
+              key={item.product.productID}
+              hoverable
+              style={{ width: 240 }}
+              cover={
+                <img
+                  alt={item.product.productName}
+                  src={item.listImage[0]?.image || "/placeholder-image.png"}
+                />
+              }
+            >
+              <Card.Meta
+                title={item.product.productName}
+                description={
+                  <>
+                    <Paragraph>{item.product.productDescription}</Paragraph>
+                    <Paragraph
+                      strong
+                    >{`Price: $${item.product.priceBuy}`}</Paragraph>
+                    <Paragraph>{`Rating: ${item.product.rating}`}</Paragraph>
+                  </>
+                }
+              />
+            </Card>
+          ))}
+        </div>
+      </Content>
     </>
   );
 };

@@ -1,102 +1,47 @@
+import { useState } from "react";
+import { FaHome, FaUser } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { NavLink, useLocation } from "react-router-dom";
 
 const SideBar = () => {
   const roleName = useSelector((state) => state.user?.role || "");
+  const [isOpen, setIsOpen] = useState(false);
 
   const location = useLocation();
 
   const menuItems = {
-    isShop: [
-      {
-        name: "Thống kê",
-        icon: <i className="fa-solid fa-chart-line"></i>,
-        path: "dashboard",
-      },
-      {
-        name: "Sản phẩm",
-        icon: <i className="fa-solid fa-shirt"></i>,
-        path: "product",
-      },
-      {
-        name: "Đơn hàng",
-        icon: <i className="fa-solid fa-list"></i>,
-        path: "orders",
-      },
-      {
-        name: "Gói dịch vụ",
-        icon: <i className="fa-solid fa-lightbulb"></i>,
-        path: "package",
-      },
+    STAFF: [
+      { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
+      { name: "Tổng Quan", link: "sponsor-overview", icon: <FaHome /> },
+      { name: "Quản lí danh mục sản phẩm", link: "manage-category" },
     ],
-    isAdmin: [
-      {
-        name: "Thống kê",
-        icon: <i className="fa-solid fa-chart-line"></i>,
-        path: "dashboard",
-      },
-      {
-        name: "Đối tác",
-        icon: <i className="fa-solid fa-handshake-simple"></i>,
-        path: "shop",
-      },
 
-      {
-        name: "Gói dịch vụ",
-        icon: <i className="fa-solid fa-lightbulb"></i>,
-        path: "package",
-      },
-      {
-        name: "Cấu hình hệ thống",
-        icon: <i className="fa-solid fa-gear"></i>,
-        path: "settings",
-      },
+    SUPPLIER: [
+      { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
+      { name: "Tổng Quan", link: "sponsor-overview", icon: <FaHome /> },
     ],
-    isStaff: [
-      {
-        name: "Thống kê",
-        icon: <i className="fa-solid fa-chart-line"></i>,
-        path: "dashboard",
-      },
-      {
-        name: "Đối tác",
-        icon: <i className="fa-solid fa-handshake-simple"></i>,
-        path: "shop",
-      },
-      {
-        name: "Sản phẩm",
-        icon: <i className="fa-solid fa-shirt"></i>,
-        path: "product",
-      },
-      {
-        name: "Gói dịch vụ",
-        icon: <i className="fa-solid fa-box-open"></i>,
-        path: "package",
-      },
-      {
-        name: "Đơn hàng",
-        icon: <i className="fa-solid fa-bag-shopping"></i>,
-        path: "order",
-      },
+    ADMIN: [
+      { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
+      { name: "Người dùng", link: "manage-user", icon: <FaUser /> },
     ],
   };
 
   const renderMenu = (items) => {
+    if (!items) return null;
     return items.map((item, index) => (
       <>
-        <NavLink to={`${item.path}`} key={index}>
+        {/* <NavLink to={`/${roleName.toLowerCase()}/${item.link}`} key={index}> */}
+        <NavLink to={`${item.link}`} key={index}>
           <li className="hover:bg-primary rounded-md text-black hover:text-white my-1">
             <a
               className={`flex items-center ${
-                location.pathname?.includes(item.path)
+                location.pathname?.includes(item.link)
                   ? "bg-primary text-white"
                   : ""
               }`}
             >
               {item.icon}
-              <span className={`${isOpen ? "inline" : "hidden"} ml-2 text-md`}>
-                {item.name}
-              </span>
+              <span className={`inline ml-2 text-md`}>{item.name}</span>
             </a>
           </li>
         </NavLink>
@@ -106,15 +51,6 @@ const SideBar = () => {
 
   return (
     <div className="">
-      {/* <div
-        className={`bg-white text-text-color my-4 shadow-lg rounded-lg transition-all duration-300 ${
-          isOpen ? "w-64" : "w-20"
-        }`}
-      >
-        <ul className={`menu p-4 w-full text-base-content`}>
-          {roleName && renderMenu(menuItems[roleName])}
-        </ul>
-      </div> */}
       <div className="h-full border-r border-gray-100 drawer lg:drawer-open">
         <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
         <div className="drawer-side z-10  rounded-4xl">

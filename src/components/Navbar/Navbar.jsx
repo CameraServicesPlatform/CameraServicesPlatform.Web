@@ -1,9 +1,9 @@
-import "font-awesome/css/font-awesome.min.css"; // Nhập Font Awesome nếu bạn sử dụng
+import "font-awesome/css/font-awesome.min.css";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import logo from "../../images/image.png"; // Đường dẫn tới logo của bạn
+import logo from "../../images/image.png";
 import { logout } from "../../redux/features/authSlice";
 import { isEmptyObject } from "../../utils/util";
 
@@ -21,7 +21,7 @@ const NavBar = () => {
     };
     window.addEventListener("scroll", scrollHandler);
     return () => window.removeEventListener("scroll", scrollHandler);
-  }, [roleName]);
+  }, []);
 
   const handleLogOut = () => {
     localStorage.removeItem("accessToken");
@@ -51,22 +51,22 @@ const NavBar = () => {
             <NavLink to="/personal-review">Đánh giá</NavLink>
             <NavLink to="/personal-order-history">Lịch sử đơn hàng</NavLink>
           </li>
-          {roleName === "isAdmin" && (
+          {roleName === "ADMIN" && (
             <NavLink to="/admin">
               <li>
                 <span>Trang quản trị</span>
               </li>
             </NavLink>
           )}
-          {roleName === "isStaff" && (
+          {roleName === "STAFF" && (
             <NavLink to="/staff">
               <li>
                 <span>Trang quản trị</span>
               </li>
             </NavLink>
           )}
-          {roleName === "isShop" && (
-            <NavLink to="/management-shop">
+          {roleName === "SUPPLIER" && (
+            <NavLink to="/supllier">
               <li>
                 <span>Trang quản trị</span>
               </li>
@@ -104,6 +104,12 @@ const NavBar = () => {
             <i className="fa-solid fa-magnifying-glass"></i>
           </button>
         </div>
+        <Link
+          to="/gio-hang"
+          className="hidden md:block  font-semibold no-underline text-primary  hover:text-gray-500"
+        >
+          Giỏ hàng
+        </Link>
 
         <div className="flex items-center gap-4">
           {user ? (
@@ -115,12 +121,6 @@ const NavBar = () => {
                 className="no-underline font-semibold text-black hover:text-gray-500"
               >
                 Đăng nhập
-              </Link>
-              <Link
-                to="/register"
-                className="no-underline font-semibold text-black hover:text-gray-500"
-              >
-                Đăng ký
               </Link>
             </>
           )}
@@ -138,13 +138,13 @@ const NavBar = () => {
           Liên hệ
         </NavLink>
         <NavLink
-          to="/san-pham-cho-thue"
+          to="/product-for-rent"
           className="text-black hover:text-gray-500 no-underline"
         >
           Sản phẩm cho thuê
         </NavLink>
         <NavLink
-          to="/san-pham-mua"
+          to="/product-for-buy"
           className="text-black hover:text-gray-500 no-underline"
         >
           Sản phẩm mua
@@ -171,6 +171,12 @@ const NavBar = () => {
               className="block px-3 py-2 rounded-md text-base font-medium text-black hover:bg-red-100"
             >
               Trang chủ
+            </Link>
+            <Link
+              to="/gio-hang"
+              className="hidden md:block  font-semibold no-underline text-primary  hover:text-gray-500"
+            >
+              Giỏ hàng
             </Link>
             {isEmptyObject(user) ||
               (user == null && (
