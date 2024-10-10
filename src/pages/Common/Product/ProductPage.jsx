@@ -1,12 +1,26 @@
-import { Button, Card, Input, Layout, message, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Input,
+  Layout,
+  message,
+  Select,
+  Spin,
+  Typography,
+} from "antd";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux"; // Import useDispatch
-import { getAllProduct, getProductByName } from "../../../api/productApi"; // Adjust the import path as needed
-import { addToCart } from "../../../redux/features/cartSlice"; // Import addToCart action
+import { useDispatch } from "react-redux";
+import {
+  getAllProduct,
+  getProductByCategoryName,
+  getProductByName,
+} from "../../../api/productApi";
+import { addToCart } from "../../../redux/features/cartSlice";
 
 const { Content } = Layout;
 const { Search } = Input;
 const { Title, Paragraph } = Typography;
+const { Option } = Select;
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -15,21 +29,29 @@ const ProductPage = () => {
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
   const [searchFilter, setSearchFilter] = useState("");
-  const dispatch = useDispatch(); // Initialize dispatch
+  const [categoryFilter, setCategoryFilter] = useState(""); // New state for category filter
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage]);
+  }, [currentPage, categoryFilter]); // Fetch products when category changes
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
       console.log("Fetching products...");
-      const data = await getAllProduct(currentPage, itemsPerPage);
+      const data = categoryFilter
+        ? await getProductByCategoryName(
+            categoryFilter,
+            currentPage,
+            itemsPerPage
+          )
+        : await getAllProduct(currentPage, itemsPerPage);
+
       console.log("Received data:", data);
       if (data && data.result) {
         setProducts(data.result);
-        setTotalItems(data.result.length || 0);
+        setTotalItems(data.totalItems || 0); // Use totalItems if provided
       } else {
         message.error("Failed to load products.");
       }
@@ -47,19 +69,27 @@ const ProductPage = () => {
       console.log(`Searching for ${value}...`);
       const data = await getProductByName(value, currentPage, itemsPerPage);
       console.log("Search results:", data);
-      if (data && data.result) {
-        setProducts(data.result);
-        setTotalItems(data.result.length || 0);
+
+      if (data && data.isSuccess && Array.isArray(data.result.items)) {
+        setProducts(data.result.items);
+        setTotalItems(data.result.totalItems || 0); // Use totalItems if available
         setSearchFilter(value);
       } else {
         message.error("No products found.");
+        setProducts([]); // Reset products if no valid results
       }
     } catch (error) {
       console.error("Error searching products:", error);
       message.error("An error occurred while searching for products.");
+      setProducts([]); // Reset products on error
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCategoryChange = (value) => {
+    setCategoryFilter(value);
+    setCurrentPage(1); // Reset to first page on category change
   };
 
   const handlePageChange = (page) => {
@@ -69,14 +99,18 @@ const ProductPage = () => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const handleAddToCart = (product) => {
-    // Dispatch the addToCart action with the product data
-    dispatch(addToCart(product)); // Ensure product object has an 'id' field
+    dispatch(addToCart(product));
     console.log(`Added to cart: ${product.productName}`);
     message.success(`${product.productName} has been added to the cart!`);
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Spin
+        tip="Loading..."
+        style={{ display: "block", margin: "20px auto" }}
+      />
+    );
   }
 
   if (products.length === 0) {
@@ -91,9 +125,17 @@ const ProductPage = () => {
         onSearch={handleSearch}
         style={{ marginBottom: "20px" }}
       />
+      <Select
+        placeholder="Filter by category"
+        style={{ width: 200, marginBottom: "20px" }}
+        onChange={handleCategoryChange}
+      >
+        {/* Replace these options with dynamic category fetching if available */}
+        <Option value="">All Categories</Option>
+      </Select>
       <Title level={2}>Products</Title>
       <Content style={{ padding: "20px" }}>
-        <Title level={2}>Đề xuất</Title>
+        <Title level={2}>Recommended</Title>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
           {products.map((item) => (
             <Card
@@ -118,10 +160,10 @@ const ProductPage = () => {
                     <Paragraph>{`Rating: ${item.product.rating}`}</Paragraph>
                     <Button
                       type="primary"
-                      onClick={() => handleAddToCart(item.product)} // Call handleAddToCart
+                      onClick={() => handleAddToCart(item.product)}
                       style={{ marginTop: "10px" }}
                     >
-                      Thêm vào giỏ hàng
+                      Add to Cart
                     </Button>
                   </>
                 }
