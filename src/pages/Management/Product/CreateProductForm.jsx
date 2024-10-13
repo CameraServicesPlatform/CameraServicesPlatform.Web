@@ -1,5 +1,7 @@
-import { Button, Form, Input, Modal, Select, message } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import { Button, Form, Input, Modal, Select, Upload, message } from "antd";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { getAllCategories } from "../../../api/categoryApi";
 import { createProduct } from "../../../api/productApi";
 
@@ -10,7 +12,11 @@ const CreateProductForm = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [file, setFile] = useState(null); // File state
+  const user = useSelector((state) => state.user.user || {}); // Get user from Redux
+  const SupplierID = user?.supplierId;
 
+  // Fetch categories when the component mounts
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -31,12 +37,15 @@ const CreateProductForm = () => {
     }
   };
 
-  const handleCreateProduct = async (values) => {
-    console.log("Submitting product with values:", values);
+  const handleFileChange = (info) => {
+    if (info.file.status === "done") {
+      setFile(info.file.originFileObj); // Set the file when uploaded
+    }
+  };
 
+  const handleCreateProduct = async (values) => {
     const {
       SerialNumber,
-      SupplierID,
       CategoryID,
       ProductName,
       ProductDescription,
@@ -46,30 +55,40 @@ const CreateProductForm = () => {
       Status,
     } = values;
 
+    // Check if SupplierID is valid
+    if (!SupplierID) {
+      message.error("Supplier ID is missing or invalid.");
+      return;
+    }
+
     try {
+      setLoading(true); // Start the loading state
       const result = await createProduct(
         SerialNumber,
-        SupplierID,
+        SupplierID, // Use the SupplierID from the Redux state
         CategoryID,
         ProductName,
         ProductDescription,
         PriceRent,
         PriceBuy,
         Brand,
-        Status
+        Status,
+        file // Pass the file to the API
       );
 
       if (result) {
         message.success("Product created successfully!");
-        fetchProducts();
         setIsModalVisible(false);
         form.resetFields();
+        setFile(null); // Clear the file state
       } else {
         message.error("Failed to create product.");
       }
     } catch (error) {
       console.error("Error creating product:", error);
       message.error("An error occurred while creating the product.");
+    } finally {
+      setLoading(false); // Stop the loading state
     }
   };
 
@@ -95,15 +114,7 @@ const CreateProductForm = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item
-            name="SupplierID"
-            label="Supplier ID"
-            rules={[
-              { required: true, message: "Please input the supplier ID!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+
           <Form.Item
             name="CategoryID"
             label="Category"
@@ -117,6 +128,7 @@ const CreateProductForm = () => {
               ))}
             </Select>
           </Form.Item>
+
           <Form.Item
             name="ProductName"
             label="Product Name"
@@ -126,6 +138,7 @@ const CreateProductForm = () => {
           >
             <Input />
           </Form.Item>
+
           <Form.Item
             name="ProductDescription"
             label="Description"
@@ -138,24 +151,15 @@ const CreateProductForm = () => {
           >
             <Input.TextArea />
           </Form.Item>
-          <Form.Item
-            name="PriceRent"
-            label="Price (Rent)"
-            rules={[
-              { required: true, message: "Please input the rental price!" },
-            ]}
-          >
+
+          <Form.Item name="PriceRent" label="Price (Rent)">
             <Input type="number" />
           </Form.Item>
-          <Form.Item
-            name="PriceBuy"
-            label="Price (Buy)"
-            rules={[
-              { required: true, message: "Please input the purchase price!" },
-            ]}
-          >
+
+          <Form.Item name="PriceBuy" label="Price (Buy)">
             <Input type="number" />
           </Form.Item>
+
           <Form.Item
             name="Brand"
             label="Brand"
@@ -189,8 +193,21 @@ const CreateProductForm = () => {
               <Option value={4}>Discontinued Product</Option>
             </Select>
           </Form.Item>
+
+          {/* Upload field for file */}
+          <Form.Item label="Upload File">
+            <Upload
+              name="file"
+              accept=".png,.jpg,.jpeg,.pdf" // Customize file types
+              showUploadList={false}
+              onChange={handleFileChange}
+            >
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+          </Form.Item>
+
           <Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={loading}>
               Submit
             </Button>
           </Form.Item>

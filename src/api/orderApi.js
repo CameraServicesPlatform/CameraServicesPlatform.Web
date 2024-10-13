@@ -33,7 +33,7 @@ export const purchaseOrder = async (id) => {
 
 export const updateStatusOrder = async (id) => {
   try {
-    const response = await api.put(`/order/update-status?orderId=${id}`);
+    const response = await api.put(`/update-status?orderId=${id}`);
     return response.data;
   } catch (error) {}
 };

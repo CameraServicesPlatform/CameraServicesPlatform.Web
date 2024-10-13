@@ -5,124 +5,208 @@ export const getAllProduct = async (pageIndex, pageSize) => {
     const res = await api.get(
       `/product/get-all-product?pageIndex=${pageIndex}&pageSize=${pageSize}`
     );
-    return res.data;
+
+    if (res.status === 200 && res.data) {
+      return res.data.result;
+    }
+
+    return [];
   } catch (err) {
+    console.error("Error fetching products:", err);
     return null;
   }
 };
 
 export const getProductById = async (id, pageIndex, pageSize) => {
   try {
-    const response = await fetch(
+    const res = await api.get(
       `/product/get-product-by-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`
     );
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (res.status === 200 && res.data && res.data.isSuccess) {
+      return res.data.result;
     }
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching product by ID:", error);
-    return {
-      result: "",
-      isSuccess: false,
-      messages: [error.message],
-    };
+    return null;
+  } catch (err) {
+    console.error("Error fetching product by ID:", err);
+    return null;
   }
 };
 
-export const getProductByName = async (filter, pageIndex, pageSize) => {
-  try {
-    const response = await fetch(
-      `/product/get-product-by-name?filter=${encodeURIComponent(
-        filter
-      )}&pageIndex=${pageIndex}&pageSize=${pageSize}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching product by name:", error);
-    return {
-      result: { items: [] }, // Default to an empty items array
-      isSuccess: false,
-      messages: [error.message],
-    };
-  }
-};
-
-export const getProductByCategoryName = async (
-  filter,
+export const getProductBySupplierId = async (
+  supplierId,
+  filter = "s",
   pageIndex = 1,
   pageSize = 10
 ) => {
   try {
-    const response = await fetch(
-      `/product/get-product-by-category-name?filter=${encodeURIComponent(
-        filter
-      )}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    const response = await api.get(
+      `/product/get-product-by-supplierId?supplierId=${supplierId}&filter=${filter}&pageIndex=${pageIndex}&pageSize=${pageSize}`
     );
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (response.status === 200 && response.data && response.data.isSuccess) {
+      return response.data.result;
     }
 
-    const data = await response.json();
-    return data;
+    return null;
   } catch (error) {
-    console.error("Error fetching product by category name:", error);
-    return {
-      result: { items: [], totalPages: 0 },
-      isSuccess: false,
-      messages: [error.message],
-    };
+    console.error("Error fetching products by supplier ID:", error);
+    return null;
+  }
+};
+export const getProductByName = async (
+  filter = "s",
+  pageIndex = 1,
+  pageSize = 10
+) => {
+  try {
+    const response = await api.get(
+      `/product/get-product-by-name?filter=${filter}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+
+    if (response.status === 200 && response.data && response.data.isSuccess) {
+      return response.data.result;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching products by name:", error);
+    return null;
+  }
+};
+export const getProductByCategoryName = async (
+  filter = "",
+  pageIndex = 1,
+  pageSize = 10
+) => {
+  try {
+    const response = await api.get(
+      `/product/get-product-by-category-name?filter=${filter}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+
+    if (response.status === 200 && response.data && response.data.isSuccess) {
+      return response.data.result;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching products by category name:", error);
+    return null;
+  }
+};
+export const getProductByCategoryId = async (
+  filter = "",
+  pageIndex = 1,
+  pageSize = 10
+) => {
+  try {
+    const response = await api.get(
+      `/product/get-product-by-category-id?filter=${filter}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+
+    if (response.status === 200 && response.data && response.data.isSuccess) {
+      return response.data.result;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching products by category ID:", error);
+    return null;
+  }
+};
+
+export const createProduct = async (product, file) => {
+  try {
+    const formData = new FormData();
+
+    formData.append("SerialNumber", product.serialNumber);
+    formData.append("SupplierID", product.supplierID);
+    formData.append("CategoryID", product.categoryID);
+    formData.append("ProductName", product.productName);
+    formData.append("ProductDescription", product.productDescription);
+    formData.append("PriceRent", product.priceRent);
+    formData.append("PriceBuy", product.priceBuy);
+    formData.append("Brand", product.brand);
+    formData.append("Status", product.status);
+    formData.append("File", file);
+
+    const response = await api.post("/product/create-product", formData, {
+      headers: {
+        accept: "text/plain",
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (response.status === 200 && response.data.isSuccess) {
+      return response.data.result;
+    }
+
+    console.error("Failed to create product:", response.data.messages);
+    return null;
+  } catch (error) {
+    console.error("Error creating product:", error);
+    return null;
+  }
+};
+export const updateProduct = async (product, file) => {
+  try {
+    const formData = new FormData();
+
+    formData.append("ProductID", product.productID);
+    formData.append("SerialNumber", product.serialNumber);
+    formData.append("SupplierID", product.supplierID);
+    formData.append("CategoryID", product.categoryID);
+    formData.append("ProductName", product.productName);
+    formData.append("ProductDescription", product.productDescription);
+    formData.append("PriceRent", product.priceRent);
+    formData.append("PriceBuy", product.priceBuy);
+    formData.append("Brand", product.brand);
+    formData.append("Quality", product.quality);
+    formData.append("Status", product.status);
+
+    if (file) {
+      formData.append("File", file);
+    }
+
+    const response = await api.put("/product/update-product", formData, {
+      headers: {
+        accept: "text/plain",
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (response.status === 200 && response.data.isSuccess) {
+      return response.data.result;
+    }
+
+    console.error("Failed to update product:", response.data.messages);
+    return null;
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return null;
   }
 };
 export const deleteProduct = async (productId) => {
   try {
-    const response = await api.delete(`/product/delete-product`, {
+    if (!productId) {
+      console.error("Product ID is required to delete a product.");
+      return false;
+    }
+
+    const response = await api.delete("/product/delete-product", {
       params: { productId },
     });
 
-    return response.data;
+    if (response.status === 200) {
+      console.log("Product deleted successfully.");
+      return true;
+    }
+
+    console.error("Failed to delete product:", response.data.messages);
+    return false;
   } catch (error) {
     console.error("Error deleting product:", error);
-    return null;
-  }
-};
-export const createProduct = async (
-  serialNumber,
-  supplierID,
-  categoryID,
-  productName,
-  productDescription,
-  priceRent,
-  priceBuy,
-  brand,
-  status
-) => {
-  try {
-    const response = await api.post("/product/create-product", {
-      SerialNumber: serialNumber,
-      SupplierID: supplierID,
-      CategoryID: categoryID,
-      ProductName: productName,
-      ProductDescription: productDescription,
-      PriceRent: priceRent,
-      PriceBuy: priceBuy,
-      Brand: brand,
-      Status: status,
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error("Error creating product:", error);
-    return null;
+    return false;
   }
 };

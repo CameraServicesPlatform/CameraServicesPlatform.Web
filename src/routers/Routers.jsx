@@ -41,8 +41,6 @@ function Routers() {
         { path: "product", element: <ProductPage /> },
         { path: "product-for-rent", element: <ProductPage /> },
         { path: "product-for-buy", element: <ProductPage /> },
-
-        { path: "manage-product", element: <ManageProduct /> },
       ],
     },
     {
@@ -86,6 +84,7 @@ function Routers() {
         { index: true, element: <Navigate to="dashboard" replace /> },
         { path: "dashboard", element: <div>Dashboard</div> },
         { path: "manage-category", element: <ManageCategory /> },
+        { path: "manage-product", element: <ManageProduct /> },
       ],
     },
   ]);

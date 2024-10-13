@@ -58,6 +58,7 @@ const ManageProduct = () => {
 
   const handleEdit = (product) => {
     setEditingProduct(product); // Set the selected product for editing
+    setIsModalVisible(true); // Show the modal
   };
 
   const handleEditSubmit = async (values) => {
@@ -175,7 +176,7 @@ const ManageProduct = () => {
           columns={columns}
           dataSource={products}
           pagination={false}
-          rowKey={(record) => record.product.productID}
+          rowKey={(record) => record.product?.productID || record.id}
         />
       )}
       <Pagination
@@ -187,8 +188,8 @@ const ManageProduct = () => {
       />
       <Modal
         title="Edit Product"
-        visible={!!editingProduct}
-        onCancel={() => setEditingProduct(null)}
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
         footer={null}
       >
         {editingProduct && (
