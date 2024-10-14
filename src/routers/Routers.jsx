@@ -15,7 +15,10 @@ import Policy from "../pages/Common/Policy";
 import ProductPage from "../pages/Common/Product/ProductPage";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
-import CreateProductForm from "../pages/Management/Product/CreateProductForm";
+ import CreateProductForm from "../pages/Management/Product/CreateProductForm";
+ 
+import ManageOrder from "../pages/Management/Order/ManageOrder";
+ 
 import ManageProduct from "../pages/Management/Product/ManageProduct";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
@@ -43,6 +46,7 @@ function Routers() {
         { path: "product", element: <ProductPage /> },
         { path: "product-for-rent", element: <ProductPage /> },
         { path: "product-for-buy", element: <ProductPage /> },
+ 
       ],
     },
     {
