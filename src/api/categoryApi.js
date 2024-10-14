@@ -53,7 +53,6 @@ export const createCategory = async (categoryName, categoryDescription) => {
   }
 };
 
-// API function to update an existing category
 export const updateCategory = async (
   categoryID,
   categoryName,

@@ -1,17 +1,34 @@
-import { Card, Col, Layout, Row, Spin, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Input,
+  Layout,
+  Modal,
+  Row,
+  Spin,
+  Typography,
+} from "antd";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "slick-carousel/slick/slick-theme.css";
-import "slick-carousel/slick/slick.css";
-import { getAllProduct } from "../../api/productApi";
+import {
+  getAllProduct,
+  getProductByCategoryName,
+  getProductById,
+  getProductByName,
+} from "../../api/productApi";
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
+const { Search } = Input;
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productDetail, setProductDetail] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // For product name search
+  const [categorySearchTerm, setCategorySearchTerm] = useState(""); // For category name search
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -23,8 +40,41 @@ const Home = () => {
     fetchProducts();
   }, []);
 
-  const handleCardClick = (productID) => {
-    navigate(`/product/${productID}`); // Navigate to the product detail page
+  const fetchProductDetail = async (productID) => {
+    const productData = await getProductById(productID, 1, 1); // Adjust the pageIndex and pageSize as needed
+    if (productData) {
+      setProductDetail(productData);
+      setIsModalVisible(true);
+    }
+  };
+
+  const handleCardDoubleClick = (productID) => {
+    fetchProductDetail(productID);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setProductDetail(null); // Reset the product detail after closing the modal
+  };
+
+  const handleSearchByName = async (value) => {
+    setLoading(true);
+    try {
+      const productList = await getProductByName(value, 1, 10);
+      console.log("API response:", productList); // Debugging the response
+      setProducts(Array.isArray(productList) ? productList : []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+    }
+    setLoading(false);
+  };
+
+  const handleSearchByCategory = async (value) => {
+    setLoading(true);
+    const productList = await getProductByCategoryName(value, 1, 10);
+    setProducts(Array.isArray(productList) ? productList : []); // Ensure it's an array
+    setLoading(false);
   };
 
   return (
@@ -35,9 +85,25 @@ const Home = () => {
         </Title>
       </Header>
       <Content style={{ padding: "20px" }}>
+        <div style={{ marginBottom: "20px" }}>
+          <Search
+            placeholder="Search products by name"
+            enterButton="Search"
+            size="large"
+            onSearch={handleSearchByName}
+            style={{ width: 300, marginRight: 20 }}
+          />
+          <Search
+            placeholder="Search products by category"
+            enterButton="Search"
+            size="large"
+            onSearch={handleSearchByCategory}
+            style={{ width: 300 }}
+          />
+        </div>
         {loading ? (
           <Spin tip="Loading products..." />
-        ) : (
+        ) : products.length > 0 ? (
           <Row gutter={16}>
             {products.map((product) => (
               <Col span={8} key={product.productID}>
@@ -52,7 +118,7 @@ const Home = () => {
                       />
                     )
                   }
-                  onClick={() => handleCardClick(product.productID)}
+                  onDoubleClick={() => handleCardDoubleClick(product.productID)}
                   style={{ marginBottom: "20px" }}
                 >
                   <Card.Meta
@@ -60,9 +126,12 @@ const Home = () => {
                     description={
                       <div>
                         <p>{product.productDescription}</p>
-                        <p>Price (Rent): ${product.priceRent}</p>
-                        <p>Price (Buy): ${product.priceBuy}</p>
+                        <p>SerialNumber: {product.serialNumber}</p>
+                        <p>Price (Rent)/hour: VND{product.priceRent}</p>
+                        <p>Price (Buy): VND{product.priceBuy}</p>
                         <p>Rating: {product.rating}</p>
+                        <p>Brand: {product.brand}</p>
+                        <p>Quality: {product.quality}</p>
                       </div>
                     }
                   />
@@ -70,8 +139,52 @@ const Home = () => {
               </Col>
             ))}
           </Row>
+        ) : (
+          <p>No products found.</p>
         )}
       </Content>
+
+      {/* Modal for showing product details */}
+      <Modal
+        title={productDetail?.productName || "Product Details"}
+        visible={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button key="close" onClick={handleModalClose}>
+            Close
+          </Button>,
+        ]}
+      >
+        {productDetail ? (
+          <div>
+            <img
+              src={productDetail.listImage[0]?.image}
+              alt={productDetail.productName}
+              className="w-full h-64 object-cover mb-4"
+            />
+            <p>
+              <strong>Description:</strong> {productDetail.productDescription}
+            </p>
+            <p>
+              <strong>Price (Rent):</strong> VND{productDetail.priceRent}
+            </p>
+            <p>
+              <strong>Price (Buy):</strong> VND{productDetail.priceBuy}
+            </p>
+            <p>
+              <strong>Rating:</strong> {productDetail.rating}
+            </p>
+            <p>
+              <strong>Brand:</strong> {productDetail.brand}
+            </p>
+            <p>
+              <strong>Quality:</strong> {productDetail.quality}
+            </p>
+          </div>
+        ) : (
+          <Spin tip="Loading details..." />
+        )}
+      </Modal>
     </Layout>
   );
 };
