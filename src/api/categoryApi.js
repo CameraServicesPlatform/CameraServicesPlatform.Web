@@ -74,7 +74,7 @@ export const updateCategory = async (
 export const deleteCategory = async (categoryId) => {
   try {
     const response = await api.delete("/category/delete-category", {
-      params: { productId: categoryId },
+      params: { CategoryId: categoryId },
     });
     return response.data;
   } catch (error) {

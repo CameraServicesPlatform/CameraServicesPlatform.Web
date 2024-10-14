@@ -1,9 +1,7 @@
 const genderLabels = {
   0: "Nam",
   1: "Nữ",
-  2: "Unisex",
-  3: "Bé trai",
-  4: "Bé gái",
+  2: "N/A",
 };
 
 const orderLabels = {
@@ -36,12 +34,13 @@ const getProductStatusEnum = (productStatusEnumValue) => {
   return productStatusEnum[productStatusEnumValue] || "other";
 };
 const productStatusEnum = {
-  0: Both,
-  1: Rented,
-  2: Sold,
-  3: Shipping,
-  4: discontinuedProduct,
+  0: "Both", // Use string directly
+  1: "Rented",
+  2: "Sold",
+  3: "Shipping",
+  4: "Discontinued Product",
 };
+
 export {
   brandNames,
   genderLabels,

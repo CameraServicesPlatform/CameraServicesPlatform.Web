@@ -27,9 +27,8 @@ const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productDetail, setProductDetail] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); // For product name search
-  const [categorySearchTerm, setCategorySearchTerm] = useState(""); // For category name search
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categorySearchTerm, setCategorySearchTerm] = useState("");
   useEffect(() => {
     const fetchProducts = async () => {
       const productList = await getAllProduct(1, 100);
@@ -41,7 +40,7 @@ const Home = () => {
   }, []);
 
   const fetchProductDetail = async (productID) => {
-    const productData = await getProductById(productID, 1, 1); // Adjust the pageIndex and pageSize as needed
+    const productData = await getProductById(productID, 1, 10);
     if (productData) {
       setProductDetail(productData);
       setIsModalVisible(true);
@@ -61,8 +60,8 @@ const Home = () => {
     setLoading(true);
     try {
       const productList = await getProductByName(value, 1, 10);
-      console.log("API response:", productList); // Debugging the response
       setProducts(Array.isArray(productList) ? productList : []);
+      setSearchTerm(""); // Clear the input if needed
     } catch (error) {
       console.error("Error fetching products:", error);
       setProducts([]);
@@ -73,10 +72,10 @@ const Home = () => {
   const handleSearchByCategory = async (value) => {
     setLoading(true);
     const productList = await getProductByCategoryName(value, 1, 10);
-    setProducts(Array.isArray(productList) ? productList : []); // Ensure it's an array
+    setProducts(Array.isArray(productList) ? productList : []);
+    setCategorySearchTerm("");
     setLoading(false);
   };
-
   return (
     <Layout>
       <Header>
@@ -90,13 +89,18 @@ const Home = () => {
             placeholder="Search products by name"
             enterButton="Search"
             size="large"
+            value={searchTerm} // Controlled input
+            onChange={(e) => setSearchTerm(e.target.value)} // Update state on input change
             onSearch={handleSearchByName}
             style={{ width: 300, marginRight: 20 }}
           />
+
           <Search
             placeholder="Search products by category"
             enterButton="Search"
             size="large"
+            value={categorySearchTerm} // Controlled input
+            onChange={(e) => setCategorySearchTerm(e.target.value)} // Update state on input change
             onSearch={handleSearchByCategory}
             style={{ width: 300 }}
           />

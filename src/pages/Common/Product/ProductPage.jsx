@@ -30,9 +30,9 @@ const ProductPage = () => {
     const loadProducts = async () => {
       setLoading(true);
       try {
-        const productData = await getAllProduct(1, 20); // Adjust page size as needed
+        const productData = await getAllProduct(1, 10); // Fetch all products initially
         if (productData) {
-          setProducts(productData);
+          setProducts(productData.items);
         } else {
           message.error("Failed to load products.");
         }
@@ -49,10 +49,17 @@ const ProductPage = () => {
   const handleSearch = async (value) => {
     setLoading(true);
     setSearchTerm(value);
+
     try {
-      const productData = await getProductByName(value);
+      let productData;
+      if (value) {
+        productData = await getProductByName(value); // Search by name
+      } else {
+        productData = await getAllProduct(1, 10); // Fetch all if no search term
+      }
+
       if (productData) {
-        setProducts(productData);
+        setProducts(productData.items);
       } else {
         message.error("No products found.");
         setProducts([]);
@@ -70,7 +77,7 @@ const ProductPage = () => {
     try {
       const productData = await getProductByCategoryName(value);
       if (productData) {
-        setProducts(productData);
+        setProducts(productData.items);
       } else {
         message.error("No products found in this category.");
         setProducts([]);
@@ -103,10 +110,18 @@ const ProductPage = () => {
             onChange={handleCategoryChange}
             placeholder="Select a category"
           >
-            {/* Replace with actual categories */}
-            <Option value="category1">Category 1</Option>
-            <Option value="category2">Category 2</Option>
-            <Option value="category3">Category 3</Option>
+            <Option value=""></Option>
+            <Option value="SCanon">Canon 1</Option>
+            <Option value="Nikon">Nikon 2</Option>
+            <Option value="Sony">Sony</Option>
+            <Option value="Fujifilm">Fujifilm</Option>
+            <Option value="Olympus">Olympus</Option>
+            <Option value="Panasonic">Panasonic</Option>
+            <Option value="Leica">Leica</Option>
+            <Option value="Pentax">Pentax</Option>
+            <Option value="Hasselblad">Hasselblad</Option>
+            <Option value="Sigma">Sigma</Option>
+            <Option value="Another">Another</Option>
           </Select>
 
           <Search

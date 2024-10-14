@@ -56,17 +56,21 @@ export const getProductBySupplierId = async (
   }
 };
 export const getProductByName = async (
-  filter = "s",
+  filter = "",
   pageIndex = 1,
   pageSize = 10
 ) => {
   try {
-    const response = await api.get(
-      `/product/get-product-by-name?filter=${filter}&pageIndex=${pageIndex}&pageSize=${pageSize}`
-    );
+    const response = await api.get(`/product/get-product-by-name`, {
+      params: {
+        filter,
+        pageIndex,
+        pageSize,
+      },
+    });
 
     if (response.status === 200 && response.data && response.data.isSuccess) {
-      return response.data.result;
+      return response.data.result; // Returning result which contains items
     }
 
     return null;
@@ -75,6 +79,7 @@ export const getProductByName = async (
     return null;
   }
 };
+
 export const getProductByCategoryName = async (
   filter = "",
   pageIndex = 1,

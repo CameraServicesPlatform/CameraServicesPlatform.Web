@@ -1,3 +1,4 @@
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message, Modal, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import {
@@ -170,14 +171,17 @@ const ManageCategory = () => {
             title: "Actions",
             render: (text, record) => (
               <>
-                <Button onClick={() => handleEdit(record)}>Edit</Button>
                 <Button
+                  icon={<EditOutlined />} // Add the edit icon
+                  onClick={() => handleEdit(record)}
+                ></Button>
+
+                <Button
+                  icon={<DeleteOutlined />} // Add the delete icon
                   onClick={() => handleDelete(record.categoryID)}
                   danger
                   style={{ marginLeft: 8 }}
-                >
-                  Delete
-                </Button>
+                ></Button>
               </>
             ),
           },

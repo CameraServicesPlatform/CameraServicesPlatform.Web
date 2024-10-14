@@ -1,11 +1,6 @@
-import { Button, Input, Modal, Pagination, Spin, message } from "antd";
+import { Input, Pagination, Spin, message } from "antd";
 import React, { useEffect, useState } from "react";
-import {
-  createProduct,
-  getAllProduct,
-  getProductByName,
-} from "../../../api/productApi";
-import CreateProductForm from "./CreateProductForm";
+import { getAllProduct, getProductByName } from "../../../api/productApi";
 import ProductListTable from "./ProductListTable";
 
 const ManageProduct = () => {
@@ -15,7 +10,6 @@ const ManageProduct = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalProducts, setTotalProducts] = useState(0);
   const [filter, setFilter] = useState("");
-  const [createModalVisible, setCreateModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -42,17 +36,6 @@ const ManageProduct = () => {
     setLoading(false);
   };
 
-  const handleCreateProduct = async (values) => {
-    try {
-      await createProduct(values);
-      message.success("Product created successfully");
-      setCreateModalVisible(false);
-      fetchProducts();
-    } catch (error) {
-      message.error("Error creating product");
-    }
-  };
-
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
@@ -63,9 +46,6 @@ const ManageProduct = () => {
           onSearch={fetchProducts}
           style={{ width: 300, marginRight: 16 }}
         />
-        <Button type="primary" onClick={() => setCreateModalVisible(true)}>
-          Create Product
-        </Button>
       </div>
 
       {loading ? (
@@ -91,15 +71,6 @@ const ManageProduct = () => {
         }}
         style={{ marginTop: 16, textAlign: "right" }}
       />
-
-      <Modal
-        title="Create Product"
-        visible={createModalVisible}
-        onCancel={() => setCreateModalVisible(false)}
-        footer={null}
-      >
-        <CreateProductForm onSubmit={handleCreateProduct} />
-      </Modal>
     </div>
   );
 };

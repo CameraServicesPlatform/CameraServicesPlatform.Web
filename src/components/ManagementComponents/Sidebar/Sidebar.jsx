@@ -14,6 +14,7 @@ const SideBar = () => {
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
       { name: "Tổng Quan", link: "sponsor-overview", icon: <FaHome /> },
       { name: "Quản lí danh mục sản phẩm", link: "manage-category" },
+      { name: "Tổng quản lí sản phẩm hệ thống", link: "manage-product" },
     ],
 
     SUPPLIER: [

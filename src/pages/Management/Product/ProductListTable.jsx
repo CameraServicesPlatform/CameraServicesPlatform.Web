@@ -1,7 +1,10 @@
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Button } from "antd";
 import React, { useEffect, useState } from "react";
 import { deleteProduct, getAllProduct } from "../../../api/productApi";
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
-import EditProductForm from "./EditProductForm"; // Corrected import name
+import EditProductForm from "./EditProductForm";
+
 const ProductListTable = () => {
   const [products, setProducts] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
@@ -9,8 +12,7 @@ const ProductListTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null); // State to hold the selected product for editing
-  const [categories, setCategories] = useState([]); // Initialize as an empty array
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -45,8 +47,8 @@ const ProductListTable = () => {
   };
 
   const handleEdit = (product) => {
-    setSelectedProduct(product); // Set the product to be edited
-    setIsEditModalVisible(true); // Show the edit modal
+    setSelectedProduct(product);
+    setIsEditModalVisible(true);
   };
 
   const handleUpdateSuccess = (updatedProduct) => {
@@ -109,7 +111,7 @@ const ProductListTable = () => {
                     <td>{product.productDescription}</td>
                     <td>{product.priceRent} vnd</td>
                     <td>{product.priceBuy} vnd</td>
-                    <td>{getBrandName(product.brand)}</td>{" "}
+                    <td>{getBrandName(product.brand)}</td>
                     <td>{product.quality}</td>
                     <td>{getProductStatusEnum(product.status)}</td>
                     <td>{product.rating}</td>
@@ -126,11 +128,32 @@ const ProductListTable = () => {
                         width="100"
                       />
                     </td>
-                    <td>
-                      <button onClick={() => handleEdit(product)}>Edit</button>
-                      <button onClick={() => handleDelete(product.productID)}>
-                        Delete
-                      </button>
+                    <td style={{ textAlign: "center" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Button
+                          type="primary"
+                          icon={<EditOutlined />}
+                          onClick={() => handleEdit(product)}
+                          style={{
+                            marginRight: "8px", // Add margin to the right
+                          }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          type="danger"
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleDelete(product.productID)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -143,21 +166,23 @@ const ProductListTable = () => {
       )}
 
       {/* Pagination Controls */}
-      <div style={{ marginTop: "20px" }}>
-        <button
+      {/* <div style={{ marginTop: "20px" }}>
+        <Button
           onClick={() => setPageIndex(pageIndex - 1)}
           disabled={pageIndex === 1}
+          style={{ marginRight: "8px" }}
         >
           Previous
-        </button>
+        </Button>
         <span> Page {pageIndex} </span>
-        <button
+        <Button
           onClick={() => setPageIndex(pageIndex + 1)}
           disabled={products.length < pageSize}
+          style={{ marginLeft: "8px" }}
         >
           Next
-        </button>
-      </div>
+        </Button>
+      </div> */}
 
       {/* Edit Product Modal */}
       {isEditModalVisible && (
