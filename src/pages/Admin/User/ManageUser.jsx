@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { getAllAccount } from "../../../api/accountApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 import { genderLabels } from "../../../utils/constant";
-import GetInformationAccount from "./GetInformationAccount"; // Import your GetInformationAccount component
+import GetInformationAccount from "./GetInformationAccount";
 
 const ManageUser = () => {
   const [accounts, setAccounts] = useState([]);
@@ -54,11 +54,11 @@ const ManageUser = () => {
   };
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedAccountId, setSelectedAccountId] = useState(null); // State for account ID
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
 
   const handleDoubleClick = (user) => {
-    setSelectedAccountId(user.id); // Set the selected user ID
-    setModalVisible(true); // Show the modal
+    setSelectedAccountId(user.id);
+    setModalVisible(true);
   };
 
   return (
@@ -92,7 +92,7 @@ const ManageUser = () => {
                 <tr
                   key={item.id}
                   className="h-10 hover"
-                  onDoubleClick={() => handleDoubleClick(item)} // Handle double click
+                  onDoubleClick={() => handleDoubleClick(item)}
                 >
                   <td className="text-center">{index + 1}</td>
                   <td className="text-center">{item.id}</td>
@@ -152,7 +152,7 @@ const ManageUser = () => {
       <GetInformationAccount
         accountId={selectedAccountId}
         visible={modalVisible}
-        onCancel={() => setModalVisible(false)} // Close the modal
+        onCancel={() => setModalVisible(false)}
       />
     </div>
   );

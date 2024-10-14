@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import CommonLayout from "../layouts/CommonLayout";
 import ManagementLayOut from "../layouts/ManagementLayout/ManagementLayOut";
+import ManagePolicy from "../pages/Admin/Policy/ManagePolicy";
 import ManageUser from "../pages/Admin/User/ManageUser";
 import About from "../pages/Common/About";
 import Cart from "../pages/Common/Cart";
@@ -65,6 +66,9 @@ function Routers() {
           path: "settings",
           element: <div>Settings</div>,
         },
+        { path: "manage-policy", element: <ManagePolicy /> },
+        { path: "manage-category", element: <ManageCategory /> },
+        { path: "manage-product", element: <ManageProduct /> },
       ],
     },
     {
