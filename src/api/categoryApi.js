@@ -53,7 +53,6 @@ export const createCategory = async (categoryName, categoryDescription) => {
   }
 };
 
-// API function to update an existing category
 export const updateCategory = async (
   categoryID,
   categoryName,
@@ -75,7 +74,7 @@ export const updateCategory = async (
 export const deleteCategory = async (categoryId) => {
   try {
     const response = await api.delete("/category/delete-category", {
-      params: { productId: categoryId },
+      params: { CategoryId: categoryId },
     });
     return response.data;
   } catch (error) {

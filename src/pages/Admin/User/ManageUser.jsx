@@ -1,15 +1,17 @@
 import { message } from "antd";
 import { useEffect, useState } from "react";
-import { getAllAccount } from "../../../../api/accountApi";
-import LoadingComponent from "../../../../components/LoadingComponent/LoadingComponent";
-import AssignRoleForm from "./AssignRoleForm";
-import AssignUserModal from "./AssignUserModal ";
+import { getAllAccount } from "../../../api/accountApi";
+import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
+import { genderLabels } from "../../../utils/constant";
+import GetInformationAccount from "./GetInformationAccount";
+
 const ManageUser = () => {
   const [accounts, setAccounts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(1);
   const itemsPerPage = 10;
+
   const fetchData = async (page) => {
     try {
       setIsLoading(true);
@@ -32,6 +34,7 @@ const ManageUser = () => {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
   const renderPageNumbers = () => {
     let pages = [];
     for (let i = 1; i <= totalItems; i++) {
@@ -49,64 +52,15 @@ const ManageUser = () => {
     }
     return pages;
   };
-  const roleStaff = ["member", "supllier", "staff"];
-  const roleSupliler = ["member", "supllier"];
-  const roleMem = ["member"];
 
-  const roleAdmin = ["member", "admin", "supllier", "staff"];
-
-  const renderRoles = (roleArray) => {
-    const roles = roleArray.map((role) => role.normalizedName);
-    if (roleStaff.every((role) => roles.includes(role))) return "Nhân viên";
-    else if (roleSupliler.every((role) => roles.includes(role)))
-      return "Nhà cung cấp dịch vụ";
-    else if (roleAdmin.every((role) => roles.includes(role)))
-      return "Quản trị hệ thống";
-    else return "Thành viên";
-  };
-  const renderPermissionButtons = (roleArray) => {
-    const permissions = [];
-    if (renderRoles(roleArray) === "Thành viên") {
-      permissions.push(
-        <button
-          key="nhacungcapdichvu"
-          className="bg-yellow-600 text-white my-2 px-4 py-2 w-48 rounded-md"
-        >
-          <i className="fas fa-user-edit"></i> Nhà cung cấp dịch vụ
-        </button>
-      );
-      permissions.push(
-        <button
-          key="nhanvien"
-          className="bg-green-600 text-white px-4 py-2 w-48 rounded-md"
-        >
-          <i className="fas fa-user-edit"></i> Nhân viên
-        </button>
-      );
-    }
-    console.log(permissions);
-
-    return <div className=" flex flex-col">{permissions}</div>;
-  };
-  const [isFormVisible, setIsFormVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const handleDoubleClick = (user) => {
-    setSelectedUser(user);
-    setIsFormVisible(true);
-  };
-
-  const handleFormClose = () => {
-    setIsFormVisible(false);
-    setSelectedUser(null);
-  };
   const [modalVisible, setModalVisible] = useState(false);
-  const [userId, setUserId] = useState("");
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
 
-  const showModal = (id) => {
-    setUserId(id);
+  const handleDoubleClick = (user) => {
+    setSelectedAccountId(user.id);
     setModalVisible(true);
   };
-  const hideModal = () => setModalVisible(false);
+
   return (
     <div>
       <LoadingComponent isLoading={isLoading} title={"Đang tải dữ liệu"} />
@@ -118,12 +72,17 @@ const ManageUser = () => {
           <thead className="bg-primary text-white">
             <tr className="h-10 ">
               <th className="text-center">STT</th>
+              <th className="text-center">ID</th>
               <th className="text-center">Tên</th>
               <th className="text-center">Email</th>
               <th className="text-center">Số điện thoại</th>
               <th className="text-center">Quyền</th>
-              <th className="text-center">Trạng thái </th>
-              {/* <th>Hành động</th> */}
+              <th className="text-center">Trạng thái</th>
+              <th className="text-center">Giới tính</th>
+              <th className="text-center">Tên đăng nhập</th>
+              <th className="text-center">Địa chỉ</th>
+              <th className="text-center">Ngày tạo</th>
+              <th className="text-center">Ngày cập nhật</th>
             </tr>
           </thead>
           <tbody>
@@ -131,11 +90,12 @@ const ManageUser = () => {
               accounts.length > 0 &&
               accounts.map((item, index) => (
                 <tr
-                  key={index}
+                  key={item.id}
                   className="h-10 hover"
                   onDoubleClick={() => handleDoubleClick(item)}
                 >
                   <td className="text-center">{index + 1}</td>
+                  <td className="text-center">{item.id}</td>
                   <td className="text-center">{`${item.firstName} ${item.lastName}`}</td>
                   <td className="text-center lowercase text-wrap">
                     {item.email}
@@ -149,12 +109,17 @@ const ManageUser = () => {
                       <i className="fa-solid fa-circle-xmark text-red-600"></i>
                     )}
                   </td>
-                  {/* <td>{renderPermissionButtons(item.role)}</td> */}
-                  {/* <td>
-                    <Button onClick={() => showModal(item.id)}>
-                      Assign User to Supplier
-                    </Button>
-                  </td> */}
+                  <td className="text-center">
+                    {genderLabels[item.gender] || "Không xác định"}
+                  </td>
+                  <td className="text-center">{item.userName}</td>
+                  <td className="text-center">{item.address}</td>
+                  <td className="text-center">
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="text-center">
+                    {new Date(item.updatedAt).toLocaleDateString()}
+                  </td>
                 </tr>
               ))}
           </tbody>
@@ -176,28 +141,21 @@ const ManageUser = () => {
         )}
         {currentPage < totalItems && (
           <button
-            className="px-4 py-2 mx-1 rounded-lg  bg-primary text-white"
+            className="px-4 py-2 mx-1 rounded-lg bg-primary text-white"
             onClick={() => handlePageChange(currentPage + 1)}
           >
             Next
           </button>
         )}
       </div>
-      {selectedUser && (
-        <AssignRoleForm
-          visible={isFormVisible}
-          onClose={handleFormClose}
-          userId={selectedUser.id}
-          fetchData={fetchData}
-          currentPage={currentPage}
-        />
-      )}
-      <AssignUserModal
+
+      <GetInformationAccount
+        accountId={selectedAccountId}
         visible={modalVisible}
-        onCancel={hideModal}
-        userId={userId}
+        onCancel={() => setModalVisible(false)}
       />
     </div>
   );
 };
+
 export default ManageUser;

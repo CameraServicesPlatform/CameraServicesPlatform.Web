@@ -132,7 +132,7 @@ const NavBar = () => {
           Trang chủ
         </NavLink>
         <NavLink
-          to="/lien-he"
+          to="/contact"
           className="text-black hover:text-gray-500 no-underline"
         >
           Liên hệ
@@ -150,13 +150,13 @@ const NavBar = () => {
           Sản phẩm mua
         </NavLink>
         <NavLink
-          to="/chinh-sach"
+          to="/policy"
           className="text-black hover:text-gray-500 no-underline"
         >
           Chính sách
         </NavLink>
         <NavLink
-          to="/ve-chung-toi"
+          to="/about"
           className="text-black hover:text-gray-500 no-underline"
         >
           Về chúng tôi

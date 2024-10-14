@@ -1,122 +1,196 @@
-import { Card, Layout, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Input,
+  Layout,
+  Modal,
+  Row,
+  Spin,
+  Typography,
+} from "antd";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "slick-carousel/slick/slick-theme.css";
-import "slick-carousel/slick/slick.css";
-import { getAllProduct } from "../../api/productApi";
-import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
-
+import {
+  getAllProduct,
+  getProductByCategoryName,
+  getProductById,
+  getProductByName,
+} from "../../api/productApi";
+import { getBrandName } from "../../utils/constant";
 const { Header, Content } = Layout;
-const { Title, Paragraph } = Typography;
+const { Title } = Typography;
+const { Search } = Input;
 
 const Home = () => {
-  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const logoSettings = {
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 2000,
-    cssEase: "linear",
-    arrows: true,
-  };
-
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-  };
-
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const data = await getAllProduct(1, 100);
-      if (data && data.isSuccess) {
-        setProducts(data.result);
-      } else {
-        setError("Failed to fetch products");
-      }
-    } catch (err) {
-      setError("An error occurred while fetching products");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productDetail, setProductDetail] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categorySearchTerm, setCategorySearchTerm] = useState("");
   useEffect(() => {
+    const fetchProducts = async () => {
+      const productList = await getAllProduct(1, 100);
+      setProducts(productList);
+      setLoading(false);
+    };
+
     fetchProducts();
   }, []);
 
-  if (loading) return <LoadingComponent />;
-  if (error) return <div>{error}</div>;
+  const fetchProductDetail = async (productID) => {
+    const productData = await getProductById(productID, 1, 10);
+    if (productData) {
+      setProductDetail(productData);
+      setIsModalVisible(true);
+    }
+  };
 
+  const handleCardDoubleClick = (productID) => {
+    fetchProductDetail(productID);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setProductDetail(null); // Reset the product detail after closing the modal
+  };
+
+  const handleSearchByName = async (value) => {
+    setLoading(true);
+    try {
+      const productList = await getProductByName(value, 1, 10);
+      setProducts(Array.isArray(productList) ? productList : []);
+      setSearchTerm(""); // Clear the input if needed
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+    }
+    setLoading(false);
+  };
+
+  const handleSearchByCategory = async (value) => {
+    setLoading(true);
+    const productList = await getProductByCategoryName(value, 1, 10);
+    setProducts(Array.isArray(productList) ? productList : []);
+    setCategorySearchTerm("");
+    setLoading(false);
+  };
   return (
-    <>
-      <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
-        <div className="text-lg font-bold">CameraServicePlatform</div>
-        <nav>
-          <ul className="flex space-x-4">
-            <li>
-              <a href="may-anh" className="hover:underline">
-                Camera
-              </a>
-            </li>
-            <li>
-              <a href="lens" className="hover:underline">
-                Lens
-              </a>
-            </li>
-            <li>
-              <a href="phu-kien" className="hover:underline">
-                Accessory
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </header>
-
+    <Layout>
+      <Header>
+        <Title level={2} style={{ color: "white" }}>
+          Product List
+        </Title>
+      </Header>
       <Content style={{ padding: "20px" }}>
-        <Title level={2}>Đề xuất</Title>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-          {products.map((item) => (
-            <Card
-              key={item.product.productID}
-              hoverable
-              style={{ width: 240 }}
-              cover={
-                <img
-                  alt={item.product.productName}
-                  src={item.listImage[0]?.image || "/placeholder-image.png"}
-                />
-              }
-            >
-              <Card.Meta
-                title={item.product.productName}
-                description={
-                  <>
-                    <Paragraph>{item.product.productDescription}</Paragraph>
-                    <Paragraph
-                      strong
-                    >{`Price: $${item.product.priceBuy}`}</Paragraph>
-                    <Paragraph>{`Rating: ${item.product.rating}`}</Paragraph>
-                  </>
-                }
-              />
-            </Card>
-          ))}
+        <div style={{ marginBottom: "20px" }}>
+          <Search
+            placeholder="Search products by name"
+            enterButton="Search"
+            size="large"
+            value={searchTerm} // Controlled input
+            onChange={(e) => setSearchTerm(e.target.value)} // Update state on input change
+            onSearch={handleSearchByName}
+            style={{ width: 300, marginRight: 20 }}
+          />
+
+          <Search
+            placeholder="Search products by category"
+            enterButton="Search"
+            size="large"
+            value={categorySearchTerm} // Controlled input
+            onChange={(e) => setCategorySearchTerm(e.target.value)} // Update state on input change
+            onSearch={handleSearchByCategory}
+            style={{ width: 300 }}
+          />
         </div>
+        {loading ? (
+          <Spin tip="Loading products..." />
+        ) : products.length > 0 ? (
+          <Row gutter={16}>
+            {products.map((product) => (
+              <Col span={8} key={product.productID}>
+                <Card
+                  hoverable
+                  cover={
+                    product.listImage.length > 0 && (
+                      <img
+                        alt={product.productName}
+                        src={product.listImage[0].image}
+                        style={{ height: 200, objectFit: "cover" }}
+                      />
+                    )
+                  }
+                  onDoubleClick={() => handleCardDoubleClick(product.productID)}
+                  style={{ marginBottom: "20px" }}
+                >
+                  <Card.Meta
+                    title={product.productName}
+                    description={
+                      <div>
+                        <p>{product.productDescription}</p>
+                        <p>SerialNumber: {product.serialNumber}</p>
+                        <p>Price (Rent)/hour: VND{product.priceRent}</p>
+                        <p>Price (Buy): VND{product.priceBuy}</p>
+                        <p>Rating: {product.rating}</p>
+                        <p>Brand: {getBrandName(product.brand)}</p>{" "}
+                        {/* Use the mapping function */}
+                        <p>Quality: {product.quality}</p>
+                      </div>
+                    }
+                  />
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          <p>No products found.</p>
+        )}
       </Content>
-    </>
+
+      {/* Modal for showing product details */}
+      <Modal
+        title={productDetail?.productName || "Product Details"}
+        visible={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button key="close" onClick={handleModalClose}>
+            Close
+          </Button>,
+        ]}
+      >
+        {productDetail ? (
+          <div>
+            <img
+              src={productDetail.listImage[0]?.image}
+              alt={productDetail.productName}
+              className="w-full h-64 object-cover mb-4"
+            />
+            <p>
+              <strong>Description:</strong> {productDetail.productDescription}
+            </p>
+            <p>
+              <strong>Price (Rent):</strong> VND{productDetail.priceRent}
+            </p>
+            <p>
+              <strong>Price (Buy):</strong> VND{productDetail.priceBuy}
+            </p>
+            <p>
+              <strong>Rating:</strong> {productDetail.rating}
+            </p>
+            <p>
+              <strong>Brand:</strong> {productDetail.brand}
+            </p>
+            <p>
+              <strong>Quality:</strong> {productDetail.quality}
+            </p>
+          </div>
+        ) : (
+          <Spin tip="Loading details..." />
+        )}
+      </Modal>
+    </Layout>
   );
 };
 
