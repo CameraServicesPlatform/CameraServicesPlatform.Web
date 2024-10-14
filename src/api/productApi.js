@@ -155,7 +155,6 @@ export const updateProduct = async (product, file) => {
 
     formData.append("ProductID", product.productID);
     formData.append("SerialNumber", product.serialNumber);
-    formData.append("SupplierID", product.supplierID);
     formData.append("CategoryID", product.categoryID);
     formData.append("ProductName", product.productName);
     formData.append("ProductDescription", product.productDescription);

@@ -16,7 +16,7 @@ import {
   getProductById,
   getProductByName,
 } from "../../api/productApi";
-
+import { getBrandName } from "../../utils/constant";
 const { Header, Content } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
@@ -130,7 +130,8 @@ const Home = () => {
                         <p>Price (Rent)/hour: VND{product.priceRent}</p>
                         <p>Price (Buy): VND{product.priceBuy}</p>
                         <p>Rating: {product.rating}</p>
-                        <p>Brand: {product.brand}</p>
+                        <p>Brand: {getBrandName(product.brand)}</p>{" "}
+                        {/* Use the mapping function */}
                         <p>Quality: {product.quality}</p>
                       </div>
                     }

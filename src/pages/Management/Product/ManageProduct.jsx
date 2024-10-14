@@ -1,252 +1,104 @@
-import {
-  Button,
-  Form,
-  Input,
-  Modal,
-  Pagination,
-  Spin,
-  Table,
-  message,
-} from "antd";
+import { Button, Input, Modal, Pagination, Spin, message } from "antd";
 import React, { useEffect, useState } from "react";
 import {
   createProduct,
-  deleteProduct,
   getAllProduct,
   getProductByName,
 } from "../../../api/productApi";
 import CreateProductForm from "./CreateProductForm";
+import ProductListTable from "./ProductListTable";
 
 const ManageProduct = () => {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [totalProducts, setTotalProducts] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize] = useState(10);
-  const [searchFilter, setSearchFilter] = useState(""); // Search input state
-  const [editingProduct, setEditingProduct] = useState(null); // For editing product
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [filter, setFilter] = useState("");
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     fetchProducts();
-  }, [pageIndex, searchFilter]); // Fetch products when pageIndex or searchFilter changes
+  }, [pageIndex, pageSize, filter]);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = searchFilter
-        ? await getProductByName(searchFilter, pageIndex, pageSize)
+      const data = filter
+        ? await getProductByName(filter, pageIndex, pageSize)
         : await getAllProduct(pageIndex, pageSize);
 
-      if (response && response.result) {
-        setProducts(response.result.items || response.result); // Handle paginated and non-paginated responses
-        setTotalProducts(response.result.total || response.result.length); // Set total number of products
+      if (data) {
+        setProducts(data.items || []);
+        setTotalProducts(data.total || 0);
       } else {
-        message.error("Failed to load products.");
+        message.error("Failed to fetch products");
       }
     } catch (error) {
-      console.error("Error fetching products:", error);
-      message.error("An error occurred while fetching products.");
-    } finally {
-      setLoading(false);
+      message.error("Error fetching products");
     }
+    setLoading(false);
   };
 
-  const handleChange = (page) => {
-    setPageIndex(page); // Update pageIndex on pagination change
-  };
-
-  const handleEdit = (product) => {
-    setEditingProduct(product); // Set the selected product for editing
-    setIsModalVisible(true); // Show the modal
-  };
-
-  const handleEditSubmit = async (values) => {
+  const handleCreateProduct = async (values) => {
     try {
-      const result = await createProduct(
-        editingProduct.serialNumber,
-        editingProduct.supplierID,
-        editingProduct.categoryID,
-        values.productName,
-        values.productDescription,
-        values.priceRent,
-        values.priceBuy,
-        editingProduct.brand,
-        editingProduct.status
-      );
-      if (result) {
-        message.success("Product updated successfully");
-        fetchProducts();
-        setEditingProduct(null);
-        setIsModalVisible(false); // Close the modal
-      } else {
-        message.error("Failed to update product.");
-      }
-    } catch (error) {
-      console.error("Error updating product:", error);
-      message.error("An error occurred while updating product.");
-    }
-  };
-
-  const columns = [
-    {
-      title: "Product Name",
-      dataIndex: ["product", "productName"],
-      key: "productName",
-      render: (text, record) => (
-        <a onClick={() => handleEdit(record.product)}>{text}</a>
-      ),
-    },
-    {
-      title: "Description",
-      dataIndex: ["product", "productDescription"],
-      key: "productDescription",
-    },
-    {
-      title: "Price (Rent)",
-      dataIndex: ["product", "priceRent"],
-      key: "priceRent",
-    },
-    {
-      title: "Price (Buy)",
-      dataIndex: ["product", "priceBuy"],
-      key: "priceBuy",
-    },
-    {
-      title: "Quality",
-      dataIndex: ["product", "quality"],
-    },
-    {
-      title: "Rating",
-      dataIndex: ["product", "rating"],
-      key: "rating",
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_, record) => (
-        <span>
-          <Button type="link" onClick={() => handleEdit(record)}>
-            Edit
-          </Button>
-          <Button
-            type="link"
-            onClick={() => handleDelete(record.product.productID)}
-          >
-            Delete
-          </Button>
-        </span>
-      ),
-    },
-  ];
-
-  const handleDelete = async (productID) => {
-    try {
-      await deleteProduct(productID);
-      message.success("Product deleted successfully");
+      await createProduct(values);
+      message.success("Product created successfully");
+      setCreateModalVisible(false);
       fetchProducts();
     } catch (error) {
-      console.error("Error deleting product:", error);
-      message.error("An error occurred while deleting product.");
+      message.error("Error creating product");
     }
   };
 
   return (
     <div>
-      <h1>Manage Products</h1>
-      <Input
-        placeholder="Search products"
-        value={searchFilter}
-        onChange={(e) => setSearchFilter(e.target.value)}
-        style={{ width: 200, marginBottom: 16 }}
-      />
-      <Button type="primary" onClick={fetchProducts} style={{ marginLeft: 8 }}>
-        Search
-      </Button>
-
-      <CreateProductForm
-        isVisible={isModalVisible}
-        setIsVisible={setIsModalVisible}
-      />
+      <div style={{ marginBottom: 16 }}>
+        <Input.Search
+          placeholder="Search products by name"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          onSearch={fetchProducts}
+          style={{ width: 300, marginRight: 16 }}
+        />
+        <Button type="primary" onClick={() => setCreateModalVisible(true)}>
+          Create Product
+        </Button>
+      </div>
 
       {loading ? (
-        <Spin tip="Loading..." />
+        <Spin />
       ) : (
-        <Table
-          columns={columns}
-          dataSource={products}
-          pagination={false}
-          rowKey={(record) => record.product?.productID || record.id}
+        <ProductListTable
+          products={products}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          totalProducts={totalProducts}
+          setPageIndex={setPageIndex}
+          setPageSize={setPageSize}
         />
       )}
+
       <Pagination
         current={pageIndex}
         pageSize={pageSize}
         total={totalProducts}
-        onChange={handleChange}
+        onChange={(page, size) => {
+          setPageIndex(page);
+          setPageSize(size);
+        }}
         style={{ marginTop: 16, textAlign: "right" }}
       />
+
       <Modal
-        title="Edit Product"
-        visible={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        title="Create Product"
+        visible={createModalVisible}
+        onCancel={() => setCreateModalVisible(false)}
         footer={null}
       >
-        {editingProduct && (
-          <Form
-            initialValues={{
-              productName: editingProduct.productName,
-              productDescription: editingProduct.productDescription,
-              priceRent: editingProduct.priceRent,
-              priceBuy: editingProduct.priceBuy,
-              quality: editingProduct.quality,
-              rating: editingProduct.rating,
-            }}
-            onFinish={handleEditSubmit}
-          >
-            <Form.Item
-              label="Product Name"
-              name="productName"
-              rules={[
-                { required: true, message: "Please enter the product name." },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item label="Description" name="productDescription">
-              <Input.TextArea />
-            </Form.Item>
-            <Form.Item
-              label="Price (Rent)"
-              name="priceRent"
-              rules={[
-                { required: true, message: "Please enter the rent price." },
-              ]}
-            >
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item
-              label="Price (Buy)"
-              name="priceBuy"
-              rules={[
-                { required: true, message: "Please enter the buy price." },
-              ]}
-            >
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item label="Quality" name="quality">
-              <Input />
-            </Form.Item>
-            <Form.Item label="Rating" name="rating">
-              <Input type="number" />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Save
-              </Button>
-            </Form.Item>
-          </Form>
-        )}
+        <CreateProductForm onSubmit={handleCreateProduct} />
       </Modal>
     </div>
   );
