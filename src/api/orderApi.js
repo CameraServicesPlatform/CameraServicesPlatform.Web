@@ -1,16 +1,5 @@
 import api from "../api/config";
 
-export const getAllOrders = async (pageIndex, pageSize) => {
-  try {
-    const res = await api.get(
-      `/api/Orders/get-all-order?pageIndex=${pageIndex}&pageSize=${pageSize}`
-    );
-    return res.data;
-  } catch (err) {
-    console.error("Error fetching all orders:", err);
-    return null;
-  }
-};
 export const getOrdersByType = async (type, pageIndex, pageSize) => {
   try {
     const res = await api.get(
@@ -57,28 +46,7 @@ export const createOrder = async (orderData) => {
     return null;
   }
 };
-export const updateOrderStatusCompleted = async (orderId) => {
-  try {
-    const res = await api.put(
-      `/api/Orders/update-order-status-completed/${orderId}`
-    );
-    return res.data;
-  } catch (err) {
-    console.error("Error updating order status:", err);
-    return null;
-  }
-};
-export const cancelOrder = async (orderId) => {
-  try {
- 
-    const res = await api.put(`/Orders/cancel-order/${orderId}`);
-    return res.data;
-  } catch (err) {
-    console.error("Error canceling order:", err);
-    return null;
-  }
- 
-};
+
 export const getAllOrders = async (pageIndex, pageSize) => {
   try {
     const res = await api.get(
