@@ -18,7 +18,7 @@ const AssignRoleForm = ({
     { value: "Member" || "MEMBER", displayName: "Khách hàng" },
     { value: "Admin" || "ADMIN", displayName: "Quản trị viên" },
     { value: "Staff" || "STAFF", displayName: "Nhân viên " },
-    { value: "Supplier" || "SUPPLIER", displayName: "Nhà cumg cấp dịch vụ" },
+    { value: "Supplier" || "SUPPLIER", displayName: "Nhà cung cấp dịch vụ" },
   ];
 
   const onFinish = async (values) => {

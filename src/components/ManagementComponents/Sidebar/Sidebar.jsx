@@ -15,12 +15,12 @@ const SideBar = () => {
       { name: "Tổng Quan", link: "sponsor-overview", icon: <FaHome /> },
       { name: "Quản lí danh mục sản phẩm", link: "manage-category" },
       { name: "Tổng quản lí sản phẩm hệ thống", link: "manage-product" },
-      { name: "Quản lí chính sách", link: "manage-policy" },
+      { name: "Voucher", link: "manage-voucher" },
     ],
 
     SUPPLIER: [
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
-      { name: "Tổng Quan", link: "sponsor-overview", icon: <FaHome /> },
+      { name: "Voucher", link: "manage-voucher" },
     ],
     ADMIN: [
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },

@@ -8,7 +8,7 @@ const assignRole = (userRoles) => {
   } else if (roleNames.includes("STAFF")) {
     return "STAFF";
   } else if (roleNames.includes("SUPPLIER")) {
-    return "SUPPLIER";
+    return "SUPLIER";
   } else {
     return "MEMBER";
   }

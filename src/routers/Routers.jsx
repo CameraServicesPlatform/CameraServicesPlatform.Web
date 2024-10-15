@@ -15,13 +15,12 @@ import Policy from "../pages/Common/Policy";
 import ProductPage from "../pages/Common/Product/ProductPage";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
- import CreateProductForm from "../pages/Management/Product/CreateProductForm";
- 
-import ManageOrder from "../pages/Management/Order/ManageOrder";
- 
+import CreateProductForm from "../pages/Management/Product/CreateProductForm";
+
 import ManageProduct from "../pages/Management/Product/ManageProduct";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
+import CreateVoucherForm from "../pages/Supllier/CreateVoucherForm";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 function Routers() {
   const routing = useRoutes([
@@ -46,7 +45,6 @@ function Routers() {
         { path: "product", element: <ProductPage /> },
         { path: "product-for-rent", element: <ProductPage /> },
         { path: "product-for-buy", element: <ProductPage /> },
- 
       ],
     },
     {
@@ -73,6 +71,7 @@ function Routers() {
         { path: "manage-policy", element: <ManagePolicy /> },
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
+        { path: "manage-voucher", element: <CreateVoucherForm /> },
       ],
     },
     {
@@ -95,6 +94,7 @@ function Routers() {
         { path: "dashboard", element: <div>Dashboard</div> },
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
+        { path: "manage-voucher", element: <CreateVoucherForm /> },
       ],
     },
   ]);
