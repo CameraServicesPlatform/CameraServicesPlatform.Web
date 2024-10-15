@@ -14,12 +14,13 @@ const SideBar = () => {
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
       { name: "Quản lí danh mục sản phẩm", link: "manage-category" },
       { name: "Tổng quản lí sản phẩm hệ thống", link: "manage-product" },
-      { name: "Voucher", link: "manage-voucher" },
+      { name: "Tạo Voucher", link: "manage-voucher" },
     ],
 
     SUPPLIER: [
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
       { name: "Voucher", link: "manage-voucher" },
+      { name: "Tạo sản phẩm", link: "create-product" },
     ],
     ADMIN: [
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },

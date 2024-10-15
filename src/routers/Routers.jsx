@@ -20,7 +20,7 @@ import CreateProductForm from "../pages/Management/Product/CreateProductForm";
 import ManageProduct from "../pages/Management/Product/ManageProduct";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
-import CreateVoucherForm from "../pages/Supllier/CreateVoucherForm";
+import ManageVoucher from "../pages/Supllier/Voucher/ManageVoucher";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 function Routers() {
   const routing = useRoutes([
@@ -71,11 +71,10 @@ function Routers() {
         { path: "manage-policy", element: <ManagePolicy /> },
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
-        { path: "manage-voucher", element: <CreateVoucherForm /> },
       ],
     },
     {
-      path: "supplier",
+      path: "supllier", // change from "supplier" to "supllier"
       element: <ManagementLayOut />,
       children: [
         { index: true, element: <Navigate to="dashboard" replace /> },
@@ -84,8 +83,10 @@ function Routers() {
           element: <div>Dashboard</div>,
         },
         { path: "create-product", element: <CreateProductForm /> },
+        { path: "manage-voucher", element: <ManageVoucher /> },
       ],
     },
+
     {
       path: "staff",
       element: <ManagementLayOut />,
@@ -94,7 +95,7 @@ function Routers() {
         { path: "dashboard", element: <div>Dashboard</div> },
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
-        { path: "manage-voucher", element: <CreateVoucherForm /> },
+        { path: "manage-voucher", element: <ManageVoucher /> },
       ],
     },
   ]);
