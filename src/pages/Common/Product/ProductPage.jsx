@@ -30,9 +30,9 @@ const ProductPage = () => {
     const loadProducts = async () => {
       setLoading(true);
       try {
-        const productData = await getAllProduct(1, 10); // Fetch all products initially
+        const productData = await getAllProduct(1, 20); // Adjust page size as needed
         if (productData) {
-          setProducts(productData.items);
+          setProducts(productData);
         } else {
           message.error("Failed to load products.");
         }
@@ -49,17 +49,10 @@ const ProductPage = () => {
   const handleSearch = async (value) => {
     setLoading(true);
     setSearchTerm(value);
-
     try {
-      let productData;
-      if (value) {
-        productData = await getProductByName(value); // Search by name
-      } else {
-        productData = await getAllProduct(1, 10); // Fetch all if no search term
-      }
-
+      const productData = await getProductByName(value);
       if (productData) {
-        setProducts(productData.items);
+        setProducts(productData);
       } else {
         message.error("No products found.");
         setProducts([]);
@@ -77,7 +70,7 @@ const ProductPage = () => {
     try {
       const productData = await getProductByCategoryName(value);
       if (productData) {
-        setProducts(productData.items);
+        setProducts(productData);
       } else {
         message.error("No products found in this category.");
         setProducts([]);
@@ -110,6 +103,7 @@ const ProductPage = () => {
             onChange={handleCategoryChange}
             placeholder="Select a category"
           >
+            {/* Replace with actual categories */}
             <Option value=""></Option>
             <Option value="SCanon">Canon 1</Option>
             <Option value="Nikon">Nikon 2</Option>

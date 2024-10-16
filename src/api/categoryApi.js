@@ -1,6 +1,6 @@
 import api from "../api/config";
 
-export const getAllCategories = async (pageIndex = 1, pageSize = 10) => {
+export const getAllCategories = async (pageIndex, pageSize) => {
   try {
     const response = await api.get("/category/get-all-category", {
       params: { pageIndex, pageSize },

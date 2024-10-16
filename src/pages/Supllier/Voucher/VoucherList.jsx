@@ -1,6 +1,10 @@
-import { Pagination, Spin, Table, message } from "antd";
+import { Button, Modal, Pagination, Spin, Table, message } from "antd";
 import React, { useEffect, useState } from "react";
-import { getAllVouchers } from "../../../api/voucherApi"; // Adjust import path accordingly
+import {
+  deleteVoucher,
+  getAllVouchers,
+  getVoucherById,
+} from "../../../api/voucherApi";
 
 const VoucherList = () => {
   const [vouchers, setVouchers] = useState([]);
@@ -8,6 +12,8 @@ const VoucherList = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
+  const [selectedVoucher, setSelectedVoucher] = useState(null); // For viewing/updating a voucher
+  const [viewModalVisible, setViewModalVisible] = useState(false); // Modal visibility
 
   useEffect(() => {
     fetchVouchers(pageIndex, pageSize);
@@ -17,12 +23,9 @@ const VoucherList = () => {
     setLoading(true);
     try {
       const data = await getAllVouchers(pageIndex, pageSize);
-      console.log(data); // Check the full response structure
-
-      if (data && data.isSuccess) {
-        // Adjust the path to access items and total count correctly
-        setVouchers(data.result.items || []); // Extract items from the response
-        setTotalItems(data.result.totalPages * pageSize); // Use total pages for total items
+      if (data) {
+        setVouchers(data);
+        setTotalItems(data.length); // Adjust if the API provides a total count
       } else {
         setVouchers([]);
         setTotalItems(0);
@@ -36,23 +39,35 @@ const VoucherList = () => {
     }
   };
 
+  const handleViewDetails = async (id) => {
+    try {
+      const voucher = await getVoucherById(id);
+      if (voucher) {
+        setSelectedVoucher(voucher); // Store voucher details for display
+        setViewModalVisible(true); // Show the modal
+      } else {
+        message.error("Failed to fetch voucher details.");
+      }
+    } catch (error) {
+      message.error("Error fetching voucher details.");
+    }
+  };
+
+  const handleDeleteVoucher = async (id) => {
+    try {
+      await deleteVoucher(id);
+      message.success("Voucher deleted successfully.");
+      fetchVouchers(pageIndex, pageSize); // Refresh list after deletion
+    } catch (error) {
+      message.error("Error deleting voucher.");
+    }
+  };
+
   const columns = [
-    {
-      title: "Voucher ID",
-      dataIndex: "vourcherID", // Corrected typo in dataIndex
-    },
-    {
-      title: "Supplier ID",
-      dataIndex: "supplierID",
-    },
-    {
-      title: "Voucher Code",
-      dataIndex: "vourcherCode", // Corrected typo in dataIndex
-    },
-    {
-      title: "Description",
-      dataIndex: "description",
-    },
+    { title: "Voucher ID", dataIndex: "vourcherID" },
+    { title: "Supplier ID", dataIndex: "supplierID" },
+    { title: "Voucher Code", dataIndex: "vourcherCode" },
+    { title: "Description", dataIndex: "description" },
     {
       title: "Discount Amount",
       dataIndex: "discountAmount",
@@ -76,9 +91,20 @@ const VoucherList = () => {
     {
       title: "Action",
       render: (text, record) => (
-        <button className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600">
-          View Details
-        </button>
+        <div>
+          <button
+            onClick={() => handleViewDetails(record.vourcherID)}
+            className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 mr-2"
+          >
+            View Details
+          </button>
+          <button
+            onClick={() => handleDeleteVoucher(record.vourcherID)}
+            className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </div>
       ),
     },
   ];
@@ -98,20 +124,60 @@ const VoucherList = () => {
           <Table
             dataSource={vouchers}
             columns={columns}
-            rowKey="vourcherID" // Corrected typo in rowKey
+            rowKey="vourcherID"
             pagination={false}
             className="shadow-lg rounded"
           />
           <div className="flex justify-end mt-4">
             <Pagination
               current={pageIndex}
-              total={totalItems} // Total number of items across all pages
+              total={totalItems}
               pageSize={pageSize}
               showSizeChanger
               onChange={handlePageChange}
             />
           </div>
         </>
+      )}
+
+      {/* Modal for viewing details */}
+      {selectedVoucher && (
+        <Modal
+          title="Voucher Details"
+          visible={viewModalVisible}
+          onCancel={() => setViewModalVisible(false)}
+          footer={[
+            <Button key="close" onClick={() => setViewModalVisible(false)}>
+              Close
+            </Button>,
+          ]}
+        >
+          <p>
+            <strong>ID:</strong> {selectedVoucher.vourcherID}
+          </p>
+          <p>
+            <strong>Code:</strong> {selectedVoucher.vourcherCode}
+          </p>
+          <p>
+            <strong>Description:</strong> {selectedVoucher.description}
+          </p>
+          <p>
+            <strong>Discount Amount:</strong> {selectedVoucher.discountAmount}{" "}
+            VND
+          </p>
+          <p>
+            <strong>Valid From:</strong>{" "}
+            {new Date(selectedVoucher.validFrom).toLocaleDateString()}
+          </p>
+          <p>
+            <strong>Expiration Date:</strong>{" "}
+            {new Date(selectedVoucher.expirationDate).toLocaleDateString()}
+          </p>
+          <p>
+            <strong>Is Active:</strong>{" "}
+            {selectedVoucher.isActive ? "Yes" : "No"}
+          </p>
+        </Modal>
       )}
     </div>
   );

@@ -12,7 +12,7 @@ export const getAllSuppliers = async (pageIndex, pageSize) => {
   }
 };
 // Get supplier by ID
-export const getSupplierById = async (id, pageIndex = 1, pageSize = 10) => {
+export const getSupplierById = async (id, pageIndex, pageSize) => {
   try {
     const res = await api.get(
       `/supplier/get-supplier-by-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`
