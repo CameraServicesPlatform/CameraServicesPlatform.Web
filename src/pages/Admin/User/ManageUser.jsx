@@ -11,6 +11,7 @@ const ManageUser = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(1);
   const itemsPerPage = 10;
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchData = async (page) => {
     try {
@@ -61,12 +62,43 @@ const ManageUser = () => {
     setModalVisible(true);
   };
 
+  // Function to handle search input change
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  };
+
+  // Filter accounts based on search term
+  const filteredAccounts = accounts.filter((item) => {
+    const fullName = `${item.firstName} ${item.lastName}`.toLowerCase();
+    return (
+      fullName.includes(searchTerm) ||
+      item.email.toLowerCase().includes(searchTerm) ||
+      item.phoneNumber.toLowerCase().includes(searchTerm) ||
+      item.mainRole.toLowerCase().includes(searchTerm) ||
+      (genderLabels[item.gender] || "Không xác định")
+        .toLowerCase()
+        .includes(searchTerm)
+    );
+  });
+
   return (
     <div>
       <LoadingComponent isLoading={isLoading} title={"Đang tải dữ liệu"} />
       <h1 className="text-center font-bold text-primary text-xl">
         QUẢN TRỊ NGƯỜI DÙNG TẠI HỆ THỐNG CAMERA SERVICE PLATFORM
       </h1>
+
+      {/* Search Box */}
+      <div className="flex justify-center my-4">
+        <input
+          type="text"
+          placeholder="Tìm kiếm theo tên, email, số điện thoại, quyền, giới tính..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="border rounded-lg p-2 w-1/2"
+        />
+      </div>
+
       <div className="overflow-x-auto rounded-lg my-10 shadow-md">
         <table className="table">
           <thead className="bg-primary text-white">
@@ -86,9 +118,8 @@ const ManageUser = () => {
             </tr>
           </thead>
           <tbody>
-            {accounts &&
-              accounts.length > 0 &&
-              accounts.map((item, index) => (
+            {filteredAccounts.length > 0 ? (
+              filteredAccounts.map((item, index) => (
                 <tr
                   key={item.id}
                   className="h-10 hover"
@@ -121,7 +152,14 @@ const ManageUser = () => {
                     {new Date(item.updatedAt).toLocaleDateString()}
                   </td>
                 </tr>
-              ))}
+              ))
+            ) : (
+              <tr>
+                <td colSpan="12" className="text-center">
+                  Không tìm thấy người dùng nào
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
