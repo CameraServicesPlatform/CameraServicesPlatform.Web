@@ -18,12 +18,7 @@ export const updatePolicyById = async (policyID, policyData) => {
   try {
     const res = await api.put(
       `/policy/update-policy-by-id?PolicyID=${policyID}`,
-      policyData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+      policyData
     );
     return res.data;
   } catch (err) {
@@ -66,12 +61,7 @@ export const getPolicyById = async (policyID) => {
 export const getAllPolicies = async (pageIndex, pageSize) => {
   try {
     const res = await api.get(
-      `/policy/get-all-policy?pageIndex=${pageIndex}&pageSize=${pageSize}`,
-      {
-        headers: {
-          accept: "text/plain",
-        },
-      }
+      `/policy/get-all-policy?pageIndex=${pageIndex}&pageSize=${pageSize}`
     );
     return res.data;
   } catch (err) {
