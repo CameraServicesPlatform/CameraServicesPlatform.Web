@@ -2,6 +2,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select, Upload, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { getSupplierIdByAccountId } from "../../../api/accountApi"; // Make sure this is the correct import path
 import { getAllCategories } from "../../../api/categoryApi";
 import { createProduct } from "../../../api/productApi";
 
@@ -13,17 +14,28 @@ const CreateProductForm = () => {
   const [categories, setCategories] = useState([]);
   const [file, setFile] = useState(null);
   const user = useSelector((state) => state.user.user || {});
-  const SupplierID = user?.supplierId;
-
+  const [supplierId, setSupplierId] = useState(null);
+  const fetchSupplierId = async () => {
+    if (user.id) {
+      // Use user.id for accountId
+      try {
+        const response = await getSupplierIdByAccountId(user.id); // Pass accountId
+        if (response?.isSuccess) {
+          setSupplierId(response.result); // Set supplierId from the API response
+        } else {
+          message.error("Failed to get Supplier ID.");
+        }
+      } catch (error) {
+        message.error("Error fetching Supplier ID.");
+      }
+    }
+  };
   useEffect(() => {
     fetchCategories();
   }, []);
-
   useEffect(() => {
-    if (!SupplierID) {
-      message.error("Supplier ID is missing or invalid.");
-    }
-  }, [SupplierID]);
+    fetchSupplierId(); // Fetch supplier ID when component mounts
+  }, [user]);
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -59,17 +71,17 @@ const CreateProductForm = () => {
       Status,
     } = values;
 
-    // Check if SupplierID is valid
-    if (!SupplierID) {
+    // Check if supplierId is valid
+    if (!supplierId) {
       message.error("Supplier ID is missing or invalid.");
-      return;
+      return; // Ensure to return to stop further execution
     }
 
     try {
       setLoading(true); // Start the loading state
       const product = {
         serialNumber: SerialNumber,
-        supplierID: SupplierID, // Use the SupplierID from the Redux state
+        supplierID: supplierId, // Use the supplierId from the state
         categoryID: CategoryID,
         productName: ProductName,
         productDescription: ProductDescription,
