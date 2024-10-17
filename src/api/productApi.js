@@ -36,9 +36,9 @@ export const getProductById = async (id, pageIndex, pageSize) => {
 
 export const getProductBySupplierId = async (
   supplierId,
-  filter = "s",
-  pageIndex = 1,
-  pageSize = 10
+  filter,
+  pageIndex,
+  pageSize
 ) => {
   try {
     const response = await api.get(
@@ -55,11 +55,7 @@ export const getProductBySupplierId = async (
     return null;
   }
 };
-export const getProductByName = async (
-  filter = "",
-  pageIndex = 1,
-  pageSize = 10
-) => {
+export const getProductByName = async (filter = "", pageIndex, pageSize) => {
   try {
     const response = await api.get(`/product/get-product-by-name`, {
       params: {
@@ -82,8 +78,8 @@ export const getProductByName = async (
 
 export const getProductByCategoryName = async (
   filter = "",
-  pageIndex = 1,
-  pageSize = 10
+  pageIndex,
+  pageSize
 ) => {
   try {
     const response = await api.get(
@@ -102,8 +98,8 @@ export const getProductByCategoryName = async (
 };
 export const getProductByCategoryId = async (
   filter = "",
-  pageIndex = 1,
-  pageSize = 10
+  pageIndex,
+  pageSize
 ) => {
   try {
     const response = await api.get(

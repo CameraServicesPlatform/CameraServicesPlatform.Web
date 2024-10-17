@@ -30,7 +30,7 @@ const ManageOrder = () => {
     const fetchOrders = async () => {
       setLoading(true);
       try {
-        const data = await getAllOrders(0, 10);
+        const data = await getAllOrders(1, 10);
         setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
         setError("Failed to load orders");
