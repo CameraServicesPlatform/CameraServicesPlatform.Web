@@ -148,11 +148,14 @@ const ProductPage = () => {
                 <div className="mt-2">
                   <p className="text-gray-700">{product.productDescription}</p>
                   <p className="font-semibold">
-                    Price (Rent): ${product.priceRent.toFixed(2)}
+                    Price (Rent): $
+                    {product.priceRent ? product.priceRent.toFixed(2) : "N/A"}
                   </p>
                   <p className="font-semibold">
-                    Price (Buy): ${product.priceBuy.toFixed(2)}
+                    Price (Buy): $
+                    {product.priceBuy ? product.priceBuy.toFixed(2) : "N/A"}
                   </p>
+
                   <p className="font-semibold">Rating: {product.rating}</p>
                 </div>
 

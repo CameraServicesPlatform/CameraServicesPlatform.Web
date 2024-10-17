@@ -46,20 +46,48 @@ export const registerSupplier = async (
   supplierDescription,
   supplierAddress,
   contactNumber,
-  phoneNumber
+  phoneNumber,
+  frontOfCitizenIdentificationCard, // binary file input for the front of the card
+  backOfCitizenIdentificationCard, // binary file input for the back of the card
+  bankName,
+  accountNumber,
+  accountHolder
 ) => {
   try {
-    const res = await api.post("/account/register/supplier", {
-      email,
-      password,
-      firstName,
-      lastName,
-      supplierName,
-      supplierDescription,
-      supplierAddress,
-      contactNumber,
-      phoneNumber,
+    // Create a FormData object to handle multipart/form-data
+    const formData = new FormData();
+
+    // Append all the form fields to FormData
+    formData.append("Email", email);
+    formData.append("Password", password);
+    formData.append("FirstName", firstName);
+    formData.append("LastName", lastName);
+    formData.append("SupplierName", supplierName);
+    formData.append("SupplierDescription", supplierDescription);
+    formData.append("SupplierAddress", supplierAddress);
+    formData.append("ContactNumber", contactNumber);
+    formData.append("PhoneNumber", phoneNumber);
+    formData.append("BankName", bankName);
+    formData.append("AccountNumber", accountNumber);
+    formData.append("AccountHolder", accountHolder);
+
+    // Append the binary files to FormData
+    formData.append(
+      "FrontOfCitizenIdentificationCard",
+      frontOfCitizenIdentificationCard
+    );
+    formData.append(
+      "BackOfCitizenIdentificationCard",
+      backOfCitizenIdentificationCard
+    );
+
+    // Make the POST request with multipart/form-data
+    const res = await api.post("/account/register/supplier", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
+
     return res.data;
   } catch (err) {
     console.error("Error registering supplier:", err);
