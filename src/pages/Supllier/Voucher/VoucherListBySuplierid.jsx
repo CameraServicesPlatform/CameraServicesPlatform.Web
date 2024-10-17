@@ -1,3 +1,4 @@
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { Button, message, Modal, Pagination, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -74,9 +75,8 @@ const VoucherListBySupplierId = () => {
   }, [supplierId, pageIndex, pageSize]);
 
   const columns = [
-    { title: "Voucher ID", dataIndex: "voucherID", key: "voucherID" },
-    { title: "Supplier ID", dataIndex: "supplierID", key: "supplierID" },
-    { title: "Voucher Code", dataIndex: "voucherCode", key: "voucherCode" },
+    { title: "Voucher ID", dataIndex: "vourcherID", key: "vourcherID" },
+    { title: "Voucher Code", dataIndex: "vourcherCode", key: "vourcherCode" },
     { title: "Description", dataIndex: "description", key: "description" },
     {
       title: "Discount Amount",
@@ -89,7 +89,19 @@ const VoucherListBySupplierId = () => {
       dataIndex: "expirationDate",
       key: "expirationDate",
     },
-    { title: "Is Active", dataIndex: "isActive", key: "isActive" },
+    {
+      title: "Is Active",
+      dataIndex: "isActive",
+      key: "isActive",
+      render: (isActive) =>
+        isActive ? (
+          <CheckCircleOutlined style={{ color: "green" }} />
+        ) : (
+          <CloseCircleOutlined style={{ color: "red" }} />
+        ),
+    },
+    { title: "Created At", dataIndex: "createdAt", key: "createdAt" },
+    { title: "Updated At", dataIndex: "updatedAt", key: "updatedAt" },
     {
       title: "Action",
       render: (_, record) => (
@@ -115,7 +127,7 @@ const VoucherListBySupplierId = () => {
               <Table
                 dataSource={vouchers}
                 columns={columns}
-                rowKey="voucherID"
+                rowKey="vourcherID" // Ensure each row has a unique key
                 pagination={false}
                 className="shadow-lg rounded"
               />
@@ -147,7 +159,7 @@ const VoucherListBySupplierId = () => {
           ]}
         >
           <p>
-            <strong>Voucher Code:</strong> {selectedVoucher.voucherCode}
+            <strong>Voucher Code:</strong> {selectedVoucher.vourcherCode}
           </p>
           <p>
             <strong>Description:</strong> {selectedVoucher.description}
@@ -163,7 +175,17 @@ const VoucherListBySupplierId = () => {
           </p>
           <p>
             <strong>Is Active:</strong>{" "}
-            {selectedVoucher.isActive ? "Yes" : "No"}
+            {selectedVoucher.isActive ? (
+              <CheckCircleOutlined style={{ color: "green" }} />
+            ) : (
+              <CloseCircleOutlined style={{ color: "red" }} />
+            )}
+          </p>
+          <p>
+            <strong>Created At:</strong> {selectedVoucher.createdAt}
+          </p>
+          <p>
+            <strong>Updated At:</strong> {selectedVoucher.updatedAt}
           </p>
         </Modal>
       )}

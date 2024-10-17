@@ -1,8 +1,7 @@
 import { Tabs, message } from "antd";
 import React, { useState } from "react";
-import VoucherListBySupplierId from "../../Supllier/Voucher/VoucherListBySuplierid";
-import CreateVoucherForm from "./CreateVoucherForm";
-
+import CreateVoucherFormBySuplier from "../Voucher/CreateVoucherFormBySuplier";
+import VoucherListBySupplierId from "../Voucher/VoucherListBySuplierid";
 const ManageVoucherOfSuplier = () => {
   const [refreshList, setRefreshList] = useState(false);
 
@@ -20,7 +19,9 @@ const ManageVoucherOfSuplier = () => {
     {
       key: "2",
       label: "Create Voucher",
-      children: <CreateVoucherForm onVoucherCreated={handleVoucherCreated} />,
+      children: (
+        <CreateVoucherFormBySuplier onVoucherCreated={handleVoucherCreated} />
+      ),
     },
   ];
 

@@ -1,20 +1,39 @@
 import { Button, DatePicker, Form, Input, InputNumber, message } from "antd";
-import React, { useState } from "react";
-import { useSelector } from "react-redux"; // Import useSelector
-import { createVoucher } from "../../../api/voucherApi"; // Adjust the import based on your project structure
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { getSupplierIdByAccountId } from "../../../api/accountApi";
+import { createVoucher } from "../../../api/voucherApi";
 
-const CreateVoucherForm = () => {
+const CreateVoucherFormBySuplier = () => {
   const [loading, setLoading] = useState(false);
+  const user = useSelector((state) => state.user.user || {});
+  const [supplierId, setSupplierId] = useState(null);
 
-  // Fetch supplierId from the Redux store
-  const supplierId = useSelector((state) => state.user.user.supplierId);
+  useEffect(() => {
+    const fetchSupplierId = async () => {
+      if (user.id) {
+        try {
+          const response = await getSupplierIdByAccountId(user.id);
+          if (response?.isSuccess) {
+            setSupplierId(response.result);
+          } else {
+            message.error("Failed to get Supplier ID.");
+          }
+        } catch (error) {
+          message.error("Error fetching Supplier ID.");
+        }
+      }
+    };
+
+    fetchSupplierId();
+  }, [user.id]);
 
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
       const result = await createVoucher({
         ...values,
-        supplierID: supplierId, // Use supplierId from Redux store
+        supplierID: supplierId, // Use supplierId from state
       });
       message.success("Voucher created successfully!");
       console.log("Created Voucher:", result);
@@ -38,12 +57,13 @@ const CreateVoucherForm = () => {
       <Form.Item
         label="Supplier ID"
         name="supplierID"
-        initialValue={supplierId} // Set initial value from Redux store
+        initialValue={supplierId} // Set initial value from state
+        hidden // Hides the field from the UI
         rules={[{ required: true, message: "Please input the Supplier ID!" }]}
       >
-        <Input placeholder="Enter Supplier ID" disabled /> {/* Disable input */}
+        <Input placeholder="Supplier ID" value={supplierId} disabled />
+        {/* Display supplierId but disabled */}
       </Form.Item>
-
       <Form.Item
         label="Voucher Code"
         name="voucherCode"
@@ -146,4 +166,4 @@ const CreateVoucherForm = () => {
   );
 };
 
-export default CreateVoucherForm;
+export default CreateVoucherFormBySuplier;
