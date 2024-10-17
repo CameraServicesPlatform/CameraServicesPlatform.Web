@@ -115,11 +115,7 @@ export const getOrderById = async (orderId, pageIndex, pageSize) => {
 };
 export const createOrderBuy = async (orderData) => {
   try {
-    const res = await api.post(`/order/create-order-buy`, orderData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await api.post(`/order/create-order-buy`, orderData);
     return res.data;
   } catch (err) {
     console.error("Error creating order:", err);

@@ -9,6 +9,7 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import {
   getAllProduct,
   getProductByCategoryName,
@@ -25,6 +26,7 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -87,7 +89,8 @@ const ProductPage = () => {
   };
 
   const handleCreateOrderBuy = (product) => {
-    message.success(`Order for buying ${product.productName} created!`);
+    // Navigate to the CreateOrderForm page with product details as state
+    navigate("/create-order-buy", { state: { product } });
   };
 
   return (
@@ -103,10 +106,9 @@ const ProductPage = () => {
             onChange={handleCategoryChange}
             placeholder="Select a category"
           >
-            {/* Replace with actual categories */}
             <Option value=""></Option>
-            <Option value="SCanon">Canon 1</Option>
-            <Option value="Nikon">Nikon 2</Option>
+            <Option value="Canon">Canon</Option>
+            <Option value="Nikon">Nikon</Option>
             <Option value="Sony">Sony</Option>
             <Option value="Fujifilm">Fujifilm</Option>
             <Option value="Olympus">Olympus</Option>
@@ -115,7 +117,6 @@ const ProductPage = () => {
             <Option value="Pentax">Pentax</Option>
             <Option value="Hasselblad">Hasselblad</Option>
             <Option value="Sigma">Sigma</Option>
-            <Option value="Another">Another</Option>
           </Select>
 
           <Search
@@ -147,16 +148,29 @@ const ProductPage = () => {
                 <Card.Meta title={product.productName} />
                 <div className="mt-2">
                   <p className="text-gray-700">{product.productDescription}</p>
+                  <p className="font-semibold">Price (Rent): VND</p>
+                  {product.priceRent ? product.priceRent.toFixed(2) : "N/A"}
+                  <p className="font-semibold">Price (Buy): VND</p>
+                  {product.priceBuy ? product.priceBuy.toFixed(2) : "N/A"}
+                  <p className="font-semibold">Brand: </p>
+                  {product.brand}
+                  <p className="font-semibold">Quality: </p>
+                  {product.quality}
                   <p className="font-semibold">
-                    Price (Rent): $
-                    {product.priceRent ? product.priceRent.toFixed(2) : "N/A"}
+                    Status: {product.status === 1 ? "Available" : "Unavailable"}
                   </p>
-                  <p className="font-semibold">
-                    Price (Buy): $
-                    {product.priceBuy ? product.priceBuy.toFixed(2) : "N/A"}
-                  </p>
-
-                  <p className="font-semibold">Rating: {product.rating}</p>
+                  <p className="font-semibold">Rating: </p>
+                  {product.rating}
+                  <p className="font-semibold">Serial Number:</p>
+                  {product.serialNumber}
+                  <p className="font-semibold">Supplier ID:</p>{" "}
+                  {product.supplierID}
+                  <p className="font-semibold">Category ID:</p>
+                  {product.categoryID}
+                  <p className="font-semibold">Created At:</p>
+                  {new Date(product.createdAt).toLocaleString()}
+                  <p className="font-semibold">Updated At:</p>
+                  {new Date(product.updatedAt).toLocaleString()}
                 </div>
 
                 <div className="flex justify-between mt-4">
