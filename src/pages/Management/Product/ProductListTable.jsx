@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { Button, Input } from "antd";
 import React, { useEffect, useState } from "react";
 import { deleteProduct, getAllProduct } from "../../../api/productApi";
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
@@ -13,6 +13,7 @@ const ProductListTable = () => {
   const [error, setError] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -66,16 +67,30 @@ const ProductListTable = () => {
     setSelectedProduct(null); // Reset selected product when closing modal
   };
 
+  // Filter products based on the search query
+  const filteredProducts = products.filter((product) =>
+    product.productName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div>
       <h2>Product List</h2>
+
+      {/* Search Box */}
+      <Input
+        placeholder="Search by product name"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        style={{ marginBottom: "20px", width: "300px" }}
+      />
+
       {loading ? (
         <p>Loading products...</p>
       ) : error ? (
         <p>{error}</p>
       ) : (
         <div>
-          {products.length > 0 ? (
+          {filteredProducts.length > 0 ? (
             <table
               border="1"
               cellPadding="10"
@@ -102,7 +117,7 @@ const ProductListTable = () => {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <tr key={product.productID}>
                     <td>{product.productID}</td>
                     <td>{product.supplierID}</td>
@@ -164,25 +179,6 @@ const ProductListTable = () => {
           )}
         </div>
       )}
-
-      {/* Pagination Controls */}
-      {/* <div style={{ marginTop: "20px" }}>
-        <Button
-          onClick={() => setPageIndex(pageIndex - 1)}
-          disabled={pageIndex === 1}
-          style={{ marginRight: "8px" }}
-        >
-          Previous
-        </Button>
-        <span> Page {pageIndex} </span>
-        <Button
-          onClick={() => setPageIndex(pageIndex + 1)}
-          disabled={products.length < pageSize}
-          style={{ marginLeft: "8px" }}
-        >
-          Next
-        </Button>
-      </div> */}
 
       {/* Edit Product Modal */}
       {isEditModalVisible && (

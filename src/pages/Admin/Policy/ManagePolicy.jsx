@@ -44,7 +44,6 @@ const ManagePolicy = () => {
     }
   };
 
-  // Delete a policy by ID
   const handleDeletePolicy = async (policyID) => {
     try {
       await deletePolicyById(policyID);
@@ -56,7 +55,6 @@ const ManagePolicy = () => {
     }
   };
 
-  // Update a policy using the updated function
   const handleUpdatePolicy = async (policyID, updatedPolicyData) => {
     try {
       const response = await updatePolicyById(policyID, updatedPolicyData);
@@ -93,7 +91,6 @@ const ManagePolicy = () => {
     }
   };
 
-  // Search for policies
   const handleSearch = (value) => {
     setSearchTerm(value);
     const filtered = policies.filter(
@@ -115,7 +112,7 @@ const ManagePolicy = () => {
   };
 
   useEffect(() => {
-    fetchPolicies(); // Fetch policies on mount or when pageIndex changes
+    fetchPolicies();
   }, [pageIndex]);
 
   const handleCreatePolicy = () => {
@@ -126,7 +123,7 @@ const ManagePolicy = () => {
     setIsCreating(false);
     setIsUpdating(false);
     setIsViewingDetail(false);
-    setSelectedPolicy(null); // Reset selected policy
+    setSelectedPolicy(null);
   };
 
   const columns = [
