@@ -168,6 +168,16 @@ export const getAllAccount = async (pageIndex, pageSize) => {
     return null;
   }
 };
+export const getSupplierIdByAccountId = async (accountId) => {
+  try {
+    const res = await api.get(
+      `/account/get-supplier-id-by-account-id/${accountId}`
+    );
+    return res.data;
+  } catch (err) {
+    return null;
+  }
+};
 
 export const updateAccount = async (data) => {
   try {

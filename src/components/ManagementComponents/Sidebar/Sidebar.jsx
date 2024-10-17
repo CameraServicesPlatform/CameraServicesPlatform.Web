@@ -19,7 +19,7 @@ const SideBar = () => {
 
     SUPPLIER: [
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
-      { name: "Voucher", link: "manage-voucher" },
+      { name: "Voucher", link: "manage-voucher-of-supplier" },
       { name: "Tạo sản phẩm", link: "create-product" },
     ],
     ADMIN: [
@@ -32,24 +32,21 @@ const SideBar = () => {
 
   const renderMenu = (items) => {
     if (!items) return null;
-    return items.map((item, index) => (
-      <>
-        {/* <NavLink to={`/${roleName.toLowerCase()}/${item.link}`} key={index}> */}
-        <NavLink to={`${item.link}`} key={index}>
-          <li className="hover:bg-primary rounded-md text-black hover:text-white my-1">
-            <a
-              className={`flex items-center ${
-                location.pathname?.includes(item.link)
-                  ? "bg-primary text-white"
-                  : ""
-              }`}
-            >
-              {item.icon}
-              <span className={`inline ml-2 text-md`}>{item.name}</span>
-            </a>
-          </li>
+    return items.map((item) => (
+      <li
+        key={item.link}
+        className="hover:bg-primary rounded-md text-black hover:text-white my-1"
+      >
+        <NavLink
+          to={`${item.link}`}
+          className={`flex items-center ${
+            location.pathname.includes(item.link) ? "bg-primary text-white" : ""
+          }`}
+        >
+          {item.icon}
+          <span className={`inline ml-2 text-md`}>{item.name}</span>
         </NavLink>
-      </>
+      </li>
     ));
   };
 

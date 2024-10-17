@@ -20,7 +20,7 @@ import CreateProductForm from "../pages/Management/Product/CreateProductForm";
 import ManageProduct from "../pages/Management/Product/ManageProduct";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
-import ManageVoucher from "../pages/Supllier/Voucher/ManageVoucher";
+import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 function Routers() {
   const routing = useRoutes([
@@ -36,8 +36,8 @@ function Routers() {
         { path: "login", element: <LoginPage /> },
         { path: "verify-payment/*", element: <VerifyPayment /> },
         { path: "check-in", element: <CheckInPage /> },
-        { path: "ve-chung-toi", element: <About /> },
-        { path: "lien-he", element: <Contact /> },
+        { path: "about", element: <About /> },
+        { path: "contact", element: <Contact /> },
         { path: "chinh-sach", element: <Policy /> },
         { path: "gio-hang", element: <Cart /> },
         { path: "personal-information", element: <PersonalInformation /> },
@@ -83,7 +83,10 @@ function Routers() {
           element: <div>Dashboard</div>,
         },
         { path: "create-product", element: <CreateProductForm /> },
-        { path: "manage-voucher", element: <ManageVoucher /> },
+        {
+          path: "manage-voucher-of-supplier",
+          element: <ManageVoucherOfSuplier />,
+        },
       ],
     },
 
@@ -95,7 +98,7 @@ function Routers() {
         { path: "dashboard", element: <div>Dashboard</div> },
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
-        { path: "manage-voucher", element: <ManageVoucher /> },
+        { path: "manage-voucher", element: <ManageVoucherOfSuplier /> },
       ],
     },
   ]);

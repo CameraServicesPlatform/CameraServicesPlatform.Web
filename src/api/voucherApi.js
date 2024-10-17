@@ -34,22 +34,23 @@ export const getVoucherById = async (id) => {
 // Function to get vouchers by supplier ID
 export const getVouchersBySupplierId = async (
   supplierId,
-  pageIndex = 1,
-  pageSize = 10
+  pageIndex,
+  pageSize
 ) => {
   try {
-    const response = await api.get(`/voucher/get-voucher-by-supplier-id`, {
-      params: { supplierId, pageIndex, pageSize },
-    });
-    if (response.status === 200 && response.data.isSuccess) {
-      return response.data.result.items; // Return the list of vouchers
+    const response = await api.get(
+      `/voucher/get-voucher-by-supplier-id?supplierId=${supplierId}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+    if (!response.data.isSuccess) {
+      throw new Error("Failed to fetch vouchers.");
     }
+    return response.data;
   } catch (error) {
     console.error("Error fetching vouchers by supplier ID:", error);
-    return null; // Handle error
+    message.error("Failed to fetch vouchers. Please try again later.");
+    throw error; // Rethrow if you want to handle it later
   }
 };
-
 // Function to create a new voucher
 export const createVoucher = async (voucherData) => {
   try {

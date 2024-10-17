@@ -1,7 +1,7 @@
 import { Tabs, message } from "antd";
 import React, { useState } from "react";
+import VoucherList from "../../Staff/Voucher/VoucherList";
 import CreateVoucherForm from "./CreateVoucherForm";
-import VoucherList from "./VoucherList";
 
 const { TabPane } = Tabs;
 

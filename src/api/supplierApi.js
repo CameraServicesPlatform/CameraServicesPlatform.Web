@@ -25,11 +25,7 @@ export const getSupplierById = async (id, pageIndex, pageSize) => {
 };
 
 // Search for suppliers by name
-export const getSupplierByName = async (
-  filter,
-  pageIndex = 1,
-  pageSize = 10
-) => {
+export const getSupplierByName = async (filter, pageIndex, pageSize) => {
   try {
     const res = await api.get(
       `/supplier/get-supplier-by-name?filter=${filter}&pageIndex=${pageIndex}&pageSize=${pageSize}`
