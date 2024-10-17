@@ -1,8 +1,20 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, message, Modal, Upload } from "antd";
-import React, { useState } from "react";
+import {
+  Button,
+  Form,
+  Input,
+  message,
+  Modal,
+  Select,
+  Spin,
+  Upload,
+} from "antd";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { registerSupplier } from "../../api/accountApi";
+
+const { Option } = Select;
 
 const getBase64 = (file) => {
   return new Promise((resolve, reject) => {
@@ -15,12 +27,29 @@ const getBase64 = (file) => {
 
 const RegisterSupplier = () => {
   const [loading, setLoading] = useState(false);
+  const [banks, setBanks] = useState([]);
+  const [loadingBanks, setLoadingBanks] = useState(true); // Loading state for banks
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [fileListFront, setFileListFront] = useState([]);
   const [fileListBack, setFileListBack] = useState([]);
   const navigate = useNavigate(); // Initialize navigate
+
+  useEffect(() => {
+    // Fetch bank list from VietQR API
+    const fetchBanks = async () => {
+      try {
+        const response = await axios.get("https://api.vietqr.io/v2/banks");
+        setBanks(response.data.data); // Assuming data is in response.data.data
+      } catch (error) {
+        message.error("Failed to fetch bank list.");
+      } finally {
+        setLoadingBanks(false);
+      }
+    };
+    fetchBanks();
+  }, []);
 
   const handleCancel = () => setPreviewVisible(false);
 
@@ -209,13 +238,23 @@ const RegisterSupplier = () => {
           <Input />
         </Form.Item>
 
-        {/* New fields */}
+        {/* Updated Bank Name field */}
         <Form.Item
           label="Bank Name"
           name="bankName"
-          rules={[{ required: true, message: "Please input the bank name!" }]}
+          rules={[{ required: true, message: "Please select your bank!" }]}
         >
-          <Input />
+          {loadingBanks ? (
+            <Spin />
+          ) : (
+            <Select placeholder="Select a bank">
+              {banks.map((bank) => (
+                <Option key={bank.code} value={bank.name}>
+                  <strong> {bank.shortName} </strong>- {bank.name}
+                </Option>
+              ))}
+            </Select>
+          )}
         </Form.Item>
 
         <Form.Item
