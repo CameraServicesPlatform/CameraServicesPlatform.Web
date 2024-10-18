@@ -17,7 +17,7 @@ export const getAllProduct = async (pageIndex, pageSize) => {
   }
 };
 
-export const getProductById = async (id, pageIndex, pageSize) => {
+export const getProductById = async (id, pageIndex = 1, pageSize = 1) => {
   try {
     const res = await api.get(
       `/product/get-product-by-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`
@@ -55,7 +55,11 @@ export const getProductBySupplierId = async (
     return null;
   }
 };
-export const getProductByName = async (filter = "", pageIndex, pageSize) => {
+export const getProductByName = async (
+  filter,
+  pageIndex = 1,
+  pageSize = 20
+) => {
   try {
     const response = await api.get(`/product/get-product-by-name`, {
       params: {
@@ -77,9 +81,9 @@ export const getProductByName = async (filter = "", pageIndex, pageSize) => {
 };
 
 export const getProductByCategoryName = async (
-  filter = "",
-  pageIndex,
-  pageSize
+  filter,
+  pageIndex = 1,
+  pageSize = 20
 ) => {
   try {
     const response = await api.get(
@@ -96,11 +100,7 @@ export const getProductByCategoryName = async (
     return null;
   }
 };
-export const getProductByCategoryId = async (
-  filter = "",
-  pageIndex,
-  pageSize
-) => {
+export const getProductByCategoryId = async (filter, pageIndex, pageSize) => {
   try {
     const response = await api.get(
       `/product/get-product-by-category-id?filter=${filter}&pageIndex=${pageIndex}&pageSize=${pageSize}`

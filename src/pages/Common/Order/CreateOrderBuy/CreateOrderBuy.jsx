@@ -1,8 +1,9 @@
 import { Button, Form, Input, message, Spin } from "antd";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { createOrderBuy } from "../../../../api/orderApi";
-import { getProductById } from "../../../../api/productApi"; // Ensure this path is correct
+import { getProductById } from "../../../../api/productApi";
 
 const CreateOrderBuy = () => {
   const [loading, setLoading] = useState(false);
@@ -11,12 +12,16 @@ const CreateOrderBuy = () => {
   const location = useLocation();
   const { product } = location.state || {};
 
+  // Retrieve accountID from the Redux store
+  const user = useSelector((state) => state.user.user || {});
+  const accountID = user.accountID;
+
   // Fetch product details when the component mounts or when productID changes
   useEffect(() => {
     const fetchProductData = async () => {
       if (product?.productID) {
         try {
-          const fetchedProduct = await getProductById(product.productID, 1, 10); // Assuming you have the necessary pagination
+          const fetchedProduct = await getProductById(product.productID);
           setProductData(fetchedProduct);
         } catch (error) {
           message.error("Failed to fetch product data.");
@@ -31,13 +36,14 @@ const CreateOrderBuy = () => {
 
   const onFinish = async (values) => {
     setLoading(true);
+
     const orderData = {
-      supplierID: productData?.supplierID || values.supplierID, // Use productData.supplierID if available
-      memberID: values.memberID,
+      supplierID: productData?.supplierID || values.supplierID,
+      accountID: accountID,
       orderDate: new Date().toISOString(),
-      orderStatus: 0, // Example status, can be dynamic
+      orderStatus: 0,
       totalAmount: values.totalAmount,
-      orderType: 0, // Example type, can be dynamic
+      orderType: 0,
       shippingAddress: values.shippingAddress,
       orderDetailRequests: values.orderDetailRequests.map((detail) => ({
         orderID: detail.orderID,
@@ -47,7 +53,7 @@ const CreateOrderBuy = () => {
         discount: detail.discount,
         productPriceTotal: detail.productPriceTotal,
       })),
-      deliveryMethod: 0, // Example delivery method, can be dynamic
+      deliveryMethod: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -66,8 +72,8 @@ const CreateOrderBuy = () => {
     }
   };
 
-  if (isLoadingProduct) {
-    return <Spin size="large" />;
+  if (isLoadingProduct || !accountID) {
+    return <Spin size="large" />; // or a message indicating loading
   }
 
   return (
@@ -75,26 +81,24 @@ const CreateOrderBuy = () => {
       <Form.Item
         label="Supplier ID"
         name="supplierID"
-        initialValue={productData?.supplierID || ""} // Set initial value if available
+        initialValue={productData?.supplierID || ""}
         rules={[{ required: true, message: "Please input the supplier ID!" }]}
-        style={{ display: "none" }} // Hides the Form.Item
+        style={{ display: "none" }}
       >
         <Input />
       </Form.Item>
 
       <Form.Item
-        label="Member ID"
-        name="memberID"
-        rules={[{ required: true, message: "Please input the member ID!" }]}
-      >
-        <Input />
-      </Form.Item>
+        name="accountID"
+        initialValue={accountID} // Use accountID from Redux directly
+        rules={[{ required: true, message: "Please input the account ID!" }]}
+      />
 
       <Form.Item
         label="Total Amount"
         name="totalAmount"
         rules={[{ required: true, message: "Please input the total amount!" }]}
-        initialValue={productData?.price || 0} // Default value from productData
+        initialValue={productData?.price || 0}
       >
         <Input type="number" />
       </Form.Item>
@@ -109,7 +113,6 @@ const CreateOrderBuy = () => {
         <Input />
       </Form.Item>
 
-      {/* Example of order detail input */}
       <Form.List name="orderDetailRequests">
         {(fields, { add, remove }) => (
           <>
@@ -133,8 +136,7 @@ const CreateOrderBuy = () => {
                     { required: true, message: "Please input Product ID" },
                   ]}
                 >
-                  <Input defaultValue={productData?.id || ""} disabled />{" "}
-                  {/* Display fetched Product ID */}
+                  <Input defaultValue={productData?.id || ""} disabled />
                 </Form.Item>
                 <Form.Item
                   {...restField}
@@ -149,8 +151,7 @@ const CreateOrderBuy = () => {
                     type="number"
                     defaultValue={productData?.price || ""}
                     disabled
-                  />{" "}
-                  {/* Display fetched Product Price */}
+                  />
                 </Form.Item>
                 <Form.Item
                   {...restField}
@@ -189,7 +190,11 @@ const CreateOrderBuy = () => {
                 <Button onClick={() => remove(name)}>Remove Product</Button>
               </div>
             ))}
-            <Button onClick={() => add()} block>
+            <Button
+              type="dashed"
+              onClick={() => add()}
+              style={{ width: "60%" }}
+            >
               Add Product
             </Button>
           </>

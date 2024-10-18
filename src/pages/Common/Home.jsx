@@ -17,6 +17,7 @@ import {
   getProductByName,
 } from "../../api/productApi";
 import { getBrandName } from "../../utils/constant";
+
 const { Header, Content } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
@@ -29,6 +30,7 @@ const Home = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [categorySearchTerm, setCategorySearchTerm] = useState("");
+
   useEffect(() => {
     const fetchProducts = async () => {
       const productList = await getAllProduct(1, 100);
@@ -53,7 +55,7 @@ const Home = () => {
 
   const handleModalClose = () => {
     setIsModalVisible(false);
-    setProductDetail(null); // Reset the product detail after closing the modal
+    setProductDetail(null);
   };
 
   const handleSearchByName = async (value) => {
@@ -61,7 +63,6 @@ const Home = () => {
     try {
       const productList = await getProductByName(value, 1, 10);
       setProducts(Array.isArray(productList) ? productList : []);
-      setSearchTerm(""); // Clear the input if needed
     } catch (error) {
       console.error("Error fetching products:", error);
       setProducts([]);
@@ -71,11 +72,28 @@ const Home = () => {
 
   const handleSearchByCategory = async (value) => {
     setLoading(true);
-    const productList = await getProductByCategoryName(value, 1, 10);
-    setProducts(Array.isArray(productList) ? productList : []);
-    setCategorySearchTerm("");
+    try {
+      const productList = await getProductByCategoryName(value, 1, 10);
+      setProducts(Array.isArray(productList) ? productList : []);
+    } catch (error) {
+      console.error("Error fetching products by category:", error);
+      setProducts([]);
+    }
     setLoading(false);
   };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setCategorySearchTerm("");
+    setLoading(true);
+    const fetchProducts = async () => {
+      const productList = await getAllProduct(1, 100);
+      setProducts(productList);
+      setLoading(false);
+    };
+    fetchProducts();
+  };
+
   return (
     <Layout>
       <Header>
@@ -89,21 +107,25 @@ const Home = () => {
             placeholder="Search products by name"
             enterButton="Search"
             size="large"
-            value={searchTerm} // Controlled input
-            onChange={(e) => setSearchTerm(e.target.value)} // Update state on input change
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             onSearch={handleSearchByName}
             style={{ width: 300, marginRight: 20 }}
           />
 
-          <Search
+          {/* <Search
             placeholder="Search products by category"
             enterButton="Search"
             size="large"
-            value={categorySearchTerm} // Controlled input
-            onChange={(e) => setCategorySearchTerm(e.target.value)} // Update state on input change
+            value={categorySearchTerm}
+            onChange={(e) => setCategorySearchTerm(e.target.value)}
             onSearch={handleSearchByCategory}
             style={{ width: 300 }}
-          />
+          /> */}
+
+          <Button onClick={handleClearSearch} style={{ marginLeft: 20 }}>
+            Clear Search
+          </Button>
         </div>
         {loading ? (
           <Spin tip="Loading products..." />
@@ -130,12 +152,11 @@ const Home = () => {
                     description={
                       <div>
                         <p>{product.productDescription}</p>
-                        <p>SerialNumber: {product.serialNumber}</p>
+                        <p>Serial Number: {product.serialNumber}</p>
                         <p>Price (Rent)/hour: VND{product.priceRent}</p>
                         <p>Price (Buy): VND{product.priceBuy}</p>
                         <p>Rating: {product.rating}</p>
-                        <p>Brand: {getBrandName(product.brand)}</p>{" "}
-                        {/* Use the mapping function */}
+                        <p>Brand: {getBrandName(product.brand)}</p>
                         <p>Quality: {product.quality}</p>
                       </div>
                     }

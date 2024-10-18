@@ -9,16 +9,16 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { useNavigate } from "react-router-dom";
 import {
   getAllProduct,
   getProductByCategoryName,
   getProductByName,
-} from "../../../api/productApi";
+} from "../../../api/productApi"; // Ensure this path is correct
 
 const { Content } = Layout;
-const { Search } = Input;
 const { Title } = Typography;
+const { Search } = Input;
 const { Option } = Select;
 
 const ProductPage = () => {
@@ -26,33 +26,34 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
+
+  // Function to load products
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const productData = await getAllProduct(1, 20); // Fetch products with default pagination
+      if (productData) {
+        setProducts(productData);
+      } else {
+        message.error("Failed to load products.");
+      }
+    } catch (error) {
+      message.error("An error occurred while fetching products.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadProducts = async () => {
-      setLoading(true);
-      try {
-        const productData = await getAllProduct(1, 20); // Adjust page size as needed
-        if (productData) {
-          setProducts(productData);
-        } else {
-          message.error("Failed to load products.");
-        }
-      } catch (error) {
-        message.error("An error occurred while fetching products.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProducts();
+    loadProducts(); // Load products when the component mounts
   }, []);
 
   const handleSearch = async (value) => {
     setLoading(true);
     setSearchTerm(value);
     try {
-      const productData = await getProductByName(value);
+      const productData = await getProductByName(value, 1, 20); // Add pageIndex and pageSize
       if (productData) {
         setProducts(productData);
       } else {
@@ -70,7 +71,7 @@ const ProductPage = () => {
     setLoading(true);
     setCategory(value);
     try {
-      const productData = await getProductByCategoryName(value);
+      const productData = await getProductByCategoryName(value, 1, 20); // Add pageIndex and pageSize
       if (productData) {
         setProducts(productData);
       } else {
@@ -84,12 +85,17 @@ const ProductPage = () => {
     }
   };
 
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setCategory("");
+    loadProducts(); // Reload products when clearing search
+  };
+
   const handleCreateOrderRent = (product) => {
     message.success(`Order for renting ${product.productName} created!`);
   };
 
   const handleCreateOrderBuy = (product) => {
-    // Navigate to the CreateOrderForm page with product details as state
     navigate("/create-order-buy", { state: { product } });
   };
 
@@ -105,8 +111,9 @@ const ProductPage = () => {
             className="w-1/4 mr-4"
             onChange={handleCategoryChange}
             placeholder="Select a category"
+            value={category}
           >
-            <Option value=""></Option>
+            <Option value="">All Categories</Option>
             <Option value="Canon">Canon</Option>
             <Option value="Nikon">Nikon</Option>
             <Option value="Sony">Sony</Option>
@@ -123,8 +130,13 @@ const ProductPage = () => {
             className="w-1/4"
             placeholder="Search for products"
             enterButton
+            value={searchTerm}
             onSearch={handleSearch}
+            onChange={(e) => setSearchTerm(e.target.value)} // Handle input change
           />
+          <Button onClick={handleClearSearch} className="ml-4">
+            Clear Search
+          </Button>
         </div>
 
         {loading ? (
@@ -163,7 +175,7 @@ const ProductPage = () => {
                   {product.rating}
                   <p className="font-semibold">Serial Number:</p>
                   {product.serialNumber}
-                  <p className="font-semibold">Supplier ID:</p>{" "}
+                  <p className="font-semibold">Supplier ID:</p>
                   {product.supplierID}
                   <p className="font-semibold">Category ID:</p>
                   {product.categoryID}

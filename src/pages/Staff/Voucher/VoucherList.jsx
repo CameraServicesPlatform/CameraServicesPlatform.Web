@@ -1,124 +1,123 @@
-import { Button, Modal, Pagination, Spin, Table, message } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { Input, Modal, Pagination, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
-import {
-  deleteVoucher,
-  getAllVouchers,
-  getVoucherById,
-} from "../../../api/voucherApi";
+import { getAllVouchers } from "../../../api/voucherApi"; // Import your API function
 
 const VoucherList = () => {
   const [vouchers, setVouchers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [originalVouchers, setOriginalVouchers] = useState([]); // Store original vouchers
+  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [totalItems, setTotalItems] = useState(0);
-  const [selectedVoucher, setSelectedVoucher] = useState(null); // For viewing/updating a voucher
-  const [viewModalVisible, setViewModalVisible] = useState(false); // Modal visibility
+  const [visible, setVisible] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // Search term state
 
   useEffect(() => {
-    fetchVouchers(pageIndex, pageSize);
+    const fetchVouchers = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllVouchers(pageIndex, pageSize);
+        if (response && response.isSuccess) {
+          setVouchers(response.result);
+          setOriginalVouchers(response.result); // Store original vouchers
+          setTotal(response.result.length); // Update this if you have total count
+        } else {
+          console.error("Failed to fetch vouchers:", response.messages);
+        }
+      } catch (error) {
+        console.error("Error fetching vouchers:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVouchers();
   }, [pageIndex, pageSize]);
 
-  const fetchVouchers = async (pageIndex, pageSize) => {
-    setLoading(true);
-    try {
-      const data = await getAllVouchers(pageIndex, pageSize);
-      if (data) {
-        setVouchers(data);
-        setTotalItems(data.length); // Adjust if the API provides a total count
-      } else {
-        setVouchers([]);
-        setTotalItems(0);
-      }
-    } catch (error) {
-      message.error("Failed to fetch vouchers.");
-      setVouchers([]);
-      setTotalItems(0);
-    } finally {
-      setLoading(false);
-    }
+  const handleRowDoubleClick = (voucher) => {
+    setSelectedVoucher(voucher);
+    setVisible(true);
   };
 
-  const handleViewDetails = async (id) => {
-    try {
-      const voucher = await getVoucherById(id);
-      if (voucher) {
-        setSelectedVoucher(voucher); // Store voucher details for display
-        setViewModalVisible(true); // Show the modal
-      } else {
-        message.error("Failed to fetch voucher details.");
-      }
-    } catch (error) {
-      message.error("Error fetching voucher details.");
-    }
-  };
-
-  const handleDeleteVoucher = async (id) => {
-    try {
-      await deleteVoucher(id);
-      message.success("Voucher deleted successfully.");
-      fetchVouchers(pageIndex, pageSize); // Refresh list after deletion
-    } catch (error) {
-      message.error("Error deleting voucher.");
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    if (value) {
+      const filteredVouchers = originalVouchers.filter(
+        (voucher) =>
+          voucher.vourcherCode.toLowerCase().includes(value.toLowerCase()) ||
+          voucher.description.toLowerCase().includes(value.toLowerCase())
+      );
+      setVouchers(filteredVouchers);
+      setTotal(filteredVouchers.length);
+    } else {
+      setVouchers(originalVouchers);
+      setTotal(originalVouchers.length);
     }
   };
 
   const columns = [
-    { title: "Voucher ID", dataIndex: "vourcherID" },
-    { title: "Supplier ID", dataIndex: "supplierID" },
-    { title: "Voucher Code", dataIndex: "vourcherCode" },
-    { title: "Description", dataIndex: "description" },
+    {
+      title: "Supplier ID",
+      dataIndex: "supplierID",
+      key: "supplierID",
+    },
+    {
+      title: "Voucher ID",
+      dataIndex: "vourcherID",
+      key: "vourcherID",
+    },
+    {
+      title: "Voucher Code",
+      dataIndex: "vourcherCode",
+      key: "vourcherCode",
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+    },
     {
       title: "Discount Amount",
       dataIndex: "discountAmount",
-      render: (discount) => `${discount} VND`,
+      key: "discountAmount",
+      render: (text) => `${text} VND`,
     },
     {
       title: "Valid From",
       dataIndex: "validFrom",
-      render: (date) => new Date(date).toLocaleDateString(),
+      key: "validFrom",
+      render: (text) => new Date(text).toLocaleDateString(),
     },
     {
       title: "Expiration Date",
       dataIndex: "expirationDate",
-      render: (date) => new Date(date).toLocaleDateString(),
+      key: "expirationDate",
+      render: (text) => new Date(text).toLocaleDateString(),
     },
     {
-      title: "Is Active",
+      title: "Active",
       dataIndex: "isActive",
-      render: (isActive) => (isActive ? "Yes" : "No"),
-    },
-    {
-      title: "Action",
-      render: (text, record) => (
-        <div>
-          <button
-            onClick={() => handleViewDetails(record.vourcherID)}
-            className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 mr-2"
-          >
-            View Details
-          </button>
-          <button
-            onClick={() => handleDeleteVoucher(record.vourcherID)}
-            className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
-          >
-            Delete
-          </button>
-        </div>
-      ),
+      key: "isActive",
+      render: (isActive) =>
+        isActive ? (
+          <CheckCircleOutlined style={{ color: "green" }} />
+        ) : (
+          <CloseCircleOutlined style={{ color: "red" }} />
+        ),
     },
   ];
 
-  const handlePageChange = (page, pageSize) => {
-    setPageIndex(page);
-    setPageSize(pageSize);
-  };
-
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-4">Voucher List</h1>
+    <div>
+      <Input
+        placeholder="Search by voucher code or description"
+        onChange={(e) => handleSearch(e.target.value)}
+        style={{ marginBottom: 16 }}
+      />
       {loading ? (
-        <Spin className="flex justify-center items-center" />
+        <Spin />
       ) : (
         <>
           <Table
@@ -126,58 +125,55 @@ const VoucherList = () => {
             columns={columns}
             rowKey="vourcherID"
             pagination={false}
-            className="shadow-lg rounded"
+            onRow={(record) => ({
+              onDoubleClick: () => handleRowDoubleClick(record), // Handle double click
+            })}
           />
-          <div className="flex justify-end mt-4">
-            <Pagination
-              current={pageIndex}
-              total={totalItems}
-              pageSize={pageSize}
-              showSizeChanger
-              onChange={handlePageChange}
-            />
-          </div>
+          <Pagination
+            current={pageIndex}
+            total={total}
+            pageSize={pageSize}
+            onChange={(page) => setPageIndex(page)}
+            showSizeChanger
+            onShowSizeChange={(current, size) => setPageSize(size)}
+            style={{ marginTop: 16, textAlign: "right" }}
+          />
+          <Modal
+            title="Voucher Details"
+            visible={visible}
+            onCancel={() => setVisible(false)}
+            footer={null}
+          >
+            {selectedVoucher && (
+              <div>
+                <p>
+                  <strong>Voucher Code:</strong> {selectedVoucher.vourcherCode}
+                </p>
+                <p>
+                  <strong>Description:</strong> {selectedVoucher.description}
+                </p>
+                <p>
+                  <strong>Discount Amount:</strong>{" "}
+                  {selectedVoucher.discountAmount} VND
+                </p>
+                <p>
+                  <strong>Valid From:</strong>{" "}
+                  {new Date(selectedVoucher.validFrom).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Expiration Date:</strong>{" "}
+                  {new Date(
+                    selectedVoucher.expirationDate
+                  ).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Active:</strong>{" "}
+                  {selectedVoucher.isActive ? "Yes" : "No"}
+                </p>
+              </div>
+            )}
+          </Modal>
         </>
-      )}
-
-      {/* Modal for viewing details */}
-      {selectedVoucher && (
-        <Modal
-          title="Voucher Details"
-          visible={viewModalVisible}
-          onCancel={() => setViewModalVisible(false)}
-          footer={[
-            <Button key="close" onClick={() => setViewModalVisible(false)}>
-              Close
-            </Button>,
-          ]}
-        >
-          <p>
-            <strong>ID:</strong> {selectedVoucher.vourcherID}
-          </p>
-          <p>
-            <strong>Code:</strong> {selectedVoucher.vourcherCode}
-          </p>
-          <p>
-            <strong>Description:</strong> {selectedVoucher.description}
-          </p>
-          <p>
-            <strong>Discount Amount:</strong> {selectedVoucher.discountAmount}{" "}
-            VND
-          </p>
-          <p>
-            <strong>Valid From:</strong>{" "}
-            {new Date(selectedVoucher.validFrom).toLocaleDateString()}
-          </p>
-          <p>
-            <strong>Expiration Date:</strong>{" "}
-            {new Date(selectedVoucher.expirationDate).toLocaleDateString()}
-          </p>
-          <p>
-            <strong>Is Active:</strong>{" "}
-            {selectedVoucher.isActive ? "Yes" : "No"}
-          </p>
-        </Modal>
       )}
     </div>
   );
