@@ -208,3 +208,17 @@ export const assignRoleToUser = async (userId, roleName) => {
     return res.data;
   } catch (err) {}
 };
+
+export const createStaff = async (formData) => {
+  try {
+    const response = await api.post(`/account/create-staff`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating staff:", error);
+    return null;
+  }
+};

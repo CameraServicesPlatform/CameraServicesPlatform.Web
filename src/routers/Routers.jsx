@@ -24,6 +24,7 @@ import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
+import CreateStaffForm from "../pages/Admin/User/CreateStaffForm";
 function Routers() {
   const routing = useRoutes([
     {
@@ -74,6 +75,7 @@ function Routers() {
         { path: "manage-policy", element: <ManagePolicy /> },
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
+        { path: "create-staff", element: <CreateStaffForm /> },
       ],
     },
     {
