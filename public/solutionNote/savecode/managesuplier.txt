@@ -1,0 +1,217 @@
+
+import { SearchOutlined } from "@ant-design/icons";
+import { Button, Input, message, Modal, Space, Table } from "antd";
+import { useEffect, useState } from "react";
+import {
+  createSupplier,
+  deleteSupplier,
+  getAllSuppliers,
+  getSupplierByName,
+  updateSupplier,
+} from "../../../api/supplierApi";
+import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
+
+const ManageSupplier = () => {
+  const [suppliers, setSuppliers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(1);
+  const itemsPerPage = 10;
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalType, setModalType] = useState("add");
+
+  const fetchData = async (page) => {
+    try {
+      setIsLoading(true);
+      const data = await getAllSuppliers(page, itemsPerPage);
+      if (data) {
+        setSuppliers(data.items);
+        setTotalItems(data.totalPages);
+      }
+    } catch (error) {
+      message.error("Đã xảy ra lỗi khi tải dữ liệu.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(currentPage);
+  }, [currentPage]);
+
+  const handleSearch = async () => {
+    if (searchTerm.trim()) {
+      setIsLoading(true);
+      const data = await getSupplierByName(
+        searchTerm,
+        currentPage,
+        itemsPerPage
+      );
+      if (data) {
+        setSuppliers(data.items);
+        setTotalItems(data.totalPages);
+      } else {
+        message.error("Không tìm thấy nhà cung cấp.");
+      }
+      setIsLoading(false);
+    } else {
+      fetchData(currentPage);
+    }
+  };
+
+  const handleAddSupplier = async (supplierData) => {
+    const result = await createSupplier(supplierData);
+    if (result) {
+      message.success("Nhà cung cấp đã được thêm thành công.");
+      fetchData(currentPage);
+      setIsModalVisible(false);
+    } else {
+      message.error("Đã xảy ra lỗi khi thêm nhà cung cấp.");
+    }
+  };
+
+  const handleUpdateSupplier = async (supplierData) => {
+    const result = await updateSupplier(supplierData);
+    if (result) {
+      message.success("Nhà cung cấp đã được cập nhật thành công.");
+      fetchData(currentPage);
+      setIsModalVisible(false);
+    } else {
+      message.error("Đã xảy ra lỗi khi cập nhật nhà cung cấp.");
+    }
+  };
+
+  const handleDeleteSupplier = async (supplierId) => {
+    const result = await deleteSupplier(supplierId);
+    if (result) {
+      message.success("Nhà cung cấp đã được xóa.");
+      fetchData(currentPage);
+    } else {
+      message.error("Đã xảy ra lỗi khi xóa nhà cung cấp.");
+    }
+  };
+
+  const columns = [
+    { title: "ID", dataIndex: "id", key: "id" },
+    { title: "Tên", dataIndex: "name", key: "name" },
+    { title: "Địa chỉ", dataIndex: "address", key: "address" },
+    { title: "Số điện thoại", dataIndex: "phoneNumber", key: "phoneNumber" },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (text, record) => (
+        <Space size="middle">
+          <Button
+            type="link"
+            onClick={() => {
+              setSelectedSupplier(record);
+              setModalType("edit");
+              setIsModalVisible(true);
+            }}
+          >
+            Sửa
+          </Button>
+          <Button
+            type="link"
+            danger
+            onClick={() => handleDeleteSupplier(record.id)}
+          >
+            Xóa
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div>
+      <LoadingComponent isLoading={isLoading} title="Đang tải dữ liệu..." />
+      <h1 className="text-center text-xl font-bold text-primary">
+        Quản lý nhà cung cấp
+      </h1>
+
+      {/* Search input */}
+      <div className="flex justify-between my-4">
+        <Input
+          placeholder="Tìm kiếm nhà cung cấp"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          suffix={<SearchOutlined />}
+          onPressEnter={handleSearch}
+          className="w-1/3"
+        />
+        <Button
+          type="primary"
+          onClick={() => {
+            setModalType("add");
+            setIsModalVisible(true);
+          }}
+        >
+          Thêm nhà cung cấp
+        </Button>
+      </div>
+
+      {/* Suppliers table */}
+      <Table
+        columns={columns}
+        dataSource={suppliers}
+        pagination={{
+          current: currentPage,
+          pageSize: itemsPerPage,
+          total: totalItems * itemsPerPage,
+          onChange: (page) => setCurrentPage(page),
+        }}
+        rowKey="id"
+      />
+
+      {/* Modal for adding/editing supplier */}
+      <Modal
+        title={
+          modalType === "add" ? "Thêm nhà cung cấp" : "Chỉnh sửa nhà cung cấp"
+        }
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onOk={() =>
+          modalType === "add"
+            ? handleAddSupplier(selectedSupplier)
+            : handleUpdateSupplier(selectedSupplier)
+        }
+      >
+        {/* Form for supplier info */}
+        <Input
+          placeholder="Tên nhà cung cấp"
+          value={selectedSupplier?.name || ""}
+          onChange={(e) =>
+            setSelectedSupplier({ ...selectedSupplier, name: e.target.value })
+          }
+          className="mb-3"
+        />
+        <Input
+          placeholder="Địa chỉ"
+          value={selectedSupplier?.address || ""}
+          onChange={(e) =>
+            setSelectedSupplier({
+              ...selectedSupplier,
+              address: e.target.value,
+            })
+          }
+          className="mb-3"
+        />
+        <Input
+          placeholder="Số điện thoại"
+          value={selectedSupplier?.phoneNumber || ""}
+          onChange={(e) =>
+            setSelectedSupplier({
+              ...selectedSupplier,
+              phoneNumber: e.target.value,
+            })
+          }
+        />
+      </Modal>
+    </div>
+  );
+};
+
+export default ManageSupplier;

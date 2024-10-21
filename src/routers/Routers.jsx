@@ -17,9 +17,11 @@ import VerifyPayment from "../pages/Common/VerifyPayment";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
 import CreateProductForm from "../pages/Management/Product/CreateProductForm";
 
+import CreateOrderBuy from "../pages/Common/Order/CreateOrderBuy/CreateOrderBuy";
 import ManageProduct from "../pages/Management/Product/ManageProduct";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
+import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 function Routers() {
@@ -38,13 +40,14 @@ function Routers() {
         { path: "check-in", element: <CheckInPage /> },
         { path: "about", element: <About /> },
         { path: "contact", element: <Contact /> },
-        { path: "chinh-sach", element: <Policy /> },
+        { path: "policy", element: <Policy /> },
         { path: "gio-hang", element: <Cart /> },
         { path: "personal-information", element: <PersonalInformation /> },
         { path: "register-supplier", element: <RegisterSupplier /> },
         { path: "product", element: <ProductPage /> },
         { path: "product-for-rent", element: <ProductPage /> },
         { path: "product-for-buy", element: <ProductPage /> },
+        { path: "create-order-buy", element: <CreateOrderBuy /> },
       ],
     },
     {
@@ -98,7 +101,7 @@ function Routers() {
         { path: "dashboard", element: <div>Dashboard</div> },
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
-        { path: "manage-voucher", element: <ManageVoucherOfSuplier /> },
+        { path: "manage-voucher", element: <ManageVoucher /> },
       ],
     },
   ]);

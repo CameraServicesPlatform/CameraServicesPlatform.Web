@@ -1,4 +1,4 @@
-import { Input, Pagination, Spin, message } from "antd";
+import { Pagination, Spin, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { getAllProduct, getProductByName } from "../../../api/productApi";
 import ProductListTable from "./ProductListTable";
@@ -10,12 +10,16 @@ const ManageProduct = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalProducts, setTotalProducts] = useState(0);
   const [filter, setFilter] = useState("");
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
 
   useEffect(() => {
     fetchProducts();
   }, [pageIndex, pageSize, filter]);
+
+  useEffect(() => {
+    // Clear the search term when the filter changes
+    setSearchTerm("");
+  }, [filter]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -38,21 +42,12 @@ const ManageProduct = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: 16 }}>
-        <Input.Search
-          placeholder="Search products by name"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          onSearch={fetchProducts}
-          style={{ width: 300, marginRight: 16 }}
-        />
-      </div>
-
       {loading ? (
         <Spin />
       ) : (
         <ProductListTable
           products={products}
+          searchTerm={searchTerm} // Pass search term to the table
           pageIndex={pageIndex}
           pageSize={pageSize}
           totalProducts={totalProducts}

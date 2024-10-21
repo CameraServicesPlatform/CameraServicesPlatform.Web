@@ -1,9 +1,12 @@
-import { message } from "antd";
+import { Tabs, message } from "antd";
 import { useEffect, useState } from "react";
 import { getAllAccount } from "../../../api/accountApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 import { genderLabels } from "../../../utils/constant";
 import GetInformationAccount from "./GetInformationAccount";
+import ManageSupplier from "./ManageSupplier";
+import SendActivationCode from "./SendActiveSupplier";
+const { TabPane } = Tabs;
 
 const ManageUser = () => {
   const [accounts, setAccounts] = useState([]);
@@ -11,6 +14,7 @@ const ManageUser = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(1);
   const itemsPerPage = 10;
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchData = async (page) => {
     try {
@@ -61,93 +65,147 @@ const ManageUser = () => {
     setModalVisible(true);
   };
 
+  // Function to handle search input change
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  };
+
+  // Filter accounts based on search term
+  const filteredAccounts = accounts.filter((item) => {
+    const fullName = `${item.firstName} ${item.lastName}`.toLowerCase();
+    return (
+      fullName.includes(searchTerm) ||
+      item.email.toLowerCase().includes(searchTerm) ||
+      item.phoneNumber.toLowerCase().includes(searchTerm) ||
+      item.mainRole.toLowerCase().includes(searchTerm) ||
+      (genderLabels[item.gender] || "Không xác định")
+        .toLowerCase()
+        .includes(searchTerm)
+    );
+  });
+
   return (
     <div>
       <LoadingComponent isLoading={isLoading} title={"Đang tải dữ liệu"} />
       <h1 className="text-center font-bold text-primary text-xl">
         QUẢN TRỊ NGƯỜI DÙNG TẠI HỆ THỐNG CAMERA SERVICE PLATFORM
       </h1>
-      <div className="overflow-x-auto rounded-lg my-10 shadow-md">
-        <table className="table">
-          <thead className="bg-primary text-white">
-            <tr className="h-10 ">
-              <th className="text-center">STT</th>
-              <th className="text-center">ID</th>
-              <th className="text-center">Tên</th>
-              <th className="text-center">Email</th>
-              <th className="text-center">Số điện thoại</th>
-              <th className="text-center">Quyền</th>
-              <th className="text-center">Trạng thái</th>
-              <th className="text-center">Giới tính</th>
-              <th className="text-center">Tên đăng nhập</th>
-              <th className="text-center">Địa chỉ</th>
-              <th className="text-center">Ngày tạo</th>
-              <th className="text-center">Ngày cập nhật</th>
-            </tr>
-          </thead>
-          <tbody>
-            {accounts &&
-              accounts.length > 0 &&
-              accounts.map((item, index) => (
-                <tr
-                  key={item.id}
-                  className="h-10 hover"
-                  onDoubleClick={() => handleDoubleClick(item)}
-                >
-                  <td className="text-center">{index + 1}</td>
-                  <td className="text-center">{item.id}</td>
-                  <td className="text-center">{`${item.firstName} ${item.lastName}`}</td>
-                  <td className="text-center lowercase text-wrap">
-                    {item.email}
-                  </td>
-                  <td className="text-center">{item.phoneNumber}</td>
-                  <td className="text-center">{item.mainRole}</td>
-                  <td className="text-center">
-                    {item.isVerified ? (
-                      <i className="fa-solid fa-circle-check text-green-600"></i>
-                    ) : (
-                      <i className="fa-solid fa-circle-xmark text-red-600"></i>
-                    )}
-                  </td>
-                  <td className="text-center">
-                    {genderLabels[item.gender] || "Không xác định"}
-                  </td>
-                  <td className="text-center">{item.userName}</td>
-                  <td className="text-center">{item.address}</td>
-                  <td className="text-center">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="text-center">
-                    {new Date(item.updatedAt).toLocaleDateString()}
-                  </td>
+
+      {/* Search Box */}
+      <div className="flex justify-center my-4">
+        <input
+          type="text"
+          placeholder="Tìm kiếm theo tên, email, số điện thoại, quyền, giới tính..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="border rounded-lg p-2 w-1/2"
+        />
+      </div>
+
+      <Tabs defaultActiveKey="1">
+        <TabPane tab="All Users" key="1">
+          {/* Table for All Users */}
+          <div className="overflow-x-auto rounded-lg my-10 shadow-md">
+            <table className="table">
+              <thead className="bg-primary text-white">
+                <tr className="h-10">
+                  <th className="text-center">STT</th>
+                  <th className="text-center">ID</th>
+                  <th className="text-center">Tên</th>
+                  <th className="text-center">Email</th>
+                  <th className="text-center">Số điện thoại</th>
+                  <th className="text-center">Quyền</th>
+                  <th className="text-center">Trạng thái</th>
+                  <th className="text-center">Giới tính</th>
+                  <th className="text-center">Tên đăng nhập</th>
+                  <th className="text-center">Địa chỉ</th>
+                  <th className="text-center">Ngày tạo</th>
+                  <th className="text-center">Ngày cập nhật</th>
                 </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="flex justify-center mt-4">
-        {currentPage > 1 && (
-          <button
-            className="px-4 py-2 mx-1 rounded-lg bg-primary text-white"
-            onClick={() => handlePageChange(currentPage - 1)}
-          >
-            Previous
-          </button>
-        )}
-        {currentPage > 2 && <span className="px-4 py-2 mx-1">..</span>}
-        {renderPageNumbers()}
-        {currentPage < totalItems - 1 && (
-          <span className="px-4 py-2 mx-1">..</span>
-        )}
-        {currentPage < totalItems && (
-          <button
-            className="px-4 py-2 mx-1 rounded-lg bg-primary text-white"
-            onClick={() => handlePageChange(currentPage + 1)}
-          >
-            Next
-          </button>
-        )}
-      </div>
+              </thead>
+              <tbody>
+                {filteredAccounts.length > 0 ? (
+                  filteredAccounts.map((item, index) => (
+                    <tr
+                      key={item.id}
+                      className="h-10 hover"
+                      onDoubleClick={() => handleDoubleClick(item)}
+                    >
+                      <td className="text-center">{index + 1}</td>
+                      <td className="text-center">{item.id}</td>
+                      <td className="text-center">{`${item.firstName} ${item.lastName}`}</td>
+                      <td className="text-center lowercase text-wrap">
+                        {item.email}
+                      </td>
+                      <td className="text-center">{item.phoneNumber}</td>
+                      <td className="text-center">{item.mainRole}</td>
+                      <td className="text-center">
+                        {item.isVerified ? (
+                          <i className="fa-solid fa-circle-check text-green-600"></i>
+                        ) : (
+                          <i className="fa-solid fa-circle-xmark text-red-600"></i>
+                        )}
+                      </td>
+                      <td className="text-center">
+                        {genderLabels[item.gender] || "Không xác định"}
+                      </td>
+                      <td className="text-center">{item.userName}</td>
+                      <td className="text-center">{item.address}</td>
+                      <td className="text-center">
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="text-center">
+                        {new Date(item.updatedAt).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="12" className="text-center">
+                      Không tìm thấy người dùng nào
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            {/* Pagination */}
+            <div className="flex justify-center mt-4">
+              {currentPage > 1 && (
+                <button
+                  className="px-4 py-2 mx-1 rounded-lg bg-primary text-white"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
+                  Previous
+                </button>
+              )}
+              {currentPage > 2 && <span className="px-4 py-2 mx-1">..</span>}
+              {renderPageNumbers()}
+              {currentPage < totalItems - 1 && (
+                <span className="px-4 py-2 mx-1">..</span>
+              )}
+              {currentPage < totalItems && (
+                <button
+                  className="px-4 py-2 mx-1 rounded-lg bg-primary text-white"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
+                  Next
+                </button>
+              )}
+            </div>
+          </div>
+        </TabPane>
+        {/* Tab for Manage Suppliers */}
+
+        <TabPane tab="Manage Suppliers" key="2">
+          {/* Add the ManageSupplier component here */}
+          <ManageSupplier />
+        </TabPane>
+
+        {/* Additional Tab for Inactive Users */}
+        <TabPane tab="Active Account Supllier" key="3">
+          <SendActivationCode />
+        </TabPane>
+      </Tabs>
 
       <GetInformationAccount
         accountId={selectedAccountId}

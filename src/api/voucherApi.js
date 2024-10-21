@@ -1,14 +1,13 @@
 import api from "../api/config";
 
-// Function to get all vouchers with pagination
 export const getAllVouchers = async (pageIndex, pageSize) => {
   try {
     const response = await api.get(`/voucher/get-all-voucher`, {
       params: { pageIndex, pageSize },
     });
 
-    if (response.status === 200 && response.data.result) {
-      return response.data.result.items; // Return the list of vouchers
+    if (response.status === 200) {
+      return response.data; // Return the whole response object
     }
   } catch (error) {
     console.error("Error fetching vouchers:", error);

@@ -9,15 +9,16 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getAllProduct,
   getProductByCategoryName,
   getProductByName,
-} from "../../../api/productApi";
+} from "../../../api/productApi"; // Ensure this path is correct
 
 const { Content } = Layout;
-const { Search } = Input;
 const { Title } = Typography;
+const { Search } = Input;
 const { Option } = Select;
 
 const ProductPage = () => {
@@ -25,32 +26,34 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
+  // Function to load products
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const productData = await getAllProduct(1, 20); // Fetch products with default pagination
+      if (productData) {
+        setProducts(productData);
+      } else {
+        message.error("Failed to load products.");
+      }
+    } catch (error) {
+      message.error("An error occurred while fetching products.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadProducts = async () => {
-      setLoading(true);
-      try {
-        const productData = await getAllProduct(1, 20); // Adjust page size as needed
-        if (productData) {
-          setProducts(productData);
-        } else {
-          message.error("Failed to load products.");
-        }
-      } catch (error) {
-        message.error("An error occurred while fetching products.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProducts();
+    loadProducts(); // Load products when the component mounts
   }, []);
 
   const handleSearch = async (value) => {
     setLoading(true);
     setSearchTerm(value);
     try {
-      const productData = await getProductByName(value);
+      const productData = await getProductByName(value, 1, 20); // Add pageIndex and pageSize
       if (productData) {
         setProducts(productData);
       } else {
@@ -68,7 +71,7 @@ const ProductPage = () => {
     setLoading(true);
     setCategory(value);
     try {
-      const productData = await getProductByCategoryName(value);
+      const productData = await getProductByCategoryName(value, 1, 20); // Add pageIndex and pageSize
       if (productData) {
         setProducts(productData);
       } else {
@@ -82,12 +85,18 @@ const ProductPage = () => {
     }
   };
 
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setCategory("");
+    loadProducts(); // Reload products when clearing search
+  };
+
   const handleCreateOrderRent = (product) => {
     message.success(`Order for renting ${product.productName} created!`);
   };
 
   const handleCreateOrderBuy = (product) => {
-    message.success(`Order for buying ${product.productName} created!`);
+    navigate("/create-order-buy", { state: { product } });
   };
 
   return (
@@ -102,11 +111,11 @@ const ProductPage = () => {
             className="w-1/4 mr-4"
             onChange={handleCategoryChange}
             placeholder="Select a category"
+            value={category}
           >
-            {/* Replace with actual categories */}
-            <Option value=""></Option>
-            <Option value="SCanon">Canon 1</Option>
-            <Option value="Nikon">Nikon 2</Option>
+            <Option value="">All Categories</Option>
+            <Option value="Canon">Canon</Option>
+            <Option value="Nikon">Nikon</Option>
             <Option value="Sony">Sony</Option>
             <Option value="Fujifilm">Fujifilm</Option>
             <Option value="Olympus">Olympus</Option>
@@ -115,15 +124,19 @@ const ProductPage = () => {
             <Option value="Pentax">Pentax</Option>
             <Option value="Hasselblad">Hasselblad</Option>
             <Option value="Sigma">Sigma</Option>
-            <Option value="Another">Another</Option>
           </Select>
 
           <Search
             className="w-1/4"
             placeholder="Search for products"
             enterButton
+            value={searchTerm}
             onSearch={handleSearch}
+            onChange={(e) => setSearchTerm(e.target.value)} // Handle input change
           />
+          <Button onClick={handleClearSearch} className="ml-4">
+            Clear Search
+          </Button>
         </div>
 
         {loading ? (
@@ -147,16 +160,29 @@ const ProductPage = () => {
                 <Card.Meta title={product.productName} />
                 <div className="mt-2">
                   <p className="text-gray-700">{product.productDescription}</p>
+                  <p className="font-semibold">Price (Rent): VND</p>
+                  {product.priceRent ? product.priceRent.toFixed(2) : "N/A"}
+                  <p className="font-semibold">Price (Buy): VND</p>
+                  {product.priceBuy ? product.priceBuy.toFixed(2) : "N/A"}
+                  <p className="font-semibold">Brand: </p>
+                  {product.brand}
+                  <p className="font-semibold">Quality: </p>
+                  {product.quality}
                   <p className="font-semibold">
-                    Price (Rent): $
-                    {product.priceRent ? product.priceRent.toFixed(2) : "N/A"}
+                    Status: {product.status === 1 ? "Available" : "Unavailable"}
                   </p>
-                  <p className="font-semibold">
-                    Price (Buy): $
-                    {product.priceBuy ? product.priceBuy.toFixed(2) : "N/A"}
-                  </p>
-
-                  <p className="font-semibold">Rating: {product.rating}</p>
+                  <p className="font-semibold">Rating: </p>
+                  {product.rating}
+                  <p className="font-semibold">Serial Number:</p>
+                  {product.serialNumber}
+                  <p className="font-semibold">Supplier ID:</p>
+                  {product.supplierID}
+                  <p className="font-semibold">Category ID:</p>
+                  {product.categoryID}
+                  <p className="font-semibold">Created At:</p>
+                  {new Date(product.createdAt).toLocaleString()}
+                  <p className="font-semibold">Updated At:</p>
+                  {new Date(product.updatedAt).toLocaleString()}
                 </div>
 
                 <div className="flex justify-between mt-4">
