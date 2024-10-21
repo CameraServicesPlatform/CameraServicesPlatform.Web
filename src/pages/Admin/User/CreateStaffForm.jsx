@@ -5,11 +5,14 @@ import {
   DatePicker,
   Form,
   Input,
+  Select,
   Upload,
   message,
 } from "antd";
 import React, { useState } from "react";
 import { createStaff } from "../../../api/accountApi";
+
+const { Option } = Select;
 
 const CreateStaffForm = () => {
   const [form] = Form.useForm();
@@ -37,17 +40,19 @@ const CreateStaffForm = () => {
 
     const result = await createStaff(formData);
     if (result) {
-      message.success("Staff created successfully!");
+      message.success("Tạo nhân viên thành công!");
       form.resetFields();
       setFileList([]); // Clear file input
     } else {
-      message.error("Failed to create staff");
+      message.error("Tạo nhân viên thất bại.");
     }
   };
 
   return (
     <div className="p-4 max-w-md mx-auto bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold text-center mb-4">Create Staff</h2>
+      <h2 className="text-2xl font-semibold text-center mb-4">
+        TẠO TÀI KHOẢN NHÂN VIÊN
+      </h2>
       <Form
         form={form}
         onFinish={handleSubmit}
@@ -57,19 +62,19 @@ const CreateStaffForm = () => {
         }}
       >
         <Form.Item
-          label="First Name"
+          label="Tên"
           name="FirstName"
-          rules={[{ required: true, message: "Please input your first name!" }]}
+          rules={[{ required: true, message: "Vui lòng nhập tên của bạn!" }]}
         >
-          <Input placeholder="Enter First Name" />
+          <Input placeholder="Nhập tên" />
         </Form.Item>
 
         <Form.Item
-          label="Last Name"
+          label="Họ"
           name="LastName"
-          rules={[{ required: true, message: "Please input your last name!" }]}
+          rules={[{ required: true, message: "Vui lòng nhập họ của bạn!" }]}
         >
-          <Input placeholder="Enter Last Name" />
+          <Input placeholder="Nhập họ" />
         </Form.Item>
 
         <Form.Item
@@ -79,61 +84,72 @@ const CreateStaffForm = () => {
             {
               required: true,
               type: "email",
-              message: "Please input a valid email!",
+              message: "Vui lòng nhập email hợp lệ!",
             },
           ]}
         >
-          <Input placeholder="Enter Email" />
+          <Input placeholder="Nhập email" />
         </Form.Item>
 
         <Form.Item
-          label="Phone Number"
+          label="Số điện thoại"
           name="PhoneNumber"
           rules={[
-            { required: true, message: "Please input your phone number!" },
+            { required: true, message: "Vui lòng nhập số điện thoại của bạn!" },
           ]}
         >
-          <Input placeholder="Enter Phone Number" />
+          <Input placeholder="Nhập số điện thoại" />
         </Form.Item>
 
         <Form.Item
-          label="Job Title"
+          label="Chức vụ"
           name="JobTitle"
-          rules={[{ required: true, message: "Please input your job title!" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập chức vụ của bạn!" },
+          ]}
         >
-          <Input placeholder="Enter Job Title" />
+          <Input placeholder="Nhập chức vụ" />
         </Form.Item>
 
         <Form.Item
-          label="Department"
+          label="Phòng ban"
           name="Department"
-          rules={[{ required: true, message: "Please input your department!" }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập phòng ban của bạn!" },
+          ]}
         >
-          <Input placeholder="Enter Department" />
+          <Input placeholder="Nhập phòng ban" />
         </Form.Item>
 
         <Form.Item
-          label="Staff Status"
+          label="Trạng thái nhân viên"
           name="StaffStatus"
-          rules={[{ required: true, message: "Please input staff status!" }]}
+          rules={[
+            { required: true, message: "Vui lòng chọn trạng thái nhân viên!" },
+          ]}
         >
-          <Input placeholder="Enter Staff Status" />
+          <Select placeholder="Chọn trạng thái nhân viên">
+            <Option value="active">Hoạt động</Option>
+            <Option value="suspended">Đình chỉ</Option>
+          </Select>
         </Form.Item>
 
         <Form.Item
-          label="Hire Date"
+          label="Ngày tuyển dụng"
           name="HireDate"
-          rules={[{ required: true, message: "Please select hire date!" }]}
+          rules={[
+            { required: true, message: "Vui lòng chọn ngày tuyển dụng!" },
+          ]}
         >
-          <DatePicker showTime placeholder="Select Hire Date" />
+          <DatePicker showTime placeholder="Chọn ngày tuyển dụng" />
         </Form.Item>
 
         <Form.Item name="IsAdmin" valuePropName="checked">
-          <Checkbox>Is Admin</Checkbox>
+          <Checkbox>Là quản trị viên</Checkbox>
         </Form.Item>
 
         <Form.Item
-          label="Upload Image"
+          label="Tải lên hình ảnh"
           valuePropName="fileList"
           getValueFromEvent={handleFileChange}
         >
@@ -142,13 +158,13 @@ const CreateStaffForm = () => {
             onChange={handleFileChange}
             fileList={fileList}
           >
-            <Button icon={<UploadOutlined />}>Upload</Button>
+            <Button icon={<UploadOutlined />}>Tải lên</Button>
           </Upload>
         </Form.Item>
 
         <Form.Item>
           <Button type="primary" htmlType="submit" className="w-full">
-            Create Staff
+            Tạo Nhân Viên
           </Button>
         </Form.Item>
       </Form>
