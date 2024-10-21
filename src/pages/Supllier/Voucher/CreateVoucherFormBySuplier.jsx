@@ -108,30 +108,6 @@ const CreateVoucherFormBySuplier = () => {
         />
       </Form.Item>
 
-      <Form.Item label="Max Usage Limit" name="maxUsageLimit">
-        <InputNumber
-          min={0}
-          placeholder="Enter Max Usage Limit"
-          style={{ width: "100%" }}
-        />
-      </Form.Item>
-
-      <Form.Item label="Usage Per Customer" name="usagePerCustomer">
-        <InputNumber
-          min={0}
-          placeholder="Enter Usage Per Customer"
-          style={{ width: "100%" }}
-        />
-      </Form.Item>
-
-      <Form.Item label="Min Order Amount" name="minOrderAmount">
-        <InputNumber
-          min={0}
-          placeholder="Enter Min Order Amount"
-          style={{ width: "100%" }}
-        />
-      </Form.Item>
-
       <Form.Item
         label="Valid From"
         name="validFrom"
