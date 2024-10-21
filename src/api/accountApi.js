@@ -40,6 +40,8 @@ export const registerSupplier = async (
 ) => {
   try {
     const formData = new FormData();
+
+    // Append form data
     formData.append("Email", email);
     formData.append("Password", password);
     formData.append("FirstName", firstName);
@@ -53,6 +55,7 @@ export const registerSupplier = async (
     formData.append("AccountNumber", accountNumber);
     formData.append("AccountHolder", accountHolder);
 
+    // Append citizen identification card images
     formData.append(
       "FrontOfCitizenIdentificationCard",
       frontOfCitizenIdentificationCard
@@ -62,6 +65,7 @@ export const registerSupplier = async (
       backOfCitizenIdentificationCard
     );
 
+    // Send POST request
     const res = await api.post("/account/register/supplier", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
