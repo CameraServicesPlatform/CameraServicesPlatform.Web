@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getCategoryById } from "../../../api/categoryApi";
 import { getProductById } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
-import { getBrandName } from "../../../utils/constant";
+import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
 
 const { Title, Paragraph } = Typography;
 
@@ -53,7 +53,6 @@ const ProductDetailPage = () => {
           }
         }
       } catch (error) {
-        message.error("Có lỗi xảy ra khi tải sản phẩm.");
       } finally {
         setLoading(false);
       }
@@ -135,14 +134,24 @@ const ProductDetailPage = () => {
                 <p>
                   <strong>Danh mục:</strong> {categoryName}
                 </p>
-                <p>
+                <p className="font-semibold text-left">
                   <strong>Tình trạng:</strong>{" "}
-                  {product.status === 1 ? (
-                    <span className="text-green-600">Còn hàng</span>
-                  ) : (
-                    <span className="text-red-600">Hết hàng</span>
-                  )}
+                  <span
+                    className={
+                      product.status === 0
+                        ? "text-green-600"
+                        : product.status === 1
+                        ? "text-blue-600"
+                        : product.status === 3
+                        ? "text-gray-600"
+                        : "text-orange-600"
+                    }
+                  >
+                    {getProductStatusEnum[product.status] || "Unknown Status"}
+                    {/* Fallback for undefined statuses */}
+                  </span>
                 </p>
+
                 <p>
                   <strong>Chất lượng:</strong> {product.quality}
                 </p>
