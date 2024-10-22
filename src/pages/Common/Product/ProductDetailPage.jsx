@@ -78,8 +78,15 @@ const ProductDetailPage = () => {
   };
 
   const handleCreateOrderBuy = (product) => {
-    navigate("/create-order-buy", { state: { product } });
+    navigate("/create-order-buy", {
+      state: {
+        productID: product.productID,
+        supplierID: product.supplierID,
+        product,
+      },
+    });
   };
+
   return (
     <div className="container mx-auto p-6">
       {product && (

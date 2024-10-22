@@ -126,19 +126,19 @@ const PersonalInformation = () => {
         {!isOrderDetail ? (
           <div className="col-span-3 bg-white shadow-lg rounded-box p-6">
             <h2 className="text-xl font-bold mb-4 text-primary text-center">
-              Orders
+              Đơn hàng
             </h2>
             {orders.length === 0 ? (
-              <p>No orders found.</p>
+              <p>Không tìm thấy đơn hàng nào.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Order ID</th>
-                      <th>Status</th>
-                      <th>Total</th>
-                      <th>Order Date</th>
+                      <th>Mã đơn hàng</th>
+                      <th>Trạng thái</th>
+                      <th>Tổng tiền</th>
+                      <th>Ngày đặt hàng</th>
                     </tr>
                   </thead>
                   <tbody>{orders.map(renderOrderItems)}</tbody>
@@ -152,58 +152,38 @@ const PersonalInformation = () => {
               onClick={() => setIsOrderDetail(false)}
               className="text-primary cursor-pointer"
             >
-              Back
+              Quay lại
             </span>
             <div>
               <h3 className="text-lg font-bold mb-2 text-primary text-center">
-                Order Details
+                Chi tiết đơn hàng
               </h3>
               <p>
-                <strong>Order ID:</strong> {data.order?.id}
+                <strong>Mã đơn hàng:</strong> {data.order?.id}
               </p>
               <p>
-                <strong>Phone:</strong> {data.order?.account?.phoneNumber}
+                <strong>Số điện thoại:</strong>{" "}
+                {data.order?.account?.phoneNumber}
               </p>
               <p>
-                <strong>Status:</strong> {orderLabels[data.order?.status]}
+                <strong>Trạng thái:</strong> {orderLabels[data.order?.status]}
               </p>
               <p>
-                <strong>Total:</strong> {formatPrice(data.order?.total)}
+                <strong>Tổng tiền:</strong> {formatPrice(data.order?.total)}
               </p>
               <p>
-                <strong>Order Date:</strong>{" "}
+                <strong>Ngày đặt hàng:</strong>{" "}
                 {formatDateTime(data.order?.purchaseDate)}
               </p>
             </div>
-            <table className="table w-full">
-              <thead>
-                <tr>
-                  <th>Event</th>
-                  <th>Seat Rank</th>
-                  <th>Quantity</th>
-                  <th>Unit Price</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.orderDetails?.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.seatRank?.event?.title}</td>
-                    <td>{item.seatRank?.name}</td>
-                    <td>{item.quantity}</td>
-                    <td>{formatPrice(item.seatRank?.price)}</td>
-                    <td>{formatPrice(item.seatRank?.price * item.quantity)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
             {data.order?.status === 0 && (
               <div className="flex justify-center">
                 <button
                   className="bg-primary text-white rounded-md py-2 px-4 my-2"
                   onClick={() => handlePaymentAgain(data.order?.id)}
                 >
-                  Pay Now
+                  Thanh toán ngay
                 </button>
               </div>
             )}

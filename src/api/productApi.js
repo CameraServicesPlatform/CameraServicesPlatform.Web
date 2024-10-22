@@ -23,10 +23,16 @@ export const getProductById = async (id, pageIndex = 1, pageSize = 1) => {
       `/product/get-product-by-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`
     );
 
-    if (res.status === 200 && res.data && res.data.isSuccess) {
-      return res.data.result;
+    if (res.status === 200 && res.data) {
+      if (res.data.isSuccess) {
+        return res.data.result;
+      } else {
+        console.error("API error:", res.data.message);
+        return null;
+      }
     }
 
+    console.error("Unexpected response format:", res);
     return null;
   } catch (err) {
     console.error("Error fetching product by ID:", err);
