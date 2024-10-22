@@ -11,7 +11,7 @@ const CreateOrderBuy = () => {
   const [isLoadingProduct, setIsLoadingProduct] = useState(true);
   const location = useLocation();
   const { product } = location.state || {};
-
+  update - account;
   // Retrieve accountID from the Redux store
   const user = useSelector((state) => state.user.user || {});
   const accountID = user.accountID;
