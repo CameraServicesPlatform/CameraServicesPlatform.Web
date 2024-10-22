@@ -8,17 +8,17 @@ const ManageUser = () => {
   const items = [
     {
       key: "1",
-      label: "All Users",
+      label: "Danh Sách Người Dùng",
       children: <ManageUserList />, // Use the new ManageUserList component
     },
     {
       key: "2",
-      label: "Manage Suppliers",
+      label: "Danh Sách Nhà Cung Cấp",
       children: <ManageSupplier />,
     },
     {
       key: "3",
-      label: "Active Account Supplier",
+      label: "Cấp quyền hoạt động cho nhà cung cấp ",
       children: <SendActivationCode />,
     },
     {

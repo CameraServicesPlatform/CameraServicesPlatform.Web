@@ -46,11 +46,12 @@ const GetInformationAccount = ({ accountId, visible, onCancel, mainRole }) => {
               : "Nữ"
             : "Không xác định"
         }
+         Mã nhà cung cấp: ${accountData.supplierID || "Chưa có mã nhà cung cấp"}
         Nghề nghiệp: ${accountData.job || "Chưa cung cấp nghề nghiệp"}
         Sở thích: ${accountData.hobby || "Chưa cung cấp sở thích"}
          
-         Concurrency Stamp: ${accountData.concurrencyStamp}
-         
+                
+
         Đã xác minh: ${accountData.isVerified ? "Có" : "Không"}
       `;
 
@@ -144,30 +145,14 @@ const GetInformationAccount = ({ accountId, visible, onCancel, mainRole }) => {
               </Form.Item>
             </Col>
           </Row>
-          {mainRole === "SUPPLIER" && ( // Hiển thị Mã nhà cung cấp nếu vai trò chính là SUPPLIER
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item label={<strong>Mã nhà cung cấp</strong>}>
-                  <span>
-                    {accountData?.supplierID || "Chưa cung cấp mã nhà cung cấp"}
-                  </span>
-                </Form.Item>
-              </Col>
-            </Row>
-          )}
-          {["ADMIN", "STAFF"].includes(mainRole) && ( // Hiển thị Mã nhân viên nếu vai trò chính là ADMIN hoặc STAFF
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item label={<strong>Mã nhân viên</strong>}>
-                  <span>
-                    {accountData?.staffID || "Chưa cung cấp mã nhân viên"}
-                  </span>
-                </Form.Item>
-              </Col>
-            </Row>
-          )}
-
           <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label={<strong>Supplier ID</strong>}>
+                <span>
+                  {accountData?.supplierID || "No supplier ID provided"}
+                </span>
+              </Form.Item>
+            </Col>
             <Col span={12}>
               <Form.Item label={<strong>Đã xác minh</strong>}>
                 <span style={{ display: "flex", alignItems: "center" }}>

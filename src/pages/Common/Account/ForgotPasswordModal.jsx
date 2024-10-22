@@ -146,8 +146,8 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
                 message: "Nhập password mới!",
               },
               {
-                min: 8,
-                message: "Password phải có ít nhất 8 ký tự!",
+                min: 6,
+                message: "Password phải có ít nhất 6 ký tự!",
               },
               {
                 pattern: /[A-Z]/,

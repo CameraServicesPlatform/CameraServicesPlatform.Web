@@ -10,36 +10,36 @@ const SendActivationCode = () => {
 
   const handleSendActivation = async () => {
     if (!email) {
-      message.error("Please enter the supplier's email");
+      message.error("Vui lòng nhập email của nhà cung cấp"); // Dịch thông báo lỗi
       return;
     }
 
-    setLoading(true); // Set loading state
-    console.log("Sending email to:", email);
+    setLoading(true);
+    console.log("Gửi email đến:", email);
 
     const result = await sendOTP(email);
     if (result) {
-      message.success("Activation code sent successfully!");
-    } else {
-      message.error("Failed to send activation code");
+      message.success("Mã kích hoạt đã được gửi thành công!");
+      message.error("Gửi mã kích hoạt thất bại");
     }
 
-    setLoading(false); // Reset loading state after API call
+    setLoading(false);
   };
 
   return (
     <div style={{ maxWidth: "400px", margin: "auto", padding: "20px" }}>
       <Title level={3} style={{ textAlign: "center" }}>
-        Send Activation Code
+        Gửi Mã Kích Hoạt
       </Title>
       <Form layout="vertical">
-        <Form.Item label="Supplier's Email">
+        <Form.Item label="Email của Nhà Cung Cấp">
+          {" "}
           <Input
             type="email"
-            placeholder="Enter supplier's email"
+            placeholder="Nhập email của nhà cung cấp"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={loading} // Disable input while loading
+            disabled={loading}
           />
         </Form.Item>
         <Form.Item>
@@ -47,9 +47,9 @@ const SendActivationCode = () => {
             type="primary"
             block
             onClick={handleSendActivation}
-            loading={loading} // Show loading spinner on the button
+            loading={loading}
           >
-            Send Activation Code
+            Gửi Mã Kích Hoạt
           </Button>
         </Form.Item>
       </Form>
