@@ -1,5 +1,5 @@
 import { SearchOutlined, UpOutlined } from "@ant-design/icons";
-import { Button, Input, message, Select } from "antd";
+import { Button, Input, message, Pagination, Select } from "antd";
 import { useEffect, useState } from "react";
 import { getAllAccount } from "../../../api/accountApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
@@ -15,8 +15,6 @@ const ManageUserList = () => {
   const [totalItems, setTotalItems] = useState(1);
   const itemsPerPage = 10;
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-
-  // State cho tìm kiếm
   const [searchTerm, setSearchTerm] = useState({
     name: "",
     email: "",
@@ -25,6 +23,10 @@ const ManageUserList = () => {
     gender: "",
     status: "",
   });
+
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const fetchData = async (page) => {
     try {
@@ -76,6 +78,11 @@ const ManageUserList = () => {
       status: "",
     });
     fetchData(1);
+  };
+
+  const handleDoubleClick = (user) => {
+    setSelectedAccountId(user.id);
+    setModalVisible(true);
   };
 
   return (
@@ -189,7 +196,6 @@ const ManageUserList = () => {
               <th className="text-center">Quyền</th>
               <th className="text-center">Trạng thái</th>
               <th className="text-center">Giới tính</th>
-              <th className="text-center">Tên đăng nhập</th>
               <th className="text-center">Ngày tạo</th>
               <th className="text-center">Ngày cập nhật</th>
             </tr>
@@ -197,7 +203,11 @@ const ManageUserList = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredAccounts.length > 0 ? (
               filteredAccounts.map((item, index) => (
-                <tr key={item.id} className="h-10 hover:bg-gray-100">
+                <tr
+                  key={item.id}
+                  className="h-10 hover:bg-gray-100"
+                  onDoubleClick={() => handleDoubleClick(item)}
+                >
                   <td className="text-center">
                     {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
@@ -218,61 +228,34 @@ const ManageUserList = () => {
                   <td className="text-center">
                     {genderLabels[item.gender] || "Không xác định"}
                   </td>
-                  <td className="text-center">{item.userName}</td>
-                  <td className="text-center">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="text-center">
-                    {new Date(item.updatedAt).toLocaleDateString()}
-                  </td>
+                  <td className="text-center">{item.createdAt}</td>
+                  <td className="text-center">{item.updatedAt}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="11" className="text-center">
-                  Không tìm thấy người dùng nào
+                <td colSpan="11" className="text-center py-4">
+                  Không có dữ liệu
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+      </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-4">
-          {currentPage > 1 && (
-            <button
-              className="px-4 py-2 mx-1 rounded-lg bg-primary text-white"
-              onClick={() => handlePageChange(currentPage - 1)}
-            >
-              Previous
-            </button>
-          )}
-          {currentPage > 2 && <span className="px-4 py-2 mx-1">..</span>}
-          {Array.from({ length: totalItems }, (_, i) => (
-            <button
-              key={i + 1}
-              className={`px-4 py-2 mx-1 rounded-lg ${
-                currentPage === i + 1 ? "bg-primary text-white" : "bg-gray-200"
-              }`}
-              onClick={() => handlePageChange(i + 1)}
-            >
-              {i + 1}
-            </button>
-          ))}
-          {currentPage < totalItems && (
-            <button
-              className="px-4 py-2 mx-1 rounded-lg bg-primary text-white"
-              onClick={() => handlePageChange(currentPage + 1)}
-            >
-              Next
-            </button>
-          )}
-        </div>
+      {/* Pagination */}
+      <div className="flex justify-center">
+        <Pagination
+          current={currentPage}
+          pageSize={itemsPerPage}
+          total={totalItems * itemsPerPage}
+          onChange={handlePageChange}
+        />
       </div>
       <GetInformationAccount
-        accountId={null}
-        visible={false}
-        onCancel={() => {}}
+        accountId={selectedAccountId}
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
       />
     </div>
   );
