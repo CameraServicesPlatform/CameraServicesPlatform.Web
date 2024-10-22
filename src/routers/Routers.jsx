@@ -17,14 +17,15 @@ import VerifyPayment from "../pages/Common/VerifyPayment";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
 import CreateProductForm from "../pages/Management/Product/CreateProductForm";
 
+import CreateStaffForm from "../pages/Admin/User/CreateStaffForm";
 import CreateOrderBuy from "../pages/Common/Order/CreateOrderBuy/CreateOrderBuy";
+import ProductDetailPage from "../pages/Common/Product/ProductDetailPage";
 import ManageProduct from "../pages/Management/Product/ManageProduct";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
-import CreateStaffForm from "../pages/Admin/User/CreateStaffForm";
 function Routers() {
   const routing = useRoutes([
     {
@@ -49,6 +50,7 @@ function Routers() {
         { path: "product-for-rent", element: <ProductPage /> },
         { path: "product-for-buy", element: <ProductPage /> },
         { path: "create-order-buy", element: <CreateOrderBuy /> },
+        { path: "/product/:id", element: <ProductDetailPage /> },
       ],
     },
     {

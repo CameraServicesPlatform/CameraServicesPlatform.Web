@@ -14,7 +14,7 @@ import {
   getAllProduct,
   getProductByCategoryName,
   getProductByName,
-} from "../../../api/productApi"; // Ensure this path is correct
+} from "../../../api/productApi"; // Đảm bảo đường dẫn này chính xác
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -28,11 +28,11 @@ const ProductPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  // Function to load products
+  // Hàm tải sản phẩm
   const loadProducts = async () => {
     setLoading(true);
     try {
-      const productData = await getAllProduct(1, 20); // Fetch products with default pagination
+      const productData = await getAllProduct(1, 20); // Lấy sản phẩm với phân trang mặc định
       if (productData) {
         setProducts(productData);
       } else {
@@ -46,14 +46,14 @@ const ProductPage = () => {
   };
 
   useEffect(() => {
-    loadProducts(); // Load products when the component mounts
+    loadProducts(); // Tải sản phẩm khi component mount
   }, []);
 
   const handleSearch = async (value) => {
     setLoading(true);
     setSearchTerm(value);
     try {
-      const productData = await getProductByName(value, 1, 20); // Add pageIndex and pageSize
+      const productData = await getProductByName(value, 1, 20);
       if (productData) {
         setProducts(productData);
       } else {
@@ -71,7 +71,7 @@ const ProductPage = () => {
     setLoading(true);
     setCategory(value);
     try {
-      const productData = await getProductByCategoryName(value, 1, 20); // Add pageIndex and pageSize
+      const productData = await getProductByCategoryName(value, 1, 20);
       if (productData) {
         setProducts(productData);
       } else {
@@ -88,15 +88,7 @@ const ProductPage = () => {
   const handleClearSearch = () => {
     setSearchTerm("");
     setCategory("");
-    loadProducts(); // Reload products when clearing search
-  };
-
-  const handleCreateOrderRent = (product) => {
-    message.success(`Order for renting ${product.productName} created!`);
-  };
-
-  const handleCreateOrderBuy = (product) => {
-    navigate("/create-order-buy", { state: { product } });
+    loadProducts(); // Tải lại sản phẩm khi xóa tìm kiếm
   };
 
   return (
@@ -132,7 +124,7 @@ const ProductPage = () => {
             enterButton
             value={searchTerm}
             onSearch={handleSearch}
-            onChange={(e) => setSearchTerm(e.target.value)} // Handle input change
+            onChange={(e) => setSearchTerm(e.target.value)} // Xử lý thay đổi input
           />
           <Button onClick={handleClearSearch} className="ml-4">
             Clear Search
@@ -152,7 +144,7 @@ const ProductPage = () => {
                     <img
                       src={product.listImage[0].image}
                       alt={product.productName}
-                      className="h-48 w-full object-cover rounded-t-lg"
+                      className="w-full object-cover h-64"
                     />
                   )
                 }
@@ -183,22 +175,14 @@ const ProductPage = () => {
                   {new Date(product.createdAt).toLocaleString()}
                   <p className="font-semibold">Updated At:</p>
                   {new Date(product.updatedAt).toLocaleString()}
-                </div>
 
-                <div className="flex justify-between mt-4">
+                  {/* Nút View Detail */}
                   <Button
                     type="primary"
-                    onClick={() => handleCreateOrderRent(product)}
-                    className="bg-mainColor hover:bg-opacity-80 transition duration-200"
+                    onClick={() => navigate(`/product/${product.productID}`)} // Điều hướng đến trang chi tiết sản phẩm
+                    className="mt-2"
                   >
-                    Create Order for Rent
-                  </Button>
-                  <Button
-                    type="default"
-                    onClick={() => handleCreateOrderBuy(product)}
-                    className="bg-primary text-white hover:bg-opacity-80 transition duration-200"
-                  >
-                    Create Order for Buy
+                    View Detail
                   </Button>
                 </div>
               </Card>
