@@ -12,27 +12,12 @@ export const loginWithEmailPass = async (email, password) => {
   }
 };
 
-export const createAccount = async (
-  email,
-  firstName,
-  lastName,
-  password,
-  gender,
-  phoneNumber,
-  roleName
-) => {
+export const createAccount = async (formData) => {
   try {
-    const res = await api.post(`/account/create-account`, {
-      email,
-      firstName,
-      lastName,
-      password,
-      gender,
-      phoneNumber,
-      roleName,
-    });
-    return res.data;
-  } catch (err) {
+    const response = await api.post(`/account/create-account`, formData, {});
+    return response.data;
+  } catch (error) {
+    console.error("Error creating account:", error);
     return null;
   }
 };
@@ -47,17 +32,16 @@ export const registerSupplier = async (
   supplierAddress,
   contactNumber,
   phoneNumber,
-  frontOfCitizenIdentificationCard, // binary file input for the front of the card
-  backOfCitizenIdentificationCard, // binary file input for the back of the card
+  frontOfCitizenIdentificationCard,
+  backOfCitizenIdentificationCard,
   bankName,
   accountNumber,
   accountHolder
 ) => {
   try {
-    // Create a FormData object to handle multipart/form-data
     const formData = new FormData();
 
-    // Append all the form fields to FormData
+    // Append form data
     formData.append("Email", email);
     formData.append("Password", password);
     formData.append("FirstName", firstName);
@@ -71,7 +55,7 @@ export const registerSupplier = async (
     formData.append("AccountNumber", accountNumber);
     formData.append("AccountHolder", accountHolder);
 
-    // Append the binary files to FormData
+    // Append citizen identification card images
     formData.append(
       "FrontOfCitizenIdentificationCard",
       frontOfCitizenIdentificationCard
@@ -81,7 +65,7 @@ export const registerSupplier = async (
       backOfCitizenIdentificationCard
     );
 
-    // Make the POST request with multipart/form-data
+    // Send POST request
     const res = await api.post("/account/register/supplier", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -223,4 +207,18 @@ export const assignRoleToUser = async (userId, roleName) => {
     );
     return res.data;
   } catch (err) {}
+};
+
+export const createStaff = async (formData) => {
+  try {
+    const response = await api.post(`/account/create-staff`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating staff:", error);
+    return null;
+  }
 };

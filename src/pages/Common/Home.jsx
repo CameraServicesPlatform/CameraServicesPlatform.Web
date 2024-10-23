@@ -1,217 +1,178 @@
-import {
-  Button,
-  Card,
-  Col,
-  Input,
-  Layout,
-  Modal,
-  Row,
-  Spin,
-  Typography,
-} from "antd";
-import React, { useEffect, useState } from "react";
-import {
-  getAllProduct,
-  getProductByCategoryName,
-  getProductById,
-  getProductByName,
-} from "../../api/productApi";
-import { getBrandName } from "../../utils/constant";
+import { Input, Layout, Spin, Typography } from "antd";
+import React, { Suspense } from "react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
+import ProductList from "./Product/ProductList";
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
 
 const Home = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [productDetail, setProductDetail] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categorySearchTerm, setCategorySearchTerm] = useState("");
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const productList = await getAllProduct(1, 100);
-      setProducts(productList);
-      setLoading(false);
-    };
-
-    fetchProducts();
-  }, []);
-
-  const fetchProductDetail = async (productID) => {
-    const productData = await getProductById(productID, 1, 10);
-    if (productData) {
-      setProductDetail(productData);
-      setIsModalVisible(true);
-    }
+  const images = [
+    {
+      url: "https://th.bing.com/th/id/R.71e5cd9565219e6a53ef5805025b4bc6?rik=VDvYSPf2D5ty%2bw&pid=ImgRaw&r=0",
+      title: "Nhanh tay lên!",
+      description: "Phiếu giảm giá lên tới 10%",
+    },
+    {
+      url: "https://koala.sh/api/image/v2-3cfnz-6x48e.jpg?width=1344&height=768&dream",
+      title: "Chạm đến sắc màu",
+      description: "Nắm trọn khoẳng khắc",
+      renderOverlay: () => null, // Add renderOverlay for consistency
+    },
+    {
+      url: "https://th.bing.com/th/id/OIP.gm94XOQvsa0S89QhcaLtCwAAAA?w=474&h=287&rs=1&pid=ImgDetMain",
+      title: "Nút chạm khắc ghi",
+      description: "Chỉ cần chạm nhẹ, bạn nắm trọn khoảng khắc bạn muốn ",
+      renderOverlay: () => null, // Add renderOverlay for consistency
+    },
+  ];
+  const logoSettings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+    cssEase: "linear",
+    arrows: true,
   };
-
-  const handleCardDoubleClick = (productID) => {
-    fetchProductDetail(productID);
-  };
-
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-    setProductDetail(null);
-  };
-
-  const handleSearchByName = async (value) => {
-    setLoading(true);
-    try {
-      const productList = await getProductByName(value, 1, 10);
-      setProducts(Array.isArray(productList) ? productList : []);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      setProducts([]);
-    }
-    setLoading(false);
-  };
-
-  const handleSearchByCategory = async (value) => {
-    setLoading(true);
-    try {
-      const productList = await getProductByCategoryName(value, 1, 10);
-      setProducts(Array.isArray(productList) ? productList : []);
-    } catch (error) {
-      console.error("Error fetching products by category:", error);
-      setProducts([]);
-    }
-    setLoading(false);
-  };
-
-  const handleClearSearch = () => {
-    setSearchTerm("");
-    setCategorySearchTerm("");
-    setLoading(true);
-    const fetchProducts = async () => {
-      const productList = await getAllProduct(1, 100);
-      setProducts(productList);
-      setLoading(false);
-    };
-    fetchProducts();
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
   };
 
   return (
-    <Layout>
-      <Header>
-        <Title level={2} style={{ color: "white" }}>
-          Product List
-        </Title>
-      </Header>
-      <Content style={{ padding: "20px" }}>
-        <div style={{ marginBottom: "20px" }}>
-          <Search
-            placeholder="Search products by name"
-            enterButton="Search"
-            size="large"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onSearch={handleSearchByName}
-            style={{ width: 300, marginRight: 20 }}
-          />
-
-          {/* <Search
-            placeholder="Search products by category"
-            enterButton="Search"
-            size="large"
-            value={categorySearchTerm}
-            onChange={(e) => setCategorySearchTerm(e.target.value)}
-            onSearch={handleSearchByCategory}
-            style={{ width: 300 }}
-          /> */}
-
-          <Button onClick={handleClearSearch} style={{ marginLeft: 20 }}>
-            Clear Search
-          </Button>
-        </div>
-        {loading ? (
-          <Spin tip="Loading products..." />
-        ) : products.length > 0 ? (
-          <Row gutter={16}>
-            {products.map((product) => (
-              <Col span={8} key={product.productID}>
-                <Card
-                  hoverable
-                  cover={
-                    product.listImage.length > 0 && (
-                      <img
-                        alt={product.productName}
-                        src={product.listImage[0].image}
-                        style={{ height: 200, objectFit: "cover" }}
-                      />
-                    )
-                  }
-                  onDoubleClick={() => handleCardDoubleClick(product.productID)}
-                  style={{ marginBottom: "20px" }}
-                >
-                  <Card.Meta
-                    title={product.productName}
-                    description={
-                      <div>
-                        <p>{product.productDescription}</p>
-                        <p>Serial Number: {product.serialNumber}</p>
-                        <p>Price (Rent)/hour: VND{product.priceRent}</p>
-                        <p>Price (Buy): VND{product.priceBuy}</p>
-                        <p>Rating: {product.rating}</p>
-                        <p>Brand: {getBrandName(product.brand)}</p>
-                        <p>Quality: {product.quality}</p>
-                      </div>
-                    }
-                  />
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        ) : (
-          <p>No products found.</p>
-        )}
-      </Content>
-
-      {/* Modal for showing product details */}
-      <Modal
-        title={productDetail?.productName || "Product Details"}
-        visible={isModalVisible}
-        onCancel={handleModalClose}
-        footer={[
-          <Button key="close" onClick={handleModalClose}>
-            Close
-          </Button>,
-        ]}
-      >
-        {productDetail ? (
-          <div>
+    <Suspense fallback={<Spin tip="Loading Home component..." />}>
+      <Slider {...settings}>
+        {images.map((image, index) => (
+          <div key={index} className="relative">
             <img
-              src={productDetail.listImage[0]?.image}
-              alt={productDetail.productName}
-              className="w-full h-64 object-cover mb-4"
+              className="w-full h-96 object-cover rounded-md"
+              src={image.url}
+              alt={`Slide ${index + 1}`}
             />
-            <p>
-              <strong>Description:</strong> {productDetail.productDescription}
-            </p>
-            <p>
-              <strong>Price (Rent):</strong> VND{productDetail.priceRent}
-            </p>
-            <p>
-              <strong>Price (Buy):</strong> VND{productDetail.priceBuy}
-            </p>
-            <p>
-              <strong>Rating:</strong> {productDetail.rating}
-            </p>
-            <p>
-              <strong>Brand:</strong> {productDetail.brand}
-            </p>
-            <p>
-              <strong>Quality:</strong> {productDetail.quality}
-            </p>
+            <div className="absolute bottom-0 left-0 bg-black bg-opacity-50 text-white p-4">
+              <h2 className="text-2xl font-bold">{image.title}</h2>
+              <p>{image.description}</p>
+            </div>
           </div>
-        ) : (
-          <Spin tip="Loading details..." />
-        )}
-      </Modal>
-    </Layout>
+        ))}
+      </Slider>
+
+      <ProductList />
+      <section className="my-8 px-4">
+        <h2 className="text-2xl font-bold mb-4">Đề xuất</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/200x200"
+              alt="Camera 1"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">Máy ảnh Canon EOS 1500D</h3>
+            <p className="text-red-500 font-bold">8.500.000đ</p>
+            <p className="text-gray-500 line-through">9.000.000đ</p>
+            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/200x200"
+              alt="Camera 2"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">Máy ảnh Sony Alpha A6000</h3>
+            <p className="text-red-500 font-bold">12.000.000đ</p>
+            <p className="text-gray-500 line-through">13.000.000đ</p>
+            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+          <div className="border p-4">
+            <img
+              src="https://placehold.co/200x200"
+              alt="Camera Lens"
+              className="w-full"
+            />
+            <h3 className="mt-2 font-bold">Ống kính Canon EF 50mm</h3>
+            <p className="text-red-500 font-bold">3.500.000đ</p>
+            <p className="text-gray-500 line-through">4.000.000đ</p>
+            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
+              Thêm vào giỏ hàng
+            </button>
+          </div>
+        </div>
+      </section>
+      <h2 className="text-2xl font-bold mb-4">Các thương hiệu đồng hành </h2>
+
+      <Slider {...logoSettings}>
+        <div className="px-2">
+          {" "}
+          <img
+            src="https://upload.wikimedia.org/wikipedia/sq/thumb/5/54/Canon_logo.jpg/250px-Canon_logo.jpg"
+            alt="Canon"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+        <div className="px-2">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx0wgnyFOMBu_akXZK0Nuaf21w_cdJ8SI_Pr0FneO4essV4mSfVVzjbeuGEMW7i1f64Vk&usqp=CAU"
+            alt="Sony"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+        <div className="px-2">
+          <img
+            src="https://logos-world.net/wp-content/uploads/2023/03/Nikon-Logo-1965.png"
+            alt="Nikon"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+        <div className="px-2">
+          <img
+            src="https://logodix.com/logo/1145209.png"
+            alt="Fujifilm"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+        <div className="px-2">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSazCWo0bI2fIW0YdCpymFK-das9FQQlT8Rpw&s"
+            alt="Ricoh"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+        <div className="px-2">
+          <img
+            src="https://cnicphday.wordpress.com/wp-content/uploads/2018/10/logo-leica.png"
+            alt="Leica"
+            className="mx-auto"
+            width="250"
+            height="250"
+          />
+        </div>
+      </Slider>
+    </Suspense>
   );
 };
 

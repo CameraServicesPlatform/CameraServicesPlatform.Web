@@ -1,48 +1,37 @@
 import api from "../api/config";
 
-export const getOrdersByType = async (type, pageIndex, pageSize) => {
+export const getOrderDetailsById = async (orderId, pageIndex, pageSize) => {
   try {
     const res = await api.get(
-      `/api/Orders/get-order-by-order-type?type=${type}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+      `/orderDetail/get-order-details/${orderId}?pageIndex=${pageIndex}&pageSize=${pageSize}`
     );
     return res.data;
   } catch (err) {
-    console.error("Error fetching orders by type:", err);
+    console.error("Error fetching order details:", err);
     return null;
   }
 };
-export const getOrdersBySupplierId = async (
-  supplierId,
-  pageIndex,
-  pageSize
-) => {
+export const createOrderWithPayment = async (orderData) => {
   try {
-    const res = await api.get(
-      `/api/Orders/get-order-of-supplierId?SupplierId=${supplierId}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    const res = await api.post(
+      `/order/create-order-buy-with-payment`,
+      orderData
     );
     return res.data;
   } catch (err) {
-    console.error("Error fetching orders by supplier ID:", err);
+    console.error("Error creating order with payment:", err);
     return null;
   }
 };
-export const getOrdersByMemberId = async (memberId, pageIndex, pageSize) => {
+
+export const getOrdersByAccount = async (accountId, pageIndex, pageSize) => {
   try {
     const res = await api.get(
-      `/api/Orders/get-order-of-member?MemberId=${memberId}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+      `/order/get-order-of-account?AccountID=${accountId}&pageIndex=${pageIndex}&pageSize=${pageSize}`
     );
     return res.data;
   } catch (err) {
-    console.error("Error fetching orders by member ID:", err);
-    return null;
-  }
-};
-export const createOrder = async (orderData) => {
-  try {
-    const res = await api.post("/api/Orders/create-order-buy", orderData);
-    return res.data;
-  } catch (err) {
-    console.error("Error creating order:", err);
+    console.error("Error fetching orders by account:", err);
     return null;
   }
 };
@@ -91,6 +80,7 @@ export const getCountOfProductRent = async (productId, pageIndex, pageSize) => {
     return null;
   }
 };
+
 export const getOrderOfMember = async (memberId, pageIndex, pageSize) => {
   try {
     const res = await api.get(
@@ -126,12 +116,7 @@ export const updateOrderStatusCompleted = async (orderId) => {
   try {
     const res = await api.put(
       `/order/update-order-status-completed/${orderId}`,
-      {}, // Sending an empty object as the request body
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+      {}
     );
     return res.data;
   } catch (err) {
@@ -143,16 +128,20 @@ export const cancelOrder = async (orderId) => {
   try {
     const res = await api.put(
       `/order/cancel-order/${orderId}`,
-      {}, // Sending an empty object as the request body
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+      {} // Sending an empty object as the request body
     );
     return res.data;
   } catch (err) {
     console.error("Error canceling order:", err);
+    return null;
+  }
+};
+export const createOrderRent = async (orderData) => {
+  try {
+    const res = await api.post("/order/create-order-rent", orderData, {});
+    return res.data;
+  } catch (err) {
+    console.error("Error creating rental order:", err);
     return null;
   }
 };

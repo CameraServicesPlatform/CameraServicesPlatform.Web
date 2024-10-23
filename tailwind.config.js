@@ -7,6 +7,7 @@ export default {
         mainColor: "#c24332",
         primary: "#0287a8",
         secondary: "#00c3c7",
+        mint: "#cce8cc",
         dark: "#ffcf22",
         "badge-resting": "#CDAA6B",
         "badge-entertaiment": "#C9DABC",

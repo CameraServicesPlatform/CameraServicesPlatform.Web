@@ -37,8 +37,7 @@ const productStatusEnum = {
   0: "Both", // Use string directly
   1: "Rented",
   2: "Sold",
-  3: "Shipping",
-  4: "Discontinued Product",
+  3: "Discontinued Product",
 };
 
 export {

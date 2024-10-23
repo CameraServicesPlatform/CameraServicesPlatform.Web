@@ -1,8 +1,10 @@
-import { Button, Form, Modal, Spin, message } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons"; // Đảm bảo bạn đã import các icon này
+import { Button, Col, Form, message, Modal, Row, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import { getAccountById } from "../../../api/accountApi"; // Ensure this API function is implemented
 
-const GetInformationAccount = ({ accountId, visible, onCancel }) => {
+const GetInformationAccount = ({ accountId, visible, onCancel, mainRole }) => {
+  // Thêm tham số mainRole
   const [accountData, setAccountData] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -15,10 +17,10 @@ const GetInformationAccount = ({ accountId, visible, onCancel }) => {
           if (data.isSuccess) {
             setAccountData(data.result);
           } else {
-            message.error("Failed to fetch account data.");
+            message.error("Lấy dữ liệu tài khoản không thành công.");
           }
         } catch (error) {
-          message.error("An error occurred while fetching account data.");
+          message.error("Đã xảy ra lỗi khi lấy dữ liệu tài khoản.");
         }
         setLoading(false);
       }
@@ -30,46 +32,43 @@ const GetInformationAccount = ({ accountId, visible, onCancel }) => {
   const handleCopyData = () => {
     if (accountData) {
       const dataToCopy = `
-        Account ID: ${accountData.id}
-        First Name: ${accountData.firstName}
-        Last Name: ${accountData.lastName}
+        Mã tài khoản: ${accountData.id}
+        Họ: ${accountData.firstName}
+        Tên: ${accountData.lastName}
         Email: ${accountData.email}
-        Normalized Email: ${accountData.normalizedEmail}
-        Phone Number: ${accountData.phoneNumber}
-        Address: ${accountData.address || "No address provided"}
-        Gender: ${
+        Tên người dùng: ${accountData.userName}
+         Số điện thoại: ${accountData.phoneNumber}
+        Địa chỉ: ${accountData.address || "Chưa cung cấp địa chỉ"}
+        Giới tính: ${
           accountData.gender !== undefined
             ? accountData.gender === 0
-              ? "Male"
-              : "Female"
-            : "Not specified"
+              ? "Nam"
+              : "Nữ"
+            : "Không xác định"
         }
-        Job: ${accountData.job || "No job specified"}
-        Hobby: ${accountData.hobby || "No hobby specified"}
-        Supplier ID: ${accountData.supplierID || "No supplier ID provided"}
-        Staff ID: ${accountData.staffID || "No staff ID provided"}
-        Concurrency Stamp: ${accountData.concurrencyStamp}
-        Refresh Token Expiry Time: ${
-          accountData.refreshTokenExpiryTime || "Not available"
-        }
-        Verified: ${accountData.isVerified ? "Yes" : "No"}
-        Username: ${accountData.userName}
+         Mã nhà cung cấp: ${accountData.supplierID || "Chưa có mã nhà cung cấp"}
+        Nghề nghiệp: ${accountData.job || "Chưa cung cấp nghề nghiệp"}
+        Sở thích: ${accountData.hobby || "Chưa cung cấp sở thích"}
+         
+                
+
+        Đã xác minh: ${accountData.isVerified ? "Có" : "Không"}
       `;
 
       navigator.clipboard
         .writeText(dataToCopy)
         .then(() => {
-          message.success("Account data copied to clipboard!");
+          message.success("Dữ liệu tài khoản đã được sao chép vào clipboard!");
         })
         .catch(() => {
-          message.error("Failed to copy account data.");
+          message.error("Sao chép dữ liệu tài khoản không thành công.");
         });
     }
   };
 
   return (
     <Modal
-      title="Account Information"
+      title="Thông tin tài khoản"
       visible={visible}
       onCancel={onCancel}
       footer={null}
@@ -80,128 +79,139 @@ const GetInformationAccount = ({ accountId, visible, onCancel }) => {
         <Spin />
       ) : (
         <Form layout="vertical" style={{ padding: "20px" }}>
-          <Form.Item label="Account ID">
-            <span style={{ fontWeight: "500" }}>{accountData?.id}</span>
-          </Form.Item>
-          <Form.Item label="First Name">
-            <span style={{ fontWeight: "500" }}>{accountData?.firstName}</span>
-          </Form.Item>
-          <Form.Item label="Last Name">
-            <span style={{ fontWeight: "500" }}>{accountData?.lastName}</span>
-          </Form.Item>
-          <Form.Item label="Email">
-            <span style={{ fontWeight: "500" }}>{accountData?.email}</span>
-          </Form.Item>
-          <Form.Item label="Normalized Email">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.normalizedEmail}
-            </span>
-          </Form.Item>
-          <Form.Item label="Phone Number">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.phoneNumber}
-            </span>
-          </Form.Item>
-          <Form.Item label="Address">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.address || "No address provided"}
-            </span>
-          </Form.Item>
-          <Form.Item label="Front of Citizen ID">
-            {accountData?.frontOfCitizenIdentificationCard ? (
-              <img
-                src={accountData.frontOfCitizenIdentificationCard}
-                alt="Front of Citizen ID"
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  marginTop: "10px",
-                  borderRadius: "5px",
-                }} // Added border-radius for better aesthetics
-              />
-            ) : (
-              <span>No image provided</span>
-            )}
-          </Form.Item>
-          <Form.Item label="Back of Citizen ID">
-            {accountData?.backOfCitizenIdentificationCard ? (
-              <img
-                src={accountData.backOfCitizenIdentificationCard}
-                alt="Back of Citizen ID"
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  marginTop: "10px",
-                  borderRadius: "5px",
-                }} // Added border-radius for better aesthetics
-              />
-            ) : (
-              <span>No image provided</span>
-            )}
-          </Form.Item>
-          <Form.Item label="Gender">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.gender !== undefined
-                ? accountData.gender === 0
-                  ? "Male"
-                  : "Female"
-                : "Not specified"}
-            </span>
-          </Form.Item>
-          <Form.Item label="Job">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.job || "No job specified"}
-            </span>
-          </Form.Item>
-          <Form.Item label="Hobby">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.hobby || "No hobby specified"}
-            </span>
-          </Form.Item>
-          <Form.Item label="Supplier ID">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.supplierID || "No supplier ID provided"}
-            </span>
-          </Form.Item>
-          <Form.Item label="Staff ID">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.staffID || "No staff ID provided"}
-            </span>
-          </Form.Item>
-          <Form.Item label="Concurrency Stamp">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.concurrencyStamp}
-            </span>
-          </Form.Item>
-          <Form.Item label="Refresh Token Expiry Time">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.refreshTokenExpiryTime || "Not available"}
-            </span>
-          </Form.Item>
-          <Form.Item label="Verified">
-            <span style={{ fontWeight: "500" }}>
-              {accountData?.isVerified ? "Yes" : "No"}
-            </span>
-          </Form.Item>
-          <Form.Item label="Username">
-            <span style={{ fontWeight: "500" }}>{accountData?.userName}</span>
-          </Form.Item>
-          <Form.Item>
-            <Button
-              type="primary"
-              onClick={handleCopyData}
-              style={{ marginRight: "10px" }}
-            >
-              Copy Data
-            </Button>
-            <Button
-              type="primary"
-              onClick={onCancel}
-              style={{ float: "right" }}
-            >
-              Close
-            </Button>
-          </Form.Item>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label={<strong>Mã tài khoản</strong>}>
+                <span>{accountData?.id}</span>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label={<strong>Họ</strong>}>
+                <span>{accountData?.firstName}</span>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label={<strong>Tên</strong>}>
+                <span>{accountData?.lastName}</span>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label={<strong>Email</strong>}>
+                <span>{accountData?.email}</span>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label={<strong>Tên người dùng</strong>}>
+                <span>{accountData?.userName}</span>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label={<strong>Số điện thoại</strong>}>
+                <span>{accountData?.phoneNumber}</span>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label={<strong>Địa chỉ</strong>}>
+                <span>{accountData?.address || "Chưa cung cấp địa chỉ"}</span>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label={<strong>Giới tính</strong>}>
+                <span>
+                  {accountData?.gender !== undefined
+                    ? accountData.gender === 0
+                      ? "Nam"
+                      : "Nữ"
+                    : "Không xác định"}
+                </span>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label={<strong>Nghề nghiệp</strong>}>
+                <span>{accountData?.job || "Chưa cung cấp nghề nghiệp"}</span>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label={<strong>Sở thích</strong>}>
+                <span>{accountData?.hobby || "Chưa cung cấp sở thích"}</span>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label={<strong>Supplier ID</strong>}>
+                <span>
+                  {accountData?.supplierID || "No supplier ID provided"}
+                </span>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label={<strong>Đã xác minh</strong>}>
+                <span style={{ display: "flex", alignItems: "center" }}>
+                  {accountData?.isVerified ? (
+                    <>
+                      <CheckCircleOutlined
+                        style={{ color: "green", marginRight: 8 }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <CloseCircleOutlined
+                        style={{ color: "red", marginRight: 8 }}
+                      />
+                    </>
+                  )}
+                </span>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label={<strong>Mặt trước của CMND/CCCD</strong>}>
+                <img
+                  src={
+                    accountData?.frontOfCitizenIdentificationCard ||
+                    "https://placehold.co/400x200"
+                  }
+                  alt="Mặt trước của CMND"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    marginTop: "10px",
+                    borderRadius: "5px",
+                  }} // Added border-radius for better aesthetics
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label={<strong>Mặt sau của CMND/CCCD</strong>}>
+                <img
+                  src={
+                    accountData?.backOfCitizenIdentificationCard ||
+                    "https://placehold.co/400x200"
+                  }
+                  alt="Mặt sau của CMND"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    marginTop: "10px",
+                    borderRadius: "5px",
+                  }} // Added border-radius for better aesthetics
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Button type="primary" onClick={handleCopyData}>
+            Sao chép dữ liệu tài khoản
+          </Button>
         </Form>
       )}
     </Modal>

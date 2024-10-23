@@ -1,10 +1,9 @@
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import React from "react";
-import { useFormik } from "formik";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { getAccountById, updateAccount } from "../../../api/accountApi";
-import { toast } from "react-toastify";
-import { Formik, Form, Field, ErrorMessage } from "formik";
 import { login } from "../../../redux/features/authSlice";
 
 const validationSchema = Yup.object({
@@ -12,12 +11,33 @@ const validationSchema = Yup.object({
   firstName: Yup.string().required("Họ là bắt buộc"),
   lastName: Yup.string().required("Tên là bắt buộc"),
   phoneNumber: Yup.string().required("Số điện thoại là bắt buộc"),
-  address: Yup.string().required("Địa chỉ là bắt buộc"),
+  address: Yup.string(),
+  job: Yup.number().nullable(),
+  hobby: Yup.number().nullable(),
+  gender: Yup.number().nullable(),
+  frontOfCitizenIdentificationCard: Yup.mixed().required(
+    "Ảnh trước CMND là bắt buộc"
+  ),
+  backOfCitizenIdentificationCard: Yup.mixed().required(
+    "Ảnh sau CMND là bắt buộc"
+  ),
 });
 
 const PersonalModal = ({ onClose }) => {
   const { user } = useSelector((state) => state.user || {});
   const dispatch = useDispatch();
+  const userMap = user
+    ? {
+        name: `${user.firstName || "Chưa có thông tin"} ${user.lastName || ""}`,
+        email: user.email || "Chưa có thông tin",
+        phone: user.phoneNumber || "Chưa có thông tin",
+      }
+    : {
+        name: "Chưa có thông tin",
+        email: "Chưa có thông tin",
+        phone: "Chưa có thông tin",
+      };
+
   return (
     <div className="modal modal-open">
       <div className="modal-box max-w-xl">
@@ -29,15 +49,23 @@ const PersonalModal = ({ onClose }) => {
             lastName: user.lastName,
             phoneNumber: user.phoneNumber,
             address: user.address,
+            job: user.job,
+            hobby: user.hobby,
+            gender: user.gender,
+            frontOfCitizenIdentificationCard: null,
+            backOfCitizenIdentificationCard: null,
           }}
           validationSchema={validationSchema}
           onSubmit={async (values, { setSubmitting }) => {
             setSubmitting(true);
+            const formData = new FormData();
+            Object.keys(values).forEach((key) => {
+              formData.append(key, values[key]);
+            });
             try {
-              const data = await updateAccount(values);
+              const data = await updateAccount(formData);
               if (data.isSuccess) {
                 const userData = await getAccountById(user.id);
-                console.log(userData);
                 if (userData.isSuccess) {
                   dispatch(login(userData.result?.account));
                   toast.success("Cập nhật dữ liệu thành công");
@@ -58,8 +86,9 @@ const PersonalModal = ({ onClose }) => {
             }
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting, setFieldValue }) => (
             <Form className="flex flex-col gap-4">
+              {/* Email Field */}
               <div>
                 <label htmlFor="email" className="label font-semibold">
                   Email
@@ -79,6 +108,7 @@ const PersonalModal = ({ onClose }) => {
                 />
               </div>
 
+              {/* First and Last Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="firstName" className="label font-semibold">
@@ -117,6 +147,7 @@ const PersonalModal = ({ onClose }) => {
                 </div>
               </div>
 
+              {/* Phone Number Field */}
               <div>
                 <label htmlFor="phoneNumber" className="label font-semibold">
                   Số điện thoại
@@ -135,6 +166,7 @@ const PersonalModal = ({ onClose }) => {
                 />
               </div>
 
+              {/* Address Field */}
               <div>
                 <label htmlFor="address" className="label font-semibold">
                   Địa chỉ
@@ -148,6 +180,138 @@ const PersonalModal = ({ onClose }) => {
                 />
                 <ErrorMessage
                   name="address"
+                  component="div"
+                  className="text-error mt-1"
+                />
+              </div>
+
+              {/* Job Field */}
+              <div>
+                <label htmlFor="job" className="label font-semibold">
+                  Nghề nghiệp
+                </label>
+                <Field
+                  id="job"
+                  name="job"
+                  as="select"
+                  className={`input input-bordered w-full`}
+                >
+                  <option value="">Chọn nghề nghiệp</option>
+                  <option value={0}>Học sinh</option>
+                  <option value={1}>Nhiếp ảnh chuyên nghiệp</option>
+                  <option value={2}>Nhiếp ảnh tự do</option>
+                  <option value={3}>Người sáng tạo nội dung</option>
+                  <option value={4}>Người mới bắt đầu</option>
+                  <option value={5}>Sinh viên nhiếp ảnh</option>
+                  <option value={6}>Người yêu thích du lịch</option>
+                  <option value={7}>Người dùng thông thường</option>
+                  <option value={8}>Khác</option>
+                </Field>
+                <ErrorMessage
+                  name="job"
+                  component="div"
+                  className="text-error mt-1"
+                />
+              </div>
+
+              {/* Hobby Field */}
+              <div>
+                <label htmlFor="hobby" className="label font-semibold">
+                  Sở thích
+                </label>
+                <Field
+                  id="hobby"
+                  name="hobby"
+                  as="select"
+                  className={`input input-bordered w-full`}
+                >
+                  <option value="">Chọn sở thích</option>
+                  <option value={0}>Chụp ảnh phong cảnh</option>
+                  <option value={1}>Chụp ảnh chân dung</option>
+                  <option value={2}>Chụp ảnh động vật hoang dã</option>
+                  <option value={3}>Chụp ảnh đường phố</option>
+                  <option value={4}>Chụp ảnh cận cảnh</option>
+                  <option value={5}>Chụp ảnh thể thao</option>
+                  <option value={6}>Khác</option>
+                </Field>
+                <ErrorMessage
+                  name="hobby"
+                  component="div"
+                  className="text-error mt-1"
+                />
+              </div>
+
+              {/* Gender Field */}
+              <div>
+                <label htmlFor="gender" className="label font-semibold">
+                  Giới tính
+                </label>
+                <Field
+                  id="gender"
+                  name="gender"
+                  as="select"
+                  className={`input input-bordered w-full`}
+                >
+                  <option value="">Chọn giới tính</option>
+                  <option value={1}>Nam</option>
+                  <option value={2}>Nữ</option>
+                  <option value={3}>Khác</option>
+                </Field>
+                <ErrorMessage
+                  name="gender"
+                  component="div"
+                  className="text-error mt-1"
+                />
+              </div>
+
+              {/* File Uploads for Citizen Identification Cards */}
+              <div>
+                <label
+                  htmlFor="frontOfCitizenIdentificationCard"
+                  className="label font-semibold"
+                >
+                  Ảnh trước CMND
+                </label>
+                <input
+                  id="frontOfCitizenIdentificationCard"
+                  name="frontOfCitizenIdentificationCard"
+                  type="file"
+                  onChange={(event) =>
+                    setFieldValue(
+                      "frontOfCitizenIdentificationCard",
+                      event.currentTarget.files[0]
+                    )
+                  }
+                  className="input input-bordered w-full"
+                />
+                <ErrorMessage
+                  name="frontOfCitizenIdentificationCard"
+                  component="div"
+                  className="text-error mt-1"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="backOfCitizenIdentificationCard"
+                  className="label font-semibold"
+                >
+                  Ảnh sau CMND
+                </label>
+                <input
+                  id="backOfCitizenIdentificationCard"
+                  name="backOfCitizenIdentificationCard"
+                  type="file"
+                  onChange={(event) =>
+                    setFieldValue(
+                      "backOfCitizenIdentificationCard",
+                      event.currentTarget.files[0]
+                    )
+                  }
+                  className="input input-bordered w-full"
+                />
+                <ErrorMessage
+                  name="backOfCitizenIdentificationCard"
                   component="div"
                   className="text-error mt-1"
                 />

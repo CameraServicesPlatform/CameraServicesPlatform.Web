@@ -4,7 +4,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { Field, Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import {
   activeAccount,
@@ -52,6 +52,7 @@ const SignUpSchema = Yup.object().shape({
     .min(10, "Must be more than 10 characters")
     .required("Phone number is requried"),
 });
+
 const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -63,11 +64,12 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const googleProvider = new GoogleAuthProvider();
   const navigate = useNavigate();
+
   const handleOtpSubmit = async (otp) => {
-    console.log("Submitted OTP:", otp);
+    console.log("Đã gửi OTP:", otp);
     const result = await activeAccount(email, otp);
     if (result.isSuccess) {
-      message.success("Verify successfully");
+      message.success("Xác minh thành công");
       setIsModalVisible(false);
       setIsSignUp(false);
     }
@@ -81,7 +83,7 @@ const LoginPage = () => {
       data.newPassword
     );
     if (result.isSuccess) {
-      message.success("Reset password successfully");
+      message.success("Đặt lại mật khẩu thành công!");
     } else {
       for (var i = 0; i < result.messages.length; i++) {
         message.error(result.messages[i]);
@@ -127,17 +129,19 @@ const LoginPage = () => {
     }
     setIsLoading(false);
   };
+
   useEffect(() => {
     if (user) {
       navigate("/");
     }
   }, [user]);
+
   return (
     <>
       <LoadingComponent isLoading={isLoading} />
       {!isSignUp ? (
-        <div className="flex items-center justify-center min-h-screen bg-base2">
-          <div className="relative flex flex-col m-6 space-y-8 shadow-2xl rounded-2xl md:flex-row md:space-y-0">
+        <div className="flex items-center justify-center min-h-screen bg-mint">
+          <div className="relative flex flex-col m-6 space-y-8 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0">
             <div className="flex flex-col justify-center p-8 md:p-14">
               <span className="mb-3 text-4xl font-bold">
                 CAMERA SERVICE PLATFORM
@@ -234,31 +238,44 @@ const LoginPage = () => {
                       </span>
                     </div>
 
-                    <button
-                      type="submit"
-                      className="w-full mb-6 inline-block  px-4 py-2  text-xs text-center font-semibold leading-6 text-white bg-primary rounded-lg transition duration-200"
-                      disabled={isSubmitting}
-                    >
-                      {" "}
-                      Đăng nhập
-                    </button>
-                    <button
-                      className="w-full mb-6 text-black py-2 bg-base-300 rounded-md"
-                      onClick={handleGoogleSignIn}
-                    >
-                      <i className="fa-brands fa-google mx-2"></i> Đăng nhập với
-                      Google
-                    </button>
-                    <div className="text-center text-gray-400">
-                      Bạn chưa có tài khoản?
-                      <a
-                        style={{ cursor: "pointer" }}
-                        className="font-bold text-black hover:text-baseGreen"
-                        onClick={() => setIsSignUp(true)}
+                    <div className="flex flex-col items-center">
+                      {/* Login Button */}
+                      <button
+                        type="submit"
+                        className="w-full mb-4 px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-dark transition duration-200"
+                        disabled={isSubmitting}
                       >
-                        {" "}
-                        Đăng kí ở đây
-                      </a>
+                        Đăng nhập
+                      </button>
+
+                      {/* Google Sign-In Button */}
+                      <button
+                        className="w-full mb-4 text-black py-2 bg-base-300 rounded-md flex items-center justify-center hover:bg-base-200 transition duration-200"
+                        onClick={handleGoogleSignIn}
+                      >
+                        <i className="fa-brands fa-google mx-2"></i> Đăng nhập
+                        với Google
+                      </button>
+
+                      {/* Sign-Up Prompt */}
+                      <div className="text-center text-gray-400 mb-4">
+                        Bạn chưa có tài khoản?
+                        <a
+                          style={{ cursor: "pointer" }}
+                          className="font-bold text-black hover:text-baseGreen"
+                          onClick={() => setIsSignUp(true)}
+                        >
+                          Đăng kí ở đây
+                        </a>
+                      </div>
+
+                      {/* Register Supplier Button */}
+                      <Link to="/register-supplier">
+                        <button className="w-full mb-4 px-4 py-2 text-sm font-mono text-black bg-pink-400 rounded-lg hover:bg-primary-dark transition duration-500">
+                          Đăng ký trở thành nhà cung cấp cùng
+                          CameraServicePlatform
+                        </button>
+                      </Link>
                     </div>
                   </Form>
                 )}
@@ -283,7 +300,7 @@ const LoginPage = () => {
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-center min-h-screen bg-base2">
+          <div className="flex items-center justify-center min-h-screen bg-mint">
             <div className="relative flex flex-col m-6 space-y-8 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0">
               <div className="flex flex-col justify-center px-8 md:p-14">
                 <span className="mb-3 text-4xl font-bold">
@@ -300,60 +317,79 @@ const LoginPage = () => {
                     lastName: "",
                     repassword: "",
                     phoneNumber: "",
+                    frontOfCitizenIdentificationCard: null,
+                    backOfCitizenIdentificationCard: null,
                   }}
                   validationSchema={SignUpSchema}
                   onSubmit={async (values, { setSubmitting }) => {
                     try {
                       setIsLoading(true);
-                      try {
-                        const result = await createAccount(
-                          values.email,
-                          values.firstName,
-                          values.lastName,
-                          values.password,
-                          true,
-                          values.phoneNumber,
-                          "Customer"
+                      const formData = new FormData();
+                      formData.append("email", values.email);
+                      formData.append("firstName", values.firstName);
+                      formData.append("lastName", values.lastName);
+                      formData.append("password", values.password);
+                      formData.append("phoneNumber", values.phoneNumber);
+                      formData.append("roleName", "MEMBER");
+                      formData.append(
+                        "frontOfCitizenIdentificationCard",
+                        values.frontOfCitizenIdentificationCard
+                      );
+                      formData.append(
+                        "backOfCitizenIdentificationCard",
+                        values.backOfCitizenIdentificationCard
+                      );
+
+                      const result = await createAccount(formData);
+
+                      console.log("Register result: ", result);
+                      if (result && result.isSuccess) {
+                        setEmail(values.email);
+                        setIsModalVisible(true);
+                        message.success(
+                          "Registration successful! Please verify email."
                         );
-                        console.log("Register result: ", result);
-                        if (result.isSuccess === true) {
-                          setEmail(values.email);
-                          setIsModalVisible(true);
-                          message.success(
-                            "Registration successful! Please verify email."
-                          );
-                        } else {
-                          console.error(
-                            "Registration failed:",
-                            result ? result.message : "Unknown error"
-                          );
-                          message.error(
-                            "Registration failed. Please try again."
-                          );
-                        }
-                        setIsLoading(false);
-                      } catch (error) {
-                        console.error("Error signing up:", error);
+                      } else {
+                        console.error(
+                          "Registration failed:",
+                          result?.message || "Unknown error"
+                        );
+                        message.error("Registration failed. Please try again.");
+                      }
+                    } catch (error) {
+                      console.error("Error signing up:", error);
+                      if (error.response) {
+                        message.error(
+                          `Registration failed: ${
+                            error.response.data.message || "Unknown error"
+                          }`
+                        );
+                      } else {
                         message.error(
                           "An error occurred. Please try again later."
                         );
                       }
-                    } catch (err) {
-                      console.error(err);
                     } finally {
                       setIsLoading(false);
+                      setSubmitting(false);
                     }
                   }}
                 >
-                  {({ isSubmitting, errors, touched }) => (
+                  {({
+                    isSubmitting,
+                    setFieldValue,
+                    values,
+                    errors,
+                    touched,
+                  }) => (
                     <Form>
+                      {/* Email Field */}
                       <div className="py-2">
                         <span className="mb-2 text-md">Email</span>
                         <Field
                           className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
                           type="email"
                           name="email"
-                          prefix={<MailOutlined />}
                           placeholder="Nhập email của bạn"
                         />
                         {errors.email && touched.email && (
@@ -361,26 +397,22 @@ const LoginPage = () => {
                         )}
                       </div>
 
+                      {/* First and Last Name Fields */}
                       <div className="py-2 flex justify-start">
-                        <div className="flex flex-col justify-between  mr-5">
+                        <div className="flex flex-col justify-between mr-5">
                           <span className="mb-2 text-md mr-6">Tên</span>
                           <Field
                             className="w-full mr-2 p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
                             name="firstName"
-                            placeholder=" Tên của bạn"
+                            placeholder="Tên của bạn"
                           />
-                          {errors.firstName && (
+                          {errors.firstName && touched.firstName && (
                             <div className="text-red-500">
                               {errors.firstName}
                             </div>
                           )}
-                          {touched.firstName && (
-                            <div className="text-red-500">
-                              {touched.firstName}
-                            </div>
-                          )}
                         </div>
-                        <div className="flex flex-col justify-between ">
+                        <div className="flex flex-col justify-between">
                           <span className="mb-2 text-md mr-6">
                             Họ và tên đệm
                           </span>
@@ -389,18 +421,15 @@ const LoginPage = () => {
                             name="lastName"
                             placeholder="Họ và tên đệm"
                           />
-                          {errors.lastName && (
+                          {errors.lastName && touched.lastName && (
                             <div className="text-red-500">
                               {errors.lastName}
                             </div>
                           )}
-                          {touched.lastName && (
-                            <div className="text-red-500">
-                              {touched.lastName}
-                            </div>
-                          )}
                         </div>
                       </div>
+
+                      {/* Phone Number Field */}
                       <div className="py-2">
                         <span className="mb-2 text-md">Số điện thoại</span>
                         <Field
@@ -408,31 +437,24 @@ const LoginPage = () => {
                           name="phoneNumber"
                           placeholder="Nhập số điện thoại của bạn"
                         />
-                        {errors.phoneNumber && (
+                        {errors.phoneNumber && touched.phoneNumber && (
                           <div className="text-red-500">
                             {errors.phoneNumber}
                           </div>
                         )}
-                        {touched.phoneNumber && (
-                          <div className="text-red-500">
-                            {touched.phoneNumber}
-                          </div>
-                        )}
                       </div>
+
+                      {/* Password Fields */}
                       <div className="py-2">
                         <span className="mb-2 text-md">Mật khẩu</span>
                         <Field
                           className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
                           type="password"
                           name="password"
-                          prefix={<LockOutlined />}
                           placeholder="Mật khẩu của bạn"
                         />
-                        {errors.password && (
+                        {errors.password && touched.password && (
                           <div className="text-red-500">{errors.password}</div>
-                        )}
-                        {touched.password && (
-                          <div className="text-red-500">{touched.password}</div>
                         )}
                       </div>
                       <div className="py-2">
@@ -441,28 +463,85 @@ const LoginPage = () => {
                           className="w-full p-2 border border-gray-300 rounded-md placeholder:font-light placeholder:text-gray-500"
                           type="password"
                           name="repassword"
-                          prefix={<LockOutlined />}
                           placeholder="Nhập lại mật khẩu"
                         />
-                        {errors.repassword && (
+                        {errors.repassword && touched.repassword && (
                           <div className="text-red-500">
                             {errors.repassword}
                           </div>
                         )}
-                        {touched.repassword && (
+                      </div>
+
+                      {/* Front of Citizen Identification Card */}
+                      <div className="py-2">
+                        <span className="mb-2 text-md">Ảnh mặt trước CCCD</span>
+                        <input
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                          type="file"
+                          onChange={(event) => {
+                            setFieldValue(
+                              "frontOfCitizenIdentificationCard",
+                              event.currentTarget.files[0]
+                            );
+                          }}
+                        />
+                        {values.frontOfCitizenIdentificationCard && (
+                          <img
+                            src={URL.createObjectURL(
+                              values.frontOfCitizenIdentificationCard
+                            )}
+                            alt="Front of Citizen ID Card"
+                            className="my-2"
+                            width={200}
+                            height={200}
+                          />
+                        )}
+                        {errors.frontOfCitizenIdentificationCard && (
                           <div className="text-red-500">
-                            {touched.repassword}
+                            {errors.frontOfCitizenIdentificationCard}
                           </div>
                         )}
                       </div>
+
+                      {/* Back of Citizen Identification Card */}
+                      <div className="py-2">
+                        <span className="mb-2 text-md">Ảnh mặt sau CCCD</span>
+                        <input
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                          type="file"
+                          onChange={(event) => {
+                            setFieldValue(
+                              "backOfCitizenIdentificationCard",
+                              event.currentTarget.files[0]
+                            );
+                          }}
+                        />
+                        {values.backOfCitizenIdentificationCard && (
+                          <img
+                            src={URL.createObjectURL(
+                              values.backOfCitizenIdentificationCard
+                            )}
+                            alt="Back of Citizen ID Card"
+                            className="my-2"
+                            width={200}
+                            height={200}
+                          />
+                        )}
+                        {errors.backOfCitizenIdentificationCard && (
+                          <div className="text-red-500">
+                            {errors.backOfCitizenIdentificationCard}
+                          </div>
+                        )}
+                      </div>
+
                       <button
-                        htmlType="submit"
-                        className="w-full mb-3 inline-block  px-4 py-2 text-xs text-center font-semibold leading-6 text-white  bg-primary hover:bg-base4 rounded-lg transition duration-200"
-                        disabled={isSubmitting}
-                        loading={isLoading}
+                        type="submit" // Changed from htmlType to type
+                        className="w-full mb-3 inline-block px-4 py-2 text-xs text-center font-semibold leading-6 text-white bg-primary hover:bg-base4 rounded-lg transition duration-200"
+                        disabled={isSubmitting || isLoading} // Prevent submission while loading
                       >
                         Đăng ký tài khoản
                       </button>
+
                       <div className="text-center text-gray-400">
                         Tôi đã có tài khoản ?
                         <a
@@ -480,16 +559,16 @@ const LoginPage = () => {
               </div>
               <div className="relative">
                 <img
-                  src="https://media.istockphoto.com/id/1151606826/vi/anh/n%E1%BB%99i-th%E1%BA%A5t-c%E1%BB%A7a-c%E1%BB%ADa-h%C3%A0ng-qu%E1%BA%A7n-%C3%A1o-th%E1%BB%9Di-trang-v%E1%BB%9Bi-qu%E1%BA%A7n-%C3%A1o-ph%E1%BB%A5-n%E1%BB%AF-kh%C3%A1c-nhau-tr%C3%AAn-m%C3%B3c-%C3%A1o-v%E1%BB%9Bi-nhi%E1%BB%81u-m%C3%A0u.jpg?s=170667a&w=0&k=20&c=8Otm5d6hO00u1ZcTjxeeiMwRwQYpHjwCcgvDvrUipQc="
+                  src={loginImage}
                   alt="img"
                   className="w-[400px] h-full hidden rounded-r-2xl md:block object-cover"
                 />
                 <div className="absolute hidden bottom-10 right-6 p-6 bg-white bg-opacity-20 backdrop-blur-sm rounded drop-shadow-lg md:block">
                   <span className="text-black italic text-xl">
-                    We've been using Untitle to kick
+                    Camera Service Platform
                     <br />
-                    start every new project and can't <br />
-                    imagine working without it.
+                    Đem lại cho bạn trải nghiệm sản phẩm vô cùng tiện lợi.
+                    <br />
                   </span>
                 </div>
               </div>

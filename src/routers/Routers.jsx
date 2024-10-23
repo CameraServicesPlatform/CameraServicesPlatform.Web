@@ -17,7 +17,10 @@ import VerifyPayment from "../pages/Common/VerifyPayment";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
 import CreateProductForm from "../pages/Management/Product/CreateProductForm";
 
+import CreateStaffForm from "../pages/Admin/User/CreateStaffForm";
 import CreateOrderBuy from "../pages/Common/Order/CreateOrderBuy/CreateOrderBuy";
+import ProductDetailPage from "../pages/Common/Product/ProductDetailPage";
+import OrderDetail from "../pages/CommonManager/OrderDetail";
 import ManageProduct from "../pages/Management/Product/ManageProduct";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
@@ -48,6 +51,8 @@ function Routers() {
         { path: "product-for-rent", element: <ProductPage /> },
         { path: "product-for-buy", element: <ProductPage /> },
         { path: "create-order-buy", element: <CreateOrderBuy /> },
+        { path: "/product/:id", element: <ProductDetailPage /> },
+        { path: "order-detail", element: <OrderDetail /> },
       ],
     },
     {
@@ -74,6 +79,7 @@ function Routers() {
         { path: "manage-policy", element: <ManagePolicy /> },
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
+        { path: "create-staff", element: <CreateStaffForm /> },
       ],
     },
     {

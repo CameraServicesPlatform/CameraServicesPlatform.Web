@@ -1,211 +1,208 @@
-import { Button, Form, Input, message, Spin } from "antd";
+import { Button, Form, Input, message, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { createOrderBuy } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
 
+const { Option } = Select;
+
 const CreateOrderBuy = () => {
-  const [loading, setLoading] = useState(false);
-  const [productData, setProductData] = useState(null);
-  const [isLoadingProduct, setIsLoadingProduct] = useState(true);
+  const [form] = Form.useForm();
+  const [product, setProduct] = useState(null);
   const location = useLocation();
-  const { product } = location.state || {};
+  const navigate = useNavigate();
 
-  // Retrieve accountID from the Redux store
+  const { productID, supplierID } = location.state || {};
   const user = useSelector((state) => state.user.user || {});
-  const accountID = user.accountID;
-
-  // Fetch product details when the component mounts or when productID changes
+  console.log("Account ID:", user.id);
   useEffect(() => {
-    const fetchProductData = async () => {
-      if (product?.productID) {
-        try {
-          const fetchedProduct = await getProductById(product.productID);
-          setProductData(fetchedProduct);
-        } catch (error) {
-          message.error("Failed to fetch product data.");
-        } finally {
-          setIsLoadingProduct(false);
+    const fetchProduct = async () => {
+      try {
+        if (productID) {
+          console.log("Fetching product with ID:", productID);
+          const productData = await getProductById(productID);
+          console.log("Product Data:", productData);
+
+          if (productData) {
+            setProduct(productData);
+            form.setFieldsValue({ supplierID });
+          } else {
+            message.error("Product not found or could not be retrieved.");
+          }
         }
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        message.error("Failed to fetch product details.");
       }
     };
 
-    fetchProductData();
-  }, [product]);
+    fetchProduct();
+  }, [productID, supplierID, form]);
 
   const onFinish = async (values) => {
-    setLoading(true);
+    console.log("Form values submitted:", values);
+
+    const discountValue = parseFloat(values.discount) || 0;
 
     const orderData = {
-      supplierID: productData?.supplierID || values.supplierID,
-      accountID: accountID,
+      supplierID: values.supplierID,
+      accountID: user.id,
+      productID: product?.productID,
       orderDate: new Date().toISOString(),
       orderStatus: 0,
-      totalAmount: values.totalAmount,
-      orderType: 0,
+      products: [
+        {
+          productID: product?.productID,
+          productName: product?.productName,
+          productDescription: product?.productDescription,
+          priceRent: product?.priceRent,
+          priceBuy: product?.priceBuy,
+          quality: product?.quality,
+        },
+      ],
+      totalAmount: product ? product.priceBuy : 0,
+      orderType: values.orderType,
       shippingAddress: values.shippingAddress,
-      orderDetailRequests: values.orderDetailRequests.map((detail) => ({
-        orderID: detail.orderID,
-        productID: detail.productID,
-        productPrice: detail.productPrice || productData?.price,
-        productQuality: detail.productQuality,
-        discount: detail.discount,
-        productPriceTotal: detail.productPriceTotal,
-      })),
-      deliveryMethod: 0,
+      orderDetailRequests: [
+        {
+          productID: product?.productID,
+          productPrice: product?.priceBuy,
+          discount: discountValue,
+          productPriceTotal: product?.priceBuy * (1 - discountValue / 100),
+        },
+      ],
+      deliveryMethod: values.deliveryMethod,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
+    // Create order
     try {
       const response = await createOrderBuy(orderData);
-      if (response) {
+      if (response && response.isSuccess) {
         message.success("Order created successfully!");
+        form.resetFields();
+        navigate("/order-detail");
       } else {
-        message.error("Failed to create order.");
+        response.messages?.forEach((mess) => {
+          message.error(mess);
+        });
       }
     } catch (error) {
-      message.error("Failed to create order.");
-    } finally {
-      setLoading(false);
+      console.error("Error creating order:", error);
+      message.error("Failed to create order. Please try again.");
     }
   };
 
-  if (isLoadingProduct || !accountID) {
-    return <Spin size="large" />; // or a message indicating loading
-  }
-
   return (
-    <Form layout="vertical" onFinish={onFinish}>
+    <Form form={form} onFinish={onFinish} layout="vertical">
       <Form.Item
-        label="Supplier ID"
         name="supplierID"
-        initialValue={productData?.supplierID || ""}
-        rules={[{ required: true, message: "Please input the supplier ID!" }]}
-        style={{ display: "none" }}
+        label="Supplier ID"
+        initialValue={supplierID}
       >
-        <Input />
+        <Input disabled />
       </Form.Item>
-
       <Form.Item
         name="accountID"
-        initialValue={accountID} // Use accountID from Redux directly
+        initialValue={user.id} // Use accountID from Redux directly
         rules={[{ required: true, message: "Please input the account ID!" }]}
       />
 
-      <Form.Item
-        label="Total Amount"
-        name="totalAmount"
-        rules={[{ required: true, message: "Please input the total amount!" }]}
-        initialValue={productData?.price || 0}
-      >
-        <Input type="number" />
+      {/* Product Information Section */}
+      <Form.Item label="Product Information" className="mb-4">
+        {product ? (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            {/* Left Side: Product Information */}
+            <div style={{ flex: 1, paddingRight: "20px" }}>
+              <p>
+                <strong>Product ID:</strong> {product.productID}
+              </p>
+              <p>
+                <strong>Name:</strong> {product.productName}
+              </p>
+              <p>
+                <strong>Description:</strong> {product.productDescription}
+              </p>
+              <p>
+                <strong>Rent Price:</strong> {product.priceRent}
+              </p>
+              <p>
+                <strong>Buy Price:</strong> {product.priceBuy}
+              </p>
+              <p>
+                <strong>Quality:</strong> {product.quality}
+              </p>
+            </div>
+            {/* Right Side: Product Images */}
+            <div style={{ flex: 1 }}>
+              <strong>Product Images:</strong>
+              <div
+                style={{ display: "flex", flexWrap: "wrap", marginTop: "10px" }}
+              >
+                {product.listImage && product.listImage.length > 0 ? (
+                  product.listImage.map((imageObj, index) => (
+                    <img
+                      key={imageObj.productImagesID}
+                      src={imageObj.image}
+                      alt={`Product Image ${index + 1}`}
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        marginRight: "10px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ))
+                ) : (
+                  <p>No images available for this product.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p>Loading product information...</p>
+        )}
       </Form.Item>
 
       <Form.Item
-        label="Shipping Address"
         name="shippingAddress"
-        rules={[
-          { required: true, message: "Please input the shipping address!" },
-        ]}
+        label="Shipping Address"
+        rules={[{ required: true, message: "Please input shipping address!" }]}
       >
         <Input />
       </Form.Item>
 
-      <Form.List name="orderDetailRequests">
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map(({ key, name, fieldKey, ...restField }) => (
-              <div key={key}>
-                <Form.Item
-                  {...restField}
-                  name={[name, "orderID"]}
-                  label="Order ID"
-                  fieldKey={[fieldKey, "orderID"]}
-                  rules={[{ required: true, message: "Please input Order ID" }]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  {...restField}
-                  name={[name, "productID"]}
-                  label="Product ID"
-                  fieldKey={[fieldKey, "productID"]}
-                  rules={[
-                    { required: true, message: "Please input Product ID" },
-                  ]}
-                >
-                  <Input defaultValue={productData?.id || ""} disabled />
-                </Form.Item>
-                <Form.Item
-                  {...restField}
-                  name={[name, "productPrice"]}
-                  label="Product Price"
-                  fieldKey={[fieldKey, "productPrice"]}
-                  rules={[
-                    { required: true, message: "Please input Product Price" },
-                  ]}
-                >
-                  <Input
-                    type="number"
-                    defaultValue={productData?.price || ""}
-                    disabled
-                  />
-                </Form.Item>
-                <Form.Item
-                  {...restField}
-                  name={[name, "productQuality"]}
-                  label="Product Quality"
-                  fieldKey={[fieldKey, "productQuality"]}
-                  rules={[
-                    { required: true, message: "Please input Product Quality" },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  {...restField}
-                  name={[name, "discount"]}
-                  label="Discount"
-                  fieldKey={[fieldKey, "discount"]}
-                  rules={[{ required: true, message: "Please input Discount" }]}
-                >
-                  <Input type="number" />
-                </Form.Item>
-                <Form.Item
-                  {...restField}
-                  name={[name, "productPriceTotal"]}
-                  label="Product Price Total"
-                  fieldKey={[fieldKey, "productPriceTotal"]}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input Product Price Total",
-                    },
-                  ]}
-                >
-                  <Input type="number" />
-                </Form.Item>
-                <Button onClick={() => remove(name)}>Remove Product</Button>
-              </div>
-            ))}
-            <Button
-              type="dashed"
-              onClick={() => add()}
-              style={{ width: "60%" }}
-            >
-              Add Product
-            </Button>
-          </>
-        )}
-      </Form.List>
-
-      <Form.Item>
-        <Button type="primary" htmlType="submit" loading={loading}>
-          Create Order
-        </Button>
+      <Form.Item name="discount" label="Discount (%)">
+        <Input
+          type="number"
+          min={0}
+          max={100}
+          placeholder="Enter discount percentage"
+        />
       </Form.Item>
+
+      <Form.Item name="orderType" label="Order Type" initialValue={0}>
+        <Select>
+          <Option value={0}>Mua</Option>
+        </Select>
+      </Form.Item>
+
+      <Form.Item
+        name="deliveryMethod"
+        label="Delivery Method"
+        rules={[{ required: true, message: "Please select delivery method!" }]}
+      >
+        <Select placeholder="Select delivery method">
+          <Option value={0}>Delivery</Option>
+          <Option value={1}>Pickup</Option>
+        </Select>
+      </Form.Item>
+
+      <Button type="primary" htmlType="submit">
+        Create Order
+      </Button>
     </Form>
   );
 };

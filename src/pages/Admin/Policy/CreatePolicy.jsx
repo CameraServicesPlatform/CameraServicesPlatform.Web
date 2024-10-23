@@ -45,7 +45,7 @@ const CreatePolicy = ({ onClose, fetchPolicies }) => {
       >
         <Select placeholder="Select a Applicable Object">
           <Option value={0}>System</Option>
-          <Option value={1}>Customer</Option>
+          <Option value={1}>Member</Option>
           <Option value={2}>Supplier</Option>
         </Select>
       </Form.Item>
