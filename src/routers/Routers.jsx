@@ -20,6 +20,7 @@ import CreateProductForm from "../pages/Management/Product/CreateProductForm";
 import CreateStaffForm from "../pages/Admin/User/CreateStaffForm";
 import CreateOrderBuy from "../pages/Common/Order/CreateOrderBuy/CreateOrderBuy";
 import ProductDetailPage from "../pages/Common/Product/ProductDetailPage";
+import OrderDetail from "../pages/CommonManager/OrderDetail";
 import ManageProduct from "../pages/Management/Product/ManageProduct";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
@@ -51,6 +52,7 @@ function Routers() {
         { path: "product-for-buy", element: <ProductPage /> },
         { path: "create-order-buy", element: <CreateOrderBuy /> },
         { path: "/product/:id", element: <ProductDetailPage /> },
+        { path: "order-detail", element: <OrderDetail /> },
       ],
     },
     {

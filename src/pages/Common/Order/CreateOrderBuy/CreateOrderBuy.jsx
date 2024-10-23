@@ -1,7 +1,7 @@
 import { Button, Form, Input, message, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { createOrderBuy } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
 
@@ -11,9 +11,11 @@ const CreateOrderBuy = () => {
   const [form] = Form.useForm();
   const [product, setProduct] = useState(null);
   const location = useLocation();
-  const accountID = useSelector((state) => state.user.accountID);
-  const { productID, supplierID } = location.state || {};
+  const navigate = useNavigate();
 
+  const { productID, supplierID } = location.state || {};
+  const user = useSelector((state) => state.user.user || {});
+  console.log("Account ID:", user.id);
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -25,8 +27,6 @@ const CreateOrderBuy = () => {
           if (productData) {
             setProduct(productData);
             form.setFieldsValue({ supplierID });
-            console.log("Product ID:", productData.productID);
-            console.log("Supplier ID:", supplierID);
           } else {
             message.error("Product not found or could not be retrieved.");
           }
@@ -41,9 +41,13 @@ const CreateOrderBuy = () => {
   }, [productID, supplierID, form]);
 
   const onFinish = async (values) => {
+    console.log("Form values submitted:", values);
+
+    const discountValue = parseFloat(values.discount) || 0;
+
     const orderData = {
       supplierID: values.supplierID,
-      accountID: accountID,
+      accountID: user.id,
       productID: product?.productID,
       orderDate: new Date().toISOString(),
       orderStatus: 0,
@@ -54,7 +58,7 @@ const CreateOrderBuy = () => {
           productDescription: product?.productDescription,
           priceRent: product?.priceRent,
           priceBuy: product?.priceBuy,
-          quality: values.quality,
+          quality: product?.quality,
         },
       ],
       totalAmount: product ? product.priceBuy : 0,
@@ -64,9 +68,8 @@ const CreateOrderBuy = () => {
         {
           productID: product?.productID,
           productPrice: product?.priceBuy,
-          discount: values.discount || 0,
-          productPriceTotal:
-            product?.priceBuy * (1 - (values.discount || 0) / 100),
+          discount: discountValue,
+          productPriceTotal: product?.priceBuy * (1 - discountValue / 100),
         },
       ],
       deliveryMethod: values.deliveryMethod,
@@ -75,20 +78,37 @@ const CreateOrderBuy = () => {
     };
 
     // Create order
-    const response = await createOrderBuy(orderData);
-    if (response && response.isSuccess) {
-      message.success("Order created successfully!");
-      form.resetFields(); // Reset form fields
-    } else {
-      response.messages?.forEach((mess) => {
-        message.error(mess); // Display error messages
-      });
+    try {
+      const response = await createOrderBuy(orderData);
+      if (response && response.isSuccess) {
+        message.success("Order created successfully!");
+        form.resetFields();
+        navigate("/order-detail");
+      } else {
+        response.messages?.forEach((mess) => {
+          message.error(mess);
+        });
+      }
+    } catch (error) {
+      console.error("Error creating order:", error);
+      message.error("Failed to create order. Please try again.");
     }
   };
 
   return (
     <Form form={form} onFinish={onFinish} layout="vertical">
-      <Form.Item name="supplierID"></Form.Item>
+      <Form.Item
+        name="supplierID"
+        label="Supplier ID"
+        initialValue={supplierID}
+      >
+        <Input disabled />
+      </Form.Item>
+      <Form.Item
+        name="accountID"
+        initialValue={user.id} // Use accountID from Redux directly
+        rules={[{ required: true, message: "Please input the account ID!" }]}
+      />
 
       {/* Product Information Section */}
       <Form.Item label="Product Information" className="mb-4">
@@ -115,28 +135,23 @@ const CreateOrderBuy = () => {
                 <strong>Quality:</strong> {product.quality}
               </p>
             </div>
-
             {/* Right Side: Product Images */}
             <div style={{ flex: 1 }}>
               <strong>Product Images:</strong>
               <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  marginTop: "10px",
-                }}
+                style={{ display: "flex", flexWrap: "wrap", marginTop: "10px" }}
               >
                 {product.listImage && product.listImage.length > 0 ? (
                   product.listImage.map((imageObj, index) => (
                     <img
-                      key={imageObj.productImagesID} // Unique key from image object
+                      key={imageObj.productImagesID}
                       src={imageObj.image}
                       alt={`Product Image ${index + 1}`}
                       style={{
                         width: "100px",
                         height: "100px",
                         marginRight: "10px",
-                        objectFit: "cover", // Ensures the image covers the space
+                        objectFit: "cover",
                       }}
                     />
                   ))
@@ -159,28 +174,20 @@ const CreateOrderBuy = () => {
         <Input />
       </Form.Item>
 
-      <Form.Item
-        name="discount"
-        label="Discount (%)"
-        rules={[
-          {
-            type: "number",
-            min: 0,
-            max: 100,
-            message: "Discount must be between 0 and 100!",
-          },
-        ]}
-      >
-        <Input type="number" />
+      <Form.Item name="discount" label="Discount (%)">
+        <Input
+          type="number"
+          min={0}
+          max={100}
+          placeholder="Enter discount percentage"
+        />
       </Form.Item>
-      <Form
-        initialValues={{ orderType: 0 }} // Set default value for orderType
-        onFinish={(values) => {
-          console.log("Form Values:", values);
-        }}
-      >
-        <Form.Item name="orderType"></Form.Item>
-      </Form>
+
+      <Form.Item name="orderType" label="Order Type" initialValue={0}>
+        <Select>
+          <Option value={0}>Mua</Option>
+        </Select>
+      </Form.Item>
 
       <Form.Item
         name="deliveryMethod"
@@ -192,6 +199,7 @@ const CreateOrderBuy = () => {
           <Option value={1}>Pickup</Option>
         </Select>
       </Form.Item>
+
       <Button type="primary" htmlType="submit">
         Create Order
       </Button>

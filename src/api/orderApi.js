@@ -23,6 +23,7 @@ export const createOrderWithPayment = async (orderData) => {
     return null;
   }
 };
+
 export const getOrdersByAccount = async (accountId, pageIndex, pageSize) => {
   try {
     const res = await api.get(
@@ -34,6 +35,7 @@ export const getOrdersByAccount = async (accountId, pageIndex, pageSize) => {
     return null;
   }
 };
+
 export const getAllOrders = async (pageIndex, pageSize) => {
   try {
     const res = await api.get(
