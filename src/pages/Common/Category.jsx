@@ -79,16 +79,16 @@ const Category = () => {
 
       {selectedCategoryId && (
         <div className="mt-4">
-          {selectedCategoryId && (
-            <Divider
-              orientation="left"
-              style={{ display: selectedCategoryId ? "none" : "block" }} // Thay đổi 'block' thành 'none'
-            >
-              <Title level={3}>
-                Sản phẩm trong danh mục: {selectedCategoryId}
-              </Title>
-            </Divider>
-          )}
+          {/* {selectedCategoryId && (
+            // <Divider
+            //   orientation="left"
+            //   style={{ display: selectedCategoryId ? "none" : "block" }} // Thay đổi 'block' thành 'none'
+            // >
+            //   <Title level={3}>
+            //     Sản phẩm trong danh mục: {selectedCategoryId}
+            //   </Title>
+            // </Divider>
+          )} */}
 
           <Spin spinning={loadingProducts}>
             <List

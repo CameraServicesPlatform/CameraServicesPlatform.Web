@@ -18,6 +18,9 @@ import PersonalInformation from "../pages/Common/PersonalInformation";
 import Policy from "../pages/Common/Policy";
 import ProductDetailPage from "../pages/Common/Product/ProductDetailPage";
 import ProductPage from "../pages/Common/Product/ProductPage";
+import ProductPageBuy from "../pages/Common/Product/ProductPageBuy";
+import ProductPageRent from "../pages/Common/Product/ProductPageRent";
+
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import OrderDetail from "../pages/CommonManager/OrderDetail";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
@@ -50,8 +53,8 @@ function Routers() {
         { path: "personal-information", element: <PersonalInformation /> },
         { path: "register-supplier", element: <RegisterSupplier /> },
         { path: "product", element: <ProductPage /> },
-        { path: "product-for-rent", element: <ProductPage /> },
-        { path: "product-for-buy", element: <ProductPage /> },
+        { path: "product-for-rent", element: <ProductPageRent /> },
+        { path: "product-for-buy", element: <ProductPageBuy /> },
         { path: "create-order-buy", element: <CreateOrderBuy /> },
         { path: "/product/:id", element: <ProductDetailPage /> },
         { path: "order-detail", element: <OrderDetail /> },

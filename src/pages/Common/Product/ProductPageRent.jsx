@@ -25,7 +25,7 @@ const { Content } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
 
-const ProductPage = () => {
+const ProductPageRent = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("");
@@ -117,7 +117,7 @@ const ProductPage = () => {
     loadProducts(); // Reload products when clearing search
   };
 
-  const availableProducts = products.filter((product) => product.status === 0);
+  const availableProducts = products.filter((product) => product.status === 1);
 
   return (
     <Layout>
@@ -255,4 +255,4 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage;
+export default ProductPageRent;

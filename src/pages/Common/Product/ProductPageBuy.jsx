@@ -25,7 +25,7 @@ const { Content } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
 
-const ProductPage = () => {
+const ProductPageBuy = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("");
@@ -255,4 +255,4 @@ const ProductPage = () => {
   );
 };
 
-export default ProductPage;
+export default ProductPageBuy;
