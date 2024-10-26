@@ -3,28 +3,30 @@ import { Navigate, useRoutes } from "react-router-dom";
 import CommonLayout from "../layouts/CommonLayout";
 import ManagementLayOut from "../layouts/ManagementLayout/ManagementLayOut";
 import ManagePolicy from "../pages/Admin/Policy/ManagePolicy";
+import CreateStaffForm from "../pages/Admin/User/CreateStaffForm";
 import ManageUser from "../pages/Admin/User/ManageUser";
 import About from "../pages/Common/About";
 import Cart from "../pages/Common/Cart";
+import Category from "../pages/Common/Category";
 import Contact from "../pages/Common/Contact";
 import ErrorPage from "../pages/Common/ErrorPage";
 import Home from "../pages/Common/Home";
+import InformationSupplier from "../pages/Common/InformationSupplier";
 import LoginPage from "../pages/Common/LoginPage";
+import CreateOrderBuy from "../pages/Common/Order/CreateOrderBuy/CreateOrderBuy";
 import PersonalInformation from "../pages/Common/PersonalInformation";
 import Policy from "../pages/Common/Policy";
+import ProductDetailPage from "../pages/Common/Product/ProductDetailPage";
 import ProductPage from "../pages/Common/Product/ProductPage";
 import VerifyPayment from "../pages/Common/VerifyPayment";
+import OrderDetail from "../pages/CommonManager/OrderDetail";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
 import CreateProductForm from "../pages/Management/Product/CreateProductForm";
-
-import CreateStaffForm from "../pages/Admin/User/CreateStaffForm";
-import CreateOrderBuy from "../pages/Common/Order/CreateOrderBuy/CreateOrderBuy";
-import ProductDetailPage from "../pages/Common/Product/ProductDetailPage";
-import OrderDetail from "../pages/CommonManager/OrderDetail";
 import ManageProduct from "../pages/Management/Product/ManageProduct";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
+import InformationSupplierDetail from "../pages/Supllier/InformationSupllierDetail";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 function Routers() {
@@ -53,6 +55,12 @@ function Routers() {
         { path: "create-order-buy", element: <CreateOrderBuy /> },
         { path: "/product/:id", element: <ProductDetailPage /> },
         { path: "order-detail", element: <OrderDetail /> },
+        { path: "category", element: <Category /> },
+        { path: "information-supplier", element: <InformationSupplier /> },
+        {
+          path: "supplier-information-detail/:id",
+          element: <InformationSupplierDetail />,
+        },
       ],
     },
     {
@@ -83,7 +91,7 @@ function Routers() {
       ],
     },
     {
-      path: "supllier", // change from "supplier" to "supllier"
+      path: "supllier",
       element: <ManagementLayOut />,
       children: [
         { index: true, element: <Navigate to="dashboard" replace /> },
@@ -95,6 +103,10 @@ function Routers() {
         {
           path: "manage-voucher-of-supplier",
           element: <ManageVoucherOfSuplier />,
+        },
+        {
+          path: "supplier-information-detail/:id",
+          element: <InformationSupplierDetail />,
         },
       ],
     },

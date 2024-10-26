@@ -91,7 +91,6 @@ const CreateOrderBuy = () => {
       }
     } catch (error) {
       console.error("Error creating order:", error);
-      message.error("Failed to create order. Please try again.");
     }
   };
 
