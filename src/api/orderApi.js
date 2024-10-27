@@ -103,15 +103,31 @@ export const getOrderById = async (orderId, pageIndex, pageSize) => {
     return null;
   }
 };
+// orderApi.js
 export const createOrderBuy = async (orderData) => {
   try {
-    const res = await api.post(`/order/create-order-buy`, orderData);
-    return res.data;
+    const response = await fetch("/api/order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to create order");
+    }
+
+    return data;
   } catch (err) {
+    // Use a different variable name to avoid conflict
     console.error("Error creating order:", err);
-    return null;
+    throw err; // Ensure the error is thrown so it can be caught in the calling function
   }
 };
+
 export const updateOrderStatusCompleted = async (orderId) => {
   try {
     const res = await api.put(

@@ -8,7 +8,7 @@ import { getVouchersBySupplierId } from "../../../api/voucherApi";
 const VoucherListBySupplierId = () => {
   const user = useSelector((state) => state.user.user || {});
   const [supplierId, setSupplierId] = useState(null);
-  const [vouchers, setVouchers] = useState([]);
+  const [vouchers, setVouchers] = useState([]); // Ensure initial value is an empty array
   const [loading, setLoading] = useState(false);
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
@@ -18,11 +18,10 @@ const VoucherListBySupplierId = () => {
 
   const fetchSupplierId = async () => {
     if (user.id) {
-      // Use user.id for accountId
       try {
-        const response = await getSupplierIdByAccountId(user.id); // Pass accountId
+        const response = await getSupplierIdByAccountId(user.id);
         if (response?.isSuccess) {
-          setSupplierId(response.result); // Set supplierId from the API response
+          setSupplierId(response.result);
         } else {
           message.error("Failed to get Supplier ID.");
         }
@@ -41,8 +40,8 @@ const VoucherListBySupplierId = () => {
         pageSize
       );
       if (response?.isSuccess && response.result) {
-        setVouchers(response.result.items);
-        setTotalItems(response.result.totalItems);
+        setVouchers(response.result.items || []); // Default to empty array if items is undefined
+        setTotalItems(response.result.totalItems || 0); // Default to 0 if totalItems is undefined
       } else {
         setVouchers([]);
         setTotalItems(0);
@@ -65,12 +64,12 @@ const VoucherListBySupplierId = () => {
   };
 
   useEffect(() => {
-    fetchSupplierId(); // Fetch supplier ID when component mounts
+    fetchSupplierId();
   }, [user]);
 
   useEffect(() => {
     if (supplierId) {
-      fetchVouchers(pageIndex, pageSize, supplierId); // Fetch vouchers when supplierId changes
+      fetchVouchers(pageIndex, pageSize, supplierId);
     }
   }, [supplierId, pageIndex, pageSize]);
 
@@ -122,12 +121,12 @@ const VoucherListBySupplierId = () => {
         <Spin className="flex justify-center items-center" />
       ) : (
         <>
-          {vouchers.length > 0 ? (
+          {vouchers?.length > 0 ? ( // Optional chaining to handle undefined vouchers
             <>
               <Table
                 dataSource={vouchers}
                 columns={columns}
-                rowKey="vourcherID" // Ensure each row has a unique key
+                rowKey="vourcherID"
                 pagination={false}
                 className="shadow-lg rounded"
               />
