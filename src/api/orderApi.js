@@ -105,19 +105,16 @@ export const getOrderById = async (orderId, pageIndex, pageSize) => {
 };
 export const createOrderBuy = async (orderData) => {
   try {
-    const response = await api.post("/order/create-order-buy", {});
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to create order");
-    }
-
-    return data;
+    const res = await api.post(`/order/create-order-buy`, orderData);
+    return res.data;
   } catch (err) {
-    // Use a different variable name to avoid conflict
-    console.error("Error creating order:", err);
-    throw err; // Ensure the error is thrown so it can be caught in the calling function
+    if (err.response && err.response.status === 400) {
+      console.error("Validation error occurred:", err.response.data);
+      // Handle validation errors here
+    } else {
+      console.error("Error creating order:", err);
+    }
+    return null;
   }
 };
 

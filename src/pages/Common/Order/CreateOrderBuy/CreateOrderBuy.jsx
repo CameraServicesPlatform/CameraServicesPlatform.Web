@@ -65,19 +65,26 @@ const CreateOrderBuy = () => {
   }, [supplierID]);
 
   // Handle voucher selection
-  const handleVoucherSelect = (voucherID) => {
-    setSelectedVoucher(voucherID);
-    calculateTotalAmount(voucherID);
+  const handleVoucherSelect = (vourcherID) => {
+    console.log("Selected Voucher ID:", vourcherID); // Ghi lại ID voucher được chọn
+
+    setSelectedVoucher(vourcherID);
+    console.log("Updated Selected Voucher:", vourcherID);
+
+    calculateTotalAmount(vourcherID);
   };
+  useEffect(() => {
+    console.log("Updated Selected Voucher:", selectedVoucher);
+  }, [selectedVoucher]); // Theo dõi thay đổi của selectedVoucher
 
   // Calculate total amount
-  const calculateTotalAmount = (voucherID) => {
+  const calculateTotalAmount = (vourcherID) => {
     if (!product) return;
 
     let discountAmount = 0;
-    if (voucherID) {
+    if (vourcherID) {
       const selectedVoucher = vouchers.find(
-        (voucher) => voucher.vourcherID === voucherID
+        (voucher) => voucher.vourcherID === vourcherID
       );
       if (selectedVoucher) {
         discountAmount = selectedVoucher.discountAmount;
@@ -88,40 +95,37 @@ const CreateOrderBuy = () => {
     setTotalAmount(total);
   };
 
-  // Handle form submission
   const onFinish = async (values) => {
-    // Log form values
-    console.log("Form Values:", values);
-    console.log("Selected Voucher:", selectedVoucher);
-    console.log("Product Data:", product);
-    console.log(accountId);
+    if (!product) {
+      message.error("Product information is incomplete.");
+      return;
+    }
 
-    // Construct orderData with checks
     const orderData = {
-      supplierID: supplierID || "", // Ensure supplierID is populated
-      accountID: accountId || "", // Ensure accountId is populated
-      voucherID: selectedVoucher || null, // Ensure selectedVoucher is valid
-      productID: product?.productID || "", // Ensure productID is valid
+      supplierID: supplierID || "",
+      accountID: accountId || "",
+      vourcherID: selectedVoucher,
+      productID: product?.productID || "",
       orderDate: new Date().toISOString(),
-      orderStatus: 0, // Adjust as necessary
+      orderStatus: 0,
       products: [
         {
-          productID: product?.productID || "", // Ensure this is set
+          productID: product?.productID || "",
           productName: product?.name || "",
           productDescription: product?.description || "",
           priceRent: product?.priceRent || 0,
           priceBuy: product?.priceBuy || 0,
-          quality: values.quality || 0,
+          quality: product?.quality,
         },
       ],
       totalAmount: totalAmount || 0,
-      orderType: 0, // Adjust as necessary
+      orderType: 0,
       shippingAddress: values.shippingAddress || "",
       orderDetailRequests: [
         {
-          productID: product?.productID || "", // Ensure this is set
+          productID: product?.productID || "",
           productPrice: product?.priceBuy || 0,
-          productQuality: values.quality || 0,
+          productQuality: product?.quality,
           discount: selectedVoucher
             ? vouchers.find((voucher) => voucher.vourcherID === selectedVoucher)
                 ?.discountAmount || 0
@@ -129,18 +133,20 @@ const CreateOrderBuy = () => {
           productPriceTotal: totalAmount || 0,
         },
       ],
-      deliveryMethod: 0, // Adjust as necessary
+      deliveryMethod: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    // Log the orderData to see if all fields are populated
-    console.log("Order Data:", JSON.stringify(orderData, null, 2));
+    console.log(
+      "Order Data before API call:",
+      JSON.stringify(orderData, null, 2)
+    );
 
     try {
       const response = await createOrderBuy(orderData);
       message.success("Order created successfully!");
-      navigate("/orders");
+      navigate("/order-detail");
     } catch (error) {
       message.error(
         "Failed to create order. " + (error.response?.data?.title || "")
