@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, message, Select, Spin, Tag } from "antd";
+import { Button, Card, Form, Input, message, Select, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -13,284 +13,244 @@ const CreateOrderBuy = () => {
   const [product, setProduct] = useState(null);
   const [vouchers, setVouchers] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [totalAmount, setTotalAmount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { productID, supplierID } = location.state || {};
-  const user = useSelector((state) => state.user.user || {});
-
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [loadingVouchers, setLoadingVouchers] = useState(true);
-
-  // Fetch Product Data
+  const user = useSelector((state) => state.user.user || {});
+  const accountId = user.id;
+  console.log(accountId);
+  // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
-      if (productID) {
-        try {
+      try {
+        if (productID) {
           const productData = await getProductById(productID);
-          setProduct(productData || null);
-          if (!productData) message.error("Product not found.");
-        } catch (error) {
-          console.error("Error fetching product data:", error);
-          message.error("Error fetching product data: " + error.message);
-        } finally {
-          setLoadingProduct(false);
+          if (productData) {
+            setProduct(productData);
+            form.setFieldsValue({ supplierID });
+          } else {
+            message.error("Product not found or could not be retrieved.");
+          }
         }
+      } catch (error) {
+        message.error("Failed to fetch product details.");
       }
+      setLoadingProduct(false);
     };
 
     fetchProduct();
   }, [productID]);
 
-  // Fetch Vouchers
+  // Fetch vouchers by supplier ID
   useEffect(() => {
     const fetchVouchers = async () => {
       setLoadingVouchers(true);
       try {
-        const response = await getVouchersBySupplierId(supplierID, 1, 10);
-        if (response.isSuccess) {
-          setVouchers(response.result);
+        const voucherData = await getVouchersBySupplierId(supplierID, 1, 10); // Adjust pageIndex and pageSize as needed
+        if (voucherData && voucherData.isSuccess) {
+          setVouchers(voucherData.result || []);
         } else {
-          message.error("Failed to fetch vouchers.");
+          message.error("No vouchers available.");
         }
       } catch (error) {
-        console.error("Error fetching vouchers:", error);
-        message.error("Error fetching vouchers: " + error.message);
-      } finally {
-        setLoadingVouchers(false);
+        message.error("Failed to fetch vouchers.");
       }
+      setLoadingVouchers(false);
     };
 
     fetchVouchers();
   }, [supplierID]);
 
-  // Handle Form Submission
+  // Handle voucher selection
+  const handleVoucherSelect = (voucherID) => {
+    setSelectedVoucher(voucherID);
+    calculateTotalAmount(voucherID);
+  };
+
+  // Calculate total amount
+  const calculateTotalAmount = (voucherID) => {
+    if (!product) return;
+
+    let discountAmount = 0;
+    if (voucherID) {
+      const selectedVoucher = vouchers.find(
+        (voucher) => voucher.vourcherID === voucherID
+      );
+      if (selectedVoucher) {
+        discountAmount = selectedVoucher.discountAmount;
+      }
+    }
+
+    const total = product.priceBuy - discountAmount;
+    setTotalAmount(total);
+  };
+
+  // Handle form submission
   const onFinish = async (values) => {
-    if (!product) {
-      message.error("Please ensure product is selected.");
-      return;
-    }
+    // Log form values
+    console.log("Form Values:", values);
+    console.log("Selected Voucher:", selectedVoucher);
+    console.log("Product Data:", product);
+    console.log(accountId);
 
-    // Ensure that a voucher is selected
-    if (!selectedVoucher) {
-      message.error("The Voucher ID field is required.");
-      return;
-    }
-
-    // Calculate the total price after discount
-    const discountValue = selectedVoucher?.discountAmount || 0;
-    const discountedPrice = Math.max(0, product.priceBuy - discountValue);
-    const currentDate = new Date().toISOString();
-
+    // Construct orderData with checks
     const orderData = {
-      supplierID,
-      accountID: user.id,
-      voucherID: selectedVoucher.voucherID, // Use selectedVoucher.voucherID
-      productID: product.productID,
-      orderDate: currentDate,
-      orderStatus: 0,
+      supplierID: supplierID || "", // Ensure supplierID is populated
+      accountID: accountId || "", // Ensure accountId is populated
+      voucherID: selectedVoucher || null, // Ensure selectedVoucher is valid
+      productID: product?.productID || "", // Ensure productID is valid
+      orderDate: new Date().toISOString(),
+      orderStatus: 0, // Adjust as necessary
       products: [
         {
-          productID: product.productID,
-          productName: product.productName,
-          productDescription: product.productDescription,
-          priceRent: 0,
-          priceBuy: product.priceBuy,
-          quality: product.quality,
+          productID: product?.productID || "", // Ensure this is set
+          productName: product?.name || "",
+          productDescription: product?.description || "",
+          priceRent: product?.priceRent || 0,
+          priceBuy: product?.priceBuy || 0,
+          quality: values.quality || 0,
         },
       ],
-      totalAmount: discountedPrice,
-      orderType: values.orderType,
-      shippingAddress: values.shippingAddress,
+      totalAmount: totalAmount || 0,
+      orderType: 0, // Adjust as necessary
+      shippingAddress: values.shippingAddress || "",
       orderDetailRequests: [
         {
-          productID: product.productID,
-          productPrice: product.priceBuy,
-          productQuality: product.quality,
-          discount: discountValue,
-          productPriceTotal: discountedPrice,
+          productID: product?.productID || "", // Ensure this is set
+          productPrice: product?.priceBuy || 0,
+          productQuality: values.quality || 0,
+          discount: selectedVoucher
+            ? vouchers.find((voucher) => voucher.vourcherID === selectedVoucher)
+                ?.discountAmount || 0
+            : 0,
+          productPriceTotal: totalAmount || 0,
         },
       ],
-      deliveryMethod: values.deliveryMethod,
-      createdAt: currentDate,
-      updatedAt: currentDate,
+      deliveryMethod: 0, // Adjust as necessary
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
-    console.log("Order Data:", orderData); // Debugging line
+    // Log the orderData to see if all fields are populated
+    console.log("Order Data:", JSON.stringify(orderData, null, 2));
 
     try {
       const response = await createOrderBuy(orderData);
-      if (response.isSuccess) {
-        message.success("Order created successfully!");
-        navigate("/order-detail");
-      } else {
-        response.messages?.forEach((msg) => message.error(msg));
-      }
+      message.success("Order created successfully!");
+      navigate("/orders");
     } catch (error) {
-      message.error("Error creating order: " + error.message);
+      message.error(
+        "Failed to create order. " + (error.response?.data?.title || "")
+      );
+      console.error(error);
     }
   };
 
   return (
-    <Form
-      form={form}
-      onFinish={onFinish}
-      layout="vertical"
-      initialValues={{ orderType: 0, supplierID }}
-    >
-      <Form.Item name="supplierID" label="Supplier ID">
-        <Input disabled value={supplierID} />
-      </Form.Item>
+    <Card title="Create Order Buy">
+      {loadingProduct || loadingVouchers ? (
+        <Spin />
+      ) : (
+        <Form form={form} layout="vertical" onFinish={onFinish}>
+          <Form.Item label="Product Information" className="mb-4">
+            {product ? (
+              <div className="flex justify-between">
+                {/* Left Side: Product Information */}
+                <div className="flex-1 pr-4">
+                  <p>
+                    <strong>Product ID:</strong> {product.productID}
+                  </p>
+                  <p>
+                    <strong>Name:</strong> {product.productName}
+                  </p>
+                  <p>
+                    <strong>Description:</strong> {product.productDescription}
+                  </p>
+                  <p>
+                    <strong>Rent Price:</strong> {product.priceRent}
+                  </p>
+                  <p>
+                    <strong>Buy Price:</strong> {product.priceBuy}
+                  </p>
+                  <p>
+                    <strong>Quality:</strong> {product.quality}
+                  </p>
+                </div>
 
-      <Form.Item label="Product Information">
-        {loadingProduct ? (
-          <Spin />
-        ) : product ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-            }}
-          >
-            <div style={{ flex: 1, paddingRight: "20px" }}>
-              <p>
-                <strong>Product ID:</strong> {product.productID}
-              </p>
-              <p>
-                <strong>Name:</strong> {product.productName}
-              </p>
-              <p>
-                <strong>Description:</strong> {product.productDescription}
-              </p>
-              <p>
-                <strong>Buy Price:</strong> {product.priceBuy}
-              </p>
-              <p>
-                <strong>Quality:</strong>{" "}
-                <Tag color="blue">{product.quality}</Tag>
-              </p>
-            </div>
-            <div style={{ flex: 1 }}>
-              <strong>Product Images:</strong>
-              <div
-                style={{ display: "flex", flexWrap: "wrap", marginTop: "10px" }}
-              >
-                {product.listImage?.length ? (
-                  product.listImage.map((img) => (
-                    <img
-                      key={img.productImagesID}
-                      src={img.image}
-                      alt="Product"
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        marginRight: "10px",
-                        objectFit: "cover",
-                      }}
-                    />
-                  ))
-                ) : (
-                  <p>No images available.</p>
-                )}
+                {/* Right Side: Product Images */}
+                <div className="flex-1">
+                  <strong>Product Images:</strong>
+                  <div className="flex flex-wrap mt-2">
+                    {product.listImage && product.listImage.length > 0 ? (
+                      product.listImage.map((imageObj, index) => (
+                        <img
+                          key={imageObj.productImagesID} // Unique key from image object
+                          src={imageObj.image}
+                          alt={`Product Image ${index + 1}`}
+                          className="w-24 h-24 mr-2 mb-2 object-cover" // Tailwind CSS for styling
+                        />
+                      ))
+                    ) : (
+                      <p>No images available for this product.</p>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ) : (
-          <p>Product not found.</p>
-        )}
-      </Form.Item>
-      <Form.Item>
-        <Card
-          style={{
-            borderRadius: "8px",
-            border: "1px solid #e6f7ff",
-            padding: "10px",
-          }}
-        >
-          {loadingVouchers ? (
-            <Spin />
-          ) : (
+            ) : (
+              <p>Loading product information...</p> // Optionally add a loading spinner here
+            )}
+          </Form.Item>
+
+          <Form.Item
+            label="Shipping Address"
+            name="shippingAddress"
+            rules={[
+              {
+                required: true,
+                message: "Please input the shipping address!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          {/* Voucher Selection as Card Items */}
+          <Form.Item label="Voucher">
             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-              {vouchers.length > 0 ? (
-                vouchers.map((voucher) => (
-                  <Card
-                    key={voucher.voucherID}
-                    style={{
-                      width: "150px",
-                      border: "1px solid #d9d9d9",
-                      cursor: "pointer",
-                      backgroundColor:
-                        selectedVoucher?.voucherID === voucher.voucherID
-                          ? "#e6f7ff"
-                          : "white",
-                      transition: "background-color 0.3s ease",
-                    }}
-                    onClick={() => setSelectedVoucher(voucher)}
-                  >
-                    <p>
-                      <strong>Discount:</strong> {voucher.discountAmount} VND
-                    </p>
-                    <p>
-                      <strong>Description:</strong> {voucher.description}
-                    </p>
-                    <p>
-                      <strong>Valid From:</strong>{" "}
-                      {new Date(voucher.validFrom).toLocaleDateString()}
-                    </p>
-                    <p>
-                      <strong>Expires on:</strong>{" "}
-                      {new Date(voucher.validTo).toLocaleDateString()}
-                    </p>
-                  </Card>
-                ))
-              ) : (
-                <p>No vouchers available</p>
-              )}
+              {vouchers.map((voucher) => (
+                <Card
+                  key={voucher.vourcherID}
+                  style={{
+                    width: 200, // Set card width
+                    cursor: "pointer", // Change cursor to pointer for better UX
+                    border:
+                      selectedVoucher === voucher.vourcherID
+                        ? "2px solid #1890ff"
+                        : "1px solid #d9d9d9", // Highlight selected card
+                    transition: "border 0.3s",
+                  }}
+                  onClick={() => handleVoucherSelect(voucher.vourcherID)}
+                >
+                  <Card.Meta
+                    title={voucher.vourcherCode}
+                    description={voucher.description}
+                  />
+                </Card>
+              ))}
             </div>
-          )}
-        </Card>
-      </Form.Item>
-      <Form.Item
-        name="shippingAddress"
-        label="Shipping Address"
-        rules={[
-          { required: true, message: "Please enter your shipping address!" },
-        ]}
-      >
-        <Input.TextArea rows={4} placeholder="Enter shipping address" />
-      </Form.Item>
-      <Form.Item
-        name="deliveryMethod"
-        label="Delivery Method"
-        rules={[
-          { required: true, message: "Please select a delivery method!" },
-        ]}
-      >
-        <Select placeholder="Select delivery method">
-          <Option value="standard">Standard</Option>
-          <Option value="express">Express</Option>
-        </Select>
-      </Form.Item>
-      <Form.Item
-        name="orderType"
-        label="Order Type"
-        rules={[{ required: true, message: "Please select order type!" }]}
-      >
-        <Select placeholder="Select order type">
-          <Option value={0}>Normal</Option>
-          <Option value={1}>Urgent</Option>
-        </Select>
-      </Form.Item>
-      <Form.Item>
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={loadingProduct || loadingVouchers}
-        >
-          Create Order
-        </Button>
-      </Form.Item>
-    </Form>
+          </Form.Item>
+          <Form.Item label="Total Amount">
+            <Input value={totalAmount} disabled />
+          </Form.Item>
+          <Button type="primary" htmlType="submit">
+            Create Order
+          </Button>
+        </Form>
+      )}
+    </Card>
   );
 };
 

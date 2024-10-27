@@ -103,16 +103,9 @@ export const getOrderById = async (orderId, pageIndex, pageSize) => {
     return null;
   }
 };
-// orderApi.js
 export const createOrderBuy = async (orderData) => {
   try {
-    const response = await fetch("/api/order", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(orderData),
-    });
+    const response = await api.post("/order/create-order-buy", {});
 
     const data = await response.json();
 
