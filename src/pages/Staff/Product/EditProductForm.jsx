@@ -171,8 +171,6 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
           <Select placeholder="Select status">
             <Option value={0}>Sẵn Bán</Option>
             <Option value={1}>Có sẳn để thuê</Option>
-            <Option value={2}>Đã cho thuê</Option>
-            <Option value={3}>Đã bán</Option>
             <Option value={4}>Sản phẩm ngừng kinh doanh</Option>
           </Select>
         </Form.Item>

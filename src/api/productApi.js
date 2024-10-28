@@ -109,13 +109,12 @@ export const getProductById = async (id, pageIndex = 1, pageSize = 1) => {
 
 export const getProductBySupplierId = async (
   supplierId,
-  filter,
   pageIndex,
   pageSize
 ) => {
   try {
     const response = await api.get(
-      `/product/get-product-by-supplierId?supplierId=${supplierId}&filter=${filter}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+      `/product/get-product-by-supplierId?filter=${supplierId}&pageIndex=${pageIndex}&pageSize=${pageSize}`
     );
 
     if (response.status === 200 && response.data && response.data.isSuccess) {

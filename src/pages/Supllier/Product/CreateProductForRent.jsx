@@ -1,10 +1,19 @@
 import { UploadOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select, Upload, message } from "antd";
+import {
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  message,
+  Select,
+  Space,
+  Upload,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getSupplierIdByAccountId } from "../../../api/accountApi"; // Adjust the path as needed
+import { getSupplierIdByAccountId } from "../../../api/accountApi"; // Điều chỉnh đường dẫn nếu cần
 import { getAllCategories } from "../../../api/categoryApi";
-import { createProductRent } from "../../../api/productApi"; // Adjust the path as needed
+import { createProductRent } from "../../../api/productApi"; // Điều chỉnh đường dẫn nếu cần
 
 const { Option } = Select;
 
@@ -15,9 +24,12 @@ const CreateProductForRent = () => {
   const [file, setFile] = useState(null);
   const user = useSelector((state) => state.user.user || {});
   const [supplierId, setSupplierId] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+
   const [specifications, setSpecifications] = useState([
     { feature: "", description: "" },
   ]);
+  const [priceType, setPriceType] = useState("PricePerHour"); // Giá mặc định là theo giờ
 
   // Fetch Supplier ID and Categories
   useEffect(() => {
@@ -62,7 +74,7 @@ const CreateProductForRent = () => {
       setFile(info.file.originFileObj);
       const reader = new FileReader();
       reader.onload = (e) => {
-        setFilePreview(e.target.result); // Update filePreview here
+        setFilePreview(e.target.result);
       };
       reader.readAsDataURL(info.file.originFileObj);
     }
@@ -70,8 +82,9 @@ const CreateProductForRent = () => {
 
   const handleRemoveFile = () => {
     setFile(null);
-    setFilePreview(null); // Xóa preview khi xóa file
+    setFilePreview(null);
   };
+
   const handleCreateProduct = async (values) => {
     const validSpecifications = specifications.filter(
       (spec) => spec.feature && spec.description
@@ -82,10 +95,10 @@ const CreateProductForRent = () => {
       ProductName,
       ProductDescription,
       Quality,
-      PricePerHour,
-      PricePerDay,
-      PricePerWeek,
-      PricePerMonth,
+      PricePerHour = 0,
+      PricePerDay = 0,
+      PricePerWeek = 0,
+      PricePerMonth = 0,
       Brand,
     } = values;
 
@@ -128,8 +141,35 @@ const CreateProductForRent = () => {
       setLoading(false);
     }
   };
+
+  const handlePriceTypeChange = (value) => {
+    setPriceType(value);
+    // Đặt tất cả giá còn lại thành 0 khi giá được chọn
+    if (value === "PricePerHour") {
+      form.setFieldsValue({
+        PricePerDay: 0,
+        PricePerWeek: 0,
+        PricePerMonth: 0,
+      });
+    } else if (value === "PricePerDay") {
+      form.setFieldsValue({
+        PricePerHour: 0,
+        PricePerWeek: 0,
+        PricePerMonth: 0,
+      });
+    } else if (value === "PricePerWeek") {
+      form.setFieldsValue({
+        PricePerHour: 0,
+        PricePerDay: 0,
+        PricePerMonth: 0,
+      });
+    } else if (value === "PricePerMonth") {
+      form.setFieldsValue({ PricePerHour: 0, PricePerDay: 0, PricePerWeek: 0 });
+    }
+  };
+
   const handleAddSpecification = () => {
-    setSpecifications([...specifications, { feature: "", description: "" }]); // Ensure it's an object
+    setSpecifications([...specifications, { feature: "", description: "" }]);
   };
 
   const handleSpecificationChange = (value, index) => {
@@ -147,7 +187,13 @@ const CreateProductForRent = () => {
     <Form
       form={form}
       onFinish={handleCreateProduct}
-      initialValues={{ Quality: 0 }} // Set default values as necessary
+      initialValues={{
+        Quality: 0,
+        PricePerHour: 0,
+        PricePerDay: 0,
+        PricePerWeek: 0,
+        PricePerMonth: 0,
+      }} // Đặt giá trị mặc định nếu cần
     >
       <Form.Item
         name="SerialNumber"
@@ -190,26 +236,73 @@ const CreateProductForRent = () => {
       <Form.Item
         name="Quality"
         label="Chất lượng"
-        rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]}
+        rules={[
+          { required: true, message: "Vui lòng nhập chất lượng sản phẩm!" },
+        ]}
       >
         <Input />
       </Form.Item>
 
-      <Form.Item name="PricePerHour" label="Giá (Theo giờ)">
-        <Input type="number" />
+      <Form.Item label="Chọn loại giá">
+        <Checkbox.Group onChange={handlePriceTypeChange} value={priceType}>
+          <Checkbox value="PricePerHour">Giá theo giờ</Checkbox>
+          <Checkbox value="PricePerDay">Giá theo ngày</Checkbox>
+          <Checkbox value="PricePerWeek">Giá theo tuần</Checkbox>
+          <Checkbox value="PricePerMonth">Giá theo tháng</Checkbox>
+        </Checkbox.Group>
       </Form.Item>
 
-      <Form.Item name="PricePerDay" label="Giá (Theo ngày)">
-        <Input type="number" />
-      </Form.Item>
+      {priceType.includes("PricePerHour") && (
+        <Form.Item
+          name="PricePerHour"
+          label="Giá theo giờ"
+          rules={[
+            { required: true, message: "Vui lòng nhập giá theo giờ!" },
+            { type: "number", transform: (value) => Number(value) },
+          ]}
+        >
+          <Input type="number" placeholder="Nhập giá theo giờ" />
+        </Form.Item>
+      )}
 
-      <Form.Item name="PricePerWeek" label="Giá (Theo tuần)">
-        <Input type="number" />
-      </Form.Item>
+      {priceType.includes("PricePerDay") && (
+        <Form.Item
+          name="PricePerDay"
+          label="Giá theo ngày"
+          rules={[
+            { required: true, message: "Vui lòng nhập giá theo ngày!" },
+            { type: "number", transform: (value) => Number(value) },
+          ]}
+        >
+          <Input type="number" placeholder="Nhập giá theo ngày" />
+        </Form.Item>
+      )}
 
-      <Form.Item name="PricePerMonth" label="Giá (Theo tháng)">
-        <Input type="number" />
-      </Form.Item>
+      {priceType.includes("PricePerWeek") && (
+        <Form.Item
+          name="PricePerWeek"
+          label="Giá theo tuần"
+          rules={[
+            { required: true, message: "Vui lòng nhập giá theo tuần!" },
+            { type: "number", transform: (value) => Number(value) },
+          ]}
+        >
+          <Input type="number" placeholder="Nhập giá theo tuần" />
+        </Form.Item>
+      )}
+
+      {priceType.includes("PricePerMonth") && (
+        <Form.Item
+          name="PricePerMonth"
+          label="Giá theo tháng"
+          rules={[
+            { required: true, message: "Vui lòng nhập giá theo tháng!" },
+            { type: "number", transform: (value) => Number(value) },
+          ]}
+        >
+          <Input type="number" placeholder="Nhập giá theo tháng" />
+        </Form.Item>
+      )}
 
       <Form.Item
         name="Brand"
@@ -226,37 +319,67 @@ const CreateProductForRent = () => {
           <Option value={6}>Leica</Option>
           <Option value={7}>Pentax</Option>
           <Option value={8}>Hasselblad</Option>
-          <Option value={9}>Sigma</Option>
-          <Option value={10}>Khác</Option>
         </Select>
       </Form.Item>
 
-      <Form.Item label="Tải lên Tài liệu">
-        <Upload
-          name="file"
-          accept=".png,.jpg,.jpeg,.pdf"
-          showUploadList={false}
-          onChange={handleFileChange}
-        >
-          <Button icon={<UploadOutlined />}>Nhấn để Tải lên</Button>
-        </Upload>
-
-        {filePreview && (
-          <div style={{ marginTop: 10 }}>
-            <p>Xem trước tài liệu:</p>
-            <img
-              src={filePreview}
-              alt="Preview"
-              style={{ maxWidth: "100%", maxHeight: 200, objectFit: "cover" }}
+      <Form.Item label="Đặc điểm sản phẩm">
+        {specifications.map((specification, index) => (
+          <Space key={index} style={{ display: "flex", marginBottom: 8 }}>
+            <Input
+              value={specification.feature}
+              onChange={(e) =>
+                handleSpecificationChange(e.target.value, index, "feature")
+              }
+              placeholder={`Đặc điểm ${index + 1}`}
+              style={{ width: "100%" }}
+            />
+            <Input
+              value={specification.description}
+              onChange={(e) =>
+                handleSpecificationChange(e.target.value, index, "description")
+              }
+              placeholder={`Mô tả ${index + 1}`}
+              style={{ width: "40%" }}
             />
             <Button
               type="danger"
-              onClick={handleRemoveFile}
-              style={{ marginTop: 10 }}
+              onClick={() => handleRemoveSpecification(index)}
             >
-              Xóa Tài liệu
+              Xóa
             </Button>
-          </div>
+          </Space>
+        ))}
+        <Button type="dashed" onClick={handleAddSpecification}>
+          Thêm đặc điểm
+        </Button>
+      </Form.Item>
+      <Form.Item label="Hình ảnh">
+        <Upload
+          name="file"
+          listType="picture"
+          beforeUpload={(file) => {
+            const isImage = file.type.startsWith("image/");
+            if (!isImage) {
+              message.error("Chỉ có thể tải lên hình ảnh!");
+            }
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isLt2M) {
+              message.error("Hình ảnh phải nhỏ hơn 2MB!");
+            }
+            return isImage && isLt2M;
+          }}
+          onChange={handleFileChange}
+          onRemove={handleRemoveFile}
+          showUploadList={false} // if you only want to display the preview below
+        >
+          <Button icon={<UploadOutlined />}>Tải lên hình ảnh</Button>
+        </Upload>
+        {filePreview && (
+          <img
+            src={filePreview}
+            alt="Preview"
+            style={{ maxWidth: "100%", marginTop: 8 }}
+          />
         )}
       </Form.Item>
 
