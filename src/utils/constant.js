@@ -34,10 +34,11 @@ const getProductStatusEnum = (productStatusEnumValue) => {
   return productStatusEnum[productStatusEnumValue] || "other";
 };
 const productStatusEnum = {
-  0: "Both", // Use string directly
-  1: "Rented",
-  2: "Sold",
-  3: "Discontinued Product",
+  0: "Bán", // Use string directly
+  1: "Cho thuê",
+  2: "Đã cho thuê",
+  3: "Đã bán",
+  4: "Sản phẩm ngừng cung cấp",
 };
 
 export {

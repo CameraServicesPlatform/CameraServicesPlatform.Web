@@ -20,7 +20,7 @@ const SideBar = () => {
     SUPPLIER: [
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
       { name: "Voucher", link: "manage-voucher-of-supplier" },
-      { name: "Tạo sản phẩm", link: "create-product" },
+      { name: "Tạo sản phẩm", link: "manage-product-of-supplier" },
     ],
     ADMIN: [
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },

@@ -24,12 +24,12 @@ import ProductPageRent from "../pages/Common/Product/ProductPageRent";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import OrderDetail from "../pages/CommonManager/OrderDetail";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
-import CreateProductForm from "../pages/Management/Product/CreateProductForm";
-import ManageProduct from "../pages/Management/Product/ManageProduct";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
+import ManageProduct from "../pages/Staff/Product/ManageProduct";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
 import InformationSupplierDetail from "../pages/Supllier/InformationSupllierDetail";
+import ManageProductOfSuplier from "../pages/Supllier/Product/ManageProductOfSuplier";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 function Routers() {
@@ -102,10 +102,13 @@ function Routers() {
           path: "dashboard",
           element: <div>Dashboard</div>,
         },
-        { path: "create-product", element: <CreateProductForm /> },
         {
           path: "manage-voucher-of-supplier",
           element: <ManageVoucherOfSuplier />,
+        },
+        {
+          path: "manage-product-of-supplier",
+          element: <ManageProductOfSuplier />,
         },
         {
           path: "supplier-information-detail/:id",

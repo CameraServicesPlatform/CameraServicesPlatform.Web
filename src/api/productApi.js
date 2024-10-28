@@ -17,6 +17,73 @@ export const getAllProduct = async (pageIndex, pageSize) => {
   }
 };
 
+export const createProductBuy = async (data) => {
+  const formData = new FormData();
+  formData.append("SerialNumber", data.SerialNumber);
+  formData.append("SupplierID", data.SupplierID);
+  formData.append("CategoryID", data.CategoryID);
+  formData.append("ProductName", data.ProductName);
+  formData.append("ProductDescription", data.ProductDescription);
+  formData.append("PriceRent", data.PriceRent);
+  formData.append("PriceBuy", data.PriceBuy);
+  formData.append("Brand", data.Brand);
+  formData.append("Status", data.Status);
+  formData.append("File", data.File);
+
+  // Append each specification to the formData
+  data.listProductSpecification.forEach((spec, index) => {
+    formData.append(`listProductSpecification[${index}]`, spec);
+  });
+
+  try {
+    const response = await api.post(`/product/create-product-buy`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error creating product for buy:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};
+export const createProductRent = async (data) => {
+  const formData = new FormData();
+  formData.append("SerialNumber", data.SerialNumber);
+  formData.append("SupplierID", data.SupplierID);
+  formData.append("CategoryID", data.CategoryID);
+  formData.append("ProductName", data.ProductName);
+  formData.append("ProductDescription", data.ProductDescription);
+  formData.append("Quality", data.Quality);
+  formData.append("PricePerHour", data.PricePerHour);
+  formData.append("PricePerDay", data.PricePerDay);
+  formData.append("PricePerWeek", data.PricePerWeek);
+  formData.append("PricePerMonth", data.PricePerMonth);
+  formData.append("Brand", data.Brand);
+  formData.append("File", data.File);
+
+  data.listProductSpecification.forEach((spec, index) => {
+    formData.append(`listProductSpecification[${index}]`, spec);
+  });
+
+  try {
+    const response = await api.post(`/product/create-product-rent`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error creating product for rent:",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};
 export const getProductById = async (id, pageIndex = 1, pageSize = 1) => {
   try {
     const res = await api.get(
@@ -123,39 +190,6 @@ export const getProductByCategoryId = async (filter, pageIndex, pageSize) => {
   }
 };
 
-export const createProduct = async (product, file) => {
-  try {
-    const formData = new FormData();
-
-    formData.append("SerialNumber", product.serialNumber);
-    formData.append("SupplierID", product.supplierID);
-    formData.append("CategoryID", product.categoryID);
-    formData.append("ProductName", product.productName);
-    formData.append("ProductDescription", product.productDescription);
-    formData.append("PriceRent", product.priceRent);
-    formData.append("PriceBuy", product.priceBuy);
-    formData.append("Brand", product.brand);
-    formData.append("Status", product.status);
-    formData.append("File", file);
-
-    const response = await api.post("/product/create-product", formData, {
-      headers: {
-        accept: "text/plain",
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    if (response.status === 200 && response.data.isSuccess) {
-      return response.data.result;
-    }
-
-    console.error("Failed to create product:", response.data.messages);
-    return null;
-  } catch (error) {
-    console.error("Error creating product:", error);
-    return null;
-  }
-};
 export const updateProduct = async (product, file) => {
   try {
     const formData = new FormData();

@@ -1,7 +1,7 @@
 import { Pagination, Spin, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { getAllProduct, getProductByName } from "../../../api/productApi";
-import ProductListTable from "./ProductListTable";
+import ProductListTable from "../../Staff/Product/ProductListTable";
 
 const ManageProduct = () => {
   const [products, setProducts] = useState([]);

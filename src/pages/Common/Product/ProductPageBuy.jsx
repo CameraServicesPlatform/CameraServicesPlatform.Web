@@ -116,7 +116,22 @@ const ProductPageBuy = () => {
     setCategory("");
     loadProducts(); // Reload products when clearing search
   };
-
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 0: // AvailableSell
+        return "text-green-500"; // Green
+      case 1: // AvailableRent
+        return "text-blue-500"; // Blue
+      case 2: // Rented
+        return "text-yellow-500"; // Yellow
+      case 3: // Sold
+        return "text-red-500"; // Red
+      case 4: // DiscontinuedProduct
+        return "text-gray-500"; // Gray
+      default:
+        return "text-black"; // Default color
+    }
+  };
   const availableProducts = products.filter((product) => product.status === 0);
 
   return (
@@ -189,12 +204,12 @@ const ProductPageBuy = () => {
                   <p className="text-gray-700 text-left">
                     {product.productDescription}
                   </p>
-                  {product.priceRent != null && (
+                  {/* {product.priceRent != null && (
                     <p className="font-bold text-left text-green-500">
                       <DollarOutlined className="inline mr-1" />
                       Giá thuê: VND/giờ {product.priceRent.toFixed(2)}
                     </p>
-                  )}
+                  )} */}
                   {product.priceBuy != null && (
                     <p className="font-bold text-left text-green-500">
                       <DollarOutlined className="inline mr-1" />
@@ -211,7 +226,10 @@ const ProductPageBuy = () => {
                   </p>
                   <p className="font-semibold text-left">
                     <InfoCircleOutlined className="inline mr-1" />
-                    Trạng thái: {getProductStatusEnum(product.status)}
+                    Trạng thái:{" "}
+                    <span className={getStatusColor(product.status)}>
+                      {getProductStatusEnum(product.status)}
+                    </span>
                   </p>
                   <p className="font-semibold text-left">
                     <StarOutlined className="inline mr-1" />
