@@ -84,26 +84,17 @@ export const createProductRent = async (data) => {
     throw error;
   }
 };
-export const getProductById = async (id, pageIndex = 1, pageSize = 1) => {
+export const getProductById = async (id) => {
   try {
-    const res = await api.get(
-      `/product/get-product-by-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`
-    );
-
-    if (res.status === 200 && res.data) {
-      if (res.data.isSuccess) {
-        return res.data.result;
-      } else {
-        console.error("API error:", res.data.message);
-        return null;
-      }
+    const response = await api.get(`/products/${id}`);
+    if (response.data) {
+      return response.data;
+    } else {
+      throw new Error("Product not found");
     }
-
-    console.error("Unexpected response format:", res);
-    return null;
-  } catch (err) {
-    console.error("Error fetching product by ID:", err);
-    return null;
+  } catch (error) {
+    const errorMessage = handleApiError(error);
+    throw new Error(errorMessage);
   }
 };
 

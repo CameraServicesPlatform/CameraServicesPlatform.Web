@@ -1,11 +1,25 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button, Input, message, Pagination, Table, Typography } from "antd";
+import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  Button,
+  Input,
+  message,
+  Modal,
+  Pagination,
+  Table,
+  Typography,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import { getSupplierIdByAccountId } from "../../../api/accountApi";
 import { getCategoryById } from "../../../api/categoryApi"; // Import the API for fetching category by ID
-import { deleteProduct, getProductBySupplierId } from "../../../api/productApi";
+import {
+  deleteProduct,
+  getProductById,
+  getProductBySupplierId,
+} from "../../../api/productApi";
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
+import DetailProduct from "./DetailProduct";
 import EditProductForm from "./EditProductForm";
 
 const { Title } = Typography;
@@ -22,6 +36,8 @@ const ProductListBySupplier = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [categoryNames, setCategoryNames] = useState({}); // Store category names keyed by ID
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { id } = useParams(); // Assume `id` is passed via URL parameters
 
   // Fetch supplier ID on component mount
   useEffect(() => {
@@ -136,21 +152,6 @@ const ProductListBySupplier = () => {
       )
     : [];
 
-  const getPriceLabelAndStyle = (price) => {
-    if (price < priceThresholds.low) {
-      return { color: "green" };
-    } else if (price < priceThresholds.medium) {
-      return { color: "orange" };
-    } else {
-      return { color: "red" };
-    }
-  };
-
-  const priceThresholds = {
-    low: 10000,
-    medium: 50000,
-  };
-
   const getStatusClass = (status) => {
     switch (status) {
       case 0:
@@ -168,126 +169,142 @@ const ProductListBySupplier = () => {
     }
   };
 
+  // Hàm lấy nhãn và màu sắc cho giá cả
+  const getPriceLabelAndStyle = (price) => {
+    if (price === null) return { color: "#888" };
+    if (price > 100000) return { color: "red" };
+    if (price > 50000) return { color: "orange" };
+    return { color: "green" };
+  };
+
+  // Hàm render cho giá thuê
+  const renderPriceRent = (priceRent, record) => {
+    const priceLabels = {
+      rent: getPriceLabelAndStyle(priceRent),
+      hour: getPriceLabelAndStyle(record.pricePerHour),
+      day: getPriceLabelAndStyle(record.pricePerDay),
+      week: getPriceLabelAndStyle(record.pricePerWeek),
+      month: getPriceLabelAndStyle(record.pricePerMonth),
+    };
+
+    return (
+      <div>
+        {priceRent !== null && (
+          <span style={{ color: priceLabels.rent.color }}>
+            {priceRent} VND - {priceLabels.rent.label}
+          </span>
+        )}
+        {record.pricePerHour && (
+          <div style={{ color: priceLabels.hour.color }}>
+            (Theo Giờ: {record.pricePerHour} VND - {priceLabels.hour.label})
+          </div>
+        )}
+        {record.pricePerDay && (
+          <div style={{ color: priceLabels.day.color }}>
+            (Theo Ngày: {record.pricePerDay} VND - {priceLabels.day.label})
+          </div>
+        )}
+        {record.pricePerWeek && (
+          <div style={{ color: priceLabels.week.color }}>
+            (Theo Tuần: {record.pricePerWeek} VND - {priceLabels.week.label})
+          </div>
+        )}
+        {record.pricePerMonth && (
+          <div style={{ color: priceLabels.month.color }}>
+            (Theo Tháng: {record.pricePerMonth} VND - {priceLabels.month.label})
+          </div>
+        )}
+        {Object.values(record).every((val) => val === null) && (
+          <span>Không có</span>
+        )}
+      </div>
+    );
+  };
+
+  // Hàm render cho giá bán
+  const renderPriceBuy = (priceBuy) => (
+    <span
+      style={{
+        fontWeight: "bold",
+        color: priceBuy !== null ? "#007bff" : "#888",
+      }}
+    >
+      {priceBuy !== null ? `${priceBuy} VND` : "Không có"}
+    </span>
+  );
+  const handleView = async (productID) => {
+    setLoading(true);
+    try {
+      const fetchedProduct = await getProductById(productID);
+      setSelectedProduct(fetchedProduct);
+    } catch (error) {
+      // Handle error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Định nghĩa các cột
   const columns = [
     {
-      title: "Product ID",
+      title: "Mã Sản Phẩm",
       dataIndex: "productID",
       sorter: (a, b) => a.productID - b.productID,
     },
     {
-      title: "Serial Number",
+      title: "Số Serial",
       dataIndex: "serialNumber",
       sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
     },
     {
-      title: "Supplier ID",
+      title: "Mã Nhà Cung Cấp",
       dataIndex: "supplierID",
       sorter: (a, b) => a.supplierID - b.supplierID,
     },
     {
-      title: "Category Name",
+      title: "Tên Loại Hàng",
       dataIndex: "categoryID",
-      render: (categoryID) => categoryNames[categoryID] || "Unknown",
+      render: (categoryID) => categoryNames[categoryID] || "Không xác định",
       sorter: (a, b) =>
         (categoryNames[a.categoryID] || "").localeCompare(
           categoryNames[b.categoryID] || ""
         ),
     },
     {
-      title: "Product Name",
+      title: "Tên Sản Phẩm",
       dataIndex: "productName",
       sorter: (a, b) => a.productName.localeCompare(b.productName),
     },
     {
-      title: "Description",
+      title: "Mô Tả",
       dataIndex: "productDescription",
     },
     {
       title: "Giá (Thuê)",
       dataIndex: "priceRent",
-      render: (priceRent, record) => {
-        const priceRentLabel = getPriceLabelAndStyle(priceRent);
-        const pricePerHourLabel = getPriceLabelAndStyle(record.pricePerHour);
-        const pricePerDayLabel = getPriceLabelAndStyle(record.pricePerDay);
-        const pricePerWeekLabel = getPriceLabelAndStyle(record.pricePerWeek);
-        const pricePerMonthLabel = getPriceLabelAndStyle(record.pricePerMonth);
-
-        return (
-          <div>
-            {priceRent !== null && (
-              <span style={{ color: priceRentLabel.color }}>
-                {priceRent} VND - {priceRentLabel.label}
-              </span>
-            )}
-            {record.pricePerHour !== null && (
-              <div style={{ color: pricePerHourLabel.color }}>
-                (Hourly: {record.pricePerHour} VND - {pricePerHourLabel.label})
-              </div>
-            )}
-            {record.pricePerDay !== null && (
-              <div style={{ color: pricePerDayLabel.color }}>
-                (Daily: {record.pricePerDay} VND - {pricePerDayLabel.label})
-              </div>
-            )}
-            {record.pricePerWeek !== null && (
-              <div style={{ color: pricePerWeekLabel.color }}>
-                (Weekly: {record.pricePerWeek} VND - {pricePerWeekLabel.label})
-              </div>
-            )}
-            {record.pricePerMonth !== null && (
-              <div style={{ color: pricePerMonthLabel.color }}>
-                (Monthly: {record.pricePerMonth} VND -{" "}
-                {pricePerMonthLabel.label})
-              </div>
-            )}
-            {priceRent === null &&
-              record.pricePerHour === null &&
-              record.pricePerDay === null &&
-              record.pricePerWeek === null &&
-              record.pricePerMonth === null && (
-                <span>N/A</span> // Show 'N/A' if all price options are null
-              )}
-          </div>
-        );
-      },
+      render: renderPriceRent,
       sorter: (a, b) => a.priceRent - b.priceRent,
     },
     {
       title: "Giá (Bán)",
       dataIndex: "priceBuy",
-      render: (priceBuy) => (
-        <span
-          style={{
-            fontWeight: "bold",
-            color: priceBuy !== null ? "#007bff" : "#888",
-          }}
-        >
-          {priceBuy !== null ? `${priceBuy} VND` : "N/A"}
-        </span>
-      ),
-      sorter: (a, b) => a.priceBuy - b.priceBuy,
-    },
-
-    {
-      title: "Giá (Bán)",
-      dataIndex: "priceBuy",
-      render: (priceBuy) => `${priceBuy} VND`,
+      render: renderPriceBuy,
       sorter: (a, b) => a.priceBuy - b.priceBuy,
     },
     {
-      title: "Brand",
+      title: "Thương Hiệu",
       dataIndex: "brand",
       render: (brand) => getBrandName(brand),
       sorter: (a, b) =>
         getBrandName(a.brand).localeCompare(getBrandName(b.brand)),
     },
     {
-      title: "Quality",
+      title: "Chất Lượng",
       dataIndex: "quality",
       sorter: (a, b) => a.quality.localeCompare(b.quality),
     },
     {
-      title: "Status",
+      title: "Trạng Thái",
       dataIndex: "status",
       render: (status) => (
         <span className={getStatusClass(status)}>
@@ -297,24 +314,24 @@ const ProductListBySupplier = () => {
       sorter: (a, b) => a.status - b.status,
     },
     {
-      title: "Rating",
+      title: "Đánh Giá",
       dataIndex: "rating",
       sorter: (a, b) => a.rating - b.rating,
     },
     {
-      title: "Created At",
+      title: "Ngày Tạo",
       dataIndex: "createdAt",
       render: (createdAt) => new Date(createdAt).toLocaleString(),
       sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
     },
     {
-      title: "Updated At",
+      title: "Ngày Cập Nhật",
       dataIndex: "updatedAt",
       render: (updatedAt) => new Date(updatedAt).toLocaleString(),
       sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
     },
     {
-      title: "List of Images",
+      title: "Danh Sách Ảnh",
       dataIndex: "listImage",
       render: (listImage, record) => (
         <img
@@ -329,7 +346,7 @@ const ProductListBySupplier = () => {
       ),
     },
     {
-      title: "Actions",
+      title: "Hành Động",
       render: (text, record) => (
         <div
           style={{
@@ -338,6 +355,14 @@ const ProductListBySupplier = () => {
             alignItems: "center",
           }}
         >
+          <Button
+            type="default"
+            icon={<EyeOutlined />} // Eye icon for view
+            onClick={() => handleView(record.productID)}
+            style={{ marginRight: "8px" }}
+          >
+            Xem
+          </Button>
           <Button
             type="primary"
             icon={<EditOutlined />}
@@ -353,6 +378,11 @@ const ProductListBySupplier = () => {
       ),
     },
   ];
+
+  const handleClose = () => {
+    setIsModalVisible(false);
+    setSelectedProduct(null); // Clear selected product
+  };
 
   return (
     <div>
@@ -403,6 +433,18 @@ const ProductListBySupplier = () => {
           onUpdateSuccess={handleUpdateSuccess}
         />
       )}
+      <Modal
+        title="Chi Tiết Sản Phẩm"
+        visible={isModalVisible}
+        onCancel={handleClose}
+        footer={null}
+      >
+        <DetailProduct
+          product={selectedProduct}
+          loading={loading}
+          onClose={handleClose}
+        />
+      </Modal>
     </div>
   );
 };

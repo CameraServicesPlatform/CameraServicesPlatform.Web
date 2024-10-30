@@ -29,6 +29,7 @@ import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ManageProduct from "../pages/Staff/Product/ManageProduct";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
 import InformationSupplierDetail from "../pages/Supllier/InformationSupllierDetail";
+import DetailProduct from "../pages/Supllier/Product/DetailProduct";
 import ManageProductOfSuplier from "../pages/Supllier/Product/ManageProductOfSuplier";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
@@ -113,6 +114,10 @@ function Routers() {
         {
           path: "supplier-information-detail/:id",
           element: <InformationSupplierDetail />,
+        },
+        {
+          path: "product/details/:productID",
+          element: <DetailProduct />,
         },
       ],
     },
