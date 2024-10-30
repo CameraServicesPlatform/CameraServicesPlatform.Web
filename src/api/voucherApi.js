@@ -1,17 +1,19 @@
+import { message } from "antd";
 import api from "../api/config";
 
-export const getAllVouchers = async (pageIndex, pageSize) => {
+// Function to get all vouchers with pagination
+export const getAllVouchers = async (pageIndex = 1, pageSize = 10) => {
   try {
     const response = await api.get(`/voucher/get-all-voucher`, {
       params: { pageIndex, pageSize },
     });
-
     if (response.status === 200) {
-      return response.data; // Return the whole response object
+      return response.data;
     }
   } catch (error) {
     console.error("Error fetching vouchers:", error);
-    return null; // Handle error
+    message.error("Failed to fetch vouchers. Please try again later.");
+    return null;
   }
 };
 
@@ -22,46 +24,49 @@ export const getVoucherById = async (id) => {
       params: { id },
     });
     if (response.status === 200 && response.data.isSuccess) {
-      return response.data.result; // Return the voucher details
+      return response.data.result;
     }
   } catch (error) {
     console.error("Error fetching voucher by ID:", error);
-    return null; // Handle error
+    message.error("Failed to fetch voucher details. Please try again later.");
+    return null;
   }
 };
 
-// Function to get vouchers by supplier ID
+// Function to get vouchers by supplier ID with pagination
 export const getVouchersBySupplierId = async (
   supplierId,
-  pageIndex,
-  pageSize
+  pageIndex = 1,
+  pageSize = 10
 ) => {
   try {
-    const response = await api.get(
-      `/voucher/get-voucher-by-supplier-id?supplierId=${supplierId}&pageIndex=${pageIndex}&pageSize=${pageSize}`
-    );
-    if (!response.data.isSuccess) {
-      throw new Error("Failed to fetch vouchers.");
+    const response = await api.get(`/voucher/get-voucher-by-supplier-id`, {
+      params: { supplierId, pageIndex, pageSize },
+    });
+    console.log("API Response:", response); // Debugging log
+    if (response.status === 200 && response.data.isSuccess) {
+      return response.data.result;
     }
-    return response.data;
   } catch (error) {
     console.error("Error fetching vouchers by supplier ID:", error);
     message.error("Failed to fetch vouchers. Please try again later.");
-    throw error; // Rethrow if you want to handle it later
+    return null;
   }
 };
 // Function to create a new voucher
 export const createVoucher = async (voucherData) => {
   try {
     const response = await api.post(`/voucher/create-voucher`, voucherData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
-    return response.data; // Return the created voucher data
+    if (response.status === 200 && response.data.isSuccess) {
+      message.success("Voucher created successfully.");
+      return response.data.result;
+    }
   } catch (error) {
     console.error("Error creating voucher:", error);
-    throw error; // Rethrow error for handling upstream
+    message.error("Failed to create voucher. Please try again.");
+    throw error;
   }
 };
 
@@ -69,26 +74,32 @@ export const createVoucher = async (voucherData) => {
 export const updateVoucher = async (voucherData) => {
   try {
     const response = await api.put(`/voucher/update-voucher`, voucherData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
-    return response.data; // Return the updated voucher data
+    if (response.status === 200 && response.data.isSuccess) {
+      message.success("Voucher updated successfully.");
+      return response.data.result;
+    }
   } catch (error) {
     console.error("Error updating voucher:", error);
-    throw error; // Rethrow error for handling upstream
+    message.error("Failed to update voucher. Please try again.");
+    throw error;
   }
 };
 
-// Function to delete a voucher
+// Function to delete a voucher by ID
 export const deleteVoucher = async (voucherId) => {
   try {
     const response = await api.delete(`/voucher/delete-voucher`, {
       params: { voucherId },
     });
-    return response.data; // Return the response data after deletion
+    if (response.status === 200 && response.data.isSuccess) {
+      message.success("Voucher deleted successfully.");
+      return response.data.result;
+    }
   } catch (error) {
     console.error("Error deleting voucher:", error);
-    throw error; // Rethrow error for handling upstream
+    message.error("Failed to delete voucher. Please try again.");
+    throw error;
   }
 };

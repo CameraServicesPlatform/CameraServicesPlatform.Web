@@ -28,113 +28,68 @@ const CreateVoucherFormBySuplier = () => {
     fetchSupplierId();
   }, [user.id]);
 
-  const handleSubmit = async (values) => {
+  const onFinish = async (values) => {
     setLoading(true);
     try {
-      const result = await createVoucher({
-        ...values,
-        supplierID: supplierId, // Use supplierId from state
+      const response = await createVoucher({
+        supplierID: supplierId,
+        vourcherCode: values.voucherCode,
+        discountAmount: values.discountAmount,
+        description: values.description,
+        validFrom: values.validFrom,
+        expirationDate: values.expirationDate,
       });
-      message.success("Voucher created successfully!");
-      console.log("Created Voucher:", result);
-      // Optionally reset the form after submission
+      if (response.isSuccess) {
+        message.success("Voucher created successfully!");
+      } else {
+        message.error(response.messages.join(", "));
+      }
     } catch (error) {
-      message.error("Failed to create voucher. Please try again.");
-      console.error("Error:", error);
+      message.error("Error creating voucher.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Form
-      layout="vertical"
-      onFinish={handleSubmit}
-      style={{ maxWidth: 600, margin: "0 auto" }} // Center the form
-    >
-      <h2>Create Voucher</h2>
-
+    <Form onFinish={onFinish}>
       <Form.Item
-        label="Supplier ID"
-        name="supplierID"
-        initialValue={supplierId} // Set initial value from state
-        hidden // Hides the field from the UI
-        rules={[{ required: true, message: "Please input the Supplier ID!" }]}
-      >
-        <Input placeholder="Supplier ID" value={supplierId} disabled />
-        {/* Display supplierId but disabled */}
-      </Form.Item>
-      <Form.Item
-        label="Voucher Code"
         name="voucherCode"
-        rules={[{ required: true, message: "Please input the Voucher Code!" }]}
+        label="Voucher Code"
+        rules={[{ required: true }]}
       >
-        <Input placeholder="Enter Voucher Code" />
+        <Input />
       </Form.Item>
-
       <Form.Item
-        label="Description"
-        name="description"
-        rules={[{ required: true, message: "Please input the description!" }]}
-      >
-        <Input.TextArea rows={4} placeholder="Enter Description" />
-      </Form.Item>
-
-      <Form.Item
-        label="Discount Amount"
         name="discountAmount"
-        rules={[
-          { required: true, message: "Please input the Discount Amount!" },
-        ]}
+        label="Discount Amount"
+        rules={[{ required: true }]}
       >
-        <InputNumber
-          min={0}
-          placeholder="Enter Discount Amount"
-          style={{ width: "100%" }}
-        />
+        <InputNumber min={0} />
       </Form.Item>
-
       <Form.Item
-        label="Discount Type"
-        name="discountType"
-        rules={[
-          { required: true, message: "Please select the Discount Type!" },
-        ]}
+        name="description"
+        label="Description"
+        rules={[{ required: true }]}
       >
-        <InputNumber
-          min={0}
-          placeholder="Enter Discount Type (0 for percentage, 1 for fixed amount)"
-          style={{ width: "100%" }}
-        />
+        <Input />
       </Form.Item>
-
       <Form.Item
-        label="Valid From"
         name="validFrom"
-        rules={[
-          { required: true, message: "Please select the Valid From date!" },
-        ]}
+        label="Valid From"
+        rules={[{ required: true }]}
       >
-        <DatePicker showTime style={{ width: "100%" }} />
+        <DatePicker showTime />
       </Form.Item>
-
       <Form.Item
-        label="Expiration Date"
         name="expirationDate"
-        rules={[
-          { required: true, message: "Please select the Expiration Date!" },
-        ]}
+        label="Expiration Date"
+        rules={[{ required: true }]}
       >
-        <DatePicker showTime style={{ width: "100%" }} />
+        <DatePicker showTime />
       </Form.Item>
-
       <Form.Item>
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={loading}
-          style={{ width: "100%" }}
-        >
+        <Button type="primary" htmlType="submit" loading={loading}>
           Create Voucher
         </Button>
       </Form.Item>

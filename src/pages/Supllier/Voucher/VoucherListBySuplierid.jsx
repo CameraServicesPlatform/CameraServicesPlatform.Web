@@ -1,25 +1,48 @@
-import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
-import { Button, message, Modal, Pagination, Spin, Table } from "antd";
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  EditOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Modal,
+  Pagination,
+  Spin,
+  Switch,
+  Table,
+} from "antd";
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getSupplierIdByAccountId } from "../../../api/accountApi"; // Make sure this is the correct import path
-import { getVouchersBySupplierId } from "../../../api/voucherApi";
+import { getSupplierIdByAccountId } from "../../../api/accountApi";
+import {
+  getVouchersBySupplierId,
+  updateVoucher,
+} from "../../../api/voucherApi";
 
 const VoucherListBySupplierId = () => {
   const user = useSelector((state) => state.user.user || {});
   const [supplierId, setSupplierId] = useState(null);
-  const [vouchers, setVouchers] = useState([]); // Ensure initial value is an empty array
+  const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [form] = Form.useForm();
 
   const fetchSupplierId = async () => {
     if (user.id) {
       try {
         const response = await getSupplierIdByAccountId(user.id);
+        console.log("Supplier ID Response:", response); // Debugging log
         if (response?.isSuccess) {
           setSupplierId(response.result);
         } else {
@@ -32,6 +55,7 @@ const VoucherListBySupplierId = () => {
   };
 
   const fetchVouchers = async (pageIndex, pageSize, supplierId) => {
+    if (!supplierId) return;
     setLoading(true);
     try {
       const response = await getVouchersBySupplierId(
@@ -39,9 +63,11 @@ const VoucherListBySupplierId = () => {
         pageIndex,
         pageSize
       );
-      if (response?.isSuccess && response.result) {
-        setVouchers(response.result.items || []); // Default to empty array if items is undefined
-        setTotalItems(response.result.totalItems || 0); // Default to 0 if totalItems is undefined
+      console.log("Vouchers Response:", response); // Debugging log
+      if (response) {
+        setVouchers(response || []);
+        setTotalItems(response.length);
+        console.log("Vouchers State:", response); // Debugging log
       } else {
         setVouchers([]);
         setTotalItems(0);
@@ -58,9 +84,7 @@ const VoucherListBySupplierId = () => {
   const handlePageChange = (page, pageSize) => {
     setPageIndex(page);
     setPageSize(pageSize);
-    if (supplierId) {
-      fetchVouchers(page, pageSize, supplierId);
-    }
+    fetchVouchers(page, pageSize, supplierId);
   };
 
   useEffect(() => {
@@ -72,6 +96,46 @@ const VoucherListBySupplierId = () => {
       fetchVouchers(pageIndex, pageSize, supplierId);
     }
   }, [supplierId, pageIndex, pageSize]);
+
+  const handleViewDetails = (voucher) => {
+    setSelectedVoucher(voucher);
+    setViewModalVisible(true);
+  };
+
+  const handleUpdateVoucher = async () => {
+    try {
+      const values = await form.validateFields();
+      const updatedVoucher = await updateVoucher({
+        ...values,
+        expirationDate: values.expirationDate
+          ? values.expirationDate.toISOString()
+          : null,
+      });
+      setVouchers((prevVouchers) =>
+        prevVouchers.map((v) =>
+          v.vourcherID === updatedVoucher.vourcherID ? updatedVoucher : v
+        )
+      );
+      message.success("Voucher updated successfully.");
+      setUpdateModalVisible(false);
+    } catch (error) {
+      console.error("Error updating voucher:", error);
+      message.error("Failed to update voucher. Please try again.");
+    }
+  };
+
+  const handleOpenUpdateModal = (voucher) => {
+    setSelectedVoucher(voucher);
+    form.setFieldsValue({
+      vourcherID: voucher.vourcherID,
+      description: voucher.description,
+      expirationDate: voucher.expirationDate
+        ? dayjs(voucher.expirationDate)
+        : null,
+      isActive: voucher.isActive,
+    });
+    setUpdateModalVisible(true);
+  };
 
   const columns = [
     { title: "Voucher ID", dataIndex: "vourcherID", key: "vourcherID" },
@@ -104,15 +168,23 @@ const VoucherListBySupplierId = () => {
     {
       title: "Action",
       render: (_, record) => (
-        <Button onClick={() => handleViewDetails(record)}>View Details</Button>
+        <>
+          <Button
+            onClick={() => handleViewDetails(record)}
+            icon={<EyeOutlined />}
+          >
+            View Details
+          </Button>
+          <Button
+            onClick={() => handleOpenUpdateModal(record)}
+            icon={<EditOutlined />}
+          >
+            Update
+          </Button>
+        </>
       ),
     },
   ];
-
-  const handleViewDetails = (voucher) => {
-    setSelectedVoucher(voucher);
-    setViewModalVisible(true);
-  };
 
   return (
     <div className="p-4">
@@ -121,7 +193,7 @@ const VoucherListBySupplierId = () => {
         <Spin className="flex justify-center items-center" />
       ) : (
         <>
-          {vouchers?.length > 0 ? ( // Optional chaining to handle undefined vouchers
+          {vouchers.length > 0 ? (
             <>
               <Table
                 dataSource={vouchers}
@@ -186,6 +258,46 @@ const VoucherListBySupplierId = () => {
           <p>
             <strong>Updated At:</strong> {selectedVoucher.updatedAt}
           </p>
+        </Modal>
+      )}
+
+      {selectedVoucher && (
+        <Modal
+          title="Update Voucher"
+          visible={updateModalVisible}
+          onOk={handleUpdateVoucher}
+          onCancel={() => setUpdateModalVisible(false)}
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item name="vourcherID" label="Voucher ID">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item
+              name="description"
+              label="Description"
+              rules={[
+                { required: true, message: "Please enter a description" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="expirationDate"
+              label="Expiration Date"
+              rules={[
+                { required: true, message: "Please select an expiration date" },
+              ]}
+            >
+              <DatePicker showTime />
+            </Form.Item>
+            <Form.Item
+              name="isActive"
+              label="Is Active"
+              valuePropName="checked"
+            >
+              <Switch />
+            </Form.Item>
+          </Form>
         </Modal>
       )}
     </div>
