@@ -13,26 +13,36 @@ import LoadingComponent from "../../../components/LoadingComponent/LoadingCompon
 const ManageCategory = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isCreating, setIsCreating] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const data = await getAllCategories(1, 10);
-      if (data) {
-        setCategories(data.result.items);
+  const fetchCategories = async (page = 1, pageSize = 10) => {
+    setLoading(true);
+    try {
+      const data = await getAllCategories(page, pageSize);
+      if (data && data.isSuccess) {
+        // Set the categories from the result
+        setCategories(data.result); // Use data.result directly as it contains the array of categories
+      } else {
+        message.error("Failed to load categories.");
       }
+    } catch (error) {
+      message.error("Failed to load categories.");
+      console.error("Error fetching categories:", error);
+    } finally {
       setLoading(false);
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchCategories();
   }, []);
 
   const handleDelete = async (categoryID) => {
     const success = await deleteCategory(categoryID);
-    if (success) {
+    if (success && success.isSuccess) {
       message.success("Category deleted successfully!");
       setCategories(categories.filter((cat) => cat.categoryID !== categoryID));
     } else {
@@ -48,11 +58,11 @@ const ManageCategory = () => {
     if (response && response.isSuccess) {
       message.success("Category created successfully!");
       setCategories([...categories, response.result]);
-      setIsCreating(false);
+      setModalVisible(false);
       form.resetFields();
     } else {
-      const errorMessage = response.errors?.categoryResponse
-        ? response.errors.categoryResponse[0]
+      const errorMessage = response.messages
+        ? response.messages[0]
         : "Failed to create category.";
       message.error(errorMessage);
     }
@@ -60,8 +70,10 @@ const ManageCategory = () => {
 
   const handleSearch = async (values) => {
     const data = await getCategoryByName(values.filter || "", 1, 10);
-    if (data) {
-      setCategories(data.result.items);
+    if (data && data.isSuccess) {
+      setCategories(data.result); // Update to directly set result
+    } else {
+      message.error("Failed to search categories.");
     }
   };
 
@@ -71,55 +83,35 @@ const ManageCategory = () => {
       return;
     }
 
-    // Ensure the categoryID is a string (valid GUID)
-    const categoryIDString = String(selectedCategory.categoryID);
+    const response = await updateCategory(
+      selectedCategory.categoryID,
+      values.categoryName,
+      values.categoryDescription
+    );
 
-    const payload = {
-      categoryResponse: {
-        // Ensure correct structure
-        categoryID: categoryIDString, // Should be a valid string GUID
-        categoryName: values.categoryName,
-        categoryDescription: values.categoryDescription,
-      },
-    };
-
-    try {
-      // Call the updateCategory with the corrected payload
-      const response = await updateCategory(payload);
-
-      if (response && response.isSuccess) {
-        message.success("Category updated successfully!");
-        setCategories(
-          categories.map((cat) =>
-            cat.categoryID === categoryIDString ? { ...cat, ...values } : cat
-          )
-        );
-        setIsUpdating(false);
-        setSelectedCategory(null);
-        form.resetFields();
-      } else {
-        const errorMessage = response?.errors?.categoryResponse
-          ? response.errors.categoryResponse[0]
-          : "Failed to update category.";
-        message.error(errorMessage);
-      }
-    } catch (error) {
-      // Handle errors from the API call
-      console.error("Error updating category:", error);
-      const errorResponse = error.response?.data; // Get the error response data
-      if (errorResponse) {
-        const errorMessage = errorResponse.errors?.categoryResponse
-          ? errorResponse.errors.categoryResponse[0]
-          : "An error occurred while updating the category.";
-        message.error(errorMessage);
-      } else {
-        message.error("An error occurred while updating the category.");
-      }
+    if (response && response.isSuccess) {
+      message.success("Category updated successfully!");
+      setCategories(
+        categories.map((cat) =>
+          cat.categoryID === selectedCategory.categoryID
+            ? { ...cat, ...values }
+            : cat
+        )
+      );
+      setModalVisible(false);
+      setSelectedCategory(null);
+      form.resetFields();
+    } else {
+      const errorMessage = response.messages
+        ? response.messages[0]
+        : "Failed to update category.";
+      message.error(errorMessage);
     }
   };
 
   const handleEdit = (category) => {
     setSelectedCategory(category);
+    setModalVisible(true);
     setIsUpdating(true);
     form.setFieldsValue({
       categoryName: category.categoryName,
@@ -150,7 +142,11 @@ const ManageCategory = () => {
       </Form>
       <Button
         type="primary"
-        onClick={() => setIsCreating(true)}
+        onClick={() => {
+          setModalVisible(true);
+          setIsUpdating(false);
+          form.resetFields();
+        }}
         style={{ marginBottom: "20px" }}
       >
         Create Category
@@ -172,12 +168,12 @@ const ManageCategory = () => {
             render: (text, record) => (
               <>
                 <Button
-                  icon={<EditOutlined />} // Add the edit icon
+                  icon={<EditOutlined />}
                   onClick={() => handleEdit(record)}
                 ></Button>
 
                 <Button
-                  icon={<DeleteOutlined />} // Add the delete icon
+                  icon={<DeleteOutlined />}
                   onClick={() => handleDelete(record.categoryID)}
                   danger
                   style={{ marginLeft: 8 }}
@@ -189,10 +185,9 @@ const ManageCategory = () => {
       />
       <Modal
         title={isUpdating ? "Update Category" : "Create Category"}
-        visible={isCreating || isUpdating}
+        visible={modalVisible}
         onCancel={() => {
-          setIsCreating(false);
-          setIsUpdating(false);
+          setModalVisible(false);
           setSelectedCategory(null);
           form.resetFields();
         }}
