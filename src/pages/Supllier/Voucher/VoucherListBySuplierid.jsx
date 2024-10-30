@@ -3,6 +3,7 @@ import {
   CloseCircleOutlined,
   EditOutlined,
   EyeOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -36,6 +37,7 @@ const VoucherListBySupplierId = () => {
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
 
   const fetchSupplierId = async () => {
@@ -137,23 +139,54 @@ const VoucherListBySupplierId = () => {
     setUpdateModalVisible(true);
   };
 
+  const handleSearch = (e) => {
+    setSearchText(e.target.value);
+  };
+
+  const filteredVouchers = vouchers.filter((voucher) =>
+    voucher.vourcherCode.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   const columns = [
-    { title: "Voucher ID", dataIndex: "vourcherID", key: "vourcherID" },
-    { title: "Voucher Code", dataIndex: "vourcherCode", key: "vourcherCode" },
-    { title: "Description", dataIndex: "description", key: "description" },
     {
-      title: "Discount Amount",
+      title: "Mã Voucher",
+      dataIndex: "vourcherID",
+      key: "vourcherID",
+      sorter: (a, b) => a.vourcherID.localeCompare(b.vourcherID),
+    },
+    {
+      title: "Mã Giảm Giá",
+      dataIndex: "vourcherCode",
+      key: "vourcherCode",
+      sorter: (a, b) => a.vourcherCode.localeCompare(b.vourcherCode),
+    },
+    {
+      title: "Mô Tả",
+      dataIndex: "description",
+      key: "description",
+      sorter: (a, b) => a.description.localeCompare(b.description),
+    },
+    {
+      title: "Giá Trị Giảm Giá",
       dataIndex: "discountAmount",
       key: "discountAmount",
+      sorter: (a, b) => a.discountAmount - b.discountAmount,
     },
-    { title: "Valid From", dataIndex: "validFrom", key: "validFrom" },
     {
-      title: "Expiration Date",
+      title: "Ngày Bắt Đầu",
+      dataIndex: "validFrom",
+      key: "validFrom",
+      sorter: (a, b) => dayjs(a.validFrom).unix() - dayjs(b.validFrom).unix(),
+    },
+    {
+      title: "Ngày Hết Hạn",
       dataIndex: "expirationDate",
       key: "expirationDate",
+      sorter: (a, b) =>
+        dayjs(a.expirationDate).unix() - dayjs(b.expirationDate).unix(),
     },
     {
-      title: "Is Active",
+      title: "Trạng Thái",
       dataIndex: "isActive",
       key: "isActive",
       render: (isActive) =>
@@ -162,24 +195,35 @@ const VoucherListBySupplierId = () => {
         ) : (
           <CloseCircleOutlined style={{ color: "red" }} />
         ),
+      sorter: (a, b) => a.isActive - b.isActive,
     },
-    { title: "Created At", dataIndex: "createdAt", key: "createdAt" },
-    { title: "Updated At", dataIndex: "updatedAt", key: "updatedAt" },
     {
-      title: "Action",
+      title: "Ngày Tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+    },
+    {
+      title: "Ngày Cập Nhật",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
+    },
+    {
+      title: "Hành Động",
       render: (_, record) => (
         <>
           <Button
             onClick={() => handleViewDetails(record)}
             icon={<EyeOutlined />}
           >
-            View Details
+            Xem Chi Tiết
           </Button>
           <Button
             onClick={() => handleOpenUpdateModal(record)}
             icon={<EditOutlined />}
           >
-            Update
+            Cập Nhật
           </Button>
         </>
       ),
@@ -188,15 +232,22 @@ const VoucherListBySupplierId = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-4">Voucher List</h1>
+      <h1 className="text-2xl font-semibold mb-4">Danh sách vourcher</h1>
+      <Input
+        placeholder="Search by Voucher Code"
+        prefix={<SearchOutlined />}
+        value={searchText}
+        onChange={handleSearch}
+        style={{ marginBottom: 16 }}
+      />
       {loading ? (
         <Spin className="flex justify-center items-center" />
       ) : (
         <>
-          {vouchers.length > 0 ? (
+          {filteredVouchers.length > 0 ? (
             <>
               <Table
-                dataSource={vouchers}
+                dataSource={filteredVouchers}
                 columns={columns}
                 rowKey="vourcherID"
                 pagination={false}
@@ -213,39 +264,38 @@ const VoucherListBySupplierId = () => {
               </div>
             </>
           ) : (
-            <div>No data</div>
+            <div>Khongo có dữ liệu!</div>
           )}
         </>
       )}
-
       {selectedVoucher && (
         <Modal
-          title="Voucher Details"
+          title="Chi Tiết Voucher"
           visible={viewModalVisible}
           onCancel={() => setViewModalVisible(false)}
           footer={[
             <Button key="close" onClick={() => setViewModalVisible(false)}>
-              Close
+              Đóng
             </Button>,
           ]}
         >
           <p>
-            <strong>Voucher Code:</strong> {selectedVoucher.vourcherCode}
+            <strong>Mã Giảm Giá:</strong> {selectedVoucher.vourcherCode}
           </p>
           <p>
-            <strong>Description:</strong> {selectedVoucher.description}
+            <strong>Mô Tả:</strong> {selectedVoucher.description}
           </p>
           <p>
-            <strong>Discount Amount:</strong> {selectedVoucher.discountAmount}
+            <strong>Giá Trị Giảm Giá:</strong> {selectedVoucher.discountAmount}
           </p>
           <p>
-            <strong>Valid From:</strong> {selectedVoucher.validFrom}
+            <strong>Ngày Bắt Đầu:</strong> {selectedVoucher.validFrom}
           </p>
           <p>
-            <strong>Expiration Date:</strong> {selectedVoucher.expirationDate}
+            <strong>Ngày Hết Hạn:</strong> {selectedVoucher.expirationDate}
           </p>
           <p>
-            <strong>Is Active:</strong>{" "}
+            <strong>Trạng Thái:</strong>
             {selectedVoucher.isActive ? (
               <CheckCircleOutlined style={{ color: "green" }} />
             ) : (
@@ -253,46 +303,43 @@ const VoucherListBySupplierId = () => {
             )}
           </p>
           <p>
-            <strong>Created At:</strong> {selectedVoucher.createdAt}
+            <strong>Ngày Tạo:</strong> {selectedVoucher.createdAt}
           </p>
           <p>
-            <strong>Updated At:</strong> {selectedVoucher.updatedAt}
+            <strong>Ngày Cập Nhật:</strong> {selectedVoucher.updatedAt}
           </p>
         </Modal>
       )}
-
       {selectedVoucher && (
         <Modal
-          title="Update Voucher"
+          title="Cập Nhật Voucher"
           visible={updateModalVisible}
           onOk={handleUpdateVoucher}
           onCancel={() => setUpdateModalVisible(false)}
         >
           <Form form={form} layout="vertical">
-            <Form.Item name="vourcherID" label="Voucher ID">
+            <Form.Item name="vourcherID" label="Mã Voucher">
               <Input disabled />
             </Form.Item>
             <Form.Item
               name="description"
-              label="Description"
-              rules={[
-                { required: true, message: "Please enter a description" },
-              ]}
+              label="Mô Tả"
+              rules={[{ required: true, message: "Vui lòng nhập mô tả" }]}
             >
               <Input />
             </Form.Item>
             <Form.Item
               name="expirationDate"
-              label="Expiration Date"
+              label="Ngày Hết Hạn"
               rules={[
-                { required: true, message: "Please select an expiration date" },
+                { required: true, message: "Vui lòng chọn ngày hết hạn" },
               ]}
             >
               <DatePicker showTime />
             </Form.Item>
             <Form.Item
               name="isActive"
-              label="Is Active"
+              label="Trạng Thái Kích Hoạt"
               valuePropName="checked"
             >
               <Switch />
