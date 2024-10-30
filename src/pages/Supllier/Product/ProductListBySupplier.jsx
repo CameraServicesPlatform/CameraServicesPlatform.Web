@@ -1,11 +1,11 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button, Input, message, Pagination, Typography } from "antd";
+import { Button, Input, message, Pagination, Table, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getSupplierIdByAccountId } from "../../../api/accountApi";
+import { getCategoryById } from "../../../api/categoryApi"; // Import the API for fetching category by ID
 import { deleteProduct, getProductBySupplierId } from "../../../api/productApi";
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
-
 import EditProductForm from "./EditProductForm";
 
 const { Title } = Typography;
@@ -21,7 +21,7 @@ const ProductListBySupplier = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categoryNames, setCategoryNames] = useState({}); // Store category names keyed by ID
 
   // Fetch supplier ID on component mount
   useEffect(() => {
@@ -57,6 +57,20 @@ const ProductListBySupplier = () => {
       if (Array.isArray(result)) {
         setProducts(result);
         setTotal(result.totalCount || 0);
+
+        // Fetch category names for each product
+        const categoryPromises = result.map(async (product) => {
+          if (product.categoryID) {
+            const categoryResponse = await getCategoryById(product.categoryID);
+            if (categoryResponse?.isSuccess) {
+              setCategoryNames((prev) => ({
+                ...prev,
+                [product.categoryID]: categoryResponse.result.categoryName,
+              }));
+            }
+          }
+        });
+        await Promise.all(categoryPromises); // Wait for all category fetches to complete
       } else {
         message.error("Unable to fetch products.");
         setProducts([]);
@@ -122,6 +136,224 @@ const ProductListBySupplier = () => {
       )
     : [];
 
+  const getPriceLabelAndStyle = (price) => {
+    if (price < priceThresholds.low) {
+      return { color: "green" };
+    } else if (price < priceThresholds.medium) {
+      return { color: "orange" };
+    } else {
+      return { color: "red" };
+    }
+  };
+
+  const priceThresholds = {
+    low: 10000,
+    medium: 50000,
+  };
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 0:
+        return "text-green-500 text-sm font-bold"; // For Sale
+      case 1:
+        return "text-blue-500 text-sm font-bold"; // For Rent
+      case 2:
+        return "text-orange-500 text-sm font-bold"; // Rented Out
+      case 3:
+        return "text-red-500 text-sm font-bold"; // Sold
+      case 4:
+        return "text-gray-500 text-sm font-bold"; // Unavailable
+      default:
+        return "text-gray-400 text-sm font-bold"; // Default case
+    }
+  };
+
+  const columns = [
+    {
+      title: "Product ID",
+      dataIndex: "productID",
+      sorter: (a, b) => a.productID - b.productID,
+    },
+    {
+      title: "Serial Number",
+      dataIndex: "serialNumber",
+      sorter: (a, b) => a.serialNumber.localeCompare(b.serialNumber),
+    },
+    {
+      title: "Supplier ID",
+      dataIndex: "supplierID",
+      sorter: (a, b) => a.supplierID - b.supplierID,
+    },
+    {
+      title: "Category Name",
+      dataIndex: "categoryID",
+      render: (categoryID) => categoryNames[categoryID] || "Unknown",
+      sorter: (a, b) =>
+        (categoryNames[a.categoryID] || "").localeCompare(
+          categoryNames[b.categoryID] || ""
+        ),
+    },
+    {
+      title: "Product Name",
+      dataIndex: "productName",
+      sorter: (a, b) => a.productName.localeCompare(b.productName),
+    },
+    {
+      title: "Description",
+      dataIndex: "productDescription",
+    },
+    {
+      title: "Giá (Thuê)",
+      dataIndex: "priceRent",
+      render: (priceRent, record) => {
+        const priceRentLabel = getPriceLabelAndStyle(priceRent);
+        const pricePerHourLabel = getPriceLabelAndStyle(record.pricePerHour);
+        const pricePerDayLabel = getPriceLabelAndStyle(record.pricePerDay);
+        const pricePerWeekLabel = getPriceLabelAndStyle(record.pricePerWeek);
+        const pricePerMonthLabel = getPriceLabelAndStyle(record.pricePerMonth);
+
+        return (
+          <div>
+            {priceRent !== null && (
+              <span style={{ color: priceRentLabel.color }}>
+                {priceRent} VND - {priceRentLabel.label}
+              </span>
+            )}
+            {record.pricePerHour !== null && (
+              <div style={{ color: pricePerHourLabel.color }}>
+                (Hourly: {record.pricePerHour} VND - {pricePerHourLabel.label})
+              </div>
+            )}
+            {record.pricePerDay !== null && (
+              <div style={{ color: pricePerDayLabel.color }}>
+                (Daily: {record.pricePerDay} VND - {pricePerDayLabel.label})
+              </div>
+            )}
+            {record.pricePerWeek !== null && (
+              <div style={{ color: pricePerWeekLabel.color }}>
+                (Weekly: {record.pricePerWeek} VND - {pricePerWeekLabel.label})
+              </div>
+            )}
+            {record.pricePerMonth !== null && (
+              <div style={{ color: pricePerMonthLabel.color }}>
+                (Monthly: {record.pricePerMonth} VND -{" "}
+                {pricePerMonthLabel.label})
+              </div>
+            )}
+            {priceRent === null &&
+              record.pricePerHour === null &&
+              record.pricePerDay === null &&
+              record.pricePerWeek === null &&
+              record.pricePerMonth === null && (
+                <span>N/A</span> // Show 'N/A' if all price options are null
+              )}
+          </div>
+        );
+      },
+      sorter: (a, b) => a.priceRent - b.priceRent,
+    },
+    {
+      title: "Giá (Bán)",
+      dataIndex: "priceBuy",
+      render: (priceBuy) => (
+        <span
+          style={{
+            fontWeight: "bold",
+            color: priceBuy !== null ? "#007bff" : "#888",
+          }}
+        >
+          {priceBuy !== null ? `${priceBuy} VND` : "N/A"}
+        </span>
+      ),
+      sorter: (a, b) => a.priceBuy - b.priceBuy,
+    },
+
+    {
+      title: "Giá (Bán)",
+      dataIndex: "priceBuy",
+      render: (priceBuy) => `${priceBuy} VND`,
+      sorter: (a, b) => a.priceBuy - b.priceBuy,
+    },
+    {
+      title: "Brand",
+      dataIndex: "brand",
+      render: (brand) => getBrandName(brand),
+      sorter: (a, b) =>
+        getBrandName(a.brand).localeCompare(getBrandName(b.brand)),
+    },
+    {
+      title: "Quality",
+      dataIndex: "quality",
+      sorter: (a, b) => a.quality.localeCompare(b.quality),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      render: (status) => (
+        <span className={getStatusClass(status)}>
+          {getProductStatusEnum(status)}
+        </span>
+      ),
+      sorter: (a, b) => a.status - b.status,
+    },
+    {
+      title: "Rating",
+      dataIndex: "rating",
+      sorter: (a, b) => a.rating - b.rating,
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      render: (createdAt) => new Date(createdAt).toLocaleString(),
+      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+    },
+    {
+      title: "Updated At",
+      dataIndex: "updatedAt",
+      render: (updatedAt) => new Date(updatedAt).toLocaleString(),
+      sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
+    },
+    {
+      title: "List of Images",
+      dataIndex: "listImage",
+      render: (listImage, record) => (
+        <img
+          src={
+            listImage.length > 0
+              ? listImage[0].image
+              : "https://via.placeholder.com/100?text=No+Image"
+          }
+          alt={record.productName}
+          width="100"
+        />
+      ),
+    },
+    {
+      title: "Actions",
+      render: (text, record) => (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+            style={{ marginRight: "8px" }}
+          ></Button>
+          <Button
+            type="danger"
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(record.productID)}
+          ></Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div>
       <Title level={2}>Product List</Title>
@@ -140,93 +372,17 @@ const ProductListBySupplier = () => {
         <div>
           {filteredProducts.length > 0 ? (
             <>
-              <table
-                border="1"
-                cellPadding="10"
-                cellSpacing="0"
-                style={{ width: "100%", textAlign: "left" }}
-              >
-                <thead>
-                  <tr>
-                    <th>Sản Phẩm ID</th>
-                    <th>Nhà cung cấp ID</th>
-                    <th>Category Name</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Mô tả</th>
-                    <th>Giá (Thuê)</th>
-                    <th>Giá (Mua)</th>
-                    <th>Thương hiệu</th>
-                    <th>Chất lượng</th>
-                    <th>Trạng thái</th>
-                    <th>Xếp hạng</th>
-                    <th>Tạo lúc</th>
-                    <th>Cập nhật lúc</th>
-                    <th>Hình ảnh</th>
-                    <th>Hành động</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredProducts.map((product) => (
-                    <tr key={product.productID}>
-                      <td>{product.productID}</td>
-                      <td>{product.supplierID}</td>
-                      <td>{product.categoryID}</td>
-                      <td>{product.productName}</td>
-                      <td>{product.productDescription}</td>
-                      <td>{product.priceRent} vnd</td>
-                      <td>{product.priceBuy} vnd</td>
-                      <td>{getBrandName(product.brand)}</td>
-                      <td>{product.quality}</td>
-                      <td>{getProductStatusEnum(product.status)}</td>
-                      <td>{product.rating}</td>
-                      <td>{new Date(product.createdAt).toLocaleString()}</td>
-                      <td>{new Date(product.updatedAt).toLocaleString()}</td>
-                      <td>
-                        <img
-                          src={
-                            product.listImage.length > 0
-                              ? product.listImage[0].image
-                              : "https://via.placeholder.com/100?text=No+Image"
-                          }
-                          alt={product.productName}
-                          width="100"
-                        />
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Button
-                            type="primary"
-                            icon={<EditOutlined />}
-                            onClick={() => handleEdit(product)}
-                            style={{ marginRight: "8px" }}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            type="danger"
-                            icon={<DeleteOutlined />}
-                            onClick={() => handleDelete(product.productID)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <Table
+                dataSource={filteredProducts}
+                columns={columns}
+                rowKey="productID"
+                pagination={false}
+                bordered
+              />
               <Pagination
-                current={pageIndex}
-                pageSize={pageSize}
-                total={total}
-                onChange={(page, size) => {
-                  setPageIndex(page);
+                total={filteredProducts.length}
+                showSizeChanger
+                onShowSizeChange={(current, size) => {
                   setPageSize(size);
                 }}
                 style={{ marginTop: "20px", textAlign: "center" }}
