@@ -81,14 +81,14 @@ export const getCountOfProductRent = async (productId, pageIndex, pageSize) => {
   }
 };
 
-export const getOrderOfMember = async (memberId, pageIndex, pageSize) => {
+export const getOrderOfAccount = async (AccountID, pageIndex, pageSize) => {
   try {
     const res = await api.get(
-      `/order/get-order-of-member?MemberId=${memberId}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+      `/order/get-order-of-account?AccountID=${AccountID}&pageIndex=${pageIndex}&pageSize=${pageSize}`
     );
     return res.data;
   } catch (err) {
-    console.error("Error fetching orders of member:", err);
+    console.error("Error fetching orders of account:", err);
     return null;
   }
 };
@@ -149,5 +149,47 @@ export const createOrderRent = async (orderData) => {
   } catch (err) {
     console.error("Error creating rental order:", err);
     return null;
+  }
+};
+export const updateOrderStatusShipped = async (orderId) => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/update-order-status-Shipped/${orderId}`,
+      {
+        headers: {
+          accept: "text/plain",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating order status to Shipped:", error);
+    return (
+      error.response?.data || {
+        isSuccess: false,
+        messages: ["Error updating order status"],
+      }
+    );
+  }
+};
+export const updateOrderStatusApproved = async (orderId) => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/update-order-status-Approved/${orderId}`,
+      {
+        headers: {
+          accept: "text/plain",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating order status to Approved:", error);
+    return (
+      error.response?.data || {
+        isSuccess: false,
+        messages: ["Error updating order status"],
+      }
+    );
   }
 };

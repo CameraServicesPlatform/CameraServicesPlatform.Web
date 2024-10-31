@@ -84,13 +84,23 @@ export const createProductRent = async (data) => {
     throw error;
   }
 };
-export const getProductById = async (id) => {
+export const getProductById = async (id, pageIndex = 1, pageSize = 10) => {
   try {
-    const response = await api.get(`/products/${id}`);
-    if (response.data) {
-      return response.data;
+    const response = await api.get(`/product/get-product-by-id`, {
+      params: {
+        id: id,
+        pageIndex: pageIndex,
+        pageSize: pageSize,
+      },
+      headers: {
+        Accept: "text/plain",
+      },
+    });
+
+    if (response.data?.isSuccess) {
+      return response.data.result;
     } else {
-      throw new Error("Product not found");
+      throw new Error("Product not found or unsuccessful request");
     }
   } catch (error) {
     const errorMessage = handleApiError(error);

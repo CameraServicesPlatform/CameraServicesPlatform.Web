@@ -24,7 +24,7 @@ const ProductDetailPage = () => {
       setLoading(true);
       try {
         const data = await getProductById(id);
-        //console.log("Product data:", data);
+        console.log("Product data:", data);
 
         if (data) {
           setProduct(data);
@@ -35,6 +35,7 @@ const ProductDetailPage = () => {
           if (
             supplierData &&
             supplierData.result &&
+            Array.isArray(supplierData.result.items) &&
             supplierData.result.items.length > 0
           ) {
             const supplier = supplierData.result.items[0];
@@ -45,6 +46,7 @@ const ProductDetailPage = () => {
           if (
             categoryData &&
             categoryData.result &&
+            Array.isArray(categoryData.result.items) &&
             categoryData.result.items.length > 0
           ) {
             const category = categoryData.result.items[0];
@@ -53,6 +55,8 @@ const ProductDetailPage = () => {
           }
         }
       } catch (error) {
+        console.error("Failed to load product:", error);
+        message.error("Failed to load product. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -154,7 +158,7 @@ const ProductDetailPage = () => {
                         : "text-orange-600"
                     }
                   >
-                    {getProductStatusEnum[product.status] || "Unknown Status"}
+                    {getProductStatusEnum(product.status) || "Unknown Status"}
                     {/* Fallback for undefined statuses */}
                   </span>
                 </p>
@@ -207,11 +211,13 @@ const ProductDetailPage = () => {
         onCancel={handleCancel}
         width={800}
       >
-        <img
-          src={selectedImage}
-          alt={product.productName}
-          className="w-full h-auto"
-        />
+        {product && (
+          <img
+            src={selectedImage}
+            alt={product.productName}
+            className="w-full h-auto"
+          />
+        )}
       </Modal>
     </div>
   );
