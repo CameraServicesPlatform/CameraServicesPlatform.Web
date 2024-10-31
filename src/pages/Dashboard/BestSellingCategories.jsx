@@ -18,7 +18,9 @@ const BestSellingCategories = ({ startDate, endDate }) => {
       }
     };
 
-    fetchCategories();
+    if (startDate && endDate) {
+      fetchCategories();
+    }
   }, [startDate, endDate]);
 
   const chartData = {

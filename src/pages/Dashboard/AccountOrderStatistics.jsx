@@ -16,13 +16,15 @@ const AccountOrderStatistics = ({ accountId, startDate, endDate }) => {
         );
         setStatistics(data);
       } catch (error) {
-        console.error(error);
+        console.error("Failed to fetch order statistics:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStatistics();
+    if (accountId && startDate && endDate) {
+      fetchStatistics();
+    }
   }, [accountId, startDate, endDate]);
 
   const columns = [
@@ -43,10 +45,14 @@ const AccountOrderStatistics = ({ accountId, startDate, endDate }) => {
     },
   ];
 
-  return loading ? (
-    <div>Loading...</div>
-  ) : (
-    <Table dataSource={statistics} columns={columns} />
+  return (
+    <>
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <Table dataSource={statistics} columns={columns} rowKey="orderId" />
+      )}
+    </>
   );
 };
 

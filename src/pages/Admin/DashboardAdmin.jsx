@@ -1,4 +1,4 @@
-import { DatePicker, message, Spin, Table } from "antd"; // Import DatePicker
+import { Col, DatePicker, message, Row, Spin, Table } from "antd"; // Import Row and Col for layout
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getVouchersBySupplierId } from "../../api/voucherApi"; // Adjust the import path as needed
@@ -102,9 +102,13 @@ const DashboardAdmin = () => {
         style={{ marginBottom: 16 }} // Add some margin for spacing
       />
 
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Left Column for Statistics */}
-        <div style={{ flex: 1, marginRight: "16px" }}>
+      {/* Dashboard Sections */}
+      <Row gutter={16}>
+        {" "}
+        {/* Use Row with gutter for spacing */}
+        <Col span={12}>
+          {" "}
+          {/* Left column - Adjust span as necessary */}
           <BestSellingCategories
             startDate={dateRange[0]?.format("YYYY-MM-DD")}
             endDate={dateRange[1]?.format("YYYY-MM-DD")}
@@ -115,6 +119,10 @@ const DashboardAdmin = () => {
             endDate={dateRange[1]?.format("YYYY-MM-DD")}
           />
           <SupplierProductStatistics supplierId={supplierID} />
+        </Col>
+        <Col span={12}>
+          {" "}
+          {/* Right column - Adjust span as necessary */}
           <MonthlyOrderCostStatistics
             supplierId={supplierID}
             startDate={dateRange[0]?.format("YYYY-MM-DD")}
@@ -136,29 +144,27 @@ const DashboardAdmin = () => {
             startDate={dateRange[0]?.format("YYYY-MM-DD")}
             endDate={dateRange[1]?.format("YYYY-MM-DD")}
           />
-        </div>
+        </Col>
+      </Row>
 
-        {/* Right Column for Vouchers Table */}
-        <div style={{ flex: 1 }}>
-          <h2>Vouchers</h2>
-          {loadingVouchers ? ( // Show loading spinner while fetching
-            <Spin tip="Loading vouchers..." />
-          ) : (
-            <Table
-              dataSource={vouchers}
-              columns={columns}
-              rowKey="id"
-              pagination={{
-                current: currentPage,
-                pageSize: pageSize,
-                total: totalVouchers,
-                showSizeChanger: true,
-              }}
-              onChange={handleTableChange}
-            />
-          )}
-        </div>
-      </div>
+      {/* Render vouchers in a Table component */}
+      <h2>Vouchers</h2>
+      {loadingVouchers ? ( // Show loading spinner while fetching
+        <Spin tip="Loading vouchers..." />
+      ) : (
+        <Table
+          dataSource={vouchers}
+          columns={columns}
+          rowKey="id"
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: totalVouchers,
+            showSizeChanger: true,
+          }}
+          onChange={handleTableChange}
+        />
+      )}
     </div>
   );
 };

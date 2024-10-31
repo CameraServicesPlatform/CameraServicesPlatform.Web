@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Line } from "react-chartjs-2";
+import { Line } from "react-chartjs-2"; // Ensure you have installed chart.js and react-chartjs-2
 import { getMonthOrderCostStatistics } from "../../api/dashboardApi";
 
 const MonthlyOrderCostStatistics = ({ supplierId, startDate, endDate }) => {
@@ -16,28 +16,33 @@ const MonthlyOrderCostStatistics = ({ supplierId, startDate, endDate }) => {
         );
         setMonthlyCosts(data);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching monthly costs:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMonthlyCosts();
+    // Fetch data only if supplierId, startDate, and endDate are provided
+    if (supplierId && startDate && endDate) {
+      fetchMonthlyCosts();
+    }
   }, [supplierId, startDate, endDate]);
 
+  // Prepare data for the line chart
   const chartData = {
-    labels: monthlyCosts.map((month) => month.month),
+    labels: monthlyCosts.map((month) => month.month), // Extract month names for labels
     datasets: [
       {
         label: "Order Cost",
-        data: monthlyCosts.map((month) => month.cost),
+        data: monthlyCosts.map((month) => month.cost), // Extract cost data
         fill: false,
-        borderColor: "rgba(255, 99, 132, 1)",
-        tension: 0.1,
+        borderColor: "rgba(255, 99, 132, 1)", // Color of the line
+        tension: 0.1, // Curve of the line
       },
     ],
   };
 
+  // Render loading state or chart
   return loading ? <div>Loading...</div> : <Line data={chartData} />;
 };
 
