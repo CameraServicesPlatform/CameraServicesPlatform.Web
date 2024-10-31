@@ -1,12 +1,12 @@
-import { Button, message, Table } from "antd";
+import { Button, message, Modal, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import {
   deleteProductVoucher,
   getAllProductVouchers,
 } from "../../../api/ProductVoucherApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
-import { CreateProductVoucherForm } from "./CreateProductVourcherForm";
-import { EditCreateProductForm } from "./EditCreateProductForm";
+import CreateProductVoucherForm from "./CreateProductVourcherForm";
+import EditCreateProductForm from "./EditCreateProductForm";
 
 const ProductVoucher = () => {
   const [vouchers, setVouchers] = useState([]);
@@ -17,13 +17,18 @@ const ProductVoucher = () => {
 
   const fetchProductVouchers = async () => {
     setLoading(true);
-    const result = await getAllProductVouchers();
-    if (result && result.isSuccess) {
-      setVouchers(result.result || []);
-    } else {
-      message.error("Failed to fetch product vouchers.");
+    try {
+      const result = await getAllProductVouchers();
+      if (result && result.isSuccess) {
+        setVouchers(result.result || []);
+      } else {
+        message.error("Failed to fetch product vouchers.");
+      }
+    } catch (error) {
+      message.error("An error occurred while fetching product vouchers.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -35,12 +40,16 @@ const ProductVoucher = () => {
       "Are you sure you want to delete this product voucher?"
     );
     if (confirm) {
-      const result = await deleteProductVoucher(voucherId);
-      if (result) {
-        message.success("Product voucher deleted successfully!");
-        fetchProductVouchers();
-      } else {
-        message.error("Failed to delete product voucher.");
+      try {
+        const result = await deleteProductVoucher(voucherId);
+        if (result) {
+          message.success("Product voucher deleted successfully!");
+          fetchProductVouchers();
+        } else {
+          message.error("Failed to delete product voucher.");
+        }
+      } catch (error) {
+        message.error("An error occurred while deleting the product voucher.");
       }
     }
   };
@@ -53,7 +62,12 @@ const ProductVoucher = () => {
   const handleCloseEditForm = () => {
     setIsEditing(false);
     setCurrentVoucher(null);
-    fetchProductVouchers();
+    fetchProductVouchers(); // Refresh the list after closing the form
+  };
+
+  const handleCreate = (newVoucher) => {
+    setVouchers((prevVouchers) => [...prevVouchers, newVoucher]);
+    setIsCreating(false);
   };
 
   const columns = [
@@ -64,7 +78,7 @@ const ProductVoucher = () => {
     },
     {
       title: "Voucher ID",
-      dataIndex: "voucherID",
+      dataIndex: "vourcherID",
       key: "voucherID",
     },
     {
@@ -75,10 +89,7 @@ const ProductVoucher = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (
-        _,
-        record // Use '_' for unused parameter
-      ) => (
+      render: (_, record) => (
         <div>
           <Button onClick={() => handleEdit(record)} style={{ marginRight: 8 }}>
             Edit
@@ -102,7 +113,7 @@ const ProductVoucher = () => {
         onClick={() => {
           setIsCreating(true);
           setIsEditing(false);
-        }} // Set to create mode
+        }}
         style={{ marginBottom: 16 }}
       >
         Create New Product Voucher
@@ -116,18 +127,29 @@ const ProductVoucher = () => {
           rowKey="productVoucherID"
         />
       )}
-      {isCreating && (
+      <Modal
+        title="Create Product Voucher"
+        visible={isCreating}
+        onCancel={() => setIsCreating(false)}
+        footer={null}
+      >
         <CreateProductVoucherForm
           onClose={() => setIsCreating(false)}
           fetchVouchers={fetchProductVouchers}
+          onCreate={handleCreate} // Pass the callback function
         />
-      )}
-      {isEditing && (
+      </Modal>
+      <Modal
+        title="Edit Product Voucher"
+        visible={isEditing}
+        onCancel={handleCloseEditForm}
+        footer={null}
+      >
         <EditCreateProductForm
           voucher={currentVoucher}
           onClose={handleCloseEditForm}
         />
-      )}
+      </Modal>
     </div>
   );
 };

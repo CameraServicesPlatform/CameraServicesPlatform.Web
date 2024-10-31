@@ -1,6 +1,6 @@
 import { Button, Form, Input, message } from "antd";
 import React, { useState } from "react";
-import { createProductVoucher } from "../../../api/productApi";
+import { createProductVoucher } from "../../../api/ProductVoucherApi";
 
 const CreateProductVoucherForm = ({ onClose, fetchVouchers }) => {
   const [productID, setProductID] = useState("");
@@ -10,19 +10,23 @@ const CreateProductVoucherForm = ({ onClose, fetchVouchers }) => {
   const handleSubmit = async (values) => {
     setLoading(true);
 
-    const result = await createProductVoucher(
-      values.productID,
-      values.voucherID
-    );
+    try {
+      const result = await createProductVoucher(
+        values.productID,
+        values.voucherID
+      );
 
-    setLoading(false);
-
-    if (result) {
-      message.success("Product voucher created successfully!");
-      fetchVouchers(); // Refresh the vouchers after creation
-      onClose(); // Close the form
-    } else {
-      message.error("Failed to create product voucher.");
+      if (result) {
+        message.success("Product voucher created successfully!");
+        fetchVouchers(); // Refresh the vouchers after creation
+        onClose(); // Close the form
+      } else {
+        message.error("Failed to create product voucher.");
+      }
+    } catch (error) {
+      message.error("An error occurred while creating the product voucher.");
+    } finally {
+      setLoading(false);
     }
   };
 

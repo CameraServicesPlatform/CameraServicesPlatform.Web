@@ -1,6 +1,6 @@
 import { Button, Form, Input, message } from "antd";
 import React, { useEffect, useState } from "react";
-import { updateProductVoucher } from "../../../api/productApi";
+import { updateProductVoucher } from "../../../api/ProductVoucherApi";
 
 const EditCreateProductForm = ({ voucher, onClose }) => {
   const [productVoucherID, setProductVoucherID] = useState("");
@@ -19,19 +19,23 @@ const EditCreateProductForm = ({ voucher, onClose }) => {
   const handleSubmit = async (values) => {
     setLoading(true);
 
-    const result = await updateProductVoucher(
-      values.productVoucherID,
-      values.productID,
-      values.voucherID
-    );
+    try {
+      const result = await updateProductVoucher(
+        values.productVoucherID,
+        values.productID,
+        values.voucherID
+      );
 
-    setLoading(false);
-
-    if (result) {
-      message.success("Product voucher updated successfully!");
-      onClose(); // Close the form after successful update
-    } else {
-      message.error("Failed to update product voucher.");
+      if (result) {
+        message.success("Product voucher updated successfully!");
+        onClose(); // Close the form after successful update
+      } else {
+        message.error("Failed to update product voucher.");
+      }
+    } catch (error) {
+      message.error("An error occurred while updating the product voucher.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,7 +44,7 @@ const EditCreateProductForm = ({ voucher, onClose }) => {
       <Form.Item label="Product Voucher ID" required>
         <Input
           value={productVoucherID}
-          disabled // Typically, ID fields are not editable
+          disabled // ID fields are typically not editable
         />
       </Form.Item>
       <Form.Item label="Product ID" required>

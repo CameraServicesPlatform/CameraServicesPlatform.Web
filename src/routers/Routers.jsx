@@ -21,6 +21,7 @@ import ProductPage from "../pages/Common/Product/ProductPage";
 import ProductPageBuy from "../pages/Common/Product/ProductPageBuy";
 import ProductPageRent from "../pages/Common/Product/ProductPageRent";
 
+import DashboardAdmin from "../pages/Admin/DashboardAdmin";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import OrderDetail from "../pages/CommonManager/OrderDetail";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
@@ -78,7 +79,7 @@ function Routers() {
         { index: true, element: <Navigate to="dashboard" replace /> },
         {
           path: "dashboard",
-          element: <div>Dashboard</div>,
+          element: <DashboardAdmin />,
         },
         {
           path: "manage-user",
