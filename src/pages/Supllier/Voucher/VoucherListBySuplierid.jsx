@@ -25,7 +25,6 @@ import {
   getVouchersBySupplierId,
   updateVoucher,
 } from "../../../api/voucherApi";
-
 const VoucherListBySupplierId = () => {
   const user = useSelector((state) => state.user.user || {});
   const [supplierId, setSupplierId] = useState(null);
@@ -39,7 +38,10 @@ const VoucherListBySupplierId = () => {
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
+  const [selectedProductId, setSelectedProductId] = useState(null);
   const fetchSupplierId = async () => {
     if (user.id) {
       try {
@@ -146,6 +148,31 @@ const VoucherListBySupplierId = () => {
   const filteredVouchers = vouchers.filter((voucher) =>
     voucher.vourcherCode.toLowerCase().includes(searchText.toLowerCase())
   );
+  const handleOpenProductVoucher = (record) => {
+    setSelectedRecord(record);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedProductId(null);
+    form.resetFields();
+  };
+  const handleAddVoucher = async (values) => {
+    try {
+      const { productID, voucherID } = values;
+      const response = await createProductVoucher(productID, voucherID);
+      if (response) {
+        message.success("Voucher added successfully!");
+        setVouchers([...vouchers, { productID, voucherID }]);
+      } else {
+        message.error("Failed to add voucher.");
+      }
+    } catch (error) {
+      console.error("Failed to add voucher:", error);
+      message.error("Failed to add voucher.");
+    }
+  };
 
   const columns = [
     {
@@ -264,7 +291,7 @@ const VoucherListBySupplierId = () => {
               </div>
             </>
           ) : (
-            <div>Khongo có dữ liệu!</div>
+            <div>Không có dữ liệu!</div>
           )}
         </>
       )}

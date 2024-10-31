@@ -1,8 +1,8 @@
 import { Tabs, message } from "antd";
 import React, { useState } from "react";
+import ProductVoucher from "../ProductVoucher/ProductVoucher";
 import CreateVoucherFormBySuplier from "../Voucher/CreateVoucherFormBySuplier";
 import VoucherListBySupplierId from "../Voucher/VoucherListBySuplierid";
-
 const ManageVoucherOfSuplier = () => {
   const [refreshList, setRefreshList] = useState(false);
 
@@ -14,15 +14,20 @@ const ManageVoucherOfSuplier = () => {
   const tabItems = [
     {
       key: "1",
-      label: "Danh Sách Voucher", // Translated to "Voucher List"
+      label: "Danh Sách Voucher",
       children: <VoucherListBySupplierId refresh={refreshList} />,
     },
     {
       key: "2",
-      label: "Tạo Voucher", // Translated to "Create Voucher"
+      label: "Tạo Voucher",
       children: (
         <CreateVoucherFormBySuplier onVoucherCreated={handleVoucherCreated} />
       ),
+    },
+    {
+      key: "3",
+      label: "Quản lí sản phẩm áp mã ưu đãi",
+      children: <ProductVoucher />,
     },
   ];
 

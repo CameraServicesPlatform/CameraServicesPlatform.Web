@@ -1,16 +1,19 @@
 import api from "../api/config";
+
+// Fetch all product vouchers with pagination
 export const getAllProductVouchers = async (pageIndex = 1, pageSize = 10) => {
   try {
     const response = await api.get("/productVoucher/get-all-product-voucher", {
       params: { pageIndex, pageSize },
     });
-    return response.data;
+    return response.data; // Access the full response directly
   } catch (error) {
     console.error("Error fetching all product vouchers:", error);
     return null;
   }
 };
 
+// Fetch a product voucher by its ID with pagination
 export const getProductVoucherById = async (
   id,
   pageIndex = 1,
@@ -30,8 +33,9 @@ export const getProductVoucherById = async (
   }
 };
 
+// Fetch product vouchers associated with a specific product ID with pagination
 export const getProductVoucherByProductId = async (
-  ProductId,
+  productId,
   pageIndex = 1,
   pageSize = 10
 ) => {
@@ -39,7 +43,7 @@ export const getProductVoucherByProductId = async (
     const response = await api.get(
       "/productVoucher/get-product-voucher-by-product-id",
       {
-        params: { ProductId, pageIndex, pageSize },
+        params: { productId, pageIndex, pageSize },
       }
     );
     return response.data;
@@ -49,11 +53,12 @@ export const getProductVoucherByProductId = async (
   }
 };
 
-export const createProductVoucher = async (productID, vourcherID) => {
+// Create a new product voucher
+export const createProductVoucher = async (productID, voucherID) => {
   try {
     const response = await api.post("/productVoucher/create-product-voucher", {
       productID,
-      vourcherID,
+      voucherID,
     });
     return response.data;
   } catch (error) {
@@ -62,16 +67,17 @@ export const createProductVoucher = async (productID, vourcherID) => {
   }
 };
 
+// Update an existing product voucher
 export const updateProductVoucher = async (
   productVoucherID,
   productID,
-  vourcherID
+  voucherID
 ) => {
   try {
     const response = await api.put("/productVoucher/update-product-voucher", {
       productVoucherID,
       productID,
-      vourcherID,
+      voucherID,
     });
     return response.data;
   } catch (error) {
@@ -80,6 +86,7 @@ export const updateProductVoucher = async (
   }
 };
 
+// Delete a product voucher by its ID
 export const deleteProductVoucher = async (voucherId) => {
   try {
     const response = await api.delete(
