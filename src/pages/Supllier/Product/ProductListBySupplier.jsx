@@ -232,13 +232,15 @@ const ProductListBySupplier = () => {
       {priceBuy !== null ? `${priceBuy} VND` : "Không có"}
     </span>
   );
+
   const handleView = async (productID) => {
     setLoading(true);
     try {
       const fetchedProduct = await getProductById(productID);
       setSelectedProduct(fetchedProduct);
+      setIsModalVisible(true); // Show the modal after fetching the product
     } catch (error) {
-      // Handle error
+      message.error("Failed to fetch product details.");
     } finally {
       setLoading(false);
     }
@@ -336,7 +338,7 @@ const ProductListBySupplier = () => {
       render: (listImage, record) => (
         <img
           src={
-            listImage.length > 0
+            listImage && listImage.length > 0
               ? listImage[0].image
               : "https://via.placeholder.com/100?text=No+Image"
           }

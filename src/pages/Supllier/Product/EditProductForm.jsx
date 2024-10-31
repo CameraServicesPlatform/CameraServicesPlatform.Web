@@ -19,26 +19,15 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
   useEffect(() => {
     if (visible) {
       fetchCategories();
-      form.setFieldsValue({
-        productName: product?.productName,
-        productDescription: product?.productDescription,
-        priceRent: product?.priceRent,
-        priceBuy: product?.priceBuy,
-        brand: product?.brand,
-        quality: product?.quality,
-        status: product?.status,
-        serialNumber: product?.serialNumber,
-      });
-      setSelectedCategory(product?.categoryID);
     }
-  }, [visible, product]);
+  }, [visible]);
 
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
       const data = await getAllCategories(1, 100); // Adjust pageIndex and pageSize if needed
       if (data && data.result) {
-        setCategories(data.result);
+        setCategories(data.result); // Correctly set categories from the result
       } else {
         message.error("Failed to load categories. Please try again later.");
       }
@@ -50,6 +39,24 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
     }
   };
 
+  // Set form fields with product data when modal is opened
+  useEffect(() => {
+    if (product) {
+      form.setFieldsValue({
+        productName: product.productName,
+        productDescription: product.productDescription,
+        priceRent: product.priceRent,
+        priceBuy: product.priceBuy,
+        brand: product.brand,
+        quality: product.quality,
+        status: product.status,
+        serialNumber: product.serialNumber,
+        CategoryID: product.categoryID,
+      });
+      setSelectedCategory(product.categoryID);
+    }
+  }, [product, form]);
+
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
@@ -57,14 +64,13 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      // Create FormData object
       const formData = new FormData();
       formData.append("ProductID", product.productID);
       formData.append("SerialNumber", values.serialNumber);
       formData.append("CategoryID", selectedCategory);
       formData.append("ProductName", values.productName);
       formData.append("ProductDescription", values.productDescription);
-      formData.append("PriceRent", values.priceRent || 0);
+      formData.append("PriceRent", (values.priceRent = 0));
       formData.append("PriceBuy", values.priceBuy);
       formData.append("Brand", values.brand);
       formData.append("Quality", values.quality);
@@ -74,29 +80,29 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
         formData.append("File", file);
       }
 
-      // Call the updateProduct API
       const result = await updateProduct(formData);
 
       if (result) {
         onUpdateSuccess(result);
         message.success("Product updated successfully!");
         form.resetFields();
-        setFile(null); // Reset file state
         onClose();
       } else {
         message.error("Failed to update product.");
       }
     } catch (error) {
       console.error("Update failed:", error);
-      message.error("Update failed: " + (error.message || "Unknown error"));
+      message.error("Update failed: " + error.message);
     } finally {
       setLoading(false);
     }
   };
 
+  const filterOption = (inputValue, option) =>
+    option.children.toLowerCase().indexOf(inputValue.toLowerCase()) >= 0;
+
   const handleClose = () => {
     form.resetFields();
-    setFile(null); // Reset file state
     onClose();
   };
 
@@ -117,6 +123,13 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
         </Form.Item>
         <Form.Item name="productDescription" label="Description">
           <Input.TextArea />
+        </Form.Item>
+        <Form.Item
+          name="priceRent"
+          label="Price (Rent)"
+          rules={[{ required: true, message: "Please enter the rent price" }]}
+        >
+          <Input type="number" />
         </Form.Item>
         <Form.Item
           name="priceBuy"
@@ -140,8 +153,8 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
             <Option value={6}>Leica</Option>
             <Option value={7}>Pentax</Option>
             <Option value={8}>Hasselblad</Option>
-            <Option value={9}>Sigma</Option>
-            <Option value={10}>Another</Option>
+            <Option value={8}>Sigma</Option>
+            <Option value={9}>Another</Option>
           </Select>
         </Form.Item>
         <Form.Item
@@ -185,12 +198,9 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
           <Select
             showSearch
             placeholder="Select a category"
-            filterOption={(inputValue, option) =>
-              option.children.toLowerCase().indexOf(inputValue.toLowerCase()) >=
-              0
-            }
+            filterOption={filterOption}
             loading={isLoading}
-            onChange={setSelectedCategory}
+            onChange={(value) => setSelectedCategory(value)}
             value={selectedCategory}
           >
             {categories.map((category) => (

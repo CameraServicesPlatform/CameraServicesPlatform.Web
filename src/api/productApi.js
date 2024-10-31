@@ -1,4 +1,5 @@
 import api from "../api/config";
+import { handleApiError } from "./handleApiError"; // Adjust the path as necessary
 
 export const getAllProduct = async (pageIndex, pageSize) => {
   try {
@@ -88,26 +89,22 @@ export const getProductById = async (id, pageIndex = 1, pageSize = 10) => {
   try {
     const response = await api.get(`/product/get-product-by-id`, {
       params: {
-        id: id,
-        pageIndex: pageIndex,
-        pageSize: pageSize,
-      },
-      headers: {
-        Accept: "text/plain",
+        id,
+        pageIndex,
+        pageSize,
       },
     });
 
-    if (response.data?.isSuccess) {
+    if (response.data && response.data.isSuccess) {
       return response.data.result;
     } else {
-      throw new Error("Product not found or unsuccessful request");
+      throw new Error("Product not found");
     }
   } catch (error) {
     const errorMessage = handleApiError(error);
     throw new Error(errorMessage);
   }
 };
-
 export const getProductBySupplierId = async (
   supplierId,
   pageIndex,
@@ -190,45 +187,24 @@ export const getProductByCategoryId = async (filter, pageIndex, pageSize) => {
   }
 };
 
-export const updateProduct = async (product, file) => {
+export const updateProduct = async (formData) => {
   try {
-    const formData = new FormData();
-
-    // Append the product details to the FormData object
-    formData.append("ProductID", product.productID);
-    formData.append("SerialNumber", product.serialNumber);
-    formData.append("CategoryID", product.categoryID);
-    formData.append("ProductName", product.productName);
-    formData.append("ProductDescription", product.productDescription);
-    formData.append("PriceRent", product.priceRent);
-    formData.append("PriceBuy", product.priceBuy);
-    formData.append("Brand", product.brand);
-    formData.append("Quality", product.quality);
-    formData.append("Status", product.status);
-
-    // Append the file if it exists
-    if (file) {
-      formData.append("File", file);
-    }
-
-    // Make the PUT request to update the product
-    const response = await api.get("/product/update-product", formData, {
+    const response = await api.put(`product/update-product`, formData, {
       headers: {
         accept: "text/plain",
-        "Content-Type": "multipart/form-data", // Note: This is usually set automatically
+        "Content-Type": "multipart/form-data",
       },
     });
 
-    // Check the response status and return the result if successful
     if (response.status === 200 && response.data.isSuccess) {
-      return response.data.result; // Assuming the result is in this field
-    } else {
-      console.error("Failed to update product:", response.data.messages);
-      return null;
+      return response.data.result;
     }
+
+    console.error("Failed to update product:", response.data.messages);
+    return null;
   } catch (error) {
     console.error("Error updating product:", error);
-    return null; // Return null or handle the error as needed
+    throw error;
   }
 };
 export const deleteProduct = async (productId) => {

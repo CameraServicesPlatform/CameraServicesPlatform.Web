@@ -1,36 +1,35 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button, Spin, message } from "antd";
+import { Spin, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getProductById } from "../../../api/productApi"; // Adjust path as necessary
 
-const DetailProduct = () => {
+const DetailProduct = ({ product, loading, onClose }) => {
   const { id } = useParams(); // Assume `id` is passed via URL parameters
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [productDetails, setProductDetails] = useState(product);
+  const [isLoading, setIsLoading] = useState(loading);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         const fetchedProduct = await getProductById(id);
-        setProduct(fetchedProduct);
+        setProductDetails(fetchedProduct);
       } catch (err) {
         console.error("Failed to fetch product:", err);
         setError("Failed to load product details. Please try again later.");
-        message.error("Failed to load product details.");
+        message.error(err.message);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
-    fetchProduct();
-  }, [id]);
 
-  // Debugging: log the product
-  console.log("Product:", product);
+    if (!product) {
+      fetchProduct();
+    }
+  }, [id, product]);
 
-  if (loading) {
+  if (isLoading) {
     return <Spin size="large" />;
   }
 
@@ -38,7 +37,7 @@ const DetailProduct = () => {
     return <div>{error}</div>;
   }
 
-  if (!product) {
+  if (!productDetails) {
     return <div>Đang tải thông tin sản phẩm...</div>; // Temporary loading message
   }
 
@@ -62,7 +61,7 @@ const DetailProduct = () => {
     createdAt,
     updatedAt,
     listImage,
-  } = product;
+  } = productDetails;
 
   const renderImages = () => {
     if (listImage && listImage.length > 0) {
@@ -155,19 +154,6 @@ const DetailProduct = () => {
       <div>
         <strong>Hình Ảnh:</strong>
         {renderImages()}
-      </div>
-      <div className="product-detail-actions">
-        <Button type="primary" icon={<EditOutlined />} onClick={handleEdit}>
-          Chỉnh Sửa
-        </Button>
-        <Button
-          type="danger"
-          icon={<DeleteOutlined />}
-          style={{ marginLeft: "8px" }}
-          onClick={handleDelete}
-        >
-          Xóa
-        </Button>
       </div>
     </div>
   );
