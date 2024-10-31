@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { updateOrderStatusApproved } from "../../api/orderApi";
+import { purchaseOrder } from "../../api/orderApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import paymentFailed from "../../images/payment-failed.gif";
 import paymentSuccess from "../../images/payment-success.gif";
@@ -29,7 +29,7 @@ const VerifyPayment = () => {
           searchParams.get("vnp_OrderInfo")
         );
         if (vnpResponseCode === "00") {
-          const data = await updateOrderStatusApproved(vnp_TxnRef);
+          const data = await purchaseOrder(vnp_TxnRef);
           if (data.isSuccess) {
             setModalMessage(`Thanh toán thành công cho ${vnpOrderInfo}`);
             setIsSuccess(true);
@@ -44,8 +44,11 @@ const VerifyPayment = () => {
       } else if (partnerCode === "MOMO") {
         const orderInfo = decodeURIComponent(searchParams.get("orderInfo"));
         if (resultCode === "0") {
-          setModalMessage(`Thanh toán thành công cho ${orderInfo}`);
-          setIsSuccess(true);
+          const data = await purchaseOrder(orderInfo);
+          if (data.isSuccess) {
+            setModalMessage(`Thanh toán thành công cho ${orderInfo}`);
+            setIsSuccess(true);
+          }
         } else {
           setModalMessage(
             `Thanh toán Momo thất bại cho đơn hàng: ${orderInfo}. Vui lòng thanh toán lại`

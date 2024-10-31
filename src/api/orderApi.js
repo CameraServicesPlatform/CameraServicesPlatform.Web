@@ -193,3 +193,10 @@ export const updateOrderStatusApproved = async (orderId) => {
     );
   }
 };
+
+export const purchaseOrder = async (orderId) => {
+  try {
+    const response = await api.post(`/order/purchase-order/${orderId}`);
+    return response.data;
+  } catch (error) {}
+};
