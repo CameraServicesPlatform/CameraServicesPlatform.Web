@@ -1,10 +1,13 @@
+import { message } from "antd";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { createOrderWithPayment } from "../../api/orderApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import {
   decreaseQuantity,
   increaseQuantity,
   removeFromCart,
+  resetCart,
 } from "../../redux/features/cartSlice";
 import { formatDateTime, formatPrice, isEmptyObject } from "../../utils/util";
 
@@ -18,8 +21,37 @@ const Cart = () => {
     0
   );
 
-  console.log(cartItems);
-  console.log(user);
+  const checkOut = async () => {
+    setIsLoading(true);
+    const data = {
+      seatRank: cartItems.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+      })),
+      accountId: user?.id,
+      content: "Đặt vé ",
+    };
+    console.log(data);
+
+    try {
+      const response = await createOrderWithPayment(data);
+      setIsLoading(false);
+
+      if (response.isSuccess) {
+        message.success("Đặt vé thành công");
+        dispatch(resetCart());
+        window.location.href = response.result; // Redirect to the payment URL
+      } else {
+        response.messages.forEach((mess) => {
+          message.error(mess);
+        });
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error during checkout:", error);
+      message.error("Failed to process payment. Please try again.");
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -2,7 +2,7 @@ import { Button, Card, Form, Input, message, Select, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createOrderBuy } from "../../../../api/orderApi";
+import { createOrderWithPayment } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
 import { getVouchersBySupplierId } from "../../../../api/voucherApi";
 
@@ -22,6 +22,7 @@ const CreateOrderBuy = () => {
   const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
   console.log(accountId);
+
   // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
@@ -144,9 +145,16 @@ const CreateOrderBuy = () => {
     );
 
     try {
-      const response = await createOrderBuy(orderData);
-      message.success("Order created successfully!");
-      navigate("/order-detail");
+      const response = await createOrderWithPayment(orderData);
+      if (response.isSuccess && response.result) {
+        message.success(
+          "Order created successfully. Redirecting to payment..."
+        );
+        // Redirect to the payment URL
+        window.location.href = response.result;
+      } else {
+        message.error("Failed to initiate payment.");
+      }
     } catch (error) {
       message.error(
         "Failed to create order. " + (error.response?.data?.title || "")

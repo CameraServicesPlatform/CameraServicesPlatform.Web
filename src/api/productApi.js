@@ -194,6 +194,7 @@ export const updateProduct = async (product, file) => {
   try {
     const formData = new FormData();
 
+    // Append the product details to the FormData object
     formData.append("ProductID", product.productID);
     formData.append("SerialNumber", product.serialNumber);
     formData.append("CategoryID", product.categoryID);
@@ -205,26 +206,29 @@ export const updateProduct = async (product, file) => {
     formData.append("Quality", product.quality);
     formData.append("Status", product.status);
 
+    // Append the file if it exists
     if (file) {
       formData.append("File", file);
     }
 
-    const response = await api.put("/product/update-product", formData, {
+    // Make the PUT request to update the product
+    const response = await api.get("/product/update-product", formData, {
       headers: {
         accept: "text/plain",
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "multipart/form-data", // Note: This is usually set automatically
       },
     });
 
+    // Check the response status and return the result if successful
     if (response.status === 200 && response.data.isSuccess) {
-      return response.data.result;
+      return response.data.result; // Assuming the result is in this field
+    } else {
+      console.error("Failed to update product:", response.data.messages);
+      return null;
     }
-
-    console.error("Failed to update product:", response.data.messages);
-    return null;
   } catch (error) {
     console.error("Error updating product:", error);
-    return null;
+    return null; // Return null or handle the error as needed
   }
 };
 export const deleteProduct = async (productId) => {

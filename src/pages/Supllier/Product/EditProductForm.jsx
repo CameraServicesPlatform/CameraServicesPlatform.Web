@@ -19,15 +19,26 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
   useEffect(() => {
     if (visible) {
       fetchCategories();
+      form.setFieldsValue({
+        productName: product?.productName,
+        productDescription: product?.productDescription,
+        priceRent: product?.priceRent,
+        priceBuy: product?.priceBuy,
+        brand: product?.brand,
+        quality: product?.quality,
+        status: product?.status,
+        serialNumber: product?.serialNumber,
+      });
+      setSelectedCategory(product?.categoryID);
     }
-  }, [visible]);
+  }, [visible, product]);
 
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
       const data = await getAllCategories(1, 100); // Adjust pageIndex and pageSize if needed
       if (data && data.result) {
-        setCategories(data.result); // Correctly set categories from the result
+        setCategories(data.result);
       } else {
         message.error("Failed to load categories. Please try again later.");
       }
@@ -39,24 +50,6 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
     }
   };
 
-  // Set form fields with product data when modal is opened
-  useEffect(() => {
-    if (product) {
-      form.setFieldsValue({
-        productName: product.productName,
-        productDescription: product.productDescription,
-        priceRent: product.priceRent,
-        priceBuy: product.priceBuy,
-        brand: product.brand,
-        quality: product.quality,
-        status: product.status,
-        serialNumber: product.serialNumber,
-        CategoryID: product.categoryID,
-      });
-      setSelectedCategory(product.categoryID);
-    }
-  }, [product, form]);
-
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
@@ -64,13 +57,14 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
+      // Create FormData object
       const formData = new FormData();
       formData.append("ProductID", product.productID);
       formData.append("SerialNumber", values.serialNumber);
       formData.append("CategoryID", selectedCategory);
       formData.append("ProductName", values.productName);
       formData.append("ProductDescription", values.productDescription);
-      formData.append("PriceRent", values.priceRent);
+      formData.append("PriceRent", values.priceRent || 0);
       formData.append("PriceBuy", values.priceBuy);
       formData.append("Brand", values.brand);
       formData.append("Quality", values.quality);
@@ -80,29 +74,29 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
         formData.append("File", file);
       }
 
+      // Call the updateProduct API
       const result = await updateProduct(formData);
 
       if (result) {
         onUpdateSuccess(result);
         message.success("Product updated successfully!");
         form.resetFields();
+        setFile(null); // Reset file state
         onClose();
       } else {
         message.error("Failed to update product.");
       }
     } catch (error) {
       console.error("Update failed:", error);
-      message.error("Update failed: " + error.message);
+      message.error("Update failed: " + (error.message || "Unknown error"));
     } finally {
       setLoading(false);
     }
   };
 
-  const filterOption = (inputValue, option) =>
-    option.children.toLowerCase().indexOf(inputValue.toLowerCase()) >= 0;
-
   const handleClose = () => {
     form.resetFields();
+    setFile(null); // Reset file state
     onClose();
   };
 
@@ -125,13 +119,6 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
           <Input.TextArea />
         </Form.Item>
         <Form.Item
-          name="priceRent"
-          label="Price (Rent)"
-          rules={[{ required: true, message: "Please enter the rent price" }]}
-        >
-          <Input type="number" />
-        </Form.Item>
-        <Form.Item
           name="priceBuy"
           label="Price (Buy)"
           rules={[{ required: true, message: "Please enter the buy price" }]}
@@ -144,17 +131,17 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
           rules={[{ required: true, message: "Please select a brand" }]}
         >
           <Select placeholder="Select a brand">
-            <Option value="Canon">Canon</Option>
-            <Option value="Nikon">Nikon</Option>
-            <Option value="Sony">Sony</Option>
-            <Option value="Fujifilm">Fujifilm</Option>
-            <Option value="Olympus">Olympus</Option>
-            <Option value="Panasonic">Panasonic</Option>
-            <Option value="Leica">Leica</Option>
-            <Option value="Pentax">Pentax</Option>
-            <Option value="Hasselblad">Hasselblad</Option>
-            <Option value="Sigma">Sigma</Option>
-            <Option value="Another">Another</Option>
+            <Option value={0}>Canon</Option>
+            <Option value={1}>Nikon</Option>
+            <Option value={2}>Sony</Option>
+            <Option value={3}>Fujifilm</Option>
+            <Option value={4}>Olympus</Option>
+            <Option value={5}>Panasonic</Option>
+            <Option value={6}>Leica</Option>
+            <Option value={7}>Pentax</Option>
+            <Option value={8}>Hasselblad</Option>
+            <Option value={9}>Sigma</Option>
+            <Option value={10}>Another</Option>
           </Select>
         </Form.Item>
         <Form.Item
@@ -198,9 +185,12 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
           <Select
             showSearch
             placeholder="Select a category"
-            filterOption={filterOption}
+            filterOption={(inputValue, option) =>
+              option.children.toLowerCase().indexOf(inputValue.toLowerCase()) >=
+              0
+            }
             loading={isLoading}
-            onChange={(value) => setSelectedCategory(value)}
+            onChange={setSelectedCategory}
             value={selectedCategory}
           >
             {categories.map((category) => (
