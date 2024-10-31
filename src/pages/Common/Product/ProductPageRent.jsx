@@ -35,6 +35,13 @@ const ProductPageRent = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
+
   const loadProducts = async () => {
     setLoading(true);
     try {
@@ -63,7 +70,6 @@ const ProductPageRent = () => {
     try {
       const data = await getProductById(id);
       if (data) {
-        setProducts([data]);
         setProducts([data]);
         const supplierData = await getSupplierById(data.supplierID);
         const categoryData = await getCategoryById(data.categoryID);
@@ -116,6 +122,7 @@ const ProductPageRent = () => {
     setCategory("");
     loadProducts(); // Reload products when clearing search
   };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 0: // AvailableSell
@@ -132,6 +139,7 @@ const ProductPageRent = () => {
         return "text-black"; // Default color
     }
   };
+
   const availableProducts = products.filter((product) => product.status === 1);
 
   return (
@@ -204,16 +212,34 @@ const ProductPageRent = () => {
                   <p className="text-gray-700 text-left">
                     {product.productDescription}
                   </p>
-                  {product.priceRent != null && (
+                  {product.pricePerHour != null && (
                     <p className="font-bold text-left text-green-500">
                       <DollarOutlined className="inline mr-1" />
-                      Giá thuê: VND/giờ {product.priceRent.toFixed(2)}
+                      Giá thuê: {formatPrice(product.pricePerHour)}/giờ
+                    </p>
+                  )}
+                  {product.pricePerDay != null && (
+                    <p className="font-bold text-left text-green-500">
+                      <DollarOutlined className="inline mr-1" />
+                      Giá thuê: {formatPrice(product.pricePerDay)}/ngày
+                    </p>
+                  )}
+                  {product.pricePerWeek != null && (
+                    <p className="font-bold text-left text-green-500">
+                      <DollarOutlined className="inline mr-1" />
+                      Giá thuê: {formatPrice(product.pricePerWeek)}/tuần
+                    </p>
+                  )}
+                  {product.pricePerMonth != null && (
+                    <p className="font-bold text-left text-green-500">
+                      <DollarOutlined className="inline mr-1" />
+                      Giá thuê: {formatPrice(product.pricePerMonth)}/tháng
                     </p>
                   )}
                   {product.priceBuy != null && (
                     <p className="font-bold text-left text-green-500">
                       <DollarOutlined className="inline mr-1" />
-                      Giá mua: VND {product.priceBuy.toFixed(2)}
+                      Giá mua: {formatPrice(product.priceBuy)}
                     </p>
                   )}
                   <p className="font-semibold text-left">

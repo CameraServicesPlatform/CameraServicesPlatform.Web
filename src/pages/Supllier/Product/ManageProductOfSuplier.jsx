@@ -2,7 +2,7 @@ import { Tabs } from "antd";
 import React, { useState } from "react";
 import CreateProductBuy from "./CreateProductBuy";
 import CreateProductForRent from "./CreateProductForRent";
-import ProductListBySupplier from "./productListBySupplier";
+import ProductListBySupplier from "./ProductListBySupplier";
 const ManageProductOfSupplier = () => {
   const [refreshList, setRefreshList] = useState(false);
 

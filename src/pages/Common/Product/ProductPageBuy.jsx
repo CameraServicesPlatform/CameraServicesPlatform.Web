@@ -132,6 +132,12 @@ const ProductPageBuy = () => {
         return "text-black"; // Default color
     }
   };
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
   const availableProducts = products.filter((product) => product.status === 0);
 
   return (
@@ -204,16 +210,11 @@ const ProductPageBuy = () => {
                   <p className="text-gray-700 text-left">
                     {product.productDescription}
                   </p>
-                  {/* {product.priceRent != null && (
-                    <p className="font-bold text-left text-green-500">
-                      <DollarOutlined className="inline mr-1" />
-                      Giá thuê: VND/giờ {product.priceRent.toFixed(2)}
-                    </p>
-                  )} */}
+
                   {product.priceBuy != null && (
                     <p className="font-bold text-left text-green-500">
                       <DollarOutlined className="inline mr-1" />
-                      Giá mua: VND {product.priceBuy.toFixed(2)}
+                      Giá mua: {formatPrice(product.priceBuy)}
                     </p>
                   )}
                   <p className="font-semibold text-left">

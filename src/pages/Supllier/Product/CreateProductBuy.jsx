@@ -84,7 +84,7 @@ const CreateProductBuy = () => {
       CategoryID,
       ProductName,
       ProductDescription,
-      PriceRent,
+      PriceRent = 0,
       PriceBuy,
       Brand,
       Status = 0, // Trạng thái mặc định nếu không cung cấp
@@ -187,10 +187,6 @@ const CreateProductBuy = () => {
         rules={[{ required: true, message: "Vui lòng nhập mô tả sản phẩm!" }]}
       >
         <Input.TextArea />
-      </Form.Item>
-
-      <Form.Item name="PriceRent" label="Giá (Cho thuê)">
-        <Input type="number" />
       </Form.Item>
 
       <Form.Item name="PriceBuy" label="Giá (Mua)">
