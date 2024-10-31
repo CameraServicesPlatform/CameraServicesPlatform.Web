@@ -78,7 +78,13 @@ const ProductDetailPage = () => {
     return <Spin size="large" className="flex justify-center mt-10" />;
   }
   const handleCreateOrderRent = (product) => {
-    message.success(`Order for renting ${product.productName} created!`);
+    navigate("/create-order-rent", {
+      state: {
+        productID: product.productID,
+        supplierID: product.supplierID,
+        product,
+      },
+    });
   };
 
   const handleCreateOrderBuy = (product) => {
@@ -179,22 +185,22 @@ const ProductDetailPage = () => {
                 </p>
               </div>
               <div className="flex justify-between mt-4">
-                {product.priceRent != null && (
-                  <Button
-                    type="primary"
-                    onClick={() => handleCreateOrderRent(product)}
-                    className="bg-mainColor hover:bg-opacity-80 transition duration-200"
-                  >
-                    Create Order for Rent
-                  </Button>
-                )}
-                {product.priceBuy != null && (
+                {product.status === 0 && (
                   <Button
                     type="default"
                     onClick={() => handleCreateOrderBuy(product)}
                     className="bg-primary text-white hover:bg-opacity-80 transition duration-200"
                   >
                     Create Order for Buy
+                  </Button>
+                )}
+                {product.status === 1 && (
+                  <Button
+                    type="primary"
+                    onClick={() => handleCreateOrderRent(product)}
+                    className="bg-mainColor hover:bg-opacity-80 transition duration-200"
+                  >
+                    Create Order for Rent
                   </Button>
                 )}
               </div>

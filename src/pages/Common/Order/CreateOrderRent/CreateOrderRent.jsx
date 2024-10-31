@@ -1,4 +1,15 @@
-import { Button, Card, Form, Input, message, Select, Spin } from "antd";
+import {
+  Button,
+  Card,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Select,
+  Spin,
+  Table,
+} from "antd";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,6 +25,10 @@ const CreateOrderRent = () => {
   const [vouchers, setVouchers] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [calculatedReturnDate, setCalculatedReturnDate] = useState(null);
+  const [calculatedPrice, setCalculatedPrice] = useState(0);
+  const [durationUnit, setDurationUnit] = useState("hour");
+  const [durationValue, setDurationValue] = useState(2);
   const location = useLocation();
   const navigate = useNavigate();
   const { productID, supplierID } = location.state || {};
@@ -22,6 +37,7 @@ const CreateOrderRent = () => {
   const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
   console.log(accountId);
+
   // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
@@ -65,34 +81,81 @@ const CreateOrderRent = () => {
   }, [supplierID]);
 
   // Handle voucher selection
-  const handleVoucherSelect = (vourcherID) => {
-    console.log("Selected Voucher ID:", vourcherID); // Ghi lại ID voucher được chọn
+  const handleVoucherSelect = (voucherID) => {
+    console.log("Selected Voucher ID:", voucherID); // Log the selected voucher ID
 
-    setSelectedVoucher(vourcherID);
-    console.log("Updated Selected Voucher:", vourcherID);
+    setSelectedVoucher(voucherID);
+    console.log("Updated Selected Voucher:", voucherID);
 
-    calculateTotalAmount(vourcherID);
+    calculateTotalAmount(voucherID);
   };
+
   useEffect(() => {
     console.log("Updated Selected Voucher:", selectedVoucher);
-  }, [selectedVoucher]); // Theo dõi thay đổi của selectedVoucher
+  }, [selectedVoucher]); // Watch for changes to selectedVoucher
 
   // Calculate total amount
-  const calculateTotalAmount = (vourcherID) => {
+  const calculateTotalAmount = (voucherID) => {
     if (!product) return;
 
     let discountAmount = 0;
-    if (vourcherID) {
+    if (voucherID) {
       const selectedVoucher = vouchers.find(
-        (voucher) => voucher.vourcherID === vourcherID
+        (voucher) => voucher.voucherID === voucherID
       );
       if (selectedVoucher) {
         discountAmount = selectedVoucher.discountAmount;
       }
     }
 
-    const total = product.priceBuy - discountAmount;
+    const total = calculatedPrice - discountAmount;
     setTotalAmount(total);
+  };
+
+  // Handle rental start date change
+  const handleRentalStartDateChange = (date) => {
+    if (date && durationUnit && durationValue) {
+      let returnDate;
+      let price = 0;
+
+      switch (durationUnit) {
+        case "day":
+          returnDate = moment(date).add(durationValue, "days");
+          price = product.pricePerDay * durationValue;
+          break;
+        case "hour":
+          returnDate = moment(date).add(durationValue, "hours");
+          price = product.pricePerHour * durationValue;
+          break;
+        case "week":
+          returnDate = moment(date).add(durationValue, "weeks");
+          price = product.pricePerWeek * durationValue;
+          break;
+        case "month":
+          returnDate = moment(date).add(durationValue, "months");
+          price = product.pricePerMonth * durationValue;
+          break;
+        default:
+          returnDate = date;
+      }
+
+      setCalculatedReturnDate(returnDate);
+      setCalculatedPrice(price);
+    }
+  };
+
+  // Handle duration unit change
+  const handleDurationUnitChange = (value) => {
+    setDurationUnit(value);
+    handleRentalStartDateChange(form.getFieldValue("rentalStartDate"));
+    showDurationAlert(value);
+  };
+
+  // Handle duration value change
+  const handleDurationValueChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    setDurationValue(value);
+    handleRentalStartDateChange(form.getFieldValue("rentalStartDate"));
   };
 
   const onFinish = async (values) => {
@@ -104,35 +167,46 @@ const CreateOrderRent = () => {
     const orderData = {
       supplierID: supplierID || "",
       accountID: accountId || "",
-      vourcherID: selectedVoucher,
       productID: product?.productID || "",
+      voucherID: selectedVoucher,
       orderDate: new Date().toISOString(),
       orderStatus: 0,
+      totalAmount: totalAmount || 0,
       products: [
         {
           productID: product?.productID || "",
-          productName: product?.name || "",
-          productDescription: product?.description || "",
+          productName: product?.productName || "",
+          productDescription: product?.productDescription || "",
           priceRent: product?.priceRent || 0,
           priceBuy: product?.priceBuy || 0,
           quality: product?.quality,
         },
       ],
-      totalAmount: totalAmount || 0,
       orderType: 0,
       shippingAddress: values.shippingAddress || "",
+      rentalStartDate: values.rentalStartDate.toISOString(),
+      rentalEndDate: values.rentalEndDate.toISOString(),
+      durationUnit: values.durationUnit || 0,
+      durationValue: values.durationValue || 0,
+      returnDate: calculatedReturnDate.toISOString(),
       orderDetailRequests: [
         {
           productID: product?.productID || "",
           productPrice: product?.priceBuy || 0,
           productQuality: product?.quality,
           discount: selectedVoucher
-            ? vouchers.find((voucher) => voucher.vourcherID === selectedVoucher)
+            ? vouchers.find((voucher) => voucher.voucherID === selectedVoucher)
                 ?.discountAmount || 0
             : 0,
           productPriceTotal: totalAmount || 0,
         },
       ],
+      contractRequest: {
+        contractTemplateId: values.contractTemplateId || "",
+        orderID: "", // This will be filled by the backend
+        contractTerms: values.contractTerms || "",
+        penaltyPolicy: values.penaltyPolicy || "",
+      },
       deliveryMethod: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -155,8 +229,79 @@ const CreateOrderRent = () => {
     }
   };
 
+  const durationOptions = {
+    hour: { min: 2, max: 8 },
+    day: { min: 1, max: 3 },
+    week: { min: 1, max: 2 },
+    month: { min: 1, max: 1 },
+  };
+  const generateTableData = () => {
+    if (!product) return [];
+
+    const data = [];
+
+    for (let unit in durationOptions) {
+      const { min, max } = durationOptions[unit];
+      for (let value = min; value <= max; value++) {
+        let price = 0;
+        switch (unit) {
+          case "day":
+            price = product.pricePerDay ? product.pricePerDay * value : null;
+            break;
+          case "hour":
+            price = product.pricePerHour ? product.pricePerHour * value : null;
+            break;
+          case "week":
+            price = product.pricePerWeek ? product.pricePerWeek * value : null;
+            break;
+          case "month":
+            price = product.pricePerMonth
+              ? product.pricePerMonth * value
+              : null;
+            break;
+          default:
+            break;
+        }
+        if (price !== null) {
+          data.push({
+            key: `${unit}-${value}`,
+            durationUnit: unit.charAt(0).toUpperCase() + unit.slice(1),
+            durationValue: value,
+            price: price,
+          });
+        }
+      }
+    }
+
+    return data;
+  };
+  const columns = [
+    {
+      title: "Duration Unit",
+      dataIndex: "durationUnit",
+      key: "durationUnit",
+    },
+    {
+      title: "Duration Value",
+      dataIndex: "durationValue",
+      key: "durationValue",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+    },
+  ];
+
+  const tableData = generateTableData();
+  const showDurationAlert = (unit) => {
+    const { min, max } = durationOptions[unit];
+    message.info(
+      `You can rent for a minimum of ${min} ${unit}(s) and a maximum of ${max} ${unit}(s).`
+    );
+  };
   return (
-    <Card title="Create Order Buy">
+    <Card title="Create Order Rent">
       {loadingProduct || loadingVouchers ? (
         <Spin />
       ) : (
@@ -223,7 +368,130 @@ const CreateOrderRent = () => {
             <Input />
           </Form.Item>
 
-          {/* Voucher Selection as Card Items */}
+          <Form.Item
+            label="Rental Start Date"
+            name="rentalStartDate"
+            rules={[
+              {
+                required: true,
+                message: "Please select the rental start date!",
+              },
+            ]}
+          >
+            <DatePicker showTime onChange={handleRentalStartDateChange} />
+          </Form.Item>
+
+          <Form.Item
+            label="Duration Unit"
+            name="durationUnit"
+            rules={[
+              {
+                required: true,
+                message: "Please input the duration unit!",
+              },
+            ]}
+          >
+            <Select onChange={handleDurationUnitChange}>
+              <Option value="hour">Hour</Option>
+              <Option value="day">Day</Option>
+              <Option value="week">Week</Option>
+              <Option value="month">Month</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Duration Value"
+            name="durationValue"
+            rules={[
+              {
+                required: true,
+                message: "Please input the duration value!",
+                type: "number",
+                min: durationOptions[durationUnit].min,
+                max: durationOptions[durationUnit].max,
+              },
+            ]}
+          >
+            <Input
+              type="number"
+              min={durationOptions[durationUnit].min}
+              max={durationOptions[durationUnit].max}
+              onChange={handleDurationValueChange}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Rental End Date"
+            name="rentalEndDate"
+            rules={[
+              {
+                required: true,
+                message: "Please select the rental end date!",
+              },
+            ]}
+          >
+            <DatePicker showTime value={calculatedReturnDate} />
+          </Form.Item>
+
+          <Form.Item
+            label="Return Date"
+            name="returnDate"
+            rules={[
+              {
+                required: true,
+                message: "Please select the return date!",
+              },
+            ]}
+          >
+            <DatePicker showTime value={calculatedReturnDate} />
+          </Form.Item>
+          <Form.Item label="Price Calculation">
+            <Table
+              columns={columns}
+              dataSource={tableData}
+              pagination={false}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Contract Template ID"
+            name="contractTemplateId"
+            rules={[
+              {
+                required: true,
+                message: "Please input the contract template ID!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Contract Terms"
+            name="contractTerms"
+            rules={[
+              {
+                required: true,
+                message: "Please input the contract terms!",
+              },
+            ]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+
+          <Form.Item
+            label="Penalty Policy"
+            name="penaltyPolicy"
+            rules={[
+              {
+                required: true,
+                message: "Please input the penalty policy!",
+              },
+            ]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+
           <Form.Item label="Voucher">
             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
               {vouchers.map((voucher) => (
@@ -248,8 +516,9 @@ const CreateOrderRent = () => {
               ))}
             </div>
           </Form.Item>
+
           <Form.Item label="Total Amount">
-            <Input value={totalAmount} disabled />
+            <Input value={calculatedPrice} disabled />
           </Form.Item>
           <Button type="primary" htmlType="submit">
             Create Order

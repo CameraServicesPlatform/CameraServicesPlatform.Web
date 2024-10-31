@@ -22,6 +22,7 @@ import ProductPageBuy from "../pages/Common/Product/ProductPageBuy";
 import ProductPageRent from "../pages/Common/Product/ProductPageRent";
 
 import DashboardAdmin from "../pages/Admin/DashboardAdmin";
+import CreateOrderRent from "../pages/Common/Order/CreateOrderRent/CreateOrderRent";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import OrderDetail from "../pages/CommonManager/OrderDetail";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
@@ -59,6 +60,8 @@ function Routers() {
         { path: "product-for-rent", element: <ProductPageRent /> },
         { path: "product-for-buy", element: <ProductPageBuy /> },
         { path: "create-order-buy", element: <CreateOrderBuy /> },
+        { path: "create-order-rent", element: <CreateOrderRent /> },
+
         { path: "/product/:id", element: <ProductDetailPage /> },
         { path: "order-detail", element: <OrderDetail /> },
         { path: "category", element: <Category /> },

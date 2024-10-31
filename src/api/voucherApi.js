@@ -36,21 +36,21 @@ export const getVoucherById = async (id) => {
 // Function to get vouchers by supplier ID with pagination
 export const getVouchersBySupplierId = async (
   supplierId,
-  pageIndex = 1,
-  pageSize = 10
+  pageIndex,
+  pageSize
 ) => {
   try {
-    const response = await api.get(`/voucher/get-voucher-by-supplier-id`, {
-      params: { supplierId, pageIndex, pageSize },
-    });
-    console.log("API Response:", response); // Debugging log
-    if (response.status === 200 && response.data.isSuccess) {
-      return response.data.result;
+    const response = await api.get(
+      `/voucher/get-voucher-by-supplier-id?supplierId=${supplierId}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+    if (!response.data.isSuccess) {
+      throw new Error("Failed to fetch vouchers.");
     }
+    return response.data;
   } catch (error) {
     console.error("Error fetching vouchers by supplier ID:", error);
     message.error("Failed to fetch vouchers. Please try again later.");
-    return null;
+    throw error; // Rethrow if you want to handle it later
   }
 };
 // Function to create a new voucher
@@ -100,6 +100,37 @@ export const deleteVoucher = async (voucherId) => {
   } catch (error) {
     console.error("Error deleting voucher:", error);
     message.error("Failed to delete voucher. Please try again.");
+    throw error;
+  }
+};
+export const getProductVouchersByProductId = async (
+  productId,
+  pageIndex = 1,
+  pageSize = 10
+) => {
+  try {
+    const response = await api.get(
+      `/productVoucher/get-product-voucher-by-product-id`,
+      {
+        params: {
+          ProductId: productId,
+          pageIndex: pageIndex,
+          pageSize: pageSize,
+        },
+        headers: {
+          Accept: "text/plain",
+        },
+      }
+    );
+
+    if (response.data.isSuccess) {
+      return response.data.result;
+    } else {
+      throw new Error("Failed to fetch product vouchers.");
+    }
+  } catch (error) {
+    console.error("Error fetching product vouchers by product ID:", error);
+    message.error("Failed to fetch product vouchers. Please try again later.");
     throw error;
   }
 };
