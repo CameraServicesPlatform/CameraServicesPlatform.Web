@@ -25,6 +25,7 @@ import {
   getVouchersBySupplierId,
   updateVoucher,
 } from "../../../api/voucherApi";
+
 const VoucherListBySupplierId = () => {
   const user = useSelector((state) => state.user.user || {});
   const [supplierId, setSupplierId] = useState(null);
@@ -42,6 +43,7 @@ const VoucherListBySupplierId = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
 
   const [selectedProductId, setSelectedProductId] = useState(null);
+
   const fetchSupplierId = async () => {
     if (user.id) {
       try {
@@ -68,10 +70,10 @@ const VoucherListBySupplierId = () => {
         pageSize
       );
       console.log("Vouchers Response:", response); // Debugging log
-      if (response) {
-        setVouchers(response || []);
-        setTotalItems(response.length);
-        console.log("Vouchers State:", response); // Debugging log
+      if (response && Array.isArray(response.result)) {
+        setVouchers(response.result);
+        setTotalItems(response.totalCount || response.result.length);
+        console.log("Vouchers State:", response.result); // Debugging log
       } else {
         setVouchers([]);
         setTotalItems(0);
@@ -148,6 +150,7 @@ const VoucherListBySupplierId = () => {
   const filteredVouchers = vouchers.filter((voucher) =>
     voucher.vourcherCode.toLowerCase().includes(searchText.toLowerCase())
   );
+
   const handleOpenProductVoucher = (record) => {
     setSelectedRecord(record);
     setIsModalVisible(true);
@@ -158,6 +161,7 @@ const VoucherListBySupplierId = () => {
     setSelectedProductId(null);
     form.resetFields();
   };
+
   const handleAddVoucher = async (values) => {
     try {
       const { productID, voucherID } = values;
