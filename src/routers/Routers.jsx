@@ -32,10 +32,12 @@ import ManageProduct from "../pages/Staff/Product/ManageProduct";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
 import DashboardSupplier from "../pages/Supllier/DashboardSupplier";
 import InformationSupplierDetail from "../pages/Supllier/InformationSupllierDetail";
+import ManageOrder from "../pages/Supllier/Order/ManageOrder";
 import DetailProduct from "../pages/Supllier/Product/DetailProduct";
 import ManageProductOfSuplier from "../pages/Supllier/Product/ManageProductOfSuplier";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
+
 function Routers() {
   const routing = useRoutes([
     {
@@ -123,6 +125,10 @@ function Routers() {
         {
           path: "product/details/:productID",
           element: <DetailProduct />,
+        },
+        {
+          path: "manage-order",
+          element: <ManageOrder />,
         },
       ],
     },

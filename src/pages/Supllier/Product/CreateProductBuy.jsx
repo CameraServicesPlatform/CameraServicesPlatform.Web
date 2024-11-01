@@ -14,11 +14,11 @@ const CreateProductBuy = () => {
   const [categories, setCategories] = useState([]);
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null); // Define filePreview here
-  const user = useSelector((state) => state.user.user || {});
-  const [supplierId, setSupplierId] = useState(null);
   const [specifications, setSpecifications] = useState([
     { feature: "", description: "" },
   ]);
+  const user = useSelector((state) => state.user.user || {});
+  const [supplierId, setSupplierId] = useState(null);
 
   // Lấy ID Nhà cung cấp và Danh mục
   useEffect(() => {

@@ -21,6 +21,7 @@ const SideBar = () => {
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
       { name: "Voucher", link: "manage-voucher-of-supplier" },
       { name: "QUẢN LÍ SẢN PHẨM", link: "manage-product-of-supplier" },
+      { name: "QUẢN LÍ ĐƠN HÀNG", link: "manage-order" },
     ],
     ADMIN: [
       { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
