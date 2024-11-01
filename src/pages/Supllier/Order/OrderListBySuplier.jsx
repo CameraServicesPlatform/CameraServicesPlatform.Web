@@ -1,8 +1,8 @@
 import {
+  CarOutlined,
   CheckCircleOutlined,
   CheckOutlined,
   CloseOutlined,
-  ShippingOutlined,
 } from "@ant-design/icons";
 import { Button, message, Modal, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
@@ -26,28 +26,28 @@ const OrderListBySupplier = ({ refresh }) => {
   const [supplierId, setSupplierId] = useState(null);
 
   const orderStatusMap = {
-    0: "Pending",
-    1: "Approved",
-    2: "Completed",
-    3: "Placed",
-    4: "Shipped",
-    5: "Delivered",
-    6: "Cancelled",
-    7: "Payment",
+    0: "Chờ xử lý",
+    1: "Đã phê duyệt",
+    2: "Hoàn thành",
+    3: "Đã đặt",
+    4: "Đã giao hàng",
+    5: "Đã nhận",
+    6: "Đã hủy",
+    7: "Thanh toán",
   };
 
   const orderTypeMap = {
-    0: "Purchase",
-    1: "Rental",
+    0: "Mua",
+    1: "Thuê",
   };
 
   const deliveryStatusMap = {
-    0: "GoShopPichUpProduct",
-    1: "ShopShip",
-    2: "Returned",
+    0: "Đến cửa hàng lấy hàng",
+    1: "Cửa hàng giao hàng",
+    2: "Đã trả lại",
   };
 
-  // Fetch supplier ID
+  // Lấy ID Nhà cung cấp
   useEffect(() => {
     const fetchSupplierId = async () => {
       if (user.id) {
@@ -66,7 +66,7 @@ const OrderListBySupplier = ({ refresh }) => {
     fetchSupplierId();
   }, [user.id]);
 
-  // Fetch orders
+  // Lấy đơn hàng
   useEffect(() => {
     const fetchOrders = async () => {
       if (supplierId) {
@@ -80,10 +80,10 @@ const OrderListBySupplier = ({ refresh }) => {
           if (data?.isSuccess) {
             setOrders(data.result || []);
           } else {
-            message.error("Failed to load orders.");
+            message.error("Lấy đơn hàng không thành công.");
           }
         } catch (err) {
-          setError("Failed to load orders.");
+          setError("Lỗi khi lấy đơn hàng.");
         } finally {
           setLoading(false);
         }
@@ -97,17 +97,17 @@ const OrderListBySupplier = ({ refresh }) => {
     try {
       const response = await updateOrderStatusCompleted(orderId);
       if (response?.isSuccess) {
-        message.success("Order marked as completed!");
+        message.success("Đơn hàng đã được hoàn thành!");
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.orderID === orderId ? { ...order, orderStatus: 2 } : order
           )
         );
       } else {
-        message.error("Failed to mark order as completed.");
+        message.error("Không thể hoàn thành đơn hàng.");
       }
     } catch (error) {
-      message.error("Error marking order as completed.");
+      message.error("Lỗi khi hoàn thành đơn hàng.");
     }
   };
 
@@ -115,17 +115,17 @@ const OrderListBySupplier = ({ refresh }) => {
     try {
       const response = await cancelOrder(orderId);
       if (response?.isSuccess) {
-        message.success("Order canceled successfully!");
+        message.success("Đơn hàng đã được hủy!");
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.orderID === orderId ? { ...order, orderStatus: 6 } : order
           )
         );
       } else {
-        message.error("Failed to cancel order.");
+        message.error("Không thể hủy đơn hàng.");
       }
     } catch (error) {
-      message.error("Error canceling order.");
+      message.error("Lỗi khi hủy đơn hàng.");
     }
   };
 
@@ -133,17 +133,17 @@ const OrderListBySupplier = ({ refresh }) => {
     try {
       const response = await updateOrderStatusShipped(orderId);
       if (response?.isSuccess) {
-        message.success("Order marked as shipped!");
+        message.success("Đơn hàng đã được giao!");
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.orderID === orderId ? { ...order, orderStatus: 4 } : order
           )
         );
       } else {
-        message.error("Failed to mark order as shipped.");
+        message.error("Không thể giao đơn hàng.");
       }
     } catch (error) {
-      message.error("Error marking order as shipped.");
+      message.error("Lỗi khi giao đơn hàng.");
     }
   };
 
@@ -151,24 +151,24 @@ const OrderListBySupplier = ({ refresh }) => {
     try {
       const response = await updateOrderStatusApproved(orderId);
       if (response?.isSuccess) {
-        message.success("Order marked as approved!");
+        message.success("Đơn hàng đã được phê duyệt!");
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.orderID === orderId ? { ...order, orderStatus: 1 } : order
           )
         );
       } else {
-        message.error("Failed to mark order as approved.");
+        message.error("Không thể phê duyệt đơn hàng.");
       }
     } catch (error) {
-      message.error("Error marking order as approved.");
+      message.error("Lỗi khi phê duyệt đơn hàng.");
     }
   };
 
   const showConfirm = (action, orderId) => {
     Modal.confirm({
-      title: "Are you sure?",
-      content: `Do you want to ${action} this order?`,
+      title: "Bạn có chắc chắn?",
+      content: `Bạn có muốn ${action} đơn hàng này không?`,
       onOk() {
         switch (action) {
           case "complete":
@@ -192,50 +192,50 @@ const OrderListBySupplier = ({ refresh }) => {
 
   const columns = [
     {
-      title: "Order ID",
+      title: "Mã đơn hàng",
       dataIndex: "orderID",
       key: "orderID",
     },
     {
-      title: "Account ID",
+      title: "Mã tài khoản",
       dataIndex: "accountID",
       key: "accountID",
     },
     {
-      title: "Order Date",
+      title: "Ngày đặt hàng",
       dataIndex: "orderDate",
       key: "orderDate",
     },
     {
-      title: "Order Status",
+      title: "Trạng thái đơn hàng",
       dataIndex: "orderStatus",
       key: "orderStatus",
       render: (status) => orderStatusMap[status],
     },
     {
-      title: "Total Amount",
+      title: "Tổng số tiền",
       dataIndex: "totalAmount",
       key: "totalAmount",
     },
     {
-      title: "Order Type",
+      title: "Loại đơn hàng",
       dataIndex: "orderType",
       key: "orderType",
       render: (type) => orderTypeMap[type],
     },
     {
-      title: "Shipping Address",
+      title: "Địa chỉ giao hàng",
       dataIndex: "shippingAddress",
       key: "shippingAddress",
     },
     {
-      title: "Delivery Method",
+      title: "Phương thức giao hàng",
       dataIndex: "deliveryMethod",
       key: "deliveryMethod",
       render: (status) => deliveryStatusMap[status],
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (text, record) => (
         <div>
@@ -247,7 +247,7 @@ const OrderListBySupplier = ({ refresh }) => {
                 className="ml-2"
                 icon={<CheckOutlined />}
               >
-                Approve
+                Phê duyệt
               </Button>
               <Button
                 type="danger"
@@ -255,7 +255,7 @@ const OrderListBySupplier = ({ refresh }) => {
                 className="ml-2"
                 icon={<CloseOutlined />}
               >
-                Cancel
+                Hủy
               </Button>
             </>
           )}
@@ -266,7 +266,7 @@ const OrderListBySupplier = ({ refresh }) => {
               className="ml-2"
               icon={<CheckOutlined />}
             >
-              Approve
+              Phê duyệt
             </Button>
           )}
           {record.orderStatus === 1 && (
@@ -274,9 +274,9 @@ const OrderListBySupplier = ({ refresh }) => {
               type="default"
               onClick={() => showConfirm("ship", record.orderID)}
               className="ml-2"
-              icon={<ShippingOutlined />}
+              icon={<CarOutlined />}
             >
-              Ship
+              Giao hàng
             </Button>
           )}
           {record.orderStatus !== 2 && record.orderStatus !== 6 && (
@@ -286,7 +286,7 @@ const OrderListBySupplier = ({ refresh }) => {
               className="ml-2"
               icon={<CheckCircleOutlined />}
             >
-              Complete
+              Hoàn thành
             </Button>
           )}
         </div>
@@ -295,7 +295,7 @@ const OrderListBySupplier = ({ refresh }) => {
   ];
 
   if (loading) {
-    return <Spin tip="Loading orders..." />;
+    return <Spin tip="Đang tải đơn hàng..." />;
   }
 
   if (error) {
