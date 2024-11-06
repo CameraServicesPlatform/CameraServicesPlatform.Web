@@ -132,10 +132,16 @@ const NavBar = () => {
           Trang chủ
         </NavLink>
         <NavLink
-          to="/contact"
+          to="/information-supplier"
           className="text-black hover:text-gray-500 no-underline"
         >
-          Liên hệ
+          Nhà cung cấp
+        </NavLink>
+        <NavLink
+          to="/category"
+          className="text-black hover:text-gray-500 no-underline"
+        >
+          Danh mục
         </NavLink>
         <NavLink
           to="/product-for-rent"
@@ -160,6 +166,13 @@ const NavBar = () => {
           className="text-black hover:text-gray-500 no-underline"
         >
           Về chúng tôi
+        </NavLink>
+
+        <NavLink
+          to="/contact"
+          className="text-black hover:text-gray-500 no-underline"
+        >
+          Liên hệ
         </NavLink>
       </div>
 

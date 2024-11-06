@@ -3,30 +3,41 @@ import { Navigate, useRoutes } from "react-router-dom";
 import CommonLayout from "../layouts/CommonLayout";
 import ManagementLayOut from "../layouts/ManagementLayout/ManagementLayOut";
 import ManagePolicy from "../pages/Admin/Policy/ManagePolicy";
+import CreateStaffForm from "../pages/Admin/User/CreateStaffForm";
 import ManageUser from "../pages/Admin/User/ManageUser";
 import About from "../pages/Common/About";
 import Cart from "../pages/Common/Cart";
+import Category from "../pages/Common/Category";
 import Contact from "../pages/Common/Contact";
 import ErrorPage from "../pages/Common/ErrorPage";
 import Home from "../pages/Common/Home";
+import InformationSupplier from "../pages/Common/InformationSupplier";
 import LoginPage from "../pages/Common/LoginPage";
+import CreateOrderBuy from "../pages/Common/Order/CreateOrderBuy/CreateOrderBuy";
 import PersonalInformation from "../pages/Common/PersonalInformation";
 import Policy from "../pages/Common/Policy";
-import ProductPage from "../pages/Common/Product/ProductPage";
-import VerifyPayment from "../pages/Common/VerifyPayment";
-import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
-import CreateProductForm from "../pages/Management/Product/CreateProductForm";
-
-import CreateStaffForm from "../pages/Admin/User/CreateStaffForm";
-import CreateOrderBuy from "../pages/Common/Order/CreateOrderBuy/CreateOrderBuy";
 import ProductDetailPage from "../pages/Common/Product/ProductDetailPage";
+import ProductPage from "../pages/Common/Product/ProductPage";
+import ProductPageBuy from "../pages/Common/Product/ProductPageBuy";
+import ProductPageRent from "../pages/Common/Product/ProductPageRent";
+
+import DashboardAdmin from "../pages/Admin/DashboardAdmin";
+import CreateOrderRent from "../pages/Common/Order/CreateOrderRent/CreateOrderRent";
+import VerifyPayment from "../pages/Common/VerifyPayment";
 import OrderDetail from "../pages/CommonManager/OrderDetail";
-import ManageProduct from "../pages/Management/Product/ManageProduct";
+import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
+import ManageProduct from "../pages/Staff/Product/ManageProduct";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
+import DashboardSupplier from "../pages/Supllier/DashboardSupplier";
+import InformationSupplierDetail from "../pages/Supllier/InformationSupllierDetail";
+import ManageOrder from "../pages/Supllier/Order/ManageOrder";
+import DetailProduct from "../pages/Supllier/Product/DetailProduct";
+import ManageProductOfSuplier from "../pages/Supllier/Product/ManageProductOfSuplier";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
+
 function Routers() {
   const routing = useRoutes([
     {
@@ -48,11 +59,19 @@ function Routers() {
         { path: "personal-information", element: <PersonalInformation /> },
         { path: "register-supplier", element: <RegisterSupplier /> },
         { path: "product", element: <ProductPage /> },
-        { path: "product-for-rent", element: <ProductPage /> },
-        { path: "product-for-buy", element: <ProductPage /> },
+        { path: "product-for-rent", element: <ProductPageRent /> },
+        { path: "product-for-buy", element: <ProductPageBuy /> },
         { path: "create-order-buy", element: <CreateOrderBuy /> },
+        { path: "create-order-rent", element: <CreateOrderRent /> },
+
         { path: "/product/:id", element: <ProductDetailPage /> },
         { path: "order-detail", element: <OrderDetail /> },
+        { path: "category", element: <Category /> },
+        { path: "information-supplier", element: <InformationSupplier /> },
+        {
+          path: "supplier-information-detail/:id",
+          element: <InformationSupplierDetail />,
+        },
       ],
     },
     {
@@ -66,7 +85,7 @@ function Routers() {
         { index: true, element: <Navigate to="dashboard" replace /> },
         {
           path: "dashboard",
-          element: <div>Dashboard</div>,
+          element: <DashboardAdmin />,
         },
         {
           path: "manage-user",
@@ -83,18 +102,33 @@ function Routers() {
       ],
     },
     {
-      path: "supllier", // change from "supplier" to "supllier"
+      path: "supllier",
       element: <ManagementLayOut />,
       children: [
         { index: true, element: <Navigate to="dashboard" replace /> },
         {
           path: "dashboard",
-          element: <div>Dashboard</div>,
+          element: <DashboardSupplier />,
         },
-        { path: "create-product", element: <CreateProductForm /> },
         {
           path: "manage-voucher-of-supplier",
           element: <ManageVoucherOfSuplier />,
+        },
+        {
+          path: "manage-product-of-supplier",
+          element: <ManageProductOfSuplier />,
+        },
+        {
+          path: "supplier-information-detail/:id",
+          element: <InformationSupplierDetail />,
+        },
+        {
+          path: "product/details/:productID",
+          element: <DetailProduct />,
+        },
+        {
+          path: "manage-order",
+          element: <ManageOrder />,
         },
       ],
     },

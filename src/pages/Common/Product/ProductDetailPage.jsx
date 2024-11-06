@@ -24,7 +24,7 @@ const ProductDetailPage = () => {
       setLoading(true);
       try {
         const data = await getProductById(id);
-        //console.log("Product data:", data);
+        console.log("Product data:", data);
 
         if (data) {
           setProduct(data);
@@ -35,6 +35,7 @@ const ProductDetailPage = () => {
           if (
             supplierData &&
             supplierData.result &&
+            Array.isArray(supplierData.result.items) &&
             supplierData.result.items.length > 0
           ) {
             const supplier = supplierData.result.items[0];
@@ -45,6 +46,7 @@ const ProductDetailPage = () => {
           if (
             categoryData &&
             categoryData.result &&
+            Array.isArray(categoryData.result.items) &&
             categoryData.result.items.length > 0
           ) {
             const category = categoryData.result.items[0];
@@ -53,6 +55,8 @@ const ProductDetailPage = () => {
           }
         }
       } catch (error) {
+        console.error("Failed to load product:", error);
+        message.error("Failed to load product. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -74,7 +78,13 @@ const ProductDetailPage = () => {
     return <Spin size="large" className="flex justify-center mt-10" />;
   }
   const handleCreateOrderRent = (product) => {
-    message.success(`Order for renting ${product.productName} created!`);
+    navigate("/create-order-rent", {
+      state: {
+        productID: product.productID,
+        supplierID: product.supplierID,
+        product,
+      },
+    });
   };
 
   const handleCreateOrderBuy = (product) => {
@@ -154,7 +164,7 @@ const ProductDetailPage = () => {
                         : "text-orange-600"
                     }
                   >
-                    {getProductStatusEnum[product.status] || "Unknown Status"}
+                    {getProductStatusEnum(product.status) || "Unknown Status"}
                     {/* Fallback for undefined statuses */}
                   </span>
                 </p>
@@ -175,22 +185,22 @@ const ProductDetailPage = () => {
                 </p>
               </div>
               <div className="flex justify-between mt-4">
-                {product.priceRent != null && (
-                  <Button
-                    type="primary"
-                    onClick={() => handleCreateOrderRent(product)}
-                    className="bg-mainColor hover:bg-opacity-80 transition duration-200"
-                  >
-                    Create Order for Rent
-                  </Button>
-                )}
-                {product.priceBuy != null && (
+                {product.status === 0 && (
                   <Button
                     type="default"
                     onClick={() => handleCreateOrderBuy(product)}
                     className="bg-primary text-white hover:bg-opacity-80 transition duration-200"
                   >
                     Create Order for Buy
+                  </Button>
+                )}
+                {product.status === 1 && (
+                  <Button
+                    type="primary"
+                    onClick={() => handleCreateOrderRent(product)}
+                    className="bg-mainColor hover:bg-opacity-80 transition duration-200"
+                  >
+                    Create Order for Rent
                   </Button>
                 )}
               </div>
@@ -207,11 +217,13 @@ const ProductDetailPage = () => {
         onCancel={handleCancel}
         width={800}
       >
-        <img
-          src={selectedImage}
-          alt={product.productName}
-          className="w-full h-auto"
-        />
+        {product && (
+          <img
+            src={selectedImage}
+            alt={product.productName}
+            className="w-full h-auto"
+          />
+        )}
       </Modal>
     </div>
   );

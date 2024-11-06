@@ -40,7 +40,6 @@ const RegisterSupplier = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch bank list from VietQR API
     const fetchBanks = async () => {
       try {
         const response = await axios.get("https://api.vietqr.io/v2/banks");
@@ -132,7 +131,6 @@ const RegisterSupplier = () => {
     setLoading(true);
 
     try {
-      // Validate values against the schema
       await validationSchema.validate(values, { abortEarly: false });
 
       const {
@@ -150,7 +148,6 @@ const RegisterSupplier = () => {
         accountHolder,
       } = values;
 
-      // Access the files from fileList
       const frontFile =
         fileListFront.length > 0 ? fileListFront[0].originFileObj : null;
       const backFile =

@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* styles.css */
+@media (forced-colors: active) {
+    body {
+        background-color: Window;
+        color: WindowText;
+    }
+    .custom-tabs {
+        background-color: Window;
+        border-color: WindowText;
+    }
+    /* Add more styles to ensure good visibility in forced colors mode */
+}

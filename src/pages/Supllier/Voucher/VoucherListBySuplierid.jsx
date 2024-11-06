@@ -1,9 +1,30 @@
-import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
-import { Button, message, Modal, Pagination, Spin, Table } from "antd";
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  EditOutlined,
+  EyeOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Modal,
+  Pagination,
+  Spin,
+  Switch,
+  Table,
+} from "antd";
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getSupplierIdByAccountId } from "../../../api/accountApi"; // Make sure this is the correct import path
-import { getVouchersBySupplierId } from "../../../api/voucherApi";
+import { getSupplierIdByAccountId } from "../../../api/accountApi";
+import {
+  getVouchersBySupplierId,
+  updateVoucher,
+} from "../../../api/voucherApi";
 
 const VoucherListBySupplierId = () => {
   const user = useSelector((state) => state.user.user || {});
@@ -15,14 +36,21 @@ const VoucherListBySupplierId = () => {
   const [pageSize, setPageSize] = useState(10);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [form] = Form.useForm();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
   const fetchSupplierId = async () => {
     if (user.id) {
-      // Use user.id for accountId
       try {
-        const response = await getSupplierIdByAccountId(user.id); // Pass accountId
+        const response = await getSupplierIdByAccountId(user.id);
+        console.log("Supplier ID Response:", response); // Debugging log
         if (response?.isSuccess) {
-          setSupplierId(response.result); // Set supplierId from the API response
+          setSupplierId(response.result);
         } else {
           message.error("Failed to get Supplier ID.");
         }
@@ -33,6 +61,7 @@ const VoucherListBySupplierId = () => {
   };
 
   const fetchVouchers = async (pageIndex, pageSize, supplierId) => {
+    if (!supplierId) return;
     setLoading(true);
     try {
       const response = await getVouchersBySupplierId(
@@ -40,9 +69,11 @@ const VoucherListBySupplierId = () => {
         pageIndex,
         pageSize
       );
-      if (response?.isSuccess && response.result) {
-        setVouchers(response.result.items);
-        setTotalItems(response.result.totalItems);
+      console.log("Vouchers Response:", response); // Debugging log
+      if (response && Array.isArray(response.result)) {
+        setVouchers(response.result);
+        setTotalItems(response.totalCount || response.result.length);
+        console.log("Vouchers State:", response.result); // Debugging log
       } else {
         setVouchers([]);
         setTotalItems(0);
@@ -59,38 +90,134 @@ const VoucherListBySupplierId = () => {
   const handlePageChange = (page, pageSize) => {
     setPageIndex(page);
     setPageSize(pageSize);
-    if (supplierId) {
-      fetchVouchers(page, pageSize, supplierId);
-    }
+    fetchVouchers(page, pageSize, supplierId);
   };
 
   useEffect(() => {
-    fetchSupplierId(); // Fetch supplier ID when component mounts
+    fetchSupplierId();
   }, [user]);
 
   useEffect(() => {
     if (supplierId) {
-      fetchVouchers(pageIndex, pageSize, supplierId); // Fetch vouchers when supplierId changes
+      fetchVouchers(pageIndex, pageSize, supplierId);
     }
   }, [supplierId, pageIndex, pageSize]);
 
+  const handleViewDetails = (voucher) => {
+    setSelectedVoucher(voucher);
+    setViewModalVisible(true);
+  };
+
+  const handleUpdateVoucher = async () => {
+    try {
+      const values = await form.validateFields();
+      const updatedVoucher = await updateVoucher({
+        ...values,
+        expirationDate: values.expirationDate
+          ? values.expirationDate.toISOString()
+          : null,
+      });
+      setVouchers((prevVouchers) =>
+        prevVouchers.map((v) =>
+          v.vourcherID === updatedVoucher.vourcherID ? updatedVoucher : v
+        )
+      );
+      message.success("Voucher updated successfully.");
+      setUpdateModalVisible(false);
+    } catch (error) {
+      console.error("Error updating voucher:", error);
+      message.error("Failed to update voucher. Please try again.");
+    }
+  };
+
+  const handleOpenUpdateModal = (voucher) => {
+    setSelectedVoucher(voucher);
+    form.setFieldsValue({
+      vourcherID: voucher.vourcherID,
+      description: voucher.description,
+      expirationDate: voucher.expirationDate
+        ? dayjs(voucher.expirationDate)
+        : null,
+      isActive: voucher.isActive,
+    });
+    setUpdateModalVisible(true);
+  };
+
+  const handleSearch = (e) => {
+    setSearchText(e.target.value);
+  };
+
+  const filteredVouchers = vouchers.filter((voucher) =>
+    voucher.vourcherCode.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const handleOpenProductVoucher = (record) => {
+    setSelectedRecord(record);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setSelectedProductId(null);
+    form.resetFields();
+  };
+
+  const handleAddVoucher = async (values) => {
+    try {
+      const { productID, voucherID } = values;
+      const response = await createProductVoucher(productID, voucherID);
+      if (response) {
+        message.success("Voucher added successfully!");
+        setVouchers([...vouchers, { productID, voucherID }]);
+      } else {
+        message.error("Failed to add voucher.");
+      }
+    } catch (error) {
+      console.error("Failed to add voucher:", error);
+      message.error("Failed to add voucher.");
+    }
+  };
+
   const columns = [
-    { title: "Voucher ID", dataIndex: "vourcherID", key: "vourcherID" },
-    { title: "Voucher Code", dataIndex: "vourcherCode", key: "vourcherCode" },
-    { title: "Description", dataIndex: "description", key: "description" },
     {
-      title: "Discount Amount",
+      title: "Mã Voucher",
+      dataIndex: "vourcherID",
+      key: "vourcherID",
+      sorter: (a, b) => a.vourcherID.localeCompare(b.vourcherID),
+    },
+    {
+      title: "Mã Giảm Giá",
+      dataIndex: "vourcherCode",
+      key: "vourcherCode",
+      sorter: (a, b) => a.vourcherCode.localeCompare(b.vourcherCode),
+    },
+    {
+      title: "Mô Tả",
+      dataIndex: "description",
+      key: "description",
+      sorter: (a, b) => a.description.localeCompare(b.description),
+    },
+    {
+      title: "Giá Trị Giảm Giá",
       dataIndex: "discountAmount",
       key: "discountAmount",
+      sorter: (a, b) => a.discountAmount - b.discountAmount,
     },
-    { title: "Valid From", dataIndex: "validFrom", key: "validFrom" },
     {
-      title: "Expiration Date",
+      title: "Ngày Bắt Đầu",
+      dataIndex: "validFrom",
+      key: "validFrom",
+      sorter: (a, b) => dayjs(a.validFrom).unix() - dayjs(b.validFrom).unix(),
+    },
+    {
+      title: "Ngày Hết Hạn",
       dataIndex: "expirationDate",
       key: "expirationDate",
+      sorter: (a, b) =>
+        dayjs(a.expirationDate).unix() - dayjs(b.expirationDate).unix(),
     },
     {
-      title: "Is Active",
+      title: "Trạng Thái",
       dataIndex: "isActive",
       key: "isActive",
       render: (isActive) =>
@@ -99,35 +226,61 @@ const VoucherListBySupplierId = () => {
         ) : (
           <CloseCircleOutlined style={{ color: "red" }} />
         ),
+      sorter: (a, b) => a.isActive - b.isActive,
     },
-    { title: "Created At", dataIndex: "createdAt", key: "createdAt" },
-    { title: "Updated At", dataIndex: "updatedAt", key: "updatedAt" },
     {
-      title: "Action",
+      title: "Ngày Tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+    },
+    {
+      title: "Ngày Cập Nhật",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
+    },
+    {
+      title: "Hành Động",
       render: (_, record) => (
-        <Button onClick={() => handleViewDetails(record)}>View Details</Button>
+        <>
+          <Button
+            onClick={() => handleViewDetails(record)}
+            icon={<EyeOutlined />}
+          >
+            Xem Chi Tiết
+          </Button>
+          <Button
+            onClick={() => handleOpenUpdateModal(record)}
+            icon={<EditOutlined />}
+          >
+            Cập Nhật
+          </Button>
+        </>
       ),
     },
   ];
 
-  const handleViewDetails = (voucher) => {
-    setSelectedVoucher(voucher);
-    setViewModalVisible(true);
-  };
-
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-4">Voucher List</h1>
+      <h1 className="text-2xl font-semibold mb-4">Danh sách vourcher</h1>
+      <Input
+        placeholder="Search by Voucher Code"
+        prefix={<SearchOutlined />}
+        value={searchText}
+        onChange={handleSearch}
+        style={{ marginBottom: 16 }}
+      />
       {loading ? (
         <Spin className="flex justify-center items-center" />
       ) : (
         <>
-          {vouchers.length > 0 ? (
+          {filteredVouchers.length > 0 ? (
             <>
               <Table
-                dataSource={vouchers}
+                dataSource={filteredVouchers}
                 columns={columns}
-                rowKey="vourcherID" // Ensure each row has a unique key
+                rowKey="vourcherID"
                 pagination={false}
                 className="shadow-lg rounded"
               />
@@ -142,39 +295,38 @@ const VoucherListBySupplierId = () => {
               </div>
             </>
           ) : (
-            <div>No data</div>
+            <div>Không có dữ liệu!</div>
           )}
         </>
       )}
-
       {selectedVoucher && (
         <Modal
-          title="Voucher Details"
+          title="Chi Tiết Voucher"
           visible={viewModalVisible}
           onCancel={() => setViewModalVisible(false)}
           footer={[
             <Button key="close" onClick={() => setViewModalVisible(false)}>
-              Close
+              Đóng
             </Button>,
           ]}
         >
           <p>
-            <strong>Voucher Code:</strong> {selectedVoucher.vourcherCode}
+            <strong>Mã Giảm Giá:</strong> {selectedVoucher.vourcherCode}
           </p>
           <p>
-            <strong>Description:</strong> {selectedVoucher.description}
+            <strong>Mô Tả:</strong> {selectedVoucher.description}
           </p>
           <p>
-            <strong>Discount Amount:</strong> {selectedVoucher.discountAmount}
+            <strong>Giá Trị Giảm Giá:</strong> {selectedVoucher.discountAmount}
           </p>
           <p>
-            <strong>Valid From:</strong> {selectedVoucher.validFrom}
+            <strong>Ngày Bắt Đầu:</strong> {selectedVoucher.validFrom}
           </p>
           <p>
-            <strong>Expiration Date:</strong> {selectedVoucher.expirationDate}
+            <strong>Ngày Hết Hạn:</strong> {selectedVoucher.expirationDate}
           </p>
           <p>
-            <strong>Is Active:</strong>{" "}
+            <strong>Trạng Thái:</strong>
             {selectedVoucher.isActive ? (
               <CheckCircleOutlined style={{ color: "green" }} />
             ) : (
@@ -182,11 +334,48 @@ const VoucherListBySupplierId = () => {
             )}
           </p>
           <p>
-            <strong>Created At:</strong> {selectedVoucher.createdAt}
+            <strong>Ngày Tạo:</strong> {selectedVoucher.createdAt}
           </p>
           <p>
-            <strong>Updated At:</strong> {selectedVoucher.updatedAt}
+            <strong>Ngày Cập Nhật:</strong> {selectedVoucher.updatedAt}
           </p>
+        </Modal>
+      )}
+      {selectedVoucher && (
+        <Modal
+          title="Cập Nhật Voucher"
+          visible={updateModalVisible}
+          onOk={handleUpdateVoucher}
+          onCancel={() => setUpdateModalVisible(false)}
+        >
+          <Form form={form} layout="vertical">
+            <Form.Item name="vourcherID" label="Mã Voucher">
+              <Input disabled />
+            </Form.Item>
+            <Form.Item
+              name="description"
+              label="Mô Tả"
+              rules={[{ required: true, message: "Vui lòng nhập mô tả" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="expirationDate"
+              label="Ngày Hết Hạn"
+              rules={[
+                { required: true, message: "Vui lòng chọn ngày hết hạn" },
+              ]}
+            >
+              <DatePicker showTime />
+            </Form.Item>
+            <Form.Item
+              name="isActive"
+              label="Trạng Thái Kích Hoạt"
+              valuePropName="checked"
+            >
+              <Switch />
+            </Form.Item>
+          </Form>
         </Modal>
       )}
     </div>

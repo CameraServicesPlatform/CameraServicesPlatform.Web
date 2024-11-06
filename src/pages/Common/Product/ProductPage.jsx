@@ -30,10 +30,10 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [supplierName, setSupplierName] = useState(""); // Added state for supplier name
-  const [categoryName, setCategoryName] = useState(""); // Added state for category name
+  const [supplierName, setSupplierName] = useState("");
+  const [categoryName, setCategoryName] = useState("");
   const navigate = useNavigate();
-  const { id } = useParams(); // Get the ID from URL parameters
+  const { id } = useParams();
 
   const loadProducts = async () => {
     setLoading(true);
@@ -116,8 +116,23 @@ const ProductPage = () => {
     setCategory("");
     loadProducts(); // Reload products when clearing search
   };
-
-  const availableProducts = products.filter((product) => product.status === 3);
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 0: // AvailableSell
+        return "text-green-500"; // Green
+      case 1: // AvailableRent
+        return "text-blue-500"; // Blue
+      case 2: // Rented
+        return "text-yellow-500"; // Yellow
+      case 3: // Sold
+        return "text-red-500"; // Red
+      case 4: // DiscontinuedProduct
+        return "text-gray-500"; // Gray
+      default:
+        return "text-black"; // Default color
+    }
+  };
+  const availableProducts = products.filter((product) => product.status === 0);
 
   return (
     <Layout>
@@ -211,7 +226,10 @@ const ProductPage = () => {
                   </p>
                   <p className="font-semibold text-left">
                     <InfoCircleOutlined className="inline mr-1" />
-                    Trạng thái: {getProductStatusEnum(product.status)}
+                    Trạng thái:{" "}
+                    <span className={getStatusColor(product.status)}>
+                      {getProductStatusEnum(product.status)}
+                    </span>
                   </p>
                   <p className="font-semibold text-left">
                     <StarOutlined className="inline mr-1" />

@@ -11,19 +11,26 @@ export const getAllSuppliers = async (pageIndex, pageSize) => {
     return null;
   }
 };
-// Get supplier by ID
-export const getSupplierById = async (id, pageIndex, pageSize) => {
+
+export const getSupplierById = async (id, pageIndex = 1, pageSize = 1) => {
   try {
-    const res = await api.get(
-      `/supplier/get-supplier-by-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`
-    );
-    return res.data;
-  } catch (err) {
-    console.error("Error fetching supplier by ID:", err);
+    const response = await api.get("/supplier/get-supplier-by-id", {
+      params: {
+        id,
+        pageIndex,
+        pageSize,
+      },
+      headers: {
+        accept: "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching supplier by ID:", error);
     return null;
   }
 };
-
 // Search for suppliers by name
 export const getSupplierByName = async (filter, pageIndex, pageSize) => {
   try {
@@ -48,10 +55,13 @@ export const createSupplier = async (supplierData) => {
   }
 };
 
-// Update an existing supplier
-export const updateSupplier = async (supplierData) => {
+export const updateSupplier = async (formData) => {
   try {
-    const res = await api.put(`/supplier/update-supplier`, supplierData);
+    const res = await api.put("/supplier/update-supplier", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data", // Set the correct content type
+      },
+    });
     return res.data;
   } catch (err) {
     console.error("Error updating supplier:", err);
