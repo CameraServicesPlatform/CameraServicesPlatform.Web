@@ -1,7 +1,7 @@
 import { Button, Form, Input, Modal, Select, message } from "antd";
 import React, { useEffect, useState } from "react";
-import { getAllCategories } from "../../../api/categoryApi"; // Adjust the import based on your project structure
-import { updateProduct } from "../../../api/productApi"; // Adjust the import based on your project structure
+import { getAllCategories } from "../../../api/categoryApi";
+import { updateProduct, updateProductRent } from "../../../api/productApi";
 
 const { Option } = Select;
 
@@ -14,8 +14,8 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
     product?.categoryID || null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState(product?.status || 0);
 
-  // Fetch categories when modal is opened
   useEffect(() => {
     if (visible) {
       fetchCategories();
@@ -25,21 +25,20 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
-      const data = await getAllCategories(1, 100); // Adjust pageIndex and pageSize if needed
+      const data = await getAllCategories(1, 100);
       if (data && data.result) {
-        setCategories(data.result); // Correctly set categories from the result
+        setCategories(data.result);
       } else {
-        message.error("Failed to load categories. Please try again later.");
+        message.error("Không thể tải danh mục. Vui lòng thử lại sau.");
       }
     } catch (error) {
-      console.error("Error fetching categories:", error);
-      message.error("An error occurred while fetching categories.");
+      console.error("Lỗi khi tải danh mục:", error);
+      message.error("Đã xảy ra lỗi khi tải danh mục.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Set form fields with product data when modal is opened
   useEffect(() => {
     if (product) {
       form.setFieldsValue({
@@ -52,8 +51,13 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
         status: product.status,
         serialNumber: product.serialNumber,
         CategoryID: product.categoryID,
+        pricePerHour: product.pricePerHour,
+        pricePerDay: product.pricePerDay,
+        pricePerWeek: product.pricePerWeek,
+        pricePerMonth: product.pricePerMonth,
       });
       setSelectedCategory(product.categoryID);
+      setStatus(product.status);
     }
   }, [product, form]);
 
@@ -80,19 +84,37 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
         formData.append("File", file);
       }
 
-      const result = await updateProduct(formData);
+      let result;
+      if (values.status === 0) {
+        result = await updateProduct(formData);
+      } else if (values.status === 1) {
+        result = await updateProductRent({
+          productID: product.productID,
+          serialNumber: values.serialNumber,
+          categoryID: selectedCategory,
+          productName: values.productName,
+          productDescription: values.productDescription,
+          pricePerHour: values.pricePerHour,
+          pricePerDay: values.pricePerDay,
+          pricePerWeek: values.pricePerWeek,
+          pricePerMonth: values.pricePerMonth,
+          brand: values.brand,
+          quality: values.quality,
+          status: values.status,
+        });
+      }
 
       if (result) {
         onUpdateSuccess(result);
-        message.success("Product updated successfully!");
+        message.success("Cập nhật sản phẩm thành công!");
         form.resetFields();
         onClose();
       } else {
-        message.error("Failed to update product.");
+        message.error("Cập nhật sản phẩm thất bại.");
       }
     } catch (error) {
-      console.error("Update failed:", error);
-      message.error("Update failed: " + error.message);
+      console.error("Cập nhật thất bại:", error);
+      message.error("Cập nhật thất bại: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -108,7 +130,7 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
 
   return (
     <Modal
-      title="Edit Product"
+      title="Chỉnh Sửa Sản Phẩm"
       visible={visible}
       onCancel={handleClose}
       footer={null}
@@ -116,34 +138,32 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
       <Form form={form} onFinish={handleSubmit}>
         <Form.Item
           name="productName"
-          label="Product Name"
-          rules={[{ required: true, message: "Please enter the product name" }]}
+          label="Tên Sản Phẩm"
+          rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm" }]}
         >
           <Input />
         </Form.Item>
-        <Form.Item name="productDescription" label="Description">
+        <Form.Item name="productDescription" label="Mô Tả">
           <Input.TextArea />
         </Form.Item>
-        <Form.Item
-          name="priceRent"
-          label="Price (Rent)"
-          rules={[{ required: true, message: "Please enter the rent price" }]}
-        >
-          <Input type="number" />
-        </Form.Item>
-        <Form.Item
-          name="priceBuy"
-          label="Price (Buy)"
-          rules={[{ required: true, message: "Please enter the buy price" }]}
-        >
-          <Input type="number" />
-        </Form.Item>
+        {status === 0 && (
+          <>
+            <Form.Item
+              name="priceBuy"
+              label="Giá Bán"
+              rules={[{ required: true, message: "Vui lòng nhập giá bán" }]}
+            >
+              <Input type="number" />
+            </Form.Item>{" "}
+          </>
+        )}
+
         <Form.Item
           name="brand"
-          label="Brand"
-          rules={[{ required: true, message: "Please select a brand" }]}
+          label="Thương Hiệu"
+          rules={[{ required: true, message: "Vui lòng chọn thương hiệu" }]}
         >
-          <Select placeholder="Select a brand">
+          <Select placeholder="Chọn thương hiệu">
             <Option value={0}>Canon</Option>
             <Option value={1}>Nikon</Option>
             <Option value={2}>Sony</Option>
@@ -153,51 +173,68 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
             <Option value={6}>Leica</Option>
             <Option value={7}>Pentax</Option>
             <Option value={8}>Hasselblad</Option>
-            <Option value={8}>Sigma</Option>
-            <Option value={9}>Another</Option>
+            <Option value={9}>Sigma</Option>
+            <Option value={10}>Khác</Option>
           </Select>
         </Form.Item>
         <Form.Item
           name="quality"
-          label="Quality"
-          rules={[{ required: true, message: "Please select the quality" }]}
+          label="Chất Lượng"
+          rules={[{ required: true, message: "Vui lòng chọn chất lượng" }]}
         >
-          <Select placeholder="Select quality">
-            <Option value="High">High</Option>
-            <Option value="Medium">Medium</Option>
-            <Option value="Low">Low</Option>
+          <Select placeholder="Chọn chất lượng">
+            <Option value="High">Cao</Option>
+            <Option value="Medium">Trung Bình</Option>
+            <Option value="Low">Thấp</Option>
           </Select>
         </Form.Item>
         <Form.Item
           name="status"
-          label="Status"
+          label="Trạng Thái"
           rules={[
-            { required: true, message: "Please select the product status" },
+            { required: true, message: "Vui lòng chọn trạng thái sản phẩm" },
           ]}
         >
-          <Select placeholder="Select status">
+          <Select
+            placeholder="Chọn trạng thái"
+            onChange={(value) => setStatus(value)}
+          >
             <Option value={0}>Sẵn Bán</Option>
-            <Option value={1}>Có sẳn để thuê</Option>
-            <Option value={4}>Sản phẩm ngừng kinh doanh</Option>
+            <Option value={1}>Có Sẵn Để Thuê</Option>
+            <Option value={4}>Ngừng Kinh Doanh</Option>
           </Select>
         </Form.Item>
+        {status === 1 && (
+          <>
+            <Form.Item name="pricePerHour" label="Giá Theo Giờ">
+              <Input type="number" />
+            </Form.Item>
+            <Form.Item name="pricePerDay" label="Giá Theo Ngày">
+              <Input type="number" />
+            </Form.Item>
+            <Form.Item name="pricePerWeek" label="Giá Theo Tuần">
+              <Input type="number" />
+            </Form.Item>
+            <Form.Item name="pricePerMonth" label="Giá Theo Tháng">
+              <Input type="number" />
+            </Form.Item>
+          </>
+        )}
         <Form.Item
           name="serialNumber"
-          label="Serial Number"
-          rules={[
-            { required: true, message: "Please enter the serial number" },
-          ]}
+          label="Số Serial"
+          rules={[{ required: true, message: "Vui lòng nhập số serial" }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="CategoryID"
-          label="Category"
-          rules={[{ required: true, message: "Please select a category!" }]}
+          label="Danh Mục"
+          rules={[{ required: true, message: "Vui lòng chọn danh mục!" }]}
         >
           <Select
             showSearch
-            placeholder="Select a category"
+            placeholder="Chọn danh mục"
             filterOption={filterOption}
             loading={isLoading}
             onChange={(value) => setSelectedCategory(value)}
@@ -210,12 +247,12 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="Upload Image">
+        <Form.Item label="Tải Lên Hình Ảnh">
           <Input type="file" accept="image/*" onChange={handleFileChange} />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
-            Update Product
+            Cập Nhật Sản Phẩm
           </Button>
         </Form.Item>
       </Form>

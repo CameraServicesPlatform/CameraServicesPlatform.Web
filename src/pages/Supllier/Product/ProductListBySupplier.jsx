@@ -170,54 +170,40 @@ const ProductListBySupplier = () => {
     }
   };
 
-  // Hàm lấy nhãn và màu sắc cho giá cả
-  const getPriceLabelAndStyle = (price) => {
-    if (price === null) return { color: "#888" };
-    if (price > 100000) return { color: "red" };
-    if (price > 50000) return { color: "orange" };
-    return { color: "green" };
-  };
-
   // Hàm render cho giá thuê
   const renderPriceRent = (priceRent, record) => {
     const priceLabels = {
-      rent: getPriceLabelAndStyle(priceRent),
-      hour: getPriceLabelAndStyle(record.pricePerHour),
-      day: getPriceLabelAndStyle(record.pricePerDay),
-      week: getPriceLabelAndStyle(record.pricePerWeek),
-      month: getPriceLabelAndStyle(record.pricePerMonth),
+      hour: record.pricePerHour,
+      day: record.pricePerDay,
+      week: record.pricePerWeek,
+      month: record.pricePerMonth,
     };
 
     return (
       <div>
-        {priceRent !== null && (
-          <span style={{ color: priceLabels.rent.color }}>
-            {priceRent} VND - {priceLabels.rent.label}
+        {record.pricePerHour !== null && record.pricePerHour !== 0 && (
+          <span style={{ marginRight: "10px" }}>
+            <strong>Theo Giờ:</strong> {record.pricePerHour} VND
           </span>
         )}
-        {record.pricePerHour && (
-          <div style={{ color: priceLabels.hour.color }}>
-            (Theo Giờ: {record.pricePerHour} VND - {priceLabels.hour.label})
-          </div>
+        {record.pricePerDay !== null && record.pricePerDay !== 0 && (
+          <span style={{ marginRight: "10px" }}>
+            <strong>Theo Ngày:</strong> {record.pricePerDay} VND
+          </span>
         )}
-        {record.pricePerDay && (
-          <div style={{ color: priceLabels.day.color }}>
-            (Theo Ngày: {record.pricePerDay} VND - {priceLabels.day.label})
-          </div>
+        {record.pricePerWeek !== null && record.pricePerWeek !== 0 && (
+          <span style={{ marginRight: "10px" }}>
+            <strong>Theo Tuần:</strong> {record.pricePerWeek} VND
+          </span>
         )}
-        {record.pricePerWeek && (
-          <div style={{ color: priceLabels.week.color }}>
-            (Theo Tuần: {record.pricePerWeek} VND - {priceLabels.week.label})
-          </div>
+        {record.pricePerMonth !== null && record.pricePerMonth !== 0 && (
+          <span style={{ marginRight: "10px" }}>
+            <strong>Theo Tháng:</strong> {record.pricePerMonth} VND
+          </span>
         )}
-        {record.pricePerMonth && (
-          <div style={{ color: priceLabels.month.color }}>
-            (Theo Tháng: {record.pricePerMonth} VND - {priceLabels.month.label})
-          </div>
-        )}
-        {Object.values(record).every((val) => val === null) && (
-          <span>Không có</span>
-        )}
+        {Object.values(priceLabels).every(
+          (val) => val === null || val === 0
+        ) && <span>--</span>}
       </div>
     );
   };
@@ -227,10 +213,10 @@ const ProductListBySupplier = () => {
     <span
       style={{
         fontWeight: "bold",
-        color: priceBuy !== null ? "#007bff" : "#888",
+        color: priceBuy !== null && priceBuy !== 0 ? "#007bff" : "#888",
       }}
     >
-      {priceBuy !== null ? `${priceBuy} VND` : "Không có"}
+      {priceBuy !== null && priceBuy !== 0 ? `${priceBuy} VND` : "--"}
     </span>
   );
 
@@ -398,22 +384,35 @@ const ProductListBySupplier = () => {
         >
           <Button
             type="default"
-            icon={<EyeOutlined />} // Eye icon for view
+            icon={<EyeOutlined />}
             onClick={() => handleView(record.productID)}
-            style={{ marginRight: "8px" }}
-          >
-            Xem
-          </Button>
+            style={{
+              marginRight: "8px",
+              backgroundColor: "#1890ff",
+              color: "#fff",
+              borderColor: "#1890ff",
+            }}
+          ></Button>
           <Button
             type="primary"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
-            style={{ marginRight: "8px" }}
+            style={{
+              marginRight: "8px",
+              backgroundColor: "#52c41a",
+              color: "#fff",
+              borderColor: "#52c41a",
+            }}
           ></Button>
           <Button
             type="danger"
             icon={<DeleteOutlined />}
             onClick={() => handleDelete(record.productID)}
+            style={{
+              backgroundColor: "#f5222d",
+              color: "#fff",
+              borderColor: "#f5222d",
+            }}
           ></Button>
         </div>
       ),
@@ -427,11 +426,10 @@ const ProductListBySupplier = () => {
 
   return (
     <div>
-      <Title level={2}>Product List</Title>
+      <Title level={2}>DANH SÁCH SẢN PHẨM </Title>
 
-      {/* Search Box */}
       <Input
-        placeholder="Search by product name"
+        placeholder="Tìm kiếm theo tên sản phẩm"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         style={{ marginBottom: "20px", width: "300px" }}

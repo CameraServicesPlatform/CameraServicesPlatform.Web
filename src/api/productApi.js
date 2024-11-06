@@ -230,3 +230,21 @@ export const deleteProduct = async (productId) => {
     return false;
   }
 };
+
+export const updateProductRent = async (data) => {
+  try {
+    const response = await api.put(`/product/update-product-rent`, data, {
+       
+    });
+
+    if (response.status === 200 && response.data.isSuccess) {
+      return response.data.result;
+    }
+
+    console.error("Failed to update product for rent:", response.data.messages);
+    return null;
+  } catch (error) {
+    console.error("Error updating product for rent:", error);
+    throw error;
+  }
+};
