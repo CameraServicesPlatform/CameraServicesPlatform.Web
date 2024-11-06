@@ -1,49 +1,37 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button, Input } from "antd";
+import { Button, Input, Table, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import { deleteProduct, getAllProduct } from "../../../api/productApi";
-import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
 import EditProductForm from "./EditProductForm";
 
 const ProductListTable = () => {
   const [products, setProducts] = useState([]);
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedProductId, setExpandedProductId] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
-      setError(null);
-      const result = await getAllProduct(pageIndex, pageSize);
-      if (result) {
-        setProducts(result);
-      } else {
-        setError("Failed to load products.");
-      }
+      const result = await getAllProduct();
+      setProducts(result || []);
       setLoading(false);
     };
 
     fetchProducts();
-  }, [pageIndex, pageSize]);
+  }, []);
 
   const handleDelete = async (productId) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this product?"
     );
     if (confirmed) {
-      try {
-        await deleteProduct(productId);
-        setProducts((prevProducts) =>
-          prevProducts.filter((product) => product.productID !== productId)
-        );
-      } catch (error) {
-        setError("Failed to delete product.");
-      }
+      await deleteProduct(productId);
+      setProducts(
+        products.filter((product) => product.productID !== productId)
+      );
     }
   };
 
@@ -53,8 +41,8 @@ const ProductListTable = () => {
   };
 
   const handleUpdateSuccess = (updatedProduct) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
+    setProducts(
+      products.map((product) =>
         product.productID === updatedProduct.productID
           ? updatedProduct
           : product
@@ -64,123 +52,124 @@ const ProductListTable = () => {
 
   const handleModalClose = () => {
     setIsEditModalVisible(false);
-    setSelectedProduct(null); // Reset selected product when closing modal
+    setSelectedProduct(null);
   };
 
-  // Filter products based on the search query
-  const filteredProducts = products.filter((product) =>
-    product.productName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleExpandDescription = (productId) => {
+    setExpandedProductId(expandedProductId === productId ? null : productId); // Toggle description visibility
+  };
+
+  const filteredProducts = products
+    .filter((product) =>
+      product.productName.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by createdAt in descending order
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+  };
+  const columns = [
+    {
+      title: "Product ID",
+      dataIndex: "productID",
+      key: "productID",
+      ellipsis: true,
+    },
+    {
+      title: "Product Name",
+      dataIndex: "productName",
+      key: "productName",
+      ellipsis: true,
+    },
+    {
+      title: "Description",
+      dataIndex: "productDescription",
+      key: "productDescription",
+      render: (text, record) => (
+        <div>
+          <Typography.Paragraph ellipsis={{ rows: 2, expandable: true }}>
+            {expandedProductId === record.productID
+              ? text
+              : `${text.slice(0, 10)}...`}
+          </Typography.Paragraph>
+          {text.length > 10 && (
+            <Button
+              type="link"
+              onClick={() => handleExpandDescription(record.productID)}
+              style={{ padding: 0 }}
+            >
+              {expandedProductId === record.productID ? "See Less" : "See More"}
+            </Button>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Price (Rent)",
+      dataIndex: "priceRent",
+      key: "priceRent",
+      render: (price) => `${price} vnd`,
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date) => formatDate(date),
+    },
+    {
+      title: "Updated At",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      render: (date) => formatDate(date),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, product) => (
+        <div>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(product)}
+            style={{ marginRight: 8 }}
+          >
+            Edit
+          </Button>
+          <Button
+            type="danger"
+            icon={<DeleteOutlined />}
+            onClick={() => handleDelete(product.productID)}
+          >
+            Delete
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div>
       <h2>Product List</h2>
-
-      {/* Search Box */}
       <Input
         placeholder="Search by product name"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        style={{ marginBottom: "20px", width: "300px" }}
+        style={{ marginBottom: 20, width: 300 }}
       />
-
-      {loading ? (
-        <p>Loading products...</p>
-      ) : error ? (
-        <p>{error}</p>
-      ) : (
-        <div>
-          {filteredProducts.length > 0 ? (
-            <table
-              border="1"
-              cellPadding="10"
-              cellSpacing="0"
-              style={{ width: "100%", textAlign: "left" }}
-            >
-              <thead>
-                <tr>
-                  <th>Product ID</th>
-                  <th>Supplier ID</th>
-                  <th>Category ID</th>
-                  <th>Product Name</th>
-                  <th>Description</th>
-                  <th>Price (Rent)</th>
-                  <th>Price (Buy)</th>
-                  <th>Brand</th>
-                  <th>Quality</th>
-                  <th>Status</th>
-                  <th>Rating</th>
-                  <th>Created At</th>
-                  <th>Updated At</th>
-                  <th>Image</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProducts.map((product) => (
-                  <tr key={product.productID}>
-                    <td>{product.productID}</td>
-                    <td>{product.supplierID}</td>
-                    <td>{product.categoryID}</td>
-                    <td>{product.productName}</td>
-                    <td>{product.productDescription}</td>
-                    <td>{product.priceRent} vnd</td>
-                    <td>{product.priceBuy} vnd</td>
-                    <td>{getBrandName(product.brand)}</td>
-                    <td>{product.quality}</td>
-                    <td>{getProductStatusEnum(product.status)}</td>
-                    <td>{product.rating}</td>
-                    <td>{new Date(product.createdAt).toLocaleString()}</td>
-                    <td>{new Date(product.updatedAt).toLocaleString()}</td>
-                    <td>
-                      <img
-                        src={
-                          product.listImage.length > 0
-                            ? product.listImage[0].image
-                            : "https://via.placeholder.com/100?text=No+Image"
-                        }
-                        alt={product.productName}
-                        width="100"
-                      />
-                    </td>
-                    <td style={{ textAlign: "center" }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Button
-                          type="primary"
-                          icon={<EditOutlined />}
-                          onClick={() => handleEdit(product)}
-                          style={{
-                            marginRight: "8px", // Add margin to the right
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          type="danger"
-                          icon={<DeleteOutlined />}
-                          onClick={() => handleDelete(product.productID)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No products available.</p>
-          )}
-        </div>
-      )}
-
-      {/* Edit Product Modal */}
+      <Table
+        dataSource={filteredProducts}
+        columns={columns}
+        loading={loading}
+        rowKey="productID"
+        pagination={{ pageSize: 10 }}
+      />
       {isEditModalVisible && (
         <EditProductForm
           visible={isEditModalVisible}

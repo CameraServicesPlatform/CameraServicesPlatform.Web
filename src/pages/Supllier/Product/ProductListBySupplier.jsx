@@ -37,6 +37,7 @@ const ProductListBySupplier = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [categoryNames, setCategoryNames] = useState({}); // Store category names keyed by ID
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [expandedDescriptions, setExpandedDescriptions] = useState({}); // Track expanded descriptions
   const { id } = useParams(); // Assume `id` is passed via URL parameters
 
   // Fetch supplier ID on component mount
@@ -246,6 +247,26 @@ const ProductListBySupplier = () => {
     }
   };
 
+  // Define the formatDate function
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+  };
+
+  // Handle description expansion
+  const handleExpandDescription = (productId) => {
+    setExpandedDescriptions((prev) => ({
+      ...prev,
+      [productId]: !prev[productId],
+    }));
+  };
+
   // Định nghĩa các cột
   const columns = [
     {
@@ -280,6 +301,24 @@ const ProductListBySupplier = () => {
     {
       title: "Mô Tả",
       dataIndex: "productDescription",
+      render: (text, record) => (
+        <div>
+          <Typography.Paragraph ellipsis={{ rows: 2, expandable: true }}>
+            {expandedDescriptions[record.productID]
+              ? text
+              : `${text.slice(0, 100)}...`}
+          </Typography.Paragraph>
+          {text.length > 100 && (
+            <Button
+              type="link"
+              onClick={() => handleExpandDescription(record.productID)}
+              style={{ padding: 0 }}
+            >
+              {expandedDescriptions[record.productID] ? "See Less" : "See More"}
+            </Button>
+          )}
+        </div>
+      ),
     },
     {
       title: "Giá (Thuê)",
@@ -323,13 +362,13 @@ const ProductListBySupplier = () => {
     {
       title: "Ngày Tạo",
       dataIndex: "createdAt",
-      render: (createdAt) => new Date(createdAt).toLocaleString(),
+      render: (createdAt) => formatDate(createdAt),
       sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
     },
     {
       title: "Ngày Cập Nhật",
       dataIndex: "updatedAt",
-      render: (updatedAt) => new Date(updatedAt).toLocaleString(),
+      render: (updatedAt) => formatDate(updatedAt),
       sorter: (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
     },
     {
