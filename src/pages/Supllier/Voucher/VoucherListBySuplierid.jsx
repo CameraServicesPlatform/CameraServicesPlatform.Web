@@ -8,6 +8,7 @@ import {
 import {
   Button,
   DatePicker,
+  Descriptions,
   Form,
   Input,
   message,
@@ -41,7 +42,6 @@ const VoucherListBySupplierId = () => {
   const [form] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
-
   const [selectedProductId, setSelectedProductId] = useState(null);
 
   const fetchSupplierId = async () => {
@@ -208,6 +208,7 @@ const VoucherListBySupplierId = () => {
       dataIndex: "validFrom",
       key: "validFrom",
       sorter: (a, b) => dayjs(a.validFrom).unix() - dayjs(b.validFrom).unix(),
+      render: (text) => dayjs(text).format("DD/MM/YYYY HH:mm:ss"),
     },
     {
       title: "Ngày Hết Hạn",
@@ -215,6 +216,7 @@ const VoucherListBySupplierId = () => {
       key: "expirationDate",
       sorter: (a, b) =>
         dayjs(a.expirationDate).unix() - dayjs(b.expirationDate).unix(),
+      render: (text) => dayjs(text).format("DD/MM/YYYY HH:mm:ss"),
     },
     {
       title: "Trạng Thái",
@@ -233,46 +235,70 @@ const VoucherListBySupplierId = () => {
       dataIndex: "createdAt",
       key: "createdAt",
       sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+      render: (text) => dayjs(text).format("DD/MM/YYYY HH:mm:ss"),
+      defaultSortOrder: "descend", // Default sort order for latest day
     },
     {
       title: "Ngày Cập Nhật",
       dataIndex: "updatedAt",
       key: "updatedAt",
-      sorter: (a, b) => dayjs(a.updatedAt).unix() - dayjs(b.updatedAt).unix(),
+      sorter: (a, b) => dayjs(b.updatedAt).unix() - dayjs(b.updatedAt).unix(),
+      render: (text) => dayjs(text).format("DD/MM/YYYY HH:mm:ss"),
     },
     {
       title: "Hành Động",
       render: (_, record) => (
-        <>
+        <div className="flex space-x-2">
           <Button
             onClick={() => handleViewDetails(record)}
             icon={<EyeOutlined />}
+            type="primary"
           >
             Xem Chi Tiết
           </Button>
           <Button
             onClick={() => handleOpenUpdateModal(record)}
             icon={<EditOutlined />}
+            type="default"
           >
             Cập Nhật
           </Button>
-        </>
+        </div>
       ),
     },
   ];
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-4">Danh sách vourcher</h1>
+    <div
+      className="p-4 bg-white rounded-lg shadow-md"
+      style={{
+        backgroundColor: "#f0f2f5",
+        padding: "16px",
+        borderRadius: "8px",
+      }}
+    >
+      <h1
+        className="text-2xl font-semibold mb-4"
+        style={{ color: "#1890ff", marginBottom: "16px" }}
+      >
+        DANH SÁCH VOUCHER
+      </h1>
       <Input
         placeholder="Search by Voucher Code"
         prefix={<SearchOutlined />}
         value={searchText}
         onChange={handleSearch}
-        style={{ marginBottom: 16 }}
+        style={{
+          marginBottom: "16px",
+          borderRadius: "4px",
+          border: "1px solid #d9d9d9",
+          padding: "8px",
+        }}
       />
       {loading ? (
-        <Spin className="flex justify-center items-center" />
+        <div className="flex justify-center items-center h-64">
+          <Spin />
+        </div>
       ) : (
         <>
           {filteredVouchers.length > 0 ? (
@@ -282,7 +308,7 @@ const VoucherListBySupplierId = () => {
                 columns={columns}
                 rowKey="vourcherID"
                 pagination={false}
-                className="shadow-lg rounded"
+                style={{ borderRadius: "8px" }}
               />
               <div className="flex justify-end mt-4">
                 <Pagination
@@ -295,7 +321,7 @@ const VoucherListBySupplierId = () => {
               </div>
             </>
           ) : (
-            <div>Không có dữ liệu!</div>
+            <div className="text-center text-gray-500">Không có dữ liệu!</div>
           )}
         </>
       )}
@@ -310,35 +336,44 @@ const VoucherListBySupplierId = () => {
             </Button>,
           ]}
         >
-          <p>
-            <strong>Mã Giảm Giá:</strong> {selectedVoucher.vourcherCode}
-          </p>
-          <p>
-            <strong>Mô Tả:</strong> {selectedVoucher.description}
-          </p>
-          <p>
-            <strong>Giá Trị Giảm Giá:</strong> {selectedVoucher.discountAmount}
-          </p>
-          <p>
-            <strong>Ngày Bắt Đầu:</strong> {selectedVoucher.validFrom}
-          </p>
-          <p>
-            <strong>Ngày Hết Hạn:</strong> {selectedVoucher.expirationDate}
-          </p>
-          <p>
-            <strong>Trạng Thái:</strong>
-            {selectedVoucher.isActive ? (
-              <CheckCircleOutlined style={{ color: "green" }} />
-            ) : (
-              <CloseCircleOutlined style={{ color: "red" }} />
-            )}
-          </p>
-          <p>
-            <strong>Ngày Tạo:</strong> {selectedVoucher.createdAt}
-          </p>
-          <p>
-            <strong>Ngày Cập Nhật:</strong> {selectedVoucher.updatedAt}
-          </p>
+          <Descriptions
+            bordered
+            column={1}
+            style={{
+              backgroundColor: "#f0f2f5",
+              padding: "16px",
+              borderRadius: "8px",
+            }}
+          >
+            <Descriptions.Item label="Mã Giảm Giá">
+              {selectedVoucher.vourcherCode}
+            </Descriptions.Item>
+            <Descriptions.Item label="Mô Tả">
+              {selectedVoucher.description}
+            </Descriptions.Item>
+            <Descriptions.Item label="Giá Trị Giảm Giá">
+              {selectedVoucher.discountAmount}
+            </Descriptions.Item>
+            <Descriptions.Item label="Ngày Bắt Đầu">
+              {dayjs(selectedVoucher.validFrom).format("DD/MM/YYYY HH:mm")}
+            </Descriptions.Item>
+            <Descriptions.Item label="Ngày Hết Hạn">
+              {dayjs(selectedVoucher.expirationDate).format("DD/MM/YYYY HH:mm")}
+            </Descriptions.Item>
+            <Descriptions.Item label="Trạng Thái">
+              {selectedVoucher.isActive ? (
+                <CheckCircleOutlined style={{ color: "green" }} />
+              ) : (
+                <CloseCircleOutlined style={{ color: "red" }} />
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item label="Ngày Tạo">
+              {dayjs(selectedVoucher.createdAt).format("DD/MM/YYYY HH:mm")}
+            </Descriptions.Item>
+            <Descriptions.Item label="Ngày Cập Nhật">
+              {dayjs(selectedVoucher.updatedAt).format("DD/MM/YYYY HH:mm")}
+            </Descriptions.Item>
+          </Descriptions>
         </Modal>
       )}
       {selectedVoucher && (
@@ -348,7 +383,11 @@ const VoucherListBySupplierId = () => {
           onOk={handleUpdateVoucher}
           onCancel={() => setUpdateModalVisible(false)}
         >
-          <Form form={form} layout="vertical">
+          <Form
+            form={form}
+            layout="vertical"
+            style={{ marginBottom: "16px", fontWeight: "bold" }}
+          >
             <Form.Item name="vourcherID" label="Mã Voucher">
               <Input disabled />
             </Form.Item>
