@@ -147,9 +147,17 @@ const VoucherListBySupplierId = () => {
     setSearchText(e.target.value);
   };
 
-  const filteredVouchers = vouchers.filter((voucher) =>
-    voucher.vourcherCode.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredVouchers = vouchers
+    .filter((voucher) =>
+      voucher.vourcherCode.toLowerCase().includes(searchText.toLowerCase())
+    )
+    .sort((a, b) => {
+      const isAExpired = dayjs(a.expirationDate).isBefore(dayjs());
+      const isBExpired = dayjs(b.expirationDate).isBefore(dayjs());
+      if (isAExpired && !isBExpired) return 1;
+      if (!isAExpired && isBExpired) return -1;
+      return 0;
+    });
 
   const handleOpenProductVoucher = (record) => {
     setSelectedRecord(record);
@@ -247,24 +255,29 @@ const VoucherListBySupplierId = () => {
     },
     {
       title: "Hành Động",
-      render: (_, record) => (
-        <div className="flex space-x-2">
-          <Button
-            onClick={() => handleViewDetails(record)}
-            icon={<EyeOutlined />}
-            type="primary"
-          >
-            Xem Chi Tiết
-          </Button>
-          <Button
-            onClick={() => handleOpenUpdateModal(record)}
-            icon={<EditOutlined />}
-            type="default"
-          >
-            Cập Nhật
-          </Button>
-        </div>
-      ),
+      render: (_, record) => {
+        const isExpired = dayjs(record.expirationDate).isBefore(dayjs());
+        return (
+          <div className="flex space-x-2">
+            <Button
+              onClick={() => handleViewDetails(record)}
+              icon={<EyeOutlined />}
+              type="primary"
+              disabled={isExpired}
+            >
+              Xem Chi Tiết
+            </Button>
+            <Button
+              onClick={() => handleOpenUpdateModal(record)}
+              icon={<EditOutlined />}
+              type="default"
+              disabled={isExpired}
+            >
+              Cập Nhật
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -328,7 +341,7 @@ const VoucherListBySupplierId = () => {
       {selectedVoucher && (
         <Modal
           title="Chi Tiết Voucher"
-          visible={viewModalVisible}
+          open={viewModalVisible}
           onCancel={() => setViewModalVisible(false)}
           footer={[
             <Button key="close" onClick={() => setViewModalVisible(false)}>
@@ -379,7 +392,7 @@ const VoucherListBySupplierId = () => {
       {selectedVoucher && (
         <Modal
           title="Cập Nhật Voucher"
-          visible={updateModalVisible}
+          open={updateModalVisible}
           onOk={handleUpdateVoucher}
           onCancel={() => setUpdateModalVisible(false)}
         >
@@ -405,7 +418,12 @@ const VoucherListBySupplierId = () => {
                 { required: true, message: "Vui lòng chọn ngày hết hạn" },
               ]}
             >
-              <DatePicker showTime />
+              <DatePicker
+                showTime
+                disabled={dayjs(selectedVoucher.expirationDate).isBefore(
+                  dayjs()
+                )}
+              />
             </Form.Item>
             <Form.Item
               name="isActive"

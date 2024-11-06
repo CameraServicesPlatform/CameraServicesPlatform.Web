@@ -1,4 +1,5 @@
 import { Button, Card, Col, message, Modal, Row, Table } from "antd";
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
   createProductVoucher,
@@ -29,12 +30,16 @@ const ProductVoucher = () => {
         const vouchersWithDetails = await Promise.all(
           result.result.map(async (voucher) => {
             const product = await getProductById(voucher.productID);
-            const voucherDetails = await getVoucherById(voucher.vourcherID);
+            const voucherDetails = await getVoucherById(voucher.voucherID);
             return {
               ...voucher,
               productName: product ? product.productName : "Unknown",
+              productImage:
+                product && product.listImage.length > 0
+                  ? product.listImage[0]
+                  : "placeholder-image-url",
               voucherCode: voucherDetails
-                ? voucherDetails.vourcherCode
+                ? voucherDetails.voucherCode
                 : "Unknown",
             };
           })
@@ -54,7 +59,10 @@ const ProductVoucher = () => {
     setLoading(true);
     try {
       const products = await getAllProduct(1, 10);
-      setProducts(products);
+      const filteredProducts = products.filter(
+        (product) => product.status === 0 || product.status === 1
+      );
+      setProducts(filteredProducts);
     } catch (error) {
       message.error("Failed to fetch products.");
     } finally {
@@ -67,7 +75,10 @@ const ProductVoucher = () => {
     try {
       const response = await getAllVouchers(1, 10);
       if (response && response.result) {
-        setAllVouchers(response.result);
+        const filteredVouchers = response.result.filter((voucher) =>
+          dayjs(voucher.expirationDate).isAfter(dayjs())
+        );
+        setAllVouchers(filteredVouchers);
       } else {
         message.error("Failed to fetch vouchers.");
       }
@@ -197,7 +208,7 @@ const ProductVoucher = () => {
       )}
       <Modal
         title="Create Product Voucher"
-        visible={isCreating}
+        open={isCreating}
         onCancel={() => setIsCreating(false)}
         footer={null}
       >
@@ -208,15 +219,20 @@ const ProductVoucher = () => {
           <Row gutter={16}>
             <Col span={12}>
               <h2 className="text-xl font-semibold mb-4">Select Product</h2>
-              <Row gutter={16}>
+              <Row gutter={[16, 16]}>
                 {products.map((product) => (
-                  <Col span={8} key={product.productID}>
+                  <Col span={24} key={product.productID}>
                     <Card
                       hoverable
                       cover={
                         <img
                           alt={product.productName}
-                          src={product.productImage}
+                          src={
+                            product.listImage.length > 0
+                              ? product.listImage[0]
+                              : "placeholder-image-url"
+                          }
+                          style={{ height: 200, objectFit: "cover" }}
                         />
                       }
                       onClick={() => setSelectedProduct(product)}
@@ -225,6 +241,7 @@ const ProductVoucher = () => {
                           ? "border-blue-500"
                           : ""
                       }
+                      style={{ padding: "10px" }}
                     >
                       <Card.Meta title={product.productName} />
                     </Card>
@@ -234,9 +251,9 @@ const ProductVoucher = () => {
             </Col>
             <Col span={12}>
               <h2 className="text-xl font-semibold mb-4">Select Voucher</h2>
-              <Row gutter={16}>
+              <Row gutter={[16, 16]}>
                 {allVouchers.map((voucher) => (
-                  <Col span={8} key={voucher.voucherID}>
+                  <Col span={24} key={voucher.voucherID}>
                     <Card
                       hoverable
                       onClick={() => setSelectedVoucher(voucher)}
@@ -245,6 +262,7 @@ const ProductVoucher = () => {
                           ? "border-blue-500"
                           : ""
                       }
+                      style={{ padding: "10px" }}
                     >
                       <Card.Meta
                         title={voucher.voucherCode}
@@ -265,7 +283,7 @@ const ProductVoucher = () => {
       </Modal>
       <Modal
         title="Edit Product Voucher"
-        visible={isEditing}
+        open={isEditing}
         onCancel={handleCloseEditForm}
         footer={null}
       >

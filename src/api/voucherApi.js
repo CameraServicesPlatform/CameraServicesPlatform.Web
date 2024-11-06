@@ -28,7 +28,6 @@ export const getVoucherById = async (id) => {
     }
   } catch (error) {
     console.error("Error fetching voucher by ID:", error);
-    message.error("Failed to fetch voucher details. Please try again later.");
     return null;
   }
 };
