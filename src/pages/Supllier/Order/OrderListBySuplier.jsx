@@ -1,20 +1,9 @@
-import {
-  CarOutlined,
-  CheckCircleOutlined,
-  CheckOutlined,
-  CloseOutlined,
-} from "@ant-design/icons";
 import { Button, message, Modal, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getSupplierIdByAccountId } from "../../../api/accountApi";
-import {
-  cancelOrder,
-  getOrderOfSupplierId,
-  updateOrderStatusApproved,
-  updateOrderStatusCompleted,
-  updateOrderStatusShipped,
-} from "../../../api/orderApi";
+import { getOrderOfSupplierId } from "../../../api/orderApi";
+import TrackingOrder from "./TrackingOrder";
 
 const OrderListBySupplier = ({ refresh }) => {
   const user = useSelector((state) => state.user.user || {});
@@ -24,6 +13,8 @@ const OrderListBySupplier = ({ refresh }) => {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [supplierId, setSupplierId] = useState(null);
+  const [isTrackingModalVisible, setIsTrackingModalVisible] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const orderStatusMap = {
     0: "Chờ xử lý",
@@ -93,101 +84,22 @@ const OrderListBySupplier = ({ refresh }) => {
     fetchOrders();
   }, [refresh, supplierId, pageIndex, pageSize]);
 
-  const handleCompleteOrder = async (orderId) => {
-    try {
-      const response = await updateOrderStatusCompleted(orderId);
-      if (response?.isSuccess) {
-        message.success("Đơn hàng đã được hoàn thành!");
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.orderID === orderId ? { ...order, orderStatus: 2 } : order
-          )
-        );
-      } else {
-        message.error("Không thể hoàn thành đơn hàng.");
-      }
-    } catch (error) {
-      message.error("Lỗi khi hoàn thành đơn hàng.");
-    }
+  const handleUpdateOrderStatus = (orderId, status) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order.orderID === orderId ? { ...order, orderStatus: status } : order
+      )
+    );
   };
 
-  const handleCancelOrder = async (orderId) => {
-    try {
-      const response = await cancelOrder(orderId);
-      if (response?.isSuccess) {
-        message.success("Đơn hàng đã được hủy!");
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.orderID === orderId ? { ...order, orderStatus: 6 } : order
-          )
-        );
-      } else {
-        message.error("Không thể hủy đơn hàng.");
-      }
-    } catch (error) {
-      message.error("Lỗi khi hủy đơn hàng.");
-    }
+  const handleOpenTrackingModal = (order) => {
+    setSelectedOrder(order);
+    setIsTrackingModalVisible(true);
   };
 
-  const handleShipOrder = async (orderId) => {
-    try {
-      const response = await updateOrderStatusShipped(orderId);
-      if (response?.isSuccess) {
-        message.success("Đơn hàng đã được giao!");
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.orderID === orderId ? { ...order, orderStatus: 4 } : order
-          )
-        );
-      } else {
-        message.error("Không thể giao đơn hàng.");
-      }
-    } catch (error) {
-      message.error("Lỗi khi giao đơn hàng.");
-    }
-  };
-
-  const handleApproveOrder = async (orderId) => {
-    try {
-      const response = await updateOrderStatusApproved(orderId);
-      if (response?.isSuccess) {
-        message.success("Đơn hàng đã được phê duyệt!");
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.orderID === orderId ? { ...order, orderStatus: 1 } : order
-          )
-        );
-      } else {
-        message.error("Không thể phê duyệt đơn hàng.");
-      }
-    } catch (error) {
-      message.error("Lỗi khi phê duyệt đơn hàng.");
-    }
-  };
-
-  const showConfirm = (action, orderId) => {
-    Modal.confirm({
-      title: "Bạn có chắc chắn?",
-      content: `Bạn có muốn ${action} đơn hàng này không?`,
-      onOk() {
-        switch (action) {
-          case "complete":
-            handleCompleteOrder(orderId);
-            break;
-          case "cancel":
-            handleCancelOrder(orderId);
-            break;
-          case "ship":
-            handleShipOrder(orderId);
-            break;
-          case "approve":
-            handleApproveOrder(orderId);
-            break;
-          default:
-            break;
-        }
-      },
-    });
+  const handleCloseTrackingModal = () => {
+    setIsTrackingModalVisible(false);
+    setSelectedOrder(null);
   };
 
   const columns = [
@@ -238,58 +150,9 @@ const OrderListBySupplier = ({ refresh }) => {
       title: "Hành động",
       key: "actions",
       render: (text, record) => (
-        <div>
-          {record.orderStatus === 0 && (
-            <>
-              <Button
-                type="primary"
-                onClick={() => showConfirm("approve", record.orderID)}
-                className="ml-2"
-                icon={<CheckOutlined />}
-              >
-                Phê duyệt
-              </Button>
-              <Button
-                type="danger"
-                onClick={() => showConfirm("cancel", record.orderID)}
-                className="ml-2"
-                icon={<CloseOutlined />}
-              >
-                Hủy
-              </Button>
-            </>
-          )}
-          {record.orderStatus === 7 && (
-            <Button
-              type="primary"
-              onClick={() => showConfirm("approve", record.orderID)}
-              className="ml-2"
-              icon={<CheckOutlined />}
-            >
-              Phê duyệt
-            </Button>
-          )}
-          {record.orderStatus === 1 && (
-            <Button
-              type="default"
-              onClick={() => showConfirm("ship", record.orderID)}
-              className="ml-2"
-              icon={<CarOutlined />}
-            >
-              Giao hàng
-            </Button>
-          )}
-          {record.orderStatus !== 2 && record.orderStatus !== 6 && (
-            <Button
-              type="primary"
-              onClick={() => showConfirm("complete", record.orderID)}
-              className="ml-2"
-              icon={<CheckCircleOutlined />}
-            >
-              Hoàn thành
-            </Button>
-          )}
-        </div>
+        <Button type="primary" onClick={() => handleOpenTrackingModal(record)}>
+          Tracking Order
+        </Button>
       ),
     },
   ];
@@ -303,20 +166,35 @@ const OrderListBySupplier = ({ refresh }) => {
   }
 
   return (
-    <Table
-      dataSource={orders}
-      columns={columns}
-      rowKey="orderID"
-      pagination={{
-        current: pageIndex,
-        pageSize: pageSize,
-        total: orders.length,
-        onChange: (page, pageSize) => {
-          setPageIndex(page);
-          setPageSize(pageSize);
-        },
-      }}
-    />
+    <>
+      <Table
+        dataSource={orders}
+        columns={columns}
+        rowKey="orderID"
+        pagination={{
+          current: pageIndex,
+          pageSize: pageSize,
+          total: orders.length,
+          onChange: (page, pageSize) => {
+            setPageIndex(page);
+            setPageSize(pageSize);
+          },
+        }}
+      />
+      <Modal
+        title="Tracking Order"
+        visible={isTrackingModalVisible}
+        onCancel={handleCloseTrackingModal}
+        footer={null}
+      >
+        {selectedOrder && (
+          <TrackingOrder
+            order={selectedOrder}
+            onUpdate={handleUpdateOrderStatus}
+          />
+        )}
+      </Modal>
+    </>
   );
 };
 
