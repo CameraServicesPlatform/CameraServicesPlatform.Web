@@ -225,6 +225,7 @@ const VoucherListBySupplierId = () => {
       sorter: (a, b) =>
         dayjs(a.expirationDate).unix() - dayjs(b.expirationDate).unix(),
       render: (text) => dayjs(text).format("DD/MM/YYYY HH:mm:ss"),
+      defaultSortOrder: "descend",
     },
     {
       title: "Trạng Thái",
@@ -244,7 +245,6 @@ const VoucherListBySupplierId = () => {
       key: "createdAt",
       sorter: (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
       render: (text) => dayjs(text).format("DD/MM/YYYY HH:mm:ss"),
-      defaultSortOrder: "descend", // Default sort order for latest day
     },
     {
       title: "Ngày Cập Nhật",
@@ -282,31 +282,14 @@ const VoucherListBySupplierId = () => {
   ];
 
   return (
-    <div
-      className="p-4 bg-white rounded-lg shadow-md"
-      style={{
-        backgroundColor: "#f0f2f5",
-        padding: "16px",
-        borderRadius: "8px",
-      }}
-    >
-      <h1
-        className="text-2xl font-semibold mb-4"
-        style={{ color: "#1890ff", marginBottom: "16px" }}
-      >
-        DANH SÁCH VOUCHER
-      </h1>
+    <div className="bg-gray-100 p-4 rounded-lg">
+      <h1 className="text-blue-500 mb-4 text-2xl font-semibold">DANH SÁCH VOUCHER</h1>
       <Input
         placeholder="Search by Voucher Code"
         prefix={<SearchOutlined />}
         value={searchText}
         onChange={handleSearch}
-        style={{
-          marginBottom: "16px",
-          borderRadius: "4px",
-          border: "1px solid #d9d9d9",
-          padding: "8px",
-        }}
+        className="mb-4 rounded border border-gray-300 p-2"
       />
       {loading ? (
         <div className="flex justify-center items-center h-64">
@@ -321,7 +304,7 @@ const VoucherListBySupplierId = () => {
                 columns={columns}
                 rowKey="vourcherID"
                 pagination={false}
-                style={{ borderRadius: "8px" }}
+                className="rounded-lg"
               />
               <div className="flex justify-end mt-4">
                 <Pagination
@@ -352,11 +335,7 @@ const VoucherListBySupplierId = () => {
           <Descriptions
             bordered
             column={1}
-            style={{
-              backgroundColor: "#f0f2f5",
-              padding: "16px",
-              borderRadius: "8px",
-            }}
+            className="bg-gray-100 p-4 rounded-lg"
           >
             <Descriptions.Item label="Mã Giảm Giá">
               {selectedVoucher.vourcherCode}
@@ -375,9 +354,9 @@ const VoucherListBySupplierId = () => {
             </Descriptions.Item>
             <Descriptions.Item label="Trạng Thái">
               {selectedVoucher.isActive ? (
-                <CheckCircleOutlined style={{ color: "green" }} />
+                <CheckCircleOutlined className="text-green-500" />
               ) : (
-                <CloseCircleOutlined style={{ color: "red" }} />
+                <CloseCircleOutlined className="text-red-500" />
               )}
             </Descriptions.Item>
             <Descriptions.Item label="Ngày Tạo">
@@ -399,7 +378,7 @@ const VoucherListBySupplierId = () => {
           <Form
             form={form}
             layout="vertical"
-            style={{ marginBottom: "16px", fontWeight: "bold" }}
+            className="mb-4 font-bold"
           >
             <Form.Item name="vourcherID" label="Mã Voucher">
               <Input disabled />
@@ -420,9 +399,8 @@ const VoucherListBySupplierId = () => {
             >
               <DatePicker
                 showTime
-                disabled={dayjs(selectedVoucher.expirationDate).isBefore(
-                  dayjs()
-                )}
+                disabled={dayjs(selectedVoucher.expirationDate).isBefore(dayjs())}
+                className="w-full"
               />
             </Form.Item>
             <Form.Item

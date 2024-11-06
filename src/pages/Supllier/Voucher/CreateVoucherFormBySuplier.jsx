@@ -64,7 +64,7 @@ const CreateVoucherFormBySuplier = () => {
   return (
     <Row justify="center">
       <Col span={12}>
-        <Card title="Tạo Voucher" bordered={false}>
+        <Card title="Tạo Voucher" bordered={false} className="bg-gray-100 p-4 rounded-lg">
           <Form onFinish={onFinish} layout="vertical">
             <Form.Item
               name="voucherCode"
@@ -86,7 +86,7 @@ const CreateVoucherFormBySuplier = () => {
             >
               <InputNumber
                 min={0}
-                style={{ width: "100%" }}
+                className="w-full"
                 placeholder="Nhập số tiền giảm"
               />
             </Form.Item>
@@ -111,7 +111,7 @@ const CreateVoucherFormBySuplier = () => {
             >
               <DatePicker
                 showTime
-                style={{ width: "100%" }}
+                className="w-full"
                 placeholder="Chọn ngày bắt đầu"
               />
             </Form.Item>
@@ -128,7 +128,7 @@ const CreateVoucherFormBySuplier = () => {
             >
               <DatePicker
                 showTime
-                style={{ width: "100%" }}
+                className="w-full"
                 placeholder="Chọn ngày hết hạn"
               />
             </Form.Item>
@@ -139,7 +139,7 @@ const CreateVoucherFormBySuplier = () => {
                 htmlType="submit"
                 loading={loading}
                 block
-                style={{ backgroundColor: "#1890ff", borderColor: "#1890ff" }}
+                className="bg-blue-500 border-blue-500 hover:bg-blue-600"
               >
                 Tạo Voucher
               </Button>
