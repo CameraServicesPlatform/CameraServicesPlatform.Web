@@ -4,16 +4,36 @@ import {
   CheckOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { Button, message, Modal } from "antd";
-import React from "react";
+import { Button, message, Modal, Table } from "antd";
+import React, { useEffect, useState } from "react";
 import {
   cancelOrder,
   updateOrderStatusApproved,
   updateOrderStatusCompleted,
   updateOrderStatusShipped,
 } from "../../../api/orderApi";
-
+import { getOrderDetails } from "../../../api/orderDetailApi";
 const TrackingOrder = ({ order, onUpdate }) => {
+  const [orderDetails, setOrderDetails] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        const data = await getOrderDetails(order.orderID);
+        setOrderDetails(data.result || []);
+      } catch (error) {
+        message.error("Lỗi khi lấy chi tiết đơn hàng.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (order) {
+      fetchOrderDetails();
+    }
+  }, [order]);
+
   const handleCompleteOrder = async (orderId) => {
     try {
       const response = await updateOrderStatusCompleted(orderId);
@@ -95,6 +115,29 @@ const TrackingOrder = ({ order, onUpdate }) => {
     });
   };
 
+  const columns = [
+    {
+      title: "Product Name",
+      dataIndex: "productName",
+      key: "productName",
+    },
+    {
+      title: "Quantity",
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+    },
+    {
+      title: "Total",
+      dataIndex: "total",
+      key: "total",
+    },
+  ];
+
   return (
     <div>
       {order.orderStatus === 0 && (
@@ -147,6 +190,13 @@ const TrackingOrder = ({ order, onUpdate }) => {
           Hoàn thành
         </Button>
       )}
+      <Table
+        dataSource={orderDetails}
+        columns={columns}
+        rowKey="id"
+        loading={loading}
+        pagination={false}
+      />
     </div>
   );
 };
