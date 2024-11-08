@@ -4,7 +4,10 @@ import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createOrderWithPayment } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
-import { getVouchersBySupplierId } from "../../../../api/voucherApi";
+import {
+  getProductVouchersByProductId,
+  getVoucherById,
+} from "../../../../api/voucherApi";
 
 const { Option } = Select;
 
@@ -20,6 +23,8 @@ const CreateOrderBuy = () => {
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [loadingVouchers, setLoadingVouchers] = useState(true);
   const user = useSelector((state) => state.user.user || {});
+  const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
+
   const accountId = user.id;
   console.log(accountId);
 
@@ -50,9 +55,13 @@ const CreateOrderBuy = () => {
     const fetchVouchers = async () => {
       setLoadingVouchers(true);
       try {
-        const voucherData = await getVouchersBySupplierId(supplierID, 1, 10); // Adjust pageIndex and pageSize as needed
-        if (voucherData && voucherData.isSuccess) {
-          setVouchers(voucherData.result || []);
+        const voucherData = await getProductVouchersByProductId(
+          productID,
+          1,
+          10
+        ); // Adjust pageIndex and pageSize as needed
+        if (voucherData) {
+          setVouchers(voucherData);
         } else {
           message.error("No vouchers available.");
         }
@@ -63,20 +72,25 @@ const CreateOrderBuy = () => {
     };
 
     fetchVouchers();
-  }, [supplierID]);
+  }, [productID]);
 
   // Handle voucher selection
-  const handleVoucherSelect = (vourcherID) => {
-    console.log("Selected Voucher ID:", vourcherID); // Ghi lại ID voucher được chọn
+  const handleVoucherSelect = async (voucherID) => {
+    console.log("Selected Voucher ID:", voucherID); // Ghi lại ID voucher được chọn
 
     setSelectedVoucher(vourcherID);
-    console.log("Updated Selected Voucher:", vourcherID);
+    console.log("Updated Selected Voucher:", vourherID);
 
-    calculateTotalAmount(vourcherID);
+    // Fetch voucher details
+    const voucherDetails = await getVoucherById(vourherID);
+    setSelectedVoucherDetails(voucherDetails);
+
+    calculateTotalAmount(voucherID);
   };
+
   useEffect(() => {
     console.log("Updated Selected Voucher:", selectedVoucher);
-  }, [selectedVoucher]); // Theo dõi thay đổi của selectedVoucher
+  }, [selectedVoucher]);
 
   // Calculate total amount
   const calculateTotalAmount = (vourcherID) => {
@@ -183,9 +197,7 @@ const CreateOrderBuy = () => {
                   <p>
                     <strong>Description:</strong> {product.productDescription}
                   </p>
-                  <p>
-                    <strong>Rent Price:</strong> {product.priceRent}
-                  </p>
+
                   <p>
                     <strong>Buy Price:</strong> {product.priceBuy}
                   </p>
@@ -249,13 +261,16 @@ const CreateOrderBuy = () => {
                   onClick={() => handleVoucherSelect(voucher.vourcherID)}
                 >
                   <Card.Meta
-                    title={voucher.vourcherCode}
-                    description={voucher.description}
+                    title={selectedVoucherDetails.vourcherCode}
+                    description={selectedVoucherDetails.description}
                   />
                 </Card>
               ))}
             </div>
           </Form.Item>
+
+          {/* Display selected voucher details */}
+
           <Form.Item label="Total Amount">
             <Input value={totalAmount} disabled />
           </Form.Item>

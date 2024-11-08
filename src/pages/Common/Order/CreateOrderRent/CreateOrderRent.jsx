@@ -15,8 +15,10 @@ import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createOrderRent } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
-import { getVouchersBySupplierId } from "../../../../api/voucherApi";
-
+import {
+  getProductVouchersByProductId,
+  getVoucherById,
+} from "../../../../api/voucherApi";
 const { Option } = Select;
 
 const CreateOrderRent = () => {
@@ -37,6 +39,7 @@ const CreateOrderRent = () => {
   const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
   console.log(accountId);
+  const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
 
   // Fetch product details
   useEffect(() => {
@@ -65,9 +68,13 @@ const CreateOrderRent = () => {
     const fetchVouchers = async () => {
       setLoadingVouchers(true);
       try {
-        const voucherData = await getVouchersBySupplierId(supplierID, 1, 10); // Adjust pageIndex and pageSize as needed
-        if (voucherData && voucherData.isSuccess) {
-          setVouchers(voucherData.result || []);
+        const voucherData = await getProductVouchersByProductId(
+          productID,
+          1,
+          10
+        ); // Adjust pageIndex and pageSize as needed
+        if (voucherData) {
+          setVouchers(voucherData);
         } else {
           message.error("No vouchers available.");
         }
@@ -78,14 +85,18 @@ const CreateOrderRent = () => {
     };
 
     fetchVouchers();
-  }, [supplierID]);
+  }, [productID]);
 
   // Handle voucher selection
-  const handleVoucherSelect = (voucherID) => {
-    console.log("Selected Voucher ID:", voucherID); // Log the selected voucher ID
+  const handleVoucherSelect = async (voucherID) => {
+    console.log("Selected Voucher ID:", voucherID); // Ghi lại ID voucher được chọn
 
-    setSelectedVoucher(voucherID);
-    console.log("Updated Selected Voucher:", voucherID);
+    setSelectedVoucher(vourcherID);
+    console.log("Updated Selected Voucher:", vourherID);
+
+    // Fetch voucher details
+    const voucherDetails = await getVoucherById(vourherID);
+    setSelectedVoucherDetails(voucherDetails);
 
     calculateTotalAmount(voucherID);
   };
@@ -509,8 +520,8 @@ const CreateOrderRent = () => {
                   onClick={() => handleVoucherSelect(voucher.vourcherID)}
                 >
                   <Card.Meta
-                    title={voucher.vourcherCode}
-                    description={voucher.description}
+                    title={selectedVoucherDetails.vourcherCode}
+                    description={selectedVoucherDetails.description}
                   />
                 </Card>
               ))}
