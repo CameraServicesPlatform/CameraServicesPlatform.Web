@@ -8,6 +8,8 @@ import {
   StarOutlined,
   TagOutlined,
   TeamOutlined,
+  ShopOutlined,
+  FolderOpenOutlined,
 } from "@ant-design/icons"; // Import Ant Design icons
 import { Button, Card, Input, Layout, message, Spin, Typography } from "antd";
 import React, { useEffect, useState } from "react";
@@ -28,10 +30,7 @@ const { Search } = Input;
 const ProductPageRent = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [supplierName, setSupplierName] = useState("");
-  const [categoryName, setCategoryName] = useState("");
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -47,11 +46,25 @@ const ProductPageRent = () => {
     try {
       const productData = await getAllProduct(1, 20);
       if (productData) {
-        setProducts(productData);
+        const productsWithDetails = await Promise.all(
+          productData.map(async (product) => {
+            const supplierData = await getSupplierById(product.supplierID);
+            const categoryData = await getCategoryById(product.categoryID);
+
+            return {
+              ...product,
+              supplierName:
+                supplierData?.result?.items?.[0]?.supplierName || "Unknown",
+              categoryName: categoryData?.result?.categoryName || "Unknown",
+            };
+          })
+        );
+        setProducts(productsWithDetails);
       } else {
         message.error("Failed to load products.");
       }
     } catch (error) {
+      console.error("Error fetching products:", error);
       message.error("An error occurred while fetching products.");
     } finally {
       setLoading(false);
@@ -60,49 +73,7 @@ const ProductPageRent = () => {
 
   useEffect(() => {
     loadProducts();
-    if (id) {
-      loadProductid();
-    }
-  }, [id]);
-
-  const loadProductid = async () => {
-    setLoading(true);
-    try {
-      const data = await getProductById(id);
-      if (data) {
-        setProducts([data]);
-        console.log(data);
-
-        const supplierData = await getSupplierById(data.supplierID);
-        const categoryData = await getCategoryById(data.categoryID);
-
-        console.log("Supplier Data:", supplierData);
-        console.log("Category Data:", categoryData);
-
-        if (
-          supplierData &&
-          supplierData.result &&
-          supplierData.result.items.length > 0
-        ) {
-          const supplier = supplierData.result.items[0];
-          setSupplierName(supplier.supplierName);
-        }
-
-        if (
-          categoryData &&
-          categoryData.result &&
-          categoryData.result.items.length > 0
-        ) {
-          const category = categoryData.result.items[0];
-          setCategoryName(category.categoryName);
-        }
-      }
-    } catch (error) {
-      message.error("An error occurred while loading the product.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, []);
 
   const handleSearch = async (value) => {
     setLoading(true);
@@ -110,12 +81,27 @@ const ProductPageRent = () => {
     try {
       const productData = await getProductByName(value, 1, 20);
       if (productData) {
-        setProducts(productData);
+        const productsWithDetails = await Promise.all(
+          productData.map(async (product) => {
+            const supplierData = await getSupplierById(product.supplierID);
+            const categoryData = await getCategoryById(product.categoryID);
+
+            return {
+              ...product,
+              supplierName:
+                supplierData?.result?.items?.[0]?.supplierName || "Unknown",
+              categoryName:
+                categoryData?.result?.items?.[0]?.categoryName || "Unknown",
+            };
+          })
+        );
+        setProducts(productsWithDetails);
       } else {
         message.error("No products found.");
         setProducts([]);
       }
     } catch (error) {
+      console.error("Error searching products:", error);
       message.error("An error occurred while searching for products.");
     } finally {
       setLoading(false);
@@ -124,25 +110,25 @@ const ProductPageRent = () => {
 
   const handleClearSearch = () => {
     setSearchTerm("");
-    setCategory("");
     loadProducts(); // Reload products when clearing search
   };
- const getStatusColor = (status) => {
-   switch (status) {
-     case 0: // AvailableSell
-       return "text-green-500"; // Green
-     case 1: // AvailableRent
-       return "text-blue-500"; // Blue
-     case 2: // Rented
-       return "text-yellow-500"; // Yellow
-     case 3: // Sold
-       return "text-red-500"; // Red
-     case 4: // DiscontinuedProduct
-       return "text-gray-500"; // Gray
-     default:
-       return "text-black"; // Default color
-   }
- };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 0: // AvailableSell
+        return "text-green-500"; // Green
+      case 1: // AvailableRent
+        return "text-blue-500"; // Blue
+      case 2: // Rented
+        return "text-yellow-500"; // Yellow
+      case 3: // Sold
+        return "text-red-500"; // Red
+      case 4: // DiscontinuedProduct
+        return "text-gray-500"; // Gray
+      default:
+        return "text-black"; // Default color
+    }
+  };
 
   const availableProducts = products.filter((product) => product.status === 1);
 
@@ -270,12 +256,12 @@ const ProductPageRent = () => {
                     Số Serial: {product.serialNumber}
                   </p>
                   <p className="text-left">
-                    <TeamOutlined className="inline mr-1" />
-                    <strong>Nhà cung cấp:</strong> {supplierName}
+                    <ShopOutlined className="inline mr-1" />
+                    <strong>Nhà cung cấp:</strong> {product.supplierName}
                   </p>
                   <p className="text-left">
-                    <AppstoreAddOutlined className="inline mr-1" />
-                    <strong>Danh mục:</strong> {categoryName}
+                    <FolderOpenOutlined className="inline mr-1" />
+                    <strong>Danh mục:</strong> {product.categoryName}
                   </p>
                   <p className="font-semibold text-left">
                     <CalendarOutlined className="inline mr-1" />

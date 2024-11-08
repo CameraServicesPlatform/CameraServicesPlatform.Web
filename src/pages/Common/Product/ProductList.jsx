@@ -19,21 +19,9 @@ import {
   getProductByName,
 } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
-import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent"; // Import your custom loading spinner
+import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 
-const brandNames = {
-  1: "Canon",
-  2: "Nikon",
-  3: "Sony",
-  4: "Fujifilm",
-  5: "Olympus",
-  6: "Panasonic",
-  7: "Leica",
-  8: "Pentax",
-  9: "Hasselblad",
-  10: "Sigma",
-  11: "Others",
-};
+import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -219,7 +207,7 @@ const ProductList = () => {
                           </p>
                           <p>
                             Thương hiệu:{" "}
-                            {brandNames[product.brand] || "Không xác định"}
+                            {getBrandName[product.brand] || "Không xác định"}
                           </p>
                           <p>Chất lượng: {product.quality}</p>
                         </div>
