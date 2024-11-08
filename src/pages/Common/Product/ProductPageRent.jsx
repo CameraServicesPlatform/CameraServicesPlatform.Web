@@ -61,18 +61,23 @@ const ProductPageRent = () => {
   useEffect(() => {
     loadProducts();
     if (id) {
-      loadProduct();
+      loadProductid();
     }
   }, [id]);
 
-  const loadProduct = async () => {
+  const loadProductid = async () => {
     setLoading(true);
     try {
       const data = await getProductById(id);
       if (data) {
         setProducts([data]);
+        console.log(data);
+
         const supplierData = await getSupplierById(data.supplierID);
         const categoryData = await getCategoryById(data.categoryID);
+
+        console.log("Supplier Data:", supplierData);
+        console.log("Category Data:", categoryData);
 
         if (
           supplierData &&
@@ -122,23 +127,22 @@ const ProductPageRent = () => {
     setCategory("");
     loadProducts(); // Reload products when clearing search
   };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 0: // AvailableSell
-        return "text-green-500"; // Green
-      case 1: // AvailableRent
-        return "text-blue-500"; // Blue
-      case 2: // Rented
-        return "text-yellow-500"; // Yellow
-      case 3: // Sold
-        return "text-red-500"; // Red
-      case 4: // DiscontinuedProduct
-        return "text-gray-500"; // Gray
-      default:
-        return "text-black"; // Default color
-    }
-  };
+ const getStatusColor = (status) => {
+   switch (status) {
+     case 0: // AvailableSell
+       return "text-green-500"; // Green
+     case 1: // AvailableRent
+       return "text-blue-500"; // Blue
+     case 2: // Rented
+       return "text-yellow-500"; // Yellow
+     case 3: // Sold
+       return "text-red-500"; // Red
+     case 4: // DiscontinuedProduct
+       return "text-gray-500"; // Gray
+     default:
+       return "text-black"; // Default color
+   }
+ };
 
   const availableProducts = products.filter((product) => product.status === 1);
 

@@ -52,6 +52,22 @@ const Category = () => {
     }
     setLoadingProducts(false);
   };
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 0: // AvailableSell
+        return "success"; // Green
+      case 1: // AvailableRent
+        return "processing"; // Blue
+      case 2: // Rented
+        return "warning"; // Yellow
+      case 3: // Sold
+        return "error"; // Red
+      case 4: // DiscontinuedProduct
+        return "default"; // Gray
+      default:
+        return "default"; // Default color
+    }
+  };
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -134,8 +150,21 @@ const Category = () => {
                         <Text strong>Số serial:</Text> {product.serialNumber}
                       </div>
                       <div style={{ marginBottom: "8px" }}>
-                        <Text strong>ID Nhà cung cấp:</Text>{" "}
-                        {product.supplierID}
+                        <Text strong>Trạng thái:</Text>
+                        <Badge
+                          status={getStatusColor(product.status)}
+                          text={
+                            product.status === 0
+                              ? "Còn hàng"
+                              : product.status === 1
+                              ? "Cho thuê"
+                              : product.status === 2
+                              ? "Đã thuê"
+                              : product.status === 3
+                              ? "Đã bán"
+                              : "Ngừng kinh doanh"
+                          }
+                        />
                       </div>
                       <div style={{ marginBottom: "8px" }}>
                         <Text strong>Giá:</Text>{" "}
@@ -151,13 +180,7 @@ const Category = () => {
                           {product.quality}
                         </Tag>
                       </div>
-                      <div style={{ marginBottom: "8px" }}>
-                        <Text strong>Trạng thái:</Text>
-                        <Badge
-                          status={product.status === 0 ? "success" : "error"}
-                          text={product.status === 0 ? "Còn hàng" : "Hết hàng"}
-                        />
-                      </div>
+
                       <div style={{ marginBottom: "8px" }}>
                         <Text strong>Đánh giá:</Text>
                         <Rate disabled value={product.rating} />
