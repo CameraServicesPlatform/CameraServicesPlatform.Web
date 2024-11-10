@@ -10,6 +10,7 @@ import LoadingComponent from "../../components/LoadingComponent/LoadingComponent
 import { orderLabels } from "../../utils/constant";
 import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
+import "tailwindcss/tailwind.css";
 
 const PersonalInformation = () => {
   const { user } = useSelector((state) => state.user || {});
@@ -96,49 +97,39 @@ const PersonalInformation = () => {
   };
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-4">
       <LoadingComponent isLoading={isLoading} title="Loading data..." />
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div className="col-span-1 bg-white shadow-md rounded-box p-6">
-          <div className="flex justify-between">
-            <h2 className="text-xl font-bold mb-4 text-primary">
-              Thông tin cá nhân
-            </h2>
-            <span
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-teal-600">Thông tin cá nhân</h2>
+            <button
               onClick={() => setIsUpdateModalOpen(true)}
-              className="cursor-pointer"
+              className="text-teal-600 hover:text-teal-800 focus:outline-none"
             >
-              <i className="fa-solid fa-pen text-primary mx-2"></i>
-            </span>
+              <i className="fa-solid fa-pen"></i>
+            </button>
           </div>
-          <div>
-            <p>
-              <strong>Họ và tên:</strong> {user.firstName} {user.lastName}
-            </p>
-            <p>
-              <strong>Email:</strong> {user.email}
-            </p>
-            <p>
-              <strong>SDT:</strong> {user.phoneNumber}
-            </p>
+          <div className="space-y-2">
+            <p><strong>Họ và tên:</strong> {user.firstName} {user.lastName}</p>
+            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>SDT:</strong> {user.phoneNumber}</p>
           </div>
         </div>
         {!isOrderDetail ? (
-          <div className="col-span-3 bg-white shadow-lg rounded-box p-6">
-            <h2 className="text-xl font-bold mb-4 text-primary text-center">
-              Đơn hàng
-            </h2>
+          <div className="lg:col-span-3 bg-white shadow-lg rounded-lg p-6">
+            <h2 className="text-2xl font-bold text-teal-600 mb-4 text-center">Đơn hàng</h2>
             {orders.length === 0 ? (
-              <p>Không tìm thấy đơn hàng nào.</p>
+              <p className="text-center text-gray-500">Không tìm thấy đơn hàng nào.</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="table">
+                <table className="min-w-full bg-white">
                   <thead>
                     <tr>
-                      <th>Mã đơn hàng</th>
-                      <th>Trạng thái</th>
-                      <th>Tổng tiền</th>
-                      <th>Ngày đặt hàng</th>
+                      <th className="py-2 px-4 border-b">Mã đơn hàng</th>
+                      <th className="py-2 px-4 border-b">Trạng thái</th>
+                      <th className="py-2 px-4 border-b">Tổng tiền</th>
+                      <th className="py-2 px-4 border-b">Ngày đặt hàng</th>
                     </tr>
                   </thead>
                   <tbody>{orders.map(renderOrderItems)}</tbody>
@@ -147,40 +138,25 @@ const PersonalInformation = () => {
             )}
           </div>
         ) : (
-          <div className="col-span-3 shadow-xl rounded-lg p-4">
-            <span
+          <div className="lg:col-span-3 bg-white shadow-xl rounded-lg p-6">
+            <button
               onClick={() => setIsOrderDetail(false)}
-              className="text-primary cursor-pointer"
+              className="text-teal-600 hover:text-teal-800 mb-4"
             >
               Quay lại
-            </span>
-            <div>
-              <h3 className="text-lg font-bold mb-2 text-primary text-center">
-                Chi tiết đơn hàng
-              </h3>
-              <p>
-                <strong>Mã đơn hàng:</strong> {data.order?.id}
-              </p>
-              <p>
-                <strong>Số điện thoại:</strong>{" "}
-                {data.order?.account?.phoneNumber}
-              </p>
-              <p>
-                <strong>Trạng thái:</strong> {orderLabels[data.order?.status]}
-              </p>
-              <p>
-                <strong>Tổng tiền:</strong> {formatPrice(data.order?.total)}
-              </p>
-              <p>
-                <strong>Ngày đặt hàng:</strong>{" "}
-                {formatDateTime(data.order?.purchaseDate)}
-              </p>
+            </button>
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold text-teal-600 text-center">Chi tiết đơn hàng</h3>
+              <p><strong>Mã đơn hàng:</strong> {data.order?.id}</p>
+              <p><strong>Số điện thoại:</strong> {data.order?.account?.phoneNumber}</p>
+              <p><strong>Trạng thái:</strong> {orderLabels[data.order?.status]}</p>
+              <p><strong>Tổng tiền:</strong> {formatPrice(data.order?.total)}</p>
+              <p><strong>Ngày đặt hàng:</strong> {formatDateTime(data.order?.purchaseDate)}</p>
             </div>
-
             {data.order?.status === 0 && (
-              <div className="flex justify-center">
+              <div className="flex justify-center mt-4">
                 <button
-                  className="bg-primary text-white rounded-md py-2 px-4 my-2"
+                  className="bg-teal-600 text-white rounded-md py-2 px-4 hover:bg-teal-700"
                   onClick={() => handlePaymentAgain(data.order?.id)}
                 >
                   Thanh toán ngay
