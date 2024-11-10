@@ -13,9 +13,11 @@ const orderLabels = {
   5: "Trả hàng",
   6: "Đã giao hàng",
 };
+
 const getBrandName = (brandEnumValue) => {
   return brandNames[brandEnumValue] || "Others";
 };
+
 const brandNames = {
   1: "Canon",
   2: "Nikon",
@@ -30,9 +32,35 @@ const brandNames = {
   11: "Others",
 };
 
+const ApplicableObject = {
+  System: 0,
+  Supplier: 1,
+  Member: 2,
+};
+
+const PolicyType = {
+  System: 0,
+  Supplier: 1,
+  Member: 2,
+};
+
+const getPolicyType = (type) => {
+  switch (type) {
+    case PolicyType.System:
+      return "HỆ THỐNG";
+    case PolicyType.Supplier:
+      return "NHÀ CUNG CẤP";
+    case PolicyType.Member:
+      return "THÀNH VIÊN";
+    default:
+      return "Unknown";
+  }
+};
+
 const getProductStatusEnum = (productStatusEnumValue) => {
   return productStatusEnum[productStatusEnumValue] || "other";
 };
+
 const productStatusEnum = {
   0: "Bán", // Use string directly
   1: "Cho thuê",
@@ -42,9 +70,12 @@ const productStatusEnum = {
 };
 
 export {
+  ApplicableObject,
+  PolicyType,
   brandNames,
   genderLabels,
   getBrandName,
+  getPolicyType,
   getProductStatusEnum,
   orderLabels,
 };

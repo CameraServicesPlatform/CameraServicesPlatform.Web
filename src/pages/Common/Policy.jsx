@@ -5,6 +5,7 @@ import {
   getAllPolicies,
   getPoliciesByApplicableObject,
 } from "../../api/policyApi"; // Adjust the import based on your file structure
+import { ApplicableObject, getPolicyType } from "../../utils/constant"; // Adjust the import based on your file structure
 
 const Policy = () => {
   const [policies, setPolicies] = useState([]);
@@ -80,13 +81,13 @@ const Policy = () => {
 
   return (
     <div>
-      <header className="bg-gray-800 shadow p-6">
+      <header className="bg-gray-900 shadow p-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div>
-            <span className="bg-indigo-500 text-white px-3 py-1 rounded">
+            <span className="bg-teal-500 text-white px-3 py-1 rounded">
               TRUNG TÂM TRỢ GIÚP
             </span>
-            <h1 className="text-3xl font-bold mt-2 text-white">
+            <h1 className="text-4xl font-extrabold mt-2 text-white">
               Chúng tôi có thể giúp gì cho bạn!
             </h1>
           </div>
@@ -94,46 +95,52 @@ const Policy = () => {
             <img
               src="https://thumb.ac-illust.com/96/96cdd9d61cb741de486486073b0f821a_t.jpeg"
               alt="Đại diện hỗ trợ khách hàng"
-              className="rounded-full w-24 h-24 object-cover border-2 border-white"
+              className="rounded-full w-28 h-28 object-cover border-2 border-white shadow-lg"
             />
           </div>
         </div>
       </header>
       <main className="max-w-7xl mx-auto mt-10 px-4">
         <section className="mt-10">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+          <h2 className="text-3xl font-bold mb-6 text-gray-800">
             Các Chính Sách Hiện Có
           </h2>
-          <div className="mb-6">
+          <div className="mb-6 flex space-x-2">
             <button
-              onClick={() => handlePolicyTypeChange(0)}
-              className={`px-4 py-2 rounded mr-2 ${
-                policyType === 0 ? "bg-indigo-600 text-white" : "bg-gray-300"
+              onClick={() => handlePolicyTypeChange(ApplicableObject.System)}
+              className={`px-5 py-2 rounded-full transition-colors duration-300 ${
+                policyType === ApplicableObject.System
+                  ? "bg-teal-600 text-white"
+                  : "bg-gray-300 text-gray-700 hover:bg-teal-400 hover:text-white"
               }`}
             >
-              System
+              HỆ THỐNG
             </button>
             <button
-              onClick={() => handlePolicyTypeChange(1)}
-              className={`px-4 py-2 rounded mr-2 ${
-                policyType === 1 ? "bg-indigo-600 text-white" : "bg-gray-300"
+              onClick={() => handlePolicyTypeChange(ApplicableObject.Supplier)}
+              className={`px-5 py-2 rounded-full transition-colors duration-300 ${
+                policyType === ApplicableObject.Supplier
+                  ? "bg-teal-600 text-white"
+                  : "bg-gray-300 text-gray-700 hover:bg-teal-400 hover:text-white"
               }`}
             >
-              Supplier
+              NHÀ CUNG CẤP
             </button>
             <button
-              onClick={() => handlePolicyTypeChange(2)}
-              className={`px-4 py-2 rounded ${
-                policyType === 2 ? "bg-indigo-600 text-white" : "bg-gray-300"
+              onClick={() => handlePolicyTypeChange(ApplicableObject.Member)}
+              className={`px-5 py-2 rounded-full transition-colors duration-300 ${
+                policyType === ApplicableObject.Member
+                  ? "bg-teal-600 text-white"
+                  : "bg-gray-300 text-gray-700 hover:bg-teal-400 hover:text-white"
               }`}
             >
-              Member
+              THÀNH VIÊN
             </button>
           </div>
           {loading ? (
             <div className="flex justify-center items-center">
               <svg
-                className="animate-spin h-8 w-8 text-indigo-500"
+                className="animate-spin h-10 w-10 text-teal-500"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -153,25 +160,25 @@ const Policy = () => {
                   d="M4 12a8 8 0 018-8v8z"
                 ></path>
               </svg>
-              <span className="ml-2 text-indigo-500">Đang tải...</span>
+              <span className="ml-3 text-teal-500 text-lg">Đang tải...</span>
             </div>
           ) : error ? (
-            <p className="text-red-500 text-center" role="alert">
+            <p className="text-red-600 text-center text-lg" role="alert">
               {error}
             </p>
           ) : policies.length > 0 ? (
             <>
-              <ul className="space-y-6">
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {policies.map((policy) => (
                   <li
                     key={policy.policyID}
-                    className="border border-gray-300 rounded-lg p-6 shadow hover:shadow-xl transition-shadow duration-300"
+                    className="bg-white border border-gray-200 rounded-lg p-6 shadow hover:shadow-2xl transition-shadow duration-300"
                   >
-                    <h3 className="font-bold text-xl text-gray-700">
+                    <h3 className="font-semibold text-2xl text-gray-800">
                       {policy.policyContent}
                     </h3>
                     <button
-                      className="text-indigo-500 mt-4 hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded"
+                      className="mt-4 text-teal-500 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded transition-colors duration-300"
                       onClick={() => togglePolicy(policy.policyID)}
                       aria-expanded={expandedPolicy === policy.policyID}
                       aria-controls={`policy-details-${policy.policyID}`}
@@ -183,16 +190,17 @@ const Policy = () => {
                     {expandedPolicy === policy.policyID && (
                       <div
                         id={`policy-details-${policy.policyID}`}
-                        className="mt-4 bg-gray-50 p-4 rounded transition-all duration-300"
+                        className="mt-4 bg-gray-100 p-4 rounded-lg transition-all duration-300"
                       >
-                        <p>
-                          <strong>Loại chính sách:</strong> {policy.policyType}
+                        <p className="text-gray-700">
+                          <strong>Loại chính sách:</strong>{" "}
+                          {getPolicyType(policy.policyType)}
                         </p>
-                        <p>
+                        <p className="text-gray-700">
                           <strong>Hiệu lực:</strong>{" "}
                           {new Date(policy.effectiveDate).toLocaleString()}
                         </p>
-                        <p>
+                        <p className="text-gray-700">
                           <strong>ID chính sách:</strong> {policy.policyID}
                         </p>
                         {/* Thêm thông tin khác nếu cần */}
@@ -201,29 +209,29 @@ const Policy = () => {
                   </li>
                 ))}
               </ul>
-              <div className="flex justify-center mt-8 space-x-4">
+              <div className="flex justify-center items-center mt-8 space-x-4">
                 <button
                   onClick={handlePrevious}
                   disabled={pageIndex === 1}
-                  className={`px-4 py-2 rounded ${
+                  className={`px-5 py-2 rounded-full transition-colors duration-300 ${
                     pageIndex === 1
                       ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      : "bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400"
                   }`}
                   aria-disabled={pageIndex === 1}
                 >
                   Trước
                 </button>
-                <span className="flex items-center text-gray-700">
+                <span className="text-lg text-gray-700">
                   Trang {pageIndex} / {totalPages}
                 </span>
                 <button
                   onClick={handleNext}
                   disabled={pageIndex === totalPages}
-                  className={`px-4 py-2 rounded ${
+                  className={`px-5 py-2 rounded-full transition-colors duration-300 ${
                     pageIndex === totalPages
                       ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      : "bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400"
                   }`}
                   aria-disabled={pageIndex === totalPages}
                 >
@@ -232,7 +240,7 @@ const Policy = () => {
               </div>
             </>
           ) : (
-            <p className="text-center text-gray-600">
+            <p className="text-center text-gray-500 text-lg">
               Không có chính sách nào để hiển thị.
             </p>
           )}
