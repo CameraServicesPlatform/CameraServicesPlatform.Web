@@ -77,12 +77,7 @@ export const getPoliciesByApplicableObject = async (
 ) => {
   try {
     const res = await api.get(
-      `/policy/get-policy-by-applicable-object?type=${type}&pageIndex=${pageIndex}&pageSize=${pageSize}`,
-      {
-        headers: {
-          accept: "*/*",
-        },
-      }
+      `/policy/get-policy-by-applicable-object?type=${type}&pageIndex=${pageIndex}&pageSize=${pageSize}`
     );
     return res.data;
   } catch (err) {
