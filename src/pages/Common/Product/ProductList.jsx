@@ -3,25 +3,22 @@ import {
   Card,
   Carousel,
   Col,
+  Descriptions,
   Input,
   Layout,
+  message,
   Modal,
   Pagination,
   Row,
+  Tag,
   Typography,
-  message,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { getCategoryById } from "../../../api/categoryApi";
-import {
-  getAllProduct,
-  getProductById,
-  getProductByName,
-} from "../../../api/productApi";
+import { getAllProduct, getProductById } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
-
-import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
+import { getBrandName } from "../../../utils/constant";
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -75,8 +72,10 @@ const ProductList = () => {
           setSupplierName(supplierData.result.items[0].supplierName);
         }
 
-        if (categoryData?.result?.items.length > 0) {
-          setCategoryName(categoryData.result.items[0].categoryName);
+        if (categoryData?.isSuccess) {
+          setCategoryName(categoryData.result.categoryName);
+        } else {
+          setCategoryName("Không xác định");
         }
       }
     } catch (error) {
@@ -99,10 +98,14 @@ const ProductList = () => {
   };
 
   const handleSearchByName = async (value) => {
+    setSearchTerm(value);
     setLoading(true);
     try {
-      const productList = await getProductByName(value, 1, 10);
-      setProducts(Array.isArray(productList) ? productList : []);
+      const productList = await getAllProduct(1, 100);
+      const filteredProducts = productList.filter((product) =>
+        product.productName.toLowerCase().includes(value.toLowerCase())
+      );
+      setProducts(filteredProducts);
       setCurrentPage(1); // Reset to the first page when searching
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -131,15 +134,42 @@ const ProductList = () => {
   return (
     <Layout>
       <LoadingComponent isLoading={loading} />
-      <Header>
-        <Title level={2} style={{ color: "white" }}>
+      <Header
+        style={{
+          backgroundImage: 'url("/path/to/your/image.jpg")',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 20px",
+        }}
+      >
+        <Title
+          level={2}
+          style={{
+            color: "white",
+            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+          }}
+        >
           Danh Sách Sản Phẩm
         </Title>
+        <Button type="primary" size="large">
+          Thêm Sản Phẩm
+        </Button>
       </Header>
       <Content style={{ padding: "20px" }}>
-        <Carousel autoplay style={{ marginBottom: "20px" }}></Carousel>
+        <Carousel autoplay style={{ marginBottom: "20px" }}>
+          {/* Add carousel items here */}
+        </Carousel>
 
-        <div style={{ marginBottom: "20px" }}>
+        <div
+          style={{
+            marginBottom: "20px",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
           <Search
             placeholder="Tìm kiếm sản phẩm theo tên"
             enterButton="Tìm kiếm"
@@ -156,7 +186,7 @@ const ProductList = () => {
 
         {!loading && currentProducts.length > 0 ? (
           <>
-            <Row gutter={16}>
+            <Row gutter={[16, 16]}>
               {currentProducts.map((product) => (
                 <Col span={6} key={product.productID}>
                   <Card
@@ -166,7 +196,11 @@ const ProductList = () => {
                         <img
                           alt={product.productName}
                           src={product.listImage[0].image}
-                          style={{ height: 150, objectFit: "cover" }}
+                          style={{
+                            height: 200,
+                            objectFit: "cover",
+                            borderRadius: "8px 8px 0 0",
+                          }}
                           loading="lazy"
                         />
                       )
@@ -174,22 +208,94 @@ const ProductList = () => {
                     onDoubleClick={() =>
                       handleCardDoubleClick(product.productID)
                     }
-                    style={{ marginBottom: "20px", height: "100%" }}
+                    style={{
+                      marginBottom: "20px",
+                      height: "100%",
+                      borderRadius: "8px",
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                      transition: "transform 0.3s",
+                    }}
+                    bodyStyle={{ padding: "16px" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.transform = "scale(1.05)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.transform = "scale(1)")
+                    }
                   >
                     <Card.Meta
                       title={product.productName}
                       description={
                         <div>
                           <p>{product.productDescription}</p>
-                          <p>Serial Number: {product.serialNumber}</p>
+                          <p>
+                            <strong>Serial Number:</strong>
+                            <span
+                              style={{ color: "green", fontWeight: "bold" }}
+                            >
+                              {product.serialNumber}
+                            </span>
+                          </p>
                           {product.priceRent != null && (
-                            <p>Giá (Thuê)/giờ: VND{product.priceRent}</p>
+                            <p>
+                              <strong>Giá (Thuê)/giờ:</strong>
+                              <span style={{ color: "blue" }}>
+                                VND{product.priceRent}
+                              </span>
+                            </p>
                           )}
                           {product.priceBuy != null && (
-                            <p>Giá (Mua): VND{product.priceBuy}</p>
+                            <p>
+                              <strong>Giá (Mua):</strong>
+                              <span
+                                style={{ color: "green", fontWeight: "bold" }}
+                              >
+                                VND{product.priceBuy}
+                              </span>
+                            </p>
+                          )}
+                          {product.pricePerHour != null && (
+                            <p>
+                              <strong>Giá (Thuê)/giờ:</strong>
+                              <span
+                                style={{ color: "green", fontWeight: "bold" }}
+                              >
+                                VND{product.pricePerHour}
+                              </span>
+                            </p>
+                          )}
+                          {product.pricePerDay != null && (
+                            <p>
+                              <strong>Giá (Thuê)/ngày:</strong>
+                              <span
+                                style={{ color: "green", fontWeight: "bold" }}
+                              >
+                                VND{product.pricePerDay}
+                              </span>
+                            </p>
+                          )}
+                          {product.pricePerWeek != null && (
+                            <p>
+                              <strong>Giá (Thuê)/tuần:</strong>
+                              <span
+                                style={{ color: "green", fontWeight: "bold" }}
+                              >
+                                VND{product.pricePerWeek}
+                              </span>
+                            </p>
+                          )}
+                          {product.pricePerMonth != null && (
+                            <p>
+                              <strong>Giá (Thuê)/tháng:</strong>
+                              <span
+                                style={{ color: "green", fontWeight: "bold" }}
+                              >
+                                VND{product.pricePerMonth}
+                              </span>
+                            </p>
                           )}
                           <p>
-                            Đánh giá:{" "}
+                            <strong>Đánh giá:</strong>
                             {Array.from({ length: 5 }, (_, index) => (
                               <span
                                 key={index}
@@ -206,10 +312,12 @@ const ProductList = () => {
                             ))}
                           </p>
                           <p>
-                            Thương hiệu:{" "}
-                            {getBrandName[product.brand] || "Không xác định"}
+                            <strong>Thương hiệu:</strong>
+                            {getBrandName(product.brand) || "Không xác định"}
                           </p>
-                          <p>Chất lượng: {product.quality}</p>
+                          <Tag color="blue">
+                            <strong>Chất lượng:</strong> {product.quality}
+                          </Tag>
                         </div>
                       }
                     />
@@ -248,25 +356,81 @@ const ProductList = () => {
               className="w-full h-64 object-cover mb-4"
               loading="lazy"
             />
-            <p>
-              <strong>Mô tả:</strong> {productDetail.productDescription}
-            </p>
-            {productDetail.priceRent != null && (
-              <p>
-                <strong>Giá (Thuê):</strong> VND{productDetail.priceRent}
-              </p>
-            )}
-            {productDetail.priceBuy != null && (
-              <p>
-                <strong>Giá (Mua):</strong> VND{productDetail.priceBuy}
-              </p>
-            )}
-            <p>
-              <strong>Nhà cung cấp:</strong> {supplierName || "Không xác định"}
-            </p>
-            <p>
-              <strong>Danh mục:</strong> {categoryName || "Không xác định"}
-            </p>
+            <Descriptions bordered column={1}>
+              <Descriptions.Item label="Serial Number">
+                <span style={{ color: "blue" }}>
+                  {productDetail.serialNumber}
+                </span>
+              </Descriptions.Item>
+              <Descriptions.Item label="Mô tả">
+                {productDetail.productDescription}
+              </Descriptions.Item>
+              {productDetail.priceRent != null && (
+                <Descriptions.Item label="Giá (Thuê)">
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.priceRent}
+                  </span>
+                </Descriptions.Item>
+              )}
+              {productDetail.priceBuy != null && (
+                <Descriptions.Item label="Giá (Mua)">
+                  <span style={{ color: "green", fontWeight: "bold" }}>
+                    VND{productDetail.priceBuy}
+                  </span>
+                </Descriptions.Item>
+              )}
+              {productDetail.pricePerHour != null && (
+                <Descriptions.Item label="Giá (Thuê)/giờ">
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerHour}
+                  </span>
+                </Descriptions.Item>
+              )}
+              {productDetail.pricePerDay != null && (
+                <Descriptions.Item label="Giá (Thuê)/ngày">
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerDay}
+                  </span>
+                </Descriptions.Item>
+              )}
+              {productDetail.pricePerWeek != null && (
+                <Descriptions.Item label="Giá (Thuê)/tuần">
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerWeek}
+                  </span>
+                </Descriptions.Item>
+              )}
+              {productDetail.pricePerMonth != null && (
+                <Descriptions.Item label="Giá (Thuê)/tháng">
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerMonth}
+                  </span>
+                </Descriptions.Item>
+              )}
+              <Descriptions.Item label="Nhà cung cấp">
+                {supplierName || "Không xác định"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Danh mục">
+                {categoryName || "Không xác định"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Thương hiệu">
+                {getBrandName(productDetail.brand) || "Không xác định"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Chất lượng">
+                <Tag color="blue">
+                  <strong>Chất lượng:</strong> {productDetail.quality}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Specifications">
+                <ul>
+                  {productDetail.listProductSpecification.map((spec) => (
+                    <li key={spec.productSpecificationID}>
+                      {spec.specification}: {spec.details}
+                    </li>
+                  ))}
+                </ul>
+              </Descriptions.Item>
+            </Descriptions>
           </div>
         ) : (
           <p>Đang tải chi tiết sản phẩm...</p>

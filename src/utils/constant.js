@@ -38,12 +38,6 @@ const ApplicableObject = {
   Member: 2,
 };
 
-const PolicyType = {
-  System: 0,
-  Supplier: 1,
-  Member: 2,
-};
-
 const getPolicyType = (type) => {
   switch (type) {
     case PolicyType.System:
@@ -71,7 +65,6 @@ const productStatusEnum = {
 
 export {
   ApplicableObject,
-  PolicyType,
   brandNames,
   genderLabels,
   getBrandName,
