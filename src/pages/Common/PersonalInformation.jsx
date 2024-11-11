@@ -2,11 +2,13 @@ import { message } from "antd";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import "tailwindcss/tailwind.css";
+import { getCategoryById } from "../../api/categoryApi";
 import {
   createOrderWithPayment,
   getOrderDetailsById,
   getOrdersByAccount,
 } from "../../api/orderApi";
+import { getSupplierById } from "../../api/supplierApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
@@ -33,6 +35,28 @@ const hobbyDescriptions = {
   6: "Khác",
 };
 
+const orderStatusMap = {
+  0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
+  1: { text: "Đã phê duyệt", color: "green", icon: "fa-check-circle" },
+  2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
+  3: { text: "Đã đặt", color: "purple", icon: "fa-shopping-cart" },
+  4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
+  5: { text: "Đã nhận", color: "lime", icon: "fa-box-open" },
+  6: { text: "Đã hủy", color: "red", icon: "fa-times-circle" },
+  7: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
+};
+
+const orderTypeMap = {
+  0: { text: "Mua", color: "indigo", icon: "fa-shopping-bag" },
+  1: { text: "Thuê", color: "green", icon: "fa-warehouse" },
+};
+
+const deliveryStatusMap = {
+  0: { text: "Nhận tại cửa hàng", color: "blue", icon: "fa-store" }, // LPH: Lấy Phát Hàng
+  1: { text: "Giao hàng", color: "green", icon: "fa-truck" },
+  2: { text: "Trả lại", color: "red", icon: "fa-undo" },
+};
+
 const PersonalInformation = () => {
   const { user } = useSelector((state) => state.user || {});
   const [orders, setOrders] = useState([]);
@@ -40,6 +64,8 @@ const PersonalInformation = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [dataDetai, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [categoryMap, setCategoryMap] = useState({});
+  const [supplierMap, setSupplierMap] = useState({});
 
   const fetchOrders = async () => {
     try {
@@ -80,9 +106,9 @@ const PersonalInformation = () => {
   const fetchOrderDetails = async (id) => {
     try {
       setIsLoading(true);
-      const response = await getOrderDetailsById(id, 1, 1);
+      const response = await getOrderDetailsById(id, 1, 100); // Adjust pageSize as needed
       if (response.isSuccess) {
-        setData(response.result);
+        setData(response.result || []);
       } else {
         message.error("Failed to fetch order details.");
       }
@@ -97,26 +123,96 @@ const PersonalInformation = () => {
   useEffect(() => {
     if (dataDetai.length > 0) {
       console.log("Chi tiết đơn hàng", dataDetai);
+      fetchCategoryAndSupplierNames();
     }
   }, [dataDetai]);
+
+  const fetchCategoryAndSupplierNames = async () => {
+    const uniqueCategoryIDs = [
+      ...new Set(dataDetai.map((detail) => detail.product.categoryID)),
+    ].filter((id) => id); // Filter out null or undefined
+
+    const uniqueSupplierIDs = [
+      ...new Set(dataDetai.map((detail) => detail.product.supplierID)),
+    ].filter((id) => id); // Filter out null or undefined
+
+    try {
+      const categoryPromises = uniqueCategoryIDs.map((id) =>
+        getCategoryById(id)
+      );
+      const supplierPromises = uniqueSupplierIDs.map((id) =>
+        getSupplierById(id, 1, 1)
+      );
+
+      const categories = await Promise.all(categoryPromises);
+      const suppliers = await Promise.all(supplierPromises);
+
+      const categoryDict = {};
+      categories.forEach((res, index) => {
+        const id = uniqueCategoryIDs[index];
+        categoryDict[id] = res.isSuccess
+          ? res.result?.categoryName || "Không xác định"
+          : "Không xác định";
+      });
+
+      const supplierDict = {};
+      suppliers.forEach((res, index) => {
+        const id = uniqueSupplierIDs[index];
+        supplierDict[id] =
+          res && res.result && res.result.items.length > 0
+            ? res.result.items[0].supplierName
+            : "Không xác định";
+      });
+
+      setCategoryMap(categoryDict);
+      setSupplierMap(supplierDict);
+    } catch (error) {
+      console.error("Error fetching category or supplier names:", error);
+      message.error("Error fetching category or supplier names.");
+    }
+  };
 
   const handleClick = (order) => {
     setIsOrderDetail(true);
     fetchOrderDetails(order.orderID);
   };
-
+  const StatusBadge = ({ status, map }) => {
+    const statusInfo = map[status] || {
+      text: "Không xác định",
+      color: "gray",
+      icon: "fa-question-circle",
+    };
+    return (
+      <span className="flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-full bg-opacity-20">
+        <i
+          className={`fa-solid ${statusInfo.icon} text-${statusInfo.color}-500`}
+        ></i>
+        <span className={`text-${statusInfo.color}-700`}>
+          {statusInfo.text}
+        </span>
+      </span>
+    );
+  };
   const renderOrderItems = (order) => (
     <tr
       key={order.orderID}
-      className="cursor-pointer"
+      className="cursor-pointer hover:bg-gray-50 transition-colors"
       onClick={() => handleClick(order)}
     >
-      <td>{order.orderID}</td>
-      <td>{order.orderStatus}</td>
-      <td>{formatPrice(order.totalAmount)}</td>
-      <td>{formatDateTime(order.orderDate)}</td>
-      <td>{order.shippingAddress}</td>
-      <td>{order.supplierID}</td>
+      <td className="py-3 px-4 border-b">{order.orderID}</td>
+      <td className="py-3 px-4 border-b">{supplierMap[order.supplierID]}</td>
+      <td className="py-3 px-4 border-b">
+        <StatusBadge status={order.orderStatus} map={orderStatusMap} />
+      </td>
+      <td className="py-3 px-4 border-b">{order.shippingAddress}</td>
+      <td className="py-3 px-4 border-b">
+        <StatusBadge status={order.deliveryMethod} map={deliveryStatusMap} />
+      </td>
+      <td className="py-3 px-4 border-b">
+        <StatusBadge status={order.orderType} map={orderTypeMap} />
+      </td>
+      <td className="py-3 px-4 border-b">{formatDateTime(order.orderDate)}</td>
+      <td className="py-3 px-4 border-b">{formatPrice(order.totalAmount)}</td>
     </tr>
   );
 
@@ -142,9 +238,9 @@ const PersonalInformation = () => {
       <LoadingComponent isLoading={isLoading} title="Loading data..." />
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="bg-white shadow-md rounded-lg p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-teal-600">
-              Thông tin cá nhân
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-teal-600 flex items-center">
+              <i className="fa-solid fa-user mr-2"></i> Thông tin cá nhân
             </h2>
             <button
               onClick={() => setIsUpdateModalOpen(true)}
@@ -153,35 +249,52 @@ const PersonalInformation = () => {
               <i className="fa-solid fa-pen"></i>
             </button>
           </div>
-          <div className="space-y-2">
-            <p>
-              <strong>Họ và tên:</strong> {userMap.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {userMap.email}
-            </p>
-            <p>
-              <strong>SDT:</strong> {userMap.phone}
-            </p>
-            <p>
-              <strong>Địa chỉ:</strong> {userMap.address}
-            </p>
-            <p>
-              <strong>Ngành nghề:</strong> {jobDescriptions[userMap.job]}
-            </p>
-            <p>
-              <strong>Sở thích:</strong> {hobbyDescriptions[userMap.hobby]}
-            </p>
-            <p>
-              <strong>Giới tính:</strong> {userMap.gender === 0 ? "Nam" : "Nữ"}
-            </p>
-            <div className="flex justify-end"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex items-center">
+              <i className="fa-solid fa-user mr-2 text-gray-600"></i>
+              <span>
+                <strong>Họ và tên:</strong> {userMap.name}
+              </span>
+            </div>
+
+            <div className="flex items-center">
+              <i className="fa-solid fa-phone mr-2 text-gray-600"></i>
+              <span>
+                <strong>SDT:</strong> {userMap.phone}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-envelope mr-2 text-gray-600"></i>
+              <span>
+                <strong>Email:</strong> {userMap.email}
+              </span>
+            </div>
+
+            <div className="flex items-center">
+              <i className="fa-solid fa-briefcase mr-2 text-gray-600"></i>
+              <span>
+                <strong>Ngành nghề:</strong> {jobDescriptions[userMap.job]}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-heart mr-2 text-gray-600"></i>
+              <span>
+                <strong>Sở thích:</strong> {hobbyDescriptions[userMap.hobby]}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-venus-mars mr-2 text-gray-600"></i>
+              <span>
+                <strong>Giới tính:</strong>{" "}
+                {userMap.gender === 0 ? "Nam" : "Nữ"}
+              </span>
+            </div>
           </div>
         </div>
 
         {!isOrderDetail ? (
           <div className="lg:col-span-3 bg-white shadow-lg rounded-lg p-6">
-            <h2 className="text-2xl font-bold text-teal-600 mb-4 text-center">
+            <h2 className="text-2xl font-bold text-teal-600 mb-6 text-center">
               Đơn hàng
             </h2>
             {orders.length === 0 ? (
@@ -191,14 +304,18 @@ const PersonalInformation = () => {
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white">
-                  <thead>
+                  <thead className="bg-gray-100">
                     <tr>
-                      <th className="py-2 px-4 border-b">Mã đơn hàng</th>
-                      <th className="py-2 px-4 border-b">Trạng thái</th>
-                      <th className="py-2 px-4 border-b">Tổng tiền</th>
-                      <th className="py-2 px-4 border-b">Ngày đặt hàng</th>
-                      <th className="py-2 px-4 border-b">Địa chỉ giao hàng</th>
-                      <th className="py-2 px-4 border-b">Mã nhà cung cấp</th>
+                      <th className="py-3 px-4 border-b">Mã đơn hàng</th>
+                      <th className="py-3 px-4 border-b">Mã nhà cung cấp</th>
+                      <th className="py-3 px-4 border-b">Trạng thái</th>
+                      <th className="py-3 px-4 border-b">Địa chỉ giao hàng</th>
+                      <th className="py-3 px-4 border-b">
+                        Phương thức giao hàng
+                      </th>
+                      <th className="py-3 px-4 border-b">Loại hình</th>
+                      <th className="py-3 px-4 border-b">Thời gian đặt hàng</th>
+                      <th className="py-3 px-4 border-b">Tổng tiền</th>
                     </tr>
                   </thead>
                   <tbody>{orders.map(renderOrderItems)}</tbody>
@@ -210,118 +327,89 @@ const PersonalInformation = () => {
           <div className="lg:col-span-3 bg-white shadow-xl rounded-lg p-6">
             <button
               onClick={() => setIsOrderDetail(false)}
-              className="text-teal-600 hover:text-teal-800 mb-4"
+              className="text-teal-600 hover:text-teal-800 mb-4 flex items-center"
             >
-              Quay lại
+              <i className="fa-solid fa-arrow-left mr-2"></i> Quay lại
             </button>
-            <div className="space-y-2">
+            <div className="space-y-4">
               <h3 className="text-xl font-semibold text-teal-600 text-center">
                 Chi tiết đơn hàng
               </h3>
-              {dataDetai.map((orderdetails) => (
-                <div key={orderdetails.orderID}>
-                  <p>
-                    <strong>Mã đơn hàng:</strong> {orderdetails.orderID}
-                  </p>
-                  <p>
-                    <strong>Số điện thoại:</strong> {userMap.phone}
-                  </p>
-                  <p>
-                    <strong>Tổng tiền:</strong>
-                    {formatPrice(orderdetails.productPriceTotal) || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Sản phẩm:</strong>
-                    {orderdetails.productName || "N/A"}
-                  </p>
-                  <p>
-                    <strong>Chất lượng</strong>
-                    {orderdetails.productQuality || "N/A"}
-                  </p>
-                  <p>
-                    <strong>rentalPeriod</strong>
-                    {orderdetails.rentalPeriod}
-                  </p>
-                  <p>
-                    <strong>discount</strong>
-                    {orderdetails.discount}
-                  </p>
-                  <h4 className="text-lg font-semibold text-teal-600 mt-4">
-                    Chi tiết sản phẩm
-                  </h4>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white">
-                      <thead>
-                        <tr>
-                          <th className="py-2 px-4 border-b">Tên sản phẩm</th>
-                          <th className="py-2 px-4 border-b">Giá</th>
-                          <th className="py-2 px-4 border-b">Chất lượng</th>
-                          <th className="py-2 px-4 border-b">Tổng giá</th>
-                          <th className="py-2 px-4 border-b">Serial Number</th>
-                          <th className="py-2 px-4 border-b">Supplier ID</th>
-                          <th className="py-2 px-4 border-b">Category ID</th>
-                          <th className="py-2 px-4 border-b">Created At</th>
-                          <th className="py-2 px-4 border-b">Updated At</th>
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="py-3 px-4 border-b">Tên sản phẩm</th>
+                      <th className="py-3 px-4 border-b">Giá</th>
+                      <th className="py-3 px-4 border-b">Chất lượng</th>
+                      <th className="py-3 px-4 border-b">Tổng giá</th>
+                      <th className="py-3 px-4 border-b">Serial Number</th>
+                      <th className="py-3 px-4 border-b">Supplier Name</th>
+                      <th className="py-3 px-4 border-b">Category Name</th>
+                      <th className="py-3 px-4 border-b">Created At</th>
+                      <th className="py-3 px-4 border-b">Updated At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dataDetai.length > 0 ? (
+                      dataDetai.map((orderdetails) => (
+                        <tr
+                          key={orderdetails.productID}
+                          className="hover:bg-gray-50"
+                        >
+                          <td className="py-2 px-4 border-b">
+                            {orderdetails.product.productName || "N/A"}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {formatPrice(orderdetails.product.priceBuy)}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {orderdetails.product.quality}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {formatPrice(orderdetails.productPriceTotal)}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {orderdetails.product.serialNumber || "N/A"}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {supplierMap[orderdetails.product.supplierID] ||
+                              "N/A"}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {categoryMap[orderdetails.product.categoryID] ||
+                              "N/A"}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {formatDateTime(orderdetails.product.createdAt)}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {formatDateTime(orderdetails.product.updatedAt)}
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {dataDetai.length > 0 ? (
-                          dataDetai.map((orderdetails) => (
-                            <tr key={orderdetails.productID}>
-                              <td>
-                                {orderdetails.product.productName || "N/A"}
-                              </td>
-                              <td>
-                                {formatPrice(orderdetails.product.priceBuy)}
-                              </td>
-                              <td>{orderdetails.product.quality}</td>
-                              <td>
-                                {formatPrice(orderdetails.productPriceTotal)}
-                              </td>
-                              <td>
-                                {orderdetails.product.serialNumber || "N/A"}
-                              </td>
-                              <td>
-                                {orderdetails.product.supplierID || "N/A"}
-                              </td>
-                              <td>
-                                {orderdetails.product.categoryID || "N/A"}
-                              </td>
-                              <td>
-                                {new Date(
-                                  orderdetails.product.createdAt
-                                ).toLocaleString()}
-                              </td>
-                              <td>
-                                {new Date(
-                                  orderdetails.product.updatedAt
-                                ).toLocaleString()}
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="10" className="text-center">
-                              Không có sản phẩm nào
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {dataDetai[0]?.orderStatus === 0 && (
-              <div className="flex justify-center mt-4">
-                <button
-                  className="bg-teal-600 text-white rounded-md py-2 px-4 hover:bg-teal-700"
-                  onClick={() => handlePaymentAgain(dataDetai[0].orderID)}
-                >
-                  Thanh toán ngay
-                </button>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="9" className="text-center py-4">
+                          Không có sản phẩm nào
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
-            )}
+              {dataDetai[0]?.orderStatus === 0 && (
+                <div className="flex justify-center mt-4">
+                  <button
+                    className="bg-teal-600 text-white rounded-md py-2 px-4 hover:bg-teal-700 flex items-center"
+                    onClick={() => handlePaymentAgain(dataDetai[0].orderID)}
+                  >
+                    <i className="fa-solid fa-money-bill-wave mr-2"></i> Thanh
+                    toán ngay
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
         {isUpdateModalOpen && (
