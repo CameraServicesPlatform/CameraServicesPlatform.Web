@@ -16,7 +16,7 @@ export const getAllCategories = async (pageIndex, pageSize) => {
 // Fetch a category by ID
 export const getCategoryById = async (id) => {
   try {
-    const response = await api.get("/category/get-category-by-id", {
+    const response = await api.get(`/category/get-category-by-id`, {
       params: { id },
     });
     return response.data;

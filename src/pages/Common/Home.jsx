@@ -4,7 +4,8 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
 import ProductList from "./Product/ProductList";
-
+import ProposalProductFollowHobby from "./Product/ProposalProductFollowHobby";
+import ProposalProductFollowJobBuy from "./Product/ProposalProductFollowJobBuy";
 const { Header, Content } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
@@ -71,47 +72,9 @@ const Home = () => {
       <ProductList />
       <section className="my-8 px-4">
         <h2 className="text-2xl font-bold mb-4">Đề xuất</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="border p-4">
-            <img
-              src="https://placehold.co/200x200"
-              alt="Camera 1"
-              className="w-full"
-            />
-            <h3 className="mt-2 font-bold">Máy ảnh Canon EOS 1500D</h3>
-            <p className="text-red-500 font-bold">8.500.000đ</p>
-            <p className="text-gray-500 line-through">9.000.000đ</p>
-            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
-              Thêm vào giỏ hàng
-            </button>
-          </div>
-          <div className="border p-4">
-            <img
-              src="https://placehold.co/200x200"
-              alt="Camera 2"
-              className="w-full"
-            />
-            <h3 className="mt-2 font-bold">Máy ảnh Sony Alpha A6000</h3>
-            <p className="text-red-500 font-bold">12.000.000đ</p>
-            <p className="text-gray-500 line-through">13.000.000đ</p>
-            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
-              Thêm vào giỏ hàng
-            </button>
-          </div>
-          <div className="border p-4">
-            <img
-              src="https://placehold.co/200x200"
-              alt="Camera Lens"
-              className="w-full"
-            />
-            <h3 className="mt-2 font-bold">Ống kính Canon EF 50mm</h3>
-            <p className="text-red-500 font-bold">3.500.000đ</p>
-            <p className="text-gray-500 line-through">4.000.000đ</p>
-            <button className="mt-2 bg-red-500 text-white py-1 px-4 rounded">
-              Thêm vào giỏ hàng
-            </button>
-          </div>
-        </div>
+
+        <ProposalProductFollowHobby />
+        <ProposalProductFollowJobBuy />
       </section>
       <h2 className="text-2xl font-bold mb-4">Các thương hiệu đồng hành </h2>
 

@@ -3,7 +3,7 @@ import api from "../api/config";
 // Fetch all product vouchers with pagination
 export const getAllProductVouchers = async (pageIndex = 1, pageSize = 10) => {
   try {
-    const response = await api.get("/productVoucher/get-all-product-voucher", {
+    const response = await api.get(`/productVoucher/get-all-product-voucher`, {
       params: { pageIndex, pageSize },
     });
     return response.data; // Access the full response directly
@@ -21,7 +21,7 @@ export const getProductVoucherById = async (
 ) => {
   try {
     const response = await api.get(
-      "/productVoucher/get-product-voucher-by-id",
+      `/productVoucher/get-product-voucher-by-id`,
       {
         params: { id, pageIndex, pageSize },
       }
@@ -54,11 +54,11 @@ export const getProductVoucherByProductId = async (
 };
 
 // Create a new product voucher
-export const createProductVoucher = async (productID, voucherID) => {
+export const createProductVoucher = async (productID, vourcherID) => {
   try {
-    const response = await api.post("/productVoucher/create-product-voucher", {
+    const response = await api.post(`/productVoucher/create-product-voucher`, {
       productID,
-      voucherID,
+      vourcherID,
     });
     return response.data;
   } catch (error) {
@@ -90,7 +90,7 @@ export const updateProductVoucher = async (
 export const deleteProductVoucher = async (voucherId) => {
   try {
     const response = await api.delete(
-      "/productVoucher/delete-product-voucher",
+      `/productVoucher/delete-product-voucher`,
       {
         params: { voucherId },
       }

@@ -11,20 +11,20 @@ const SideBar = () => {
 
   const menuItems = {
     STAFF: [
-      { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
-      { name: "Quản lí danh mục sản phẩm", link: "manage-category" },
-      { name: "Tổng quản lí sản phẩm hệ thống", link: "manage-product" },
-      { name: "Tạo Voucher", link: "manage-voucher" },
+      { name: "THỐNG KÊ", link: "dashboard", icon: <FaHome /> },
+      { name: "DANH MỤC", link: "manage-category" },
+      { name: "SẢN PHÂM", link: "manage-product" },
+      { name: "VOUCHER", link: "manage-voucher" },
     ],
 
     SUPPLIER: [
-      { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
-      { name: "Voucher", link: "manage-voucher-of-supplier" },
+      { name: "THỐNG KÊ", link: "dashboard", icon: <FaHome /> },
+      { name: "VOUCHER", link: "manage-voucher-of-supplier" },
       { name: "QUẢN LÍ SẢN PHẨM", link: "manage-product-of-supplier" },
       { name: "QUẢN LÍ ĐƠN HÀNG", link: "manage-order" },
     ],
     ADMIN: [
-      { name: "Thống kê", link: "dashboard", icon: <FaHome /> },
+      { name: "THỐNG KÊ", link: "dashboard", icon: <FaHome /> },
       { name: "Người dùng", link: "manage-user", icon: <FaUser /> },
       { name: "Tổng quản lí sản phẩm hệ thống", link: "manage-product" },
       { name: "Quản lí chính sách", link: "manage-policy" },

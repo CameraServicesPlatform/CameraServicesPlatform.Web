@@ -40,11 +40,25 @@ const ProductPageBuy = () => {
     try {
       const productData = await getAllProduct(1, 20);
       if (productData) {
-        setProducts(productData);
+        const productsWithDetails = await Promise.all(
+          productData.map(async (product) => {
+            const supplierData = await getSupplierById(product.supplierID);
+            const categoryData = await getCategoryById(product.categoryID);
+
+            return {
+              ...product,
+              supplierName:
+                supplierData?.result?.items?.[0]?.supplierName || "Unknown",
+              categoryName: categoryData?.result?.categoryName || "Unknown",
+            };
+          })
+        );
+        setProducts(productsWithDetails);
       } else {
         message.error("Failed to load products.");
       }
     } catch (error) {
+      console.error("Error fetching products:", error);
       message.error("An error occurred while fetching products.");
     } finally {
       setLoading(false);
@@ -53,10 +67,7 @@ const ProductPageBuy = () => {
 
   useEffect(() => {
     loadProducts();
-    if (id) {
-      loadProduct();
-    }
-  }, [id]);
+  }, []);
 
   const loadProduct = async () => {
     setLoading(true);
@@ -242,11 +253,11 @@ const ProductPageBuy = () => {
                   </p>
                   <p className="text-left">
                     <TeamOutlined className="inline mr-1" />
-                    <strong>Nhà cung cấp:</strong> {supplierName}
+                    <strong>Nhà cung cấp:</strong> {product.supplierName}
                   </p>
                   <p className="text-left">
                     <AppstoreAddOutlined className="inline mr-1" />
-                    <strong>Danh mục:</strong> {categoryName}
+                    <strong>Danh mục:</strong> {product.categoryName}
                   </p>
                   <p className="font-semibold text-left">
                     <CalendarOutlined className="inline mr-1" />
