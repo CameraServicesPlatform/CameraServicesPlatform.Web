@@ -64,10 +64,12 @@ const CreateOrderBuy = () => {
           setVouchers(voucherData);
           if (voucherData.length > 0) {
             const firstVoucher = voucherData[0];
-            setSelectedVoucher(firstVoucher.voucherID);
-            const voucherDetails = await getVoucherById(firstVoucher.voucherID);
+            setSelectedVoucher(firstVoucher.vourcherID);
+            const voucherDetails = await getVoucherById(
+              firstVoucher.vourcherID
+            );
             setSelectedVoucherDetails(voucherDetails);
-            calculateTotalAmount(firstVoucher.voucherID);
+            calculateTotalAmount(firstVoucher.vourcherID);
           }
         } else {
           message.error("No vouchers available.");
@@ -82,23 +84,23 @@ const CreateOrderBuy = () => {
   }, [productID]);
 
   // Handle voucher selection
-  const handleVoucherSelect = async (voucherID) => {
-    if (!voucherID) {
-      console.error("Invalid voucher ID:", voucherID);
+  const handleVoucherSelect = async (vourcherID) => {
+    if (!vourcherID) {
+      console.error("Invalid voucher ID:", vourcherID);
       return;
     }
 
-    console.log("Selected Voucher ID:", voucherID); // Log selected voucher ID
+    console.log("Selected Voucher ID:", vourcherID); // Log selected voucher ID
 
-    setSelectedVoucher(voucherID);
-    console.log("Updated Selected Voucher:", voucherID);
+    setSelectedVoucher(vourcherID);
+    console.log("Updated Selected Voucher:", vourcherID);
 
     try {
       // Fetch voucher details
-      const voucherDetails = await getVoucherById(voucherID);
+      const voucherDetails = await getVoucherById(vourcherID);
       setSelectedVoucherDetails(voucherDetails);
 
-      calculateTotalAmount(voucherID);
+      calculateTotalAmount(vourcherID);
     } catch (error) {
       console.error("Error fetching voucher details:", error);
     }
@@ -109,20 +111,32 @@ const CreateOrderBuy = () => {
   }, [selectedVoucher]);
 
   // Calculate total amount
-  const calculateTotalAmount = (voucherID) => {
-    if (!product) return;
+  const calculateTotalAmount = async (vourcherID) => {
+    if (!product) {
+      console.error("Product is not defined");
+      return;
+    }
 
     let discountAmount = 0;
-    if (voucherID) {
-      const selectedVoucher = vouchers.find(
-        (voucher) => voucher.voucherID === voucherID
-      );
-      if (selectedVoucher) {
-        discountAmount = selectedVoucher.discountAmount;
+    if (vourcherID) {
+      try {
+        const voucherDetails = await getVoucherById(vourcherID);
+        if (voucherDetails) {
+          discountAmount = voucherDetails.discountAmount;
+          console.log("Selected Voucher Details:", voucherDetails);
+        } else {
+          console.error("Voucher details not found");
+        }
+      } catch (error) {
+        console.error("Error fetching voucher details:", error);
       }
     }
 
     const total = product.priceBuy - discountAmount;
+    console.log("Product priceBuy:", product.priceBuy);
+    console.log("Discount amount:", discountAmount);
+    console.log("Total amount:", total);
+
     setTotalAmount(total);
   };
 
@@ -135,7 +149,7 @@ const CreateOrderBuy = () => {
     const orderData = {
       supplierID: supplierID || "",
       accountID: accountId || "",
-      voucherID: selectedVoucher,
+      vourcherID: selectedVoucher,
       productID: product?.productID || "",
       orderDate: new Date().toISOString(),
       orderStatus: 0,
@@ -158,7 +172,7 @@ const CreateOrderBuy = () => {
           productPrice: product?.priceBuy || 0,
           productQuality: product?.quality,
           discount: selectedVoucher
-            ? vouchers.find((voucher) => voucher.voucherID === selectedVoucher)
+            ? vouchers.find((voucher) => voucher.vourcherID === selectedVoucher)
                 ?.discountAmount || 0
             : 0,
           productPriceTotal: totalAmount || 0,
@@ -265,7 +279,7 @@ const CreateOrderBuy = () => {
               {vouchers.map((voucher) => (
                 <Card
                   key={voucher.vourcherID}
-                  title="Nhấn vào đây nhân ưu đãi"
+                  title="Nhấn vào đây nhận ưu đãi"
                   bordered={false}
                   style={{
                     width: 300, // Set card width
@@ -278,19 +292,23 @@ const CreateOrderBuy = () => {
                   }}
                   onClick={() => handleVoucherSelect(voucher.vourcherID)}
                 >
+                  <Card.Meta
+                    title={voucher.vourcherCode} // Display voucher code directly from voucher object
+                    description={voucher.description} // Display description directly from voucher object
+                  />
                   {selectedVoucher === voucher.vourcherID &&
                     selectedVoucherDetails && (
                       <div style={{ marginTop: "10px" }}>
                         <p>
-                          <strong>Mã giảm giá :</strong>
+                          <strong>Mã:</strong>{" "}
                           {selectedVoucherDetails.vourcherCode}
                         </p>
                         <p>
-                          <strong>Mô tả:</strong>
+                          <strong>Mô tả:</strong>{" "}
                           {selectedVoucherDetails.description}
                         </p>
                         <p>
-                          <strong>Giá trị:</strong>
+                          <strong>Giảm giá:</strong>{" "}
                           {selectedVoucherDetails.discountAmount}
                         </p>
                       </div>
@@ -300,11 +318,11 @@ const CreateOrderBuy = () => {
             </div>
           </Form.Item>
 
-          <Form.Item label="Total Amount">
+          <Form.Item label="Tổng số tiền">
             <Input value={totalAmount} disabled />
           </Form.Item>
           <Button type="primary" htmlType="submit">
-            Create Order
+            Tạo đơn hàng
           </Button>
         </Form>
       )}
