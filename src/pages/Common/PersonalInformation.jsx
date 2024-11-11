@@ -263,9 +263,9 @@ const PersonalInformation = () => {
                 <strong>SDT:</strong> {userMap.phone}
               </span>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center flex-wrap">
               <i className="fa-solid fa-envelope mr-2 text-gray-600"></i>
-              <span>
+              <span className="break-words">
                 <strong>Email:</strong> {userMap.email}
               </span>
             </div>
