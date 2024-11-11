@@ -1,22 +1,40 @@
-import { Button, Card, Form, Input, message, Select, Spin } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Form,
+  Input,
+  message,
+  Radio,
+  Row,
+  Select,
+  Spin,
+  Steps,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createOrderWithPayment } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
+import { getSupplierById } from "../../../../api/supplierApi";
 import {
   getProductVouchersByProductId,
   getVoucherById,
 } from "../../../../api/voucherApi";
 
 const { Option } = Select;
+const { Step } = Steps;
 
 const CreateOrderBuy = () => {
   const [form] = Form.useForm();
+  const [currentStep, setCurrentStep] = useState(0);
   const [product, setProduct] = useState(null);
   const [vouchers, setVouchers] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [deliveryMethod, setDeliveryMethod] = useState(0);
+  const [supplierInfo, setSupplierInfo] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { productID, supplierID } = location.state || {};
@@ -26,9 +44,7 @@ const CreateOrderBuy = () => {
   const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
 
   const accountId = user.id;
-  console.log(accountId);
 
-  // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -37,20 +53,22 @@ const CreateOrderBuy = () => {
           if (productData) {
             setProduct(productData);
             form.setFieldsValue({ supplierID });
+            setTotalAmount(productData.priceBuy); // Set initial total amount to product price
           } else {
-            message.error("Product not found or could not be retrieved.");
+            message.error(
+              "Không tìm thấy sản phẩm hoặc không thể lấy dữ liệu."
+            );
           }
         }
       } catch (error) {
-        message.error("Failed to fetch product details.");
+        message.error("Không thể lấy chi tiết sản phẩm.");
       }
       setLoadingProduct(false);
     };
 
     fetchProduct();
-  }, [productID]);
+  }, [productID, form, supplierID]);
 
-  // Fetch vouchers by supplier ID
   useEffect(() => {
     const fetchVouchers = async () => {
       setLoadingVouchers(true);
@@ -59,23 +77,14 @@ const CreateOrderBuy = () => {
           productID,
           1,
           10
-        ); // Adjust pageIndex and pageSize as needed
+        );
         if (voucherData) {
           setVouchers(voucherData);
-          if (voucherData.length > 0) {
-            const firstVoucher = voucherData[0];
-            setSelectedVoucher(firstVoucher.vourcherID);
-            const voucherDetails = await getVoucherById(
-              firstVoucher.vourcherID
-            );
-            setSelectedVoucherDetails(voucherDetails);
-            calculateTotalAmount(firstVoucher.vourcherID);
-          }
         } else {
-          message.error("No vouchers available.");
+          message.error("Không có voucher khả dụng.");
         }
       } catch (error) {
-        message.error("Failed to fetch vouchers.");
+        message.error("Không thể lấy voucher.");
       }
       setLoadingVouchers(false);
     };
@@ -83,37 +92,40 @@ const CreateOrderBuy = () => {
     fetchVouchers();
   }, [productID]);
 
-  // Handle voucher selection
-  const handleVoucherSelect = async (vourcherID) => {
-    if (!vourcherID) {
-      console.error("Invalid voucher ID:", vourcherID);
-      return;
-    }
+  useEffect(() => {
+    const fetchSupplierInfo = async () => {
+      if (deliveryMethod === 0 && supplierID) {
+        const supplierData = await getSupplierById(supplierID);
+        if (
+          supplierData &&
+          supplierData.result &&
+          supplierData.result.items.length > 0
+        ) {
+          setSupplierInfo(supplierData.result.items[0]);
+        } else {
+          message.error("Không thể lấy thông tin nhà cung cấp.");
+        }
+      }
+    };
 
-    console.log("Selected Voucher ID:", vourcherID); // Log selected voucher ID
+    fetchSupplierInfo();
+  }, [deliveryMethod, supplierID]);
 
+  const handleVoucherSelect = async (e) => {
+    const vourcherID = e.target.value;
     setSelectedVoucher(vourcherID);
-    console.log("Updated Selected Voucher:", vourcherID);
-
     try {
-      // Fetch voucher details
       const voucherDetails = await getVoucherById(vourcherID);
       setSelectedVoucherDetails(voucherDetails);
-
       calculateTotalAmount(vourcherID);
     } catch (error) {
-      console.error("Error fetching voucher details:", error);
+      console.error("Lỗi khi lấy chi tiết voucher:", error);
     }
   };
 
-  useEffect(() => {
-    console.log("Updated Selected Voucher:", selectedVoucher);
-  }, [selectedVoucher]);
-
-  // Calculate total amount
   const calculateTotalAmount = async (vourcherID) => {
     if (!product) {
-      console.error("Product is not defined");
+      console.error("Sản phẩm không được xác định");
       return;
     }
 
@@ -123,26 +135,21 @@ const CreateOrderBuy = () => {
         const voucherDetails = await getVoucherById(vourcherID);
         if (voucherDetails) {
           discountAmount = voucherDetails.discountAmount;
-          console.log("Selected Voucher Details:", voucherDetails);
         } else {
-          console.error("Voucher details not found");
+          console.error("Không tìm thấy chi tiết voucher");
         }
       } catch (error) {
-        console.error("Error fetching voucher details:", error);
+        console.error("Lỗi khi lấy chi tiết voucher:", error);
       }
     }
 
     const total = product.priceBuy - discountAmount;
-    console.log("Product priceBuy:", product.priceBuy);
-    console.log("Discount amount:", discountAmount);
-    console.log("Total amount:", total);
-
     setTotalAmount(total);
   };
 
   const onFinish = async (values) => {
     if (!product) {
-      message.error("Product information is incomplete.");
+      message.error("Thông tin sản phẩm không đầy đủ.");
       return;
     }
 
@@ -178,152 +185,336 @@ const CreateOrderBuy = () => {
           productPriceTotal: totalAmount || 0,
         },
       ],
-      deliveryMethod: 0,
+      deliveryMethod: deliveryMethod,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-
-    console.log(
-      "Order Data before API call:",
-      JSON.stringify(orderData, null, 2)
-    );
 
     try {
       const response = await createOrderWithPayment(orderData);
       if (response.isSuccess && response.result) {
         message.success(
-          "Order created successfully. Redirecting to payment..."
+          "Tạo đơn hàng thành công. Đang chuyển hướng đến thanh toán..."
         );
-        // Redirect to the payment URL
         window.location.href = response.result;
       } else {
-        message.error("Failed to initiate payment.");
+        message.error("Không thể khởi tạo thanh toán.");
       }
     } catch (error) {
       message.error(
-        "Failed to create order. " + (error.response?.data?.title || "")
+        "Không thể tạo đơn hàng. " + (error.response?.data?.title || "")
       );
       console.error(error);
     }
   };
 
+  const steps = [
+    {
+      title: "Chi tiết sản phẩm",
+      content: (
+        <Form.Item label="Thông tin sản phẩm" className="mb-4">
+          {product ? (
+            <Row gutter={16}>
+              <Col span={12}>
+                <Descriptions column={1}>
+                  <Descriptions.Item label="Mã sản phẩm">
+                    {product.productID}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Tên">
+                    {product.productName}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Mô tả">
+                    {product.productDescription}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Giá mua">
+                    {product.priceBuy}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Chất lượng">
+                    {product.quality}
+                  </Descriptions.Item>
+                </Descriptions>
+              </Col>
+              <Col span={12}>
+                <strong>Hình ảnh sản phẩm:</strong>
+                <div className="flex flex-wrap mt-2">
+                  {product.listImage && product.listImage.length > 0 ? (
+                    product.listImage.map((imageObj, index) => (
+                      <img
+                        key={imageObj.productImagesID}
+                        src={imageObj.image}
+                        alt={`Hình ảnh sản phẩm ${index + 1}`}
+                        className="w-24 h-24 mr-2 mb-2 object-cover"
+                      />
+                    ))
+                  ) : (
+                    <p>Không có hình ảnh cho sản phẩm này.</p>
+                  )}
+                </div>
+              </Col>
+            </Row>
+          ) : (
+            <p>Đang tải thông tin sản phẩm...</p>
+          )}
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Phương thức giao hàng",
+      content: (
+        <>
+          <Form.Item
+            label="Phương thức giao hàng"
+            name="deliveryMethod"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng chọn phương thức giao hàng!",
+              },
+            ]}
+          >
+            <Radio.Group onChange={(e) => setDeliveryMethod(e.target.value)}>
+              <Radio value={0}>Nhận tại cửa hàng</Radio>
+              <Radio value={1}>Giao hàng tận nơi</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          {deliveryMethod === 1 && (
+            <Form.Item
+              label="Địa chỉ giao hàng"
+              name="shippingAddress"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập địa chỉ giao hàng!",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          )}
+
+          {deliveryMethod === 0 && supplierInfo && (
+            <Descriptions bordered>
+              <Descriptions.Item label="Tên nhà cung cấp">
+                {supplierInfo.supplierName}
+              </Descriptions.Item>
+              <Descriptions.Item label="Số điện thoại">
+                {supplierInfo.contactNumber}
+              </Descriptions.Item>
+              <Descriptions.Item label="Địa chỉ nhà cung cấp">
+                {supplierInfo.supplierAddress}
+              </Descriptions.Item>
+            </Descriptions>
+          )}
+        </>
+      ),
+    },
+    {
+      title: "Chọn Voucher",
+      content: (
+        <Form.Item label="Chọn Voucher">
+          <Radio.Group
+            onChange={handleVoucherSelect}
+            value={selectedVoucher}
+            style={{ width: "100%" }}
+          >
+            <Row gutter={[16, 16]}>
+              {vouchers.map((voucher) => (
+                <Col span={8} key={voucher.vourcherID}>
+                  <Card
+                    title={voucher.vourcherCode}
+                    bordered={false}
+                    style={{
+                      cursor: "pointer",
+                      borderColor:
+                        selectedVoucher === voucher.vourcherID
+                          ? "#1890ff"
+                          : "#f0f0f0",
+                      backgroundColor:
+                        selectedVoucher === voucher.vourcherID
+                          ? "#e6f7ff"
+                          : "#ffffff",
+                      borderWidth:
+                        selectedVoucher === voucher.vourcherID ? 2 : 1,
+                      boxShadow:
+                        selectedVoucher === voucher.vourcherID
+                          ? "0 4px 8px rgba(0, 0, 0, 0.1)"
+                          : "none",
+                      transition: "all 0.3s ease",
+                    }}
+                    onClick={() => setSelectedVoucher(voucher.vourcherID)}
+                  >
+                    <p>{voucher.description}</p>
+                    {selectedVoucher === voucher.vourcherID &&
+                      selectedVoucherDetails && (
+                        <>
+                          <p>
+                            <strong>Giảm giá:</strong>{" "}
+                            {selectedVoucherDetails.discountAmount}
+                          </p>
+                        </>
+                      )}
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </Radio.Group>
+        </Form.Item>
+      ),
+    },
+    {
+      title: "Xem lại đơn hàng",
+      content: (
+        <div>
+          <h3>Xem lại đơn hàng của bạn</h3>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Card
+                title="Thông tin sản phẩm"
+                bordered={false}
+                style={{ marginBottom: "16px" }}
+              >
+                <Descriptions bordered column={1}>
+                  <Descriptions.Item label="Mã sản phẩm">
+                    {product?.productID}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Tên">
+                    {product?.productName}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Mô tả">
+                    {product?.productDescription}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Giá mua">
+                    {product?.priceBuy}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Chất lượng">
+                    {product?.quality}
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card
+                title="Thông tin giao hàng"
+                bordered={false}
+                style={{ marginBottom: "16px" }}
+              >
+                <Descriptions bordered column={1}>
+                  <Descriptions.Item label="Phương thức giao hàng">
+                    {deliveryMethod === 0
+                      ? "Nhận tại cửa hàng"
+                      : "Giao hàng tận nơi"}
+                  </Descriptions.Item>
+                  {deliveryMethod === 1 && (
+                    <Descriptions.Item label="Địa chỉ giao hàng">
+                      {form.getFieldValue("shippingAddress")}
+                    </Descriptions.Item>
+                  )}
+                  {deliveryMethod === 0 && supplierInfo && (
+                    <>
+                      <Descriptions.Item label="Tên nhà cung cấp">
+                        {supplierInfo.supplierName}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Số điện thoại">
+                        {supplierInfo.contactNumber}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Địa chỉ nhà cung cấp">
+                        {supplierInfo.supplierAddress}
+                      </Descriptions.Item>
+                    </>
+                  )}
+                </Descriptions>
+              </Card>
+            </Col>
+          </Row>
+          <Card
+            title="Thông tin Voucher"
+            bordered={false}
+            style={{ marginTop: "16px" }}
+          >
+            {selectedVoucherDetails ? (
+              <Descriptions bordered column={1}>
+                <Descriptions.Item label="Mã Voucher">
+                  {selectedVoucherDetails.vourcherCode}
+                </Descriptions.Item>
+                <Descriptions.Item label="Mô tả">
+                  {selectedVoucherDetails.description}
+                </Descriptions.Item>
+                <Descriptions.Item label="Số tiền giảm">
+                  {selectedVoucherDetails.discountAmount}
+                </Descriptions.Item>
+              </Descriptions>
+            ) : (
+              <p>Không có voucher được chọn.</p>
+            )}
+          </Card>
+          <Card
+            title="Tổng kết đơn hàng"
+            bordered={false}
+            style={{ marginTop: "16px" }}
+          >
+            <Descriptions bordered column={1}>
+              <Descriptions.Item label="Tổng số tiền">
+                {totalAmount}
+              </Descriptions.Item>
+            </Descriptions>
+          </Card>
+        </div>
+      ),
+    },
+    {
+      title: "Xác nhận",
+      content: (
+        <div>
+          <Card title="Xác nhận đơn hàng" bordered={false}>
+            <Descriptions bordered column={1}>
+              <Descriptions.Item label="Tổng số tiền">
+                {totalAmount}
+              </Descriptions.Item>
+            </Descriptions>
+            <Form.Item style={{ marginTop: "16px" }}>
+              <Button type="primary" htmlType="submit">
+                Tạo đơn hàng
+              </Button>
+            </Form.Item>
+          </Card>
+        </div>
+      ),
+    },
+  ];
+
+  const next = () => {
+    setCurrentStep(currentStep + 1);
+  };
+
+  const prev = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
   return (
-    <Card title="Create Order Buy">
+    <Card title="Tạo đơn hàng mua">
       {loadingProduct || loadingVouchers ? (
         <Spin />
       ) : (
         <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item label="Product Information" className="mb-4">
-            {product ? (
-              <div className="flex justify-between">
-                {/* Left Side: Product Information */}
-                <div className="flex-1 pr-4">
-                  <p>
-                    <strong>Product ID:</strong> {product.productID}
-                  </p>
-                  <p>
-                    <strong>Name:</strong> {product.productName}
-                  </p>
-                  <p>
-                    <strong>Description:</strong> {product.productDescription}
-                  </p>
-
-                  <p>
-                    <strong>Buy Price:</strong> {product.priceBuy}
-                  </p>
-                  <p>
-                    <strong>Quality:</strong> {product.quality}
-                  </p>
-                </div>
-
-                {/* Right Side: Product Images */}
-                <div className="flex-1">
-                  <strong>Product Images:</strong>
-                  <div className="flex flex-wrap mt-2">
-                    {product.listImage && product.listImage.length > 0 ? (
-                      product.listImage.map((imageObj, index) => (
-                        <img
-                          key={imageObj.productImagesID} // Unique key from image object
-                          src={imageObj.image}
-                          alt={`Product Image ${index + 1}`}
-                          className="w-24 h-24 mr-2 mb-2 object-cover" // Tailwind CSS for styling
-                        />
-                      ))
-                    ) : (
-                      <p>No images available for this product.</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p>Loading product information...</p> // Optionally add a loading spinner here
+          <Steps current={currentStep} style={{ marginBottom: "24px" }}>
+            {steps.map((item) => (
+              <Step key={item.title} title={item.title} />
+            ))}
+          </Steps>
+          <div className="steps-content">{steps[currentStep].content}</div>
+          <div className="steps-action" style={{ marginTop: "24px" }}>
+            {currentStep > 0 && (
+              <Button style={{ margin: "0 8px" }} onClick={() => prev()}>
+                Quay lại
+              </Button>
             )}
-          </Form.Item>
-
-          <Form.Item
-            label="Shipping Address"
-            name="shippingAddress"
-            rules={[
-              {
-                required: true,
-                message: "Please input the shipping address!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          {/* Voucher Selection as Card Items */}
-          <Form.Item label="Voucher">
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-              {vouchers.map((voucher) => (
-                <Card
-                  key={voucher.vourcherID}
-                  title="Nhấn vào đây nhận ưu đãi"
-                  bordered={false}
-                  style={{
-                    width: 300, // Set card width
-                    cursor: "pointer", // Change cursor to pointer for better UX
-                    border:
-                      selectedVoucher === voucher.vourcherID
-                        ? "2px solid #1890ff"
-                        : "1px solid #d9d9d9", // Highlight selected card
-                    transition: "border 0.3s",
-                  }}
-                  onClick={() => handleVoucherSelect(voucher.vourcherID)}
-                >
-                  <Card.Meta
-                    title={voucher.vourcherCode} // Display voucher code directly from voucher object
-                    description={voucher.description} // Display description directly from voucher object
-                  />
-                  {selectedVoucher === voucher.vourcherID &&
-                    selectedVoucherDetails && (
-                      <div style={{ marginTop: "10px" }}>
-                        <p>
-                          <strong>Mã:</strong>{" "}
-                          {selectedVoucherDetails.vourcherCode}
-                        </p>
-                        <p>
-                          <strong>Mô tả:</strong>{" "}
-                          {selectedVoucherDetails.description}
-                        </p>
-                        <p>
-                          <strong>Giảm giá:</strong>{" "}
-                          {selectedVoucherDetails.discountAmount}
-                        </p>
-                      </div>
-                    )}
-                </Card>
-              ))}
-            </div>
-          </Form.Item>
-
-          <Form.Item label="Tổng số tiền">
-            <Input value={totalAmount} disabled />
-          </Form.Item>
-          <Button type="primary" htmlType="submit">
-            Tạo đơn hàng
-          </Button>
+            {currentStep < steps.length - 1 && (
+              <Button type="primary" onClick={() => next()}>
+                Tiếp theo
+              </Button>
+            )}
+          </div>
         </Form>
       )}
     </Card>

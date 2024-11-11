@@ -153,7 +153,7 @@ export const createOrderRent = async (orderData) => {
 };
 export const updateOrderStatusShipped = async (orderId) => {
   try {
-    const response = await axios.put(
+    const response = await api.put(
       `${BASE_URL}/update-order-status-Shipped/${orderId}`,
       {
         headers: {
@@ -174,8 +174,9 @@ export const updateOrderStatusShipped = async (orderId) => {
 };
 export const updateOrderStatusApproved = async (orderId) => {
   try {
-    const response = await axios.put(
-      `${BASE_URL}/update-order-status-Approved/${orderId}`,
+    const response = await api.put(
+      `/order/update-order-status-Approved/${orderId}`,
+      {},
       {
         headers: {
           accept: "text/plain",
@@ -196,7 +197,15 @@ export const updateOrderStatusApproved = async (orderId) => {
 
 export const purchaseOrder = async (orderId) => {
   try {
-    const response = await api.post(`/order/purchase-order/${orderId}`);
+    const response = await api.post(`/order/purchase-order/${orderId}`, "");
     return response.data;
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error purchasing order:", error);
+    return (
+      error.response?.data || {
+        isSuccess: false,
+        messages: ["Error purchasing order"],
+      }
+    );
+  }
 };

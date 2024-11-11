@@ -4,15 +4,14 @@ import { useSelector } from "react-redux";
 import "tailwindcss/tailwind.css";
 import { getCategoryById } from "../../api/categoryApi";
 import {
-  createOrderWithPayment,
   getOrderDetailsById,
   getOrdersByAccount,
+  purchaseOrder,
 } from "../../api/orderApi";
 import { getSupplierById } from "../../api/supplierApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
-
 const jobDescriptions = {
   0: "Học sinh",
   1: "Nhiếp ảnh chuyên nghiệp",
@@ -178,7 +177,7 @@ const PersonalInformation = () => {
   };
   const StatusBadge = ({ status, map }) => {
     const statusInfo = map[status] || {
-      text: "Không xác định",
+      text: "Thanh toán thất bại",
       color: "gray",
       icon: "fa-question-circle",
     };
@@ -192,6 +191,21 @@ const PersonalInformation = () => {
         </span>
       </span>
     );
+  };
+  const handlePaymentAgain = async (orderId) => {
+    try {
+      setIsLoading(true);
+      const data = await purchaseOrder(orderId);
+      if (data.isSuccess && data.result) {
+        window.location.href = data.result;
+      } else {
+        message.error("Failed to initiate payment.");
+      }
+    } catch (error) {
+      message.error("Đã xảy ra lỗi, vui lòng thử lại sau");
+    } finally {
+      setIsLoading(false);
+    }
   };
   const renderOrderItems = (order) => (
     <tr
@@ -213,25 +227,24 @@ const PersonalInformation = () => {
       </td>
       <td className="py-3 px-4 border-b">{formatDateTime(order.orderDate)}</td>
       <td className="py-3 px-4 border-b">{formatPrice(order.totalAmount)}</td>
+      <td>
+        {" "}
+        {order.orderStatus === 0 && (
+          <div className="flex justify-center">
+            <button
+              className="bg-primary text-white rounded-md py-2 px-4 my-2"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering the row click event
+                handlePaymentAgain(order.orderID);
+              }}
+            >
+              Thanh toán ngay
+            </button>
+          </div>
+        )}
+      </td>
     </tr>
   );
-
-  const handlePaymentAgain = async (orderId) => {
-    try {
-      setIsLoading(true);
-      const response = await createOrderWithPayment(orderId);
-      if (response.isSuccess) {
-        window.location.href = response.paymentUrl;
-      } else {
-        message.error("Failed to initiate payment.");
-      }
-    } catch (error) {
-      console.error("Error initiating payment:", error);
-      message.error("An error occurred, please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -398,20 +411,10 @@ const PersonalInformation = () => {
                   </tbody>
                 </table>
               </div>
-              {dataDetai[0]?.orderStatus === 0 && (
-                <div className="flex justify-center mt-4">
-                  <button
-                    className="bg-teal-600 text-white rounded-md py-2 px-4 hover:bg-teal-700 flex items-center"
-                    onClick={() => handlePaymentAgain(dataDetai[0].orderID)}
-                  >
-                    <i className="fa-solid fa-money-bill-wave mr-2"></i> Thanh
-                    toán ngay
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         )}
+
         {isUpdateModalOpen && (
           <PersonalModal onClose={() => setIsUpdateModalOpen(false)} />
         )}
