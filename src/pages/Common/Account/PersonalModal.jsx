@@ -15,46 +15,33 @@ const validationSchema = Yup.object({
   job: Yup.number().nullable(),
   hobby: Yup.number().nullable(),
   gender: Yup.number().nullable(),
-  frontOfCitizenIdentificationCard: Yup.mixed().required(
-    "Ảnh trước CMND là bắt buộc"
-  ),
-  backOfCitizenIdentificationCard: Yup.mixed().required(
-    "Ảnh sau CMND là bắt buộc"
-  ),
+  frontOfCitizenIdentificationCard: Yup.mixed().nullable(),
+  backOfCitizenIdentificationCard: Yup.mixed().nullable(),
 });
 
 const PersonalModal = ({ onClose }) => {
   const { user } = useSelector((state) => state.user || {});
   const dispatch = useDispatch();
-  const userMap = user
-    ? {
-        name: `${user.firstName || "Chưa có thông tin"} ${user.lastName || ""}`,
-        email: user.email || "Chưa có thông tin",
-        phone: user.phoneNumber || "Chưa có thông tin",
-      }
-    : {
-        name: "Chưa có thông tin",
-        email: "Chưa có thông tin",
-        phone: "Chưa có thông tin",
-      };
+
+  const initialValues = {
+    email: user?.email || "",
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    phoneNumber: user?.phoneNumber || "",
+    address: user?.address || "",
+    job: user?.job || null,
+    hobby: user?.hobby || null,
+    gender: user?.gender || null,
+    frontOfCitizenIdentificationCard: null,
+    backOfCitizenIdentificationCard: null,
+  };
 
   return (
     <div className="modal modal-open">
       <div className="modal-box max-w-xl">
         <h3 className="font-bold text-lg mb-4">Thông tin cá nhân</h3>
         <Formik
-          initialValues={{
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            phoneNumber: user.phoneNumber,
-            address: user.address,
-            job: user.job,
-            hobby: user.hobby,
-            gender: user.gender,
-            frontOfCitizenIdentificationCard: null,
-            backOfCitizenIdentificationCard: null,
-          }}
+          initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={async (values, { setSubmitting }) => {
             setSubmitting(true);
@@ -67,8 +54,11 @@ const PersonalModal = ({ onClose }) => {
               if (data.isSuccess) {
                 const userData = await getAccountById(user.id);
                 if (userData.isSuccess) {
-                  dispatch(login(userData.result?.account));
+                  dispatch(login(userData.result));
                   toast.success("Cập nhật dữ liệu thành công");
+                  onClose(); // Close the modal after successful update
+                } else {
+                  toast.error("Failed to fetch updated user data");
                 }
               } else {
                 if (data.messages.length === 0) {
@@ -325,7 +315,11 @@ const PersonalModal = ({ onClose }) => {
                 >
                   Gửi
                 </button>
-                <button className="btn btn-ghost" onClick={onClose}>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={onClose}
+                >
                   Đóng
                 </button>
               </div>

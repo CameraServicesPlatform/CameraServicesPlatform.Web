@@ -31,6 +31,7 @@ const ProductDetailPage = () => {
 
           const supplierData = await getSupplierById(data.supplierID, 1, 1);
           const categoryData = await getCategoryById(data.categoryID);
+          console.log("Category data:", categoryData);
 
           if (
             supplierData &&
@@ -40,18 +41,17 @@ const ProductDetailPage = () => {
           ) {
             const supplier = supplierData.result.items[0];
             setSupplierName(supplier.supplierName);
-            //  console.log("Tên nhà cung cấp:", supplier.supplierName);
           }
 
-          if (
-            categoryData &&
-            categoryData.result &&
-            Array.isArray(categoryData.result.items) &&
-            categoryData.result.items.length > 0
-          ) {
-            const category = categoryData.result.items[0];
+          if (categoryData && categoryData.result) {
+            // Adjust this part based on the actual structure of categoryData
+            const category = categoryData.result;
             setCategoryName(category.categoryName);
-            // console.log("Tên danh mục:", category.categoryName);
+            console.log("Category name:", category.categoryName);
+          } else {
+            console.log(
+              "Category data is not in the expected format or is empty."
+            );
           }
         }
       } catch (error) {
@@ -77,6 +77,7 @@ const ProductDetailPage = () => {
   if (loading) {
     return <Spin size="large" className="flex justify-center mt-10" />;
   }
+
   const handleCreateOrderRent = (product) => {
     navigate("/create-order-rent", {
       state: {
@@ -103,14 +104,18 @@ const ProductDetailPage = () => {
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/2 mb-4 md:mb-0 flex justify-center">
             <div className="flex flex-col h-full">
-              <img
-                src={
-                  product.listImage.length > 0 ? product.listImage[0].image : ""
-                }
-                alt={product.productName}
-                className="w-full h-auto cursor-pointer rounded-lg shadow-md"
-                onClick={() => showImageModal(product.listImage[0].image)}
-              />
+              {product.listImage && product.listImage.length > 0 ? (
+                <img
+                  src={product.listImage[0].image}
+                  alt={product.productName}
+                  className="w-full h-auto cursor-pointer rounded-lg shadow-md"
+                  onClick={() => showImageModal(product.listImage[0].image)}
+                />
+              ) : (
+                <div className="w-full h-auto cursor-pointer rounded-lg shadow-md bg-gray-200 flex items-center justify-center">
+                  <span>No Image Available</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -212,7 +217,7 @@ const ProductDetailPage = () => {
       {/* Modal hiển thị hình ảnh sản phẩm */}
       <Modal
         title={product?.productName}
-        visible={isModalVisible}
+        open={isModalVisible} // Changed from `visible` to `open`
         footer={null}
         onCancel={handleCancel}
         width={800}

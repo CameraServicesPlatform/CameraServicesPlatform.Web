@@ -1,7 +1,6 @@
 import {
   Button,
   Card,
-  Carousel,
   Col,
   Descriptions,
   Input,
@@ -14,9 +13,11 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
-import { getCategoryById } from "../../../api/categoryApi";
-import { getAllProduct, getProductById } from "../../../api/productApi";
-import { getSupplierById } from "../../../api/supplierApi";
+import { useSelector } from "react-redux";
+import {
+  getProductById,
+  getProposalProductFollowJobBuy,
+} from "../../../api/productApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 import { getBrandName } from "../../../utils/constant";
 
@@ -24,7 +25,7 @@ const { Header, Content } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
 
-const ProductList = () => {
+const ProposalProductFollowJobBuy = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [productDetail, setProductDetail] = useState(null);
@@ -32,22 +33,21 @@ const ProductList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4; // Set items per page
-  const indexOfLastProduct = currentPage * itemsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
-  const currentProducts = products.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
-  const totalProducts = products.length;
-  const [supplierName, setSupplierName] = useState("");
-  const [categoryName, setCategoryName] = useState("");
+
+  const user = useSelector((state) => state.user.user || {});
+  const accountId = user.id;
+  console.log(accountId);
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const productList = await getAllProduct(1, 100);
-        setProducts(productList);
+        const productList = await getProposalProductFollowJobBuy(
+          accountId,
+          1,
+          100
+        );
+        setProducts(productList || []);
       } catch (error) {
         message.error("Có lỗi xảy ra khi tải danh sách sản phẩm.");
       } finally {
@@ -56,7 +56,7 @@ const ProductList = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [accountId]);
 
   const fetchProductDetail = async (productID) => {
     setLoading(true);
@@ -64,19 +64,6 @@ const ProductList = () => {
       const data = await getProductById(productID);
       if (data) {
         setProductDetail(data);
-        // Fetch supplier and category information
-        const supplierData = await getSupplierById(data.supplierID, 1, 1);
-        const categoryData = await getCategoryById(data.categoryID);
-
-        if (supplierData?.result?.items.length > 0) {
-          setSupplierName(supplierData.result.items[0].supplierName);
-        }
-
-        if (categoryData?.isSuccess) {
-          setCategoryName(categoryData.result.categoryName);
-        } else {
-          setCategoryName("Không xác định");
-        }
       }
     } catch (error) {
       message.error("Có lỗi xảy ra khi tải chi tiết sản phẩm.");
@@ -93,15 +80,17 @@ const ProductList = () => {
   const handleModalClose = () => {
     setIsModalVisible(false);
     setProductDetail(null);
-    setSupplierName("");
-    setCategoryName("");
   };
 
   const handleSearchByName = async (value) => {
     setSearchTerm(value);
     setLoading(true);
     try {
-      const productList = await getAllProduct(1, 100);
+      const productList = await getProposalProductFollowJobBuy(
+        accountId,
+        1,
+        100
+      );
       const filteredProducts = productList.filter((product) =>
         product.productName.toLowerCase().includes(value.toLowerCase())
       );
@@ -120,8 +109,12 @@ const ProductList = () => {
     setLoading(true);
     const fetchProducts = async () => {
       try {
-        const productList = await getAllProduct(1, 100);
-        setProducts(productList);
+        const productList = await getProposalProductFollowJobBuy(
+          accountId,
+          1,
+          100
+        );
+        setProducts(productList || []);
       } catch (error) {
         message.error("Có lỗi xảy ra khi tải danh sách sản phẩm.");
       } finally {
@@ -130,6 +123,14 @@ const ProductList = () => {
     };
     fetchProducts();
   };
+
+  const indexOfLastProduct = currentPage * itemsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
+  const currentProducts = products.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+  const totalProducts = products.length;
 
   return (
     <Layout>
@@ -152,17 +153,10 @@ const ProductList = () => {
             textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
           }}
         >
-          Danh Sách Sản Phẩm
+          Đề Xuất Sản Phẩm Theo Công Việc Mua
         </Title>
-        <Button type="primary" size="large">
-          Thêm Sản Phẩm
-        </Button>
       </Header>
       <Content style={{ padding: "20px" }}>
-        <Carousel autoplay style={{ marginBottom: "20px" }}>
-          {/* Add carousel items here */}
-        </Carousel>
-
         <div
           style={{
             marginBottom: "20px",
@@ -351,59 +345,80 @@ const ProductList = () => {
         centered
       >
         {productDetail ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <img
               src={productDetail.listImage[0]?.image}
               alt={productDetail.productName}
-              style={{ width: "100%", height: "auto", marginBottom: "20px", borderRadius: "8px" }}
+              style={{
+                width: "100%",
+                height: "auto",
+                marginBottom: "20px",
+                borderRadius: "8px",
+              }}
               loading="lazy"
             />
-            <Descriptions bordered column={1} layout="vertical" style={{ width: "100%" }}>
+            <Descriptions
+              bordered
+              column={1}
+              layout="vertical"
+              style={{ width: "100%" }}
+            >
               <Descriptions.Item label="Serial Number">
-                <span style={{ color: "blue" }}>{productDetail.serialNumber}</span>
+                <span style={{ color: "blue" }}>
+                  {productDetail.serialNumber}
+                </span>
               </Descriptions.Item>
               <Descriptions.Item label="Mô tả">
                 {productDetail.productDescription}
               </Descriptions.Item>
               {productDetail.priceRent != null && (
                 <Descriptions.Item label="Giá (Thuê)">
-                  <span style={{ color: "blue" }}>VND{productDetail.priceRent}</span>
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.priceRent}
+                  </span>
                 </Descriptions.Item>
               )}
               {productDetail.priceBuy != null && (
                 <Descriptions.Item label="Giá (Mua)">
-                  <span style={{ color: "green", fontWeight: "bold" }}>VND{productDetail.priceBuy}</span>
+                  <span style={{ color: "green", fontWeight: "bold" }}>
+                    VND{productDetail.priceBuy}
+                  </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerHour != null && (
                 <Descriptions.Item label="Giá (Thuê)/giờ">
-                  <span style={{ color: "blue" }}>VND{productDetail.pricePerHour}</span>
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerHour}
+                  </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerDay != null && (
                 <Descriptions.Item label="Giá (Thuê)/ngày">
-                  <span style={{ color: "blue" }}>VND{productDetail.pricePerDay}</span>
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerDay}
+                  </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerWeek != null && (
                 <Descriptions.Item label="Giá (Thuê)/tuần">
-                  <span style={{ color: "blue" }}>VND{productDetail.pricePerWeek}</span>
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerWeek}
+                  </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerMonth != null && (
                 <Descriptions.Item label="Giá (Thuê)/tháng">
-                  <span style={{ color: "blue" }}>VND{productDetail.pricePerMonth}</span>
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerMonth}
+                  </span>
                 </Descriptions.Item>
               )}
-              <Descriptions.Item label="Nhà cung cấp">
-                {supplierName || "Không xác định"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Danh mục">
-                {categoryName || "Không xác định"}
-              </Descriptions.Item>
-              <Descriptions.Item label="Thương hiệu">
-                {getBrandName(productDetail.brand) || "Không xác định"}
-              </Descriptions.Item>
               <Descriptions.Item label="Chất lượng">
                 <Tag color="blue">
                   <strong>Chất lượng:</strong> {productDetail.quality}
@@ -428,4 +443,4 @@ const ProductList = () => {
   );
 };
 
-export default ProductList;
+export default ProposalProductFollowJobBuy;

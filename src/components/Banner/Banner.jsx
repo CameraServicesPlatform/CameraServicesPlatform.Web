@@ -1,5 +1,3 @@
-import productBg from "../../Images/table.jpg";
-
 const Banner = ({ title }) => {
   return (
     <div className="relative">

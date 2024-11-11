@@ -230,3 +230,93 @@ export const deleteProduct = async (productId) => {
     return false;
   }
 };
+
+export const updateProductRent = async (data) => {
+  try {
+    const response = await api.put(`/product/update-product-rent`, data, {});
+
+    if (response.status === 200 && response.data.isSuccess) {
+      return response.data.result;
+    }
+
+    console.error("Failed to update product for rent:", response.data.messages);
+    return null;
+  } catch (error) {
+    console.error("Error updating product for rent:", error);
+    throw error;
+  }
+};
+
+export const getProposalProductFollowVoucher = async (pageIndex, pageSize) => {
+  try {
+    const res = await api.get(
+      `/product/proposal-product-follow-vourcher?pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+
+    if (res.status === 200 && res.data) {
+      return res.data.result;
+    }
+
+    return [];
+  } catch (err) {
+    console.error("Error fetching products following voucher:", err);
+    handleApiError(err);
+    return null;
+  }
+};
+
+// Fetch all products following a job buy, requires accountId
+export const getProposalProductFollowJobBuy = async (
+  accountId,
+  pageIndex,
+  pageSize
+) => {
+  if (!accountId) {
+    console.error("accountId is required");
+    return null;
+  }
+
+  try {
+    const res = await api.get(
+      `/product/proposal-product-follow-job-buy?accountId=${accountId}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+
+    if (res.status === 200 && res.data) {
+      return res.data.result;
+    }
+
+    return [];
+  } catch (err) {
+    console.error("Error fetching products following job buy:", err);
+    handleApiError(err);
+    return null;
+  }
+};
+
+// Fetch all products following a hobby, requires accountId
+export const getProposalProductFollowHobby = async (
+  accountId,
+  pageIndex,
+  pageSize
+) => {
+  if (!accountId) {
+    console.error("accountId is required");
+    return null;
+  }
+
+  try {
+    const res = await api.get(
+      `/product/proposal-product-follow-hobby?accountId=${accountId}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+
+    if (res.status === 200 && res.data) {
+      return res.data.result;
+    }
+
+    return [];
+  } catch (err) {
+    console.error("Error fetching products following hobby:", err);
+    handleApiError(err);
+    return null;
+  }
+};
