@@ -1,5 +1,3 @@
-// CreateOrderBuy.jsx
-
 import { Button, Card, Form, Input, message, Select, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -18,7 +16,6 @@ const CreateOrderBuy = () => {
   const [product, setProduct] = useState(null);
   const [vouchers, setVouchers] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
-  const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
   const [totalAmount, setTotalAmount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
@@ -26,9 +23,10 @@ const CreateOrderBuy = () => {
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [loadingVouchers, setLoadingVouchers] = useState(true);
   const user = useSelector((state) => state.user.user || {});
+  const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
 
   const accountId = user.id;
-  console.log("Account ID:", accountId);
+  console.log(accountId);
 
   // Fetch product details
   useEffect(() => {
@@ -50,9 +48,9 @@ const CreateOrderBuy = () => {
     };
 
     fetchProduct();
-  }, [productID, form]);
+  }, [productID]);
 
-  // Fetch vouchers by product ID
+  // Fetch vouchers by supplier ID
   useEffect(() => {
     const fetchVouchers = async () => {
       setLoadingVouchers(true);
@@ -62,13 +60,20 @@ const CreateOrderBuy = () => {
           1,
           10
         ); // Adjust pageIndex and pageSize as needed
-        if (voucherData && Array.isArray(voucherData)) {
+        if (voucherData) {
           setVouchers(voucherData);
+          if (voucherData.length > 0) {
+            const firstVoucher = voucherData[0];
+            setSelectedVoucher(firstVoucher.voucherID);
+            const voucherDetails = await getVoucherById(firstVoucher.voucherID);
+            setSelectedVoucherDetails(voucherDetails);
+            calculateTotalAmount(firstVoucher.voucherID);
+          }
         } else {
           message.error("No vouchers available.");
         }
       } catch (error) {
-        message.error("Failed to fetch product vouchers.");
+        message.error("Failed to fetch vouchers.");
       }
       setLoadingVouchers(false);
     };
@@ -77,43 +82,43 @@ const CreateOrderBuy = () => {
   }, [productID]);
 
   // Handle voucher selection
-  const handleVoucherSelect = async (vourcherID) => {
-    console.log("Selected Voucher ID:", vourcherID); // Log selected voucher ID
-
-    if (!vourcherID) {
-      message.error("Invalid Voucher ID selected.");
+  const handleVoucherSelect = async (voucherID) => {
+    if (!voucherID) {
+      console.error("Invalid voucher ID:", voucherID);
       return;
     }
 
-    setSelectedVoucher(vourcherID);
-    console.log("Updated Selected Voucher:", vourcherID);
+    console.log("Selected Voucher ID:", voucherID); // Log selected voucher ID
+
+    setSelectedVoucher(voucherID);
+    console.log("Updated Selected Voucher:", voucherID);
 
     try {
-      const voucherDetails = await getVoucherById(vourcherID);
-      if (voucherDetails) {
-        setSelectedVoucherDetails(voucherDetails);
-      } else {
-        message.error("Voucher details not found.");
-      }
-    } catch (error) {
-      console.error("Error fetching voucher by ID:", error);
-      message.error("Failed to fetch voucher details. Please try again.");
-    }
+      // Fetch voucher details
+      const voucherDetails = await getVoucherById(voucherID);
+      setSelectedVoucherDetails(voucherDetails);
 
-    calculateTotalAmount(vourcherID);
+      calculateTotalAmount(voucherID);
+    } catch (error) {
+      console.error("Error fetching voucher details:", error);
+    }
   };
 
+  useEffect(() => {
+    console.log("Updated Selected Voucher:", selectedVoucher);
+  }, [selectedVoucher]);
+
   // Calculate total amount
-  const calculateTotalAmount = (vourcherID) => {
+  const calculateTotalAmount = (voucherID) => {
     if (!product) return;
 
     let discountAmount = 0;
-    if (vourcherID) {
-      const selectedVoucherItem = vouchers.find(
-        (voucher) => voucher.vourcherID === vourcherID
+    if (voucherID) {
+      const selectedVoucher = vouchers.find(
+        (voucher) => voucher.voucherID === voucherID
       );
-      if (selectedVoucherItem) {
-        discountAmount = selectedVoucherItem.discountAmount;
+      if (selectedVoucher) {
+        discountAmount = selectedVoucher.discountAmount;
       }
     }
 
@@ -130,7 +135,7 @@ const CreateOrderBuy = () => {
     const orderData = {
       supplierID: supplierID || "",
       accountID: accountId || "",
-      vourcherID: selectedVoucher,
+      voucherID: selectedVoucher,
       productID: product?.productID || "",
       orderDate: new Date().toISOString(),
       orderStatus: 0,
@@ -153,7 +158,7 @@ const CreateOrderBuy = () => {
           productPrice: product?.priceBuy || 0,
           productQuality: product?.quality,
           discount: selectedVoucher
-            ? vouchers.find((voucher) => voucher.vourcherID === selectedVoucher)
+            ? vouchers.find((voucher) => voucher.voucherID === selectedVoucher)
                 ?.discountAmount || 0
             : 0,
           productPriceTotal: totalAmount || 0,
@@ -237,7 +242,7 @@ const CreateOrderBuy = () => {
                 </div>
               </div>
             ) : (
-              <p>Loading product information...</p>
+              <p>Loading product information...</p> // Optionally add a loading spinner here
             )}
           </Form.Item>
 
@@ -260,8 +265,10 @@ const CreateOrderBuy = () => {
               {vouchers.map((voucher) => (
                 <Card
                   key={voucher.vourcherID}
+                  title="Nhấn vào đây nhân ưu đãi"
+                  bordered={false}
                   style={{
-                    width: 200, // Set card width
+                    width: 300, // Set card width
                     cursor: "pointer", // Change cursor to pointer for better UX
                     border:
                       selectedVoucher === voucher.vourcherID
@@ -271,31 +278,30 @@ const CreateOrderBuy = () => {
                   }}
                   onClick={() => handleVoucherSelect(voucher.vourcherID)}
                 >
-                  <Card.Meta
-                    title={selectedVoucherDetails.vourcherCode}
-                    description={
-                      <div>
+                  {selectedVoucher === voucher.vourcherID &&
+                    selectedVoucherDetails && (
+                      <div style={{ marginTop: "10px" }}>
                         <p>
-                          <strong>Discount Amount:</strong>{" "}
-                          {selectedVoucherDetails.discountAmount} VND
+                          <strong>Mã giảm giá :</strong>
+                          {selectedVoucherDetails.vourcherCode}
                         </p>
                         <p>
-                          <strong>Description:</strong>{" "}
+                          <strong>Mô tả:</strong>
                           {selectedVoucherDetails.description}
                         </p>
+                        <p>
+                          <strong>Giá trị:</strong>
+                          {selectedVoucherDetails.discountAmount}
+                        </p>
                       </div>
-                    }
-                  />
+                    )}
                 </Card>
               ))}
             </div>
           </Form.Item>
 
           <Form.Item label="Total Amount">
-            <Input
-              value={totalAmount ? `${totalAmount} VND` : "0 VND"}
-              disabled
-            />
+            <Input value={totalAmount} disabled />
           </Form.Item>
           <Button type="primary" htmlType="submit">
             Create Order

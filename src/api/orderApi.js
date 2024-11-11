@@ -14,7 +14,7 @@ export const getOrderDetailsById = async (orderId, pageIndex, pageSize) => {
 export const createOrderWithPayment = async (orderData) => {
   try {
     const res = await api.post(
-      `/order/create-order-buy-with-payment`,
+      "/order/create-order-buy-with-payment",
       orderData
     );
     return res.data;
