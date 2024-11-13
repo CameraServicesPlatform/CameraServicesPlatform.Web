@@ -92,13 +92,7 @@ const CreateProductBuy = () => {
     } = values;
 
     // Kiểm tra các giá trị bắt buộc
-    if (
-      !supplierId ||
-      !CategoryID ||
-      !ProductName ||
-      !SerialNumber ||
-      !Quality
-    ) {
+    if (!supplierId || !CategoryID || !ProductName || !SerialNumber) {
       message.error("Vui lòng điền tất cả các trường bắt buộc.");
       return;
     }
@@ -203,7 +197,7 @@ const CreateProductBuy = () => {
           { required: true, message: "Vui lòng nhập chất lượng sản phẩm!" },
         ]}
       >
-        <Select placeholder="Chọn một thương hiệu">
+        <Select placeholder="Đánh giá  chất lượng sản phẩm">
           <Option value={0}>Mới</Option>
           <Option value={1}>Đã qua sử dụng</Option>
         </Select>
