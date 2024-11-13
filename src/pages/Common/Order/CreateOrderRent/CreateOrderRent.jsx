@@ -1,18 +1,16 @@
 import {
   Button,
   Card,
-  DatePicker,
+  Col,
+  Descriptions,
   Form,
   Input,
   message,
-  Select,
-  Spin,
-  Table,
-  Steps,
-  Descriptions,
   Radio,
   Row,
-  Col,
+  Select,
+  Spin,
+  Steps,
 } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -95,7 +93,24 @@ const CreateOrderRent = () => {
 
     fetchVouchers();
   }, [productID]);
+  useEffect(() => {
+    const fetchSupplierInfo = async () => {
+      if (deliveryMethod === 0 && supplierID) {
+        const supplierData = await getSupplierById(supplierID);
+        if (
+          supplierData &&
+          supplierData.result &&
+          supplierData.result.items.length > 0
+        ) {
+          setSupplierInfo(supplierData.result.items[0]);
+        } else {
+          message.error("Không thể lấy thông tin nhà cung cấp.");
+        }
+      }
+    };
 
+    fetchSupplierInfo();
+  }, [deliveryMethod, supplierID]);
   // Fetch supplier info if needed
   useEffect(() => {
     const fetchSupplierInfo = async () => {
@@ -200,6 +215,8 @@ const CreateOrderRent = () => {
       accountID: accountId || "",
       productID: product?.productID || "",
       voucherID: selectedVoucher,
+      productPriceRent: product?.priceRent || 0,
+
       orderDate: new Date().toISOString(),
       orderStatus: 0,
       totalAmount: totalAmount || 0,
@@ -220,25 +237,8 @@ const CreateOrderRent = () => {
       durationUnit: values.durationUnit || 0,
       durationValue: values.durationValue || 0,
       returnDate: calculatedReturnDate.toISOString(),
-      orderDetailRequests: [
-        {
-          productID: product?.productID || "",
-          productPrice: product?.priceBuy || 0,
-          productQuality: product?.quality,
-          discount: selectedVoucher
-            ? vouchers.find((voucher) => voucher.voucherID === selectedVoucher)
-                ?.discountAmount || 0
-            : 0,
-          productPriceTotal: totalAmount || 0,
-        },
-      ],
-      contractRequest: {
-        contractTemplateId: values.contractTemplateId || "",
-        orderID: "", // This will be filled by the backend
-        contractTerms: values.contractTerms || "",
-        penaltyPolicy: values.penaltyPolicy || "",
-      },
-      deliveryMethod: 0,
+
+      deliveryMethod: deliveryMethod,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -456,7 +456,8 @@ const CreateOrderRent = () => {
                         selectedVoucher === voucher.voucherID
                           ? "#e6f7ff"
                           : "#ffffff",
-                      borderWidth: selectedVoucher === voucher.voucherID ? 2 : 1,
+                      borderWidth:
+                        selectedVoucher === voucher.voucherID ? 2 : 1,
                       boxShadow:
                         selectedVoucher === voucher.voucherID
                           ? "0 4px 8px rgba(0, 0, 0, 0.1)"
