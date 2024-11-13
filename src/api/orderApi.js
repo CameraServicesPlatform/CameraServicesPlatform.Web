@@ -209,3 +209,25 @@ export const purchaseOrder = async (orderId) => {
     );
   }
 };
+export const acceptCancelOrder = async (orderId) => {
+  try {
+    const res = await api.put(
+      `/order/accept-cancel-order/${orderId}`,
+      {},
+      {
+        headers: {
+          accept: "text/plain",
+        },
+      }
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error accepting order cancellation:", err);
+    return (
+      err.response?.data || {
+        isSuccess: false,
+        messages: ["Error accepting order cancellation"],
+      }
+    );
+  }
+};

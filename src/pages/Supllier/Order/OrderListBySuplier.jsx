@@ -32,7 +32,11 @@ const OrderListBySupplier = ({ refresh }) => {
 
   const orderStatusMap = {
     0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
-    1: { text: "Đã phê duyệt", color: "green", icon: "fa-check-circle" },
+    1: {
+      text: "Sản phẩm sẵn sàng được giao",
+      color: "green",
+      icon: "fa-check-circle",
+    },
     2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
     3: { text: "Đã đặt", color: "purple", icon: "fa-shopping-cart" },
     4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
@@ -353,6 +357,9 @@ const OrderListBySupplier = ({ refresh }) => {
         visible={isTrackingModalVisible}
         onCancel={handleCloseTrackingModal}
         footer={null}
+        width="80%" // Adjust the width as needed
+        style={{ top: 20 }} // Adjust the top position if needed
+        bodyStyle={{ maxHeight: "80vh", overflowY: "auto" }} // Ensure the content is scrollable if it overflows
       >
         {selectedOrder && (
           <TrackingOrder
