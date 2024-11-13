@@ -166,7 +166,7 @@ const OrderListBySupplier = ({ refresh }) => {
             .toLowerCase()
             .includes(value.toLowerCase())
         : "",
-    onFilterDropdownVisibleChange: (visible) => {
+    onFilterDropdownOpenChange: (visible) => {
       if (visible) {
         setTimeout(() => document.getElementById("search-input").select(), 100);
       }
@@ -329,7 +329,7 @@ const OrderListBySupplier = ({ refresh }) => {
   ];
 
   if (loading) {
-    return <Spin tip="Đang tải đơn hàng..." />;
+    return <Spin />;
   }
 
   if (error) {
@@ -354,12 +354,12 @@ const OrderListBySupplier = ({ refresh }) => {
       />
       <Modal
         title="Tracking Order"
-        visible={isTrackingModalVisible}
+        open={isTrackingModalVisible}
         onCancel={handleCloseTrackingModal}
         footer={null}
         width="80%" // Adjust the width as needed
         style={{ top: 20 }} // Adjust the top position if needed
-        bodyStyle={{ maxHeight: "80vh", overflowY: "auto" }} // Ensure the content is scrollable if it overflows
+        styles={{ body: { maxHeight: "80vh", overflowY: "auto" } }}
       >
         {selectedOrder && (
           <TrackingOrder

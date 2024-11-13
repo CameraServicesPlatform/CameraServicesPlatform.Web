@@ -178,19 +178,39 @@ const TrackingOrder = ({ order, onUpdate }) => {
   // Define the columns for the Table component
   const columns = [
     {
-      title: "Product Name",
+      title: "Mã chi tiết đơn hàng",
+      dataIndex: "orderDetailsID",
+      key: "orderDetailsID",
+    },
+    {
+      title: "Mã đơn hàng",
+      dataIndex: "orderID",
+      key: "orderID",
+    },
+    {
+      title: "Tên sản phẩm",
       dataIndex: "productName",
       key: "productName",
     },
     {
-      title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
+      title: "Số lượng sản phẩm",
+      dataIndex: "productQuality",
+      key: "productQuality",
     },
     {
-      title: "Price",
-      dataIndex: "price",
+      title: "Tổng giá sản phẩm",
+      dataIndex: "productPrice",
       key: "price",
+    },
+    {
+      title: "Tổng giá sản phẩm",
+      dataIndex: "productPriceTotal",
+      key: "productPriceTotal",
+    },
+    {
+      title: "Thời gian thuê",
+      dataIndex: "rentalPeriod",
+      key: "rentalPeriod",
     },
   ];
 
