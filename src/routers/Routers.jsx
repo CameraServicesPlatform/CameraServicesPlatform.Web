@@ -37,6 +37,7 @@ import DetailProduct from "../pages/Supllier/Product/DetailProduct";
 import ManageProductOfSuplier from "../pages/Supllier/Product/ManageProductOfSuplier";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
+import Wishlist from "../pages/Common/Wishlish/Wishlist";
 
 function Routers() {
   const routing = useRoutes([
@@ -55,7 +56,7 @@ function Routers() {
         { path: "about", element: <About /> },
         { path: "contact", element: <Contact /> },
         { path: "policy", element: <Policy /> },
-        { path: "gio-hang", element: <Cart /> },
+        { path: "cart", element: <Cart /> },
         { path: "personal-information", element: <PersonalInformation /> },
         { path: "register-supplier", element: <RegisterSupplier /> },
         { path: "product", element: <ProductPage /> },
@@ -71,6 +72,10 @@ function Routers() {
         {
           path: "supplier-information-detail/:id",
           element: <InformationSupplierDetail />,
+        },
+        {
+          path: "wishlist",
+          element: <Wishlist />,
         },
       ],
     },

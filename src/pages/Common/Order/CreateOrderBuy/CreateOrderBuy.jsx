@@ -40,9 +40,9 @@ const CreateOrderBuy = () => {
   const { productID, supplierID } = location.state || {};
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [loadingVouchers, setLoadingVouchers] = useState(true);
-  const user = useSelector((state) => state.user.user || {});
+  
   const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
-
+const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
 
   useEffect(() => {

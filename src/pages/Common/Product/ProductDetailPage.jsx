@@ -1,9 +1,12 @@
 import { Button, Card, Modal, Spin, Typography, message } from "antd";
 import React, { useEffect, useState } from "react";
+import { FaHeart, FaRegHeart } from "react-icons/fa"; // Import heart icons
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCategoryById } from "../../../api/categoryApi";
 import { getProductById } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
+import { createWishlist } from "../../../api/wishlistApi"; // Import createWishlist function
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
 
 const { Title, Paragraph } = Typography;
@@ -16,7 +19,10 @@ const ProductDetailPage = () => {
   const [selectedImage, setSelectedImage] = useState("");
   const [supplierName, setSupplierName] = useState("");
   const [categoryName, setCategoryName] = useState("");
+  const [isWishlisted, setIsWishlisted] = useState(false); // State to track wishlist status
 
+  const user = useSelector((state) => state.user.user || {});
+  const accountId = user.id;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,10 +80,6 @@ const ProductDetailPage = () => {
     setSelectedImage("");
   };
 
-  if (loading) {
-    return <Spin size="large" className="flex justify-center mt-10" />;
-  }
-
   const handleCreateOrderRent = (product) => {
     navigate("/create-order-rent", {
       state: {
@@ -97,6 +99,30 @@ const ProductDetailPage = () => {
       },
     });
   };
+
+  const handleAddToWishlist = async () => {
+    try {
+      const data = {
+        accountId: accountId,
+        productID: product.productID,
+        // Add any other necessary data here
+      };
+      const result = await createWishlist(data);
+      if (result) {
+        message.success("Product added to wishlist!");
+        setIsWishlisted(true);
+      } else {
+        message.error("Failed to add product to wishlist.");
+      }
+    } catch (error) {
+      console.error("Error adding product to wishlist:", error);
+      message.error("Failed to add product to wishlist.");
+    }
+  };
+
+  if (loading) {
+    return <Spin size="large" className="flex justify-center mt-10" />;
+  }
 
   return (
     <div className="container mx-auto p-6">
@@ -121,9 +147,21 @@ const ProductDetailPage = () => {
 
           <div className="md:w-1/2 md:pl-6 flex justify-center">
             <Card className="shadow-lg rounded-lg w-full h-full flex flex-col">
-              <Title level={2} className="text-center text-lg font-bold">
-                {product.productName}
-              </Title>
+              <div className="flex justify-between items-center">
+                <Title level={2} className="text-center text-lg font-bold">
+                  {product.productName}
+                </Title>
+                <button
+                  onClick={handleAddToWishlist}
+                  className="focus:outline-none"
+                >
+                  {isWishlisted ? (
+                    <FaHeart size={24} className="text-red-500" />
+                  ) : (
+                    <FaRegHeart size={24} className="text-gray-500" />
+                  )}
+                </button>
+              </div>
               <Paragraph className="text-center">
                 {product.productDescription}
               </Paragraph>
