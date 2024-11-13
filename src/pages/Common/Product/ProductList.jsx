@@ -179,9 +179,6 @@ const ProductList = () => {
         >
           Danh Sách Sản Phẩm
         </Title>
-        <Button type="primary" size="large">
-          Thêm Sản Phẩm
-        </Button>
       </Header>
       <Content style={{ padding: "20px" }}>
         <Carousel autoplay style={{ marginBottom: "20px" }}>
