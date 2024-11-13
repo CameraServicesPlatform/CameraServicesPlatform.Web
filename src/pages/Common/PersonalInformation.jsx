@@ -40,9 +40,11 @@ const orderStatusMap = {
   2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
   3: { text: "Đã đặt", color: "purple", icon: "fa-shopping-cart" },
   4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
-  5: { text: "Đã nhận", color: "lime", icon: "fa-box-open" },
-  6: { text: "Đã hủy", color: "red", icon: "fa-times-circle" },
-  7: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
+
+  5: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
+  6: { text: "Đang hủy ", color: "lime", icon: "fa-box-open" },
+  7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
+  8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
 };
 
 const orderTypeMap = {

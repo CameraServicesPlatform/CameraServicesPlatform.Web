@@ -105,10 +105,10 @@ const NavBar = () => {
           </button>
         </div>
         <Link
-          to="/gio-hang"
+          to="/wishlist"
           className="hidden md:block  font-semibold no-underline text-primary  hover:text-gray-500"
         >
-          Giỏ hàng
+          Wishlist
         </Link>
 
         <div className="flex items-center gap-4">
@@ -186,10 +186,10 @@ const NavBar = () => {
               Trang chủ
             </Link>
             <Link
-              to="/gio-hang"
+              to="/wishlist"
               className="hidden md:block  font-semibold no-underline text-primary  hover:text-gray-500"
             >
-              Giỏ hàng
+              Wishlist
             </Link>
             {isEmptyObject(user) ||
               (user == null && (

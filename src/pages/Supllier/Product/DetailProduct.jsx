@@ -2,6 +2,7 @@ import { Col, Image, message, Row, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getProductById } from "../../../api/productApi"; // Adjust path as necessary
+import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
 
 const DetailProduct = ({ product, loading, onClose }) => {
   const { id } = useParams(); // Assume `id` is passed via URL parameters
@@ -112,11 +113,7 @@ const DetailProduct = ({ product, loading, onClose }) => {
     { key: "4", field: "Tên Loại Hàng", value: categoryID },
     { key: "5", field: "Tên Sản Phẩm", value: productName },
     { key: "6", field: "Mô Tả", value: productDescription },
-    {
-      key: "7",
-      field: "Giá Thuê",
-      value: priceRent !== null ? `${priceRent} VND` : "Không có",
-    },
+
     {
       key: "8",
       field: "Giá Bán",
@@ -142,9 +139,9 @@ const DetailProduct = ({ product, loading, onClose }) => {
       field: "Giá Theo Tháng",
       value: pricePerMonth ? `${pricePerMonth} VND` : "Không có",
     },
-    { key: "13", field: "Thương Hiệu", value: brand },
+    { key: "13", field: "Thương Hiệu", value: getBrandName(brand) },
     { key: "14", field: "Chất Lượng", value: quality },
-    { key: "15", field: "Trạng Thái", value: status },
+    { key: "15", field: "Trạng Thái", value: getProductStatusEnum(status) },
     { key: "16", field: "Đánh Giá", value: rating },
     {
       key: "17",

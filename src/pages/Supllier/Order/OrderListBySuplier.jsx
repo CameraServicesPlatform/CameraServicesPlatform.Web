@@ -31,14 +31,15 @@ const OrderListBySupplier = ({ refresh }) => {
   const [searchedColumn, setSearchedColumn] = useState("");
 
   const orderStatusMap = {
-    0: { text: "Chờ xử lý", color: "blue" },
-    1: { text: "Đã phê duyệt", color: "green" },
-    2: { text: "Hoàn thành", color: "gold" },
-    3: { text: "Đã đặt", color: "purple" },
-    4: { text: "Đã giao hàng", color: "cyan" },
-    5: { text: "Đã nhận", color: "lime" },
-    6: { text: "Đã hủy", color: "red" },
-    7: { text: "Thanh toán", color: "volcano" },
+    0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
+    1: { text: "Đã phê duyệt", color: "green", icon: "fa-check-circle" },
+    2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
+    3: { text: "Đã đặt", color: "purple", icon: "fa-shopping-cart" },
+    4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
+    5: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
+    6: { text: "Đang hủy ", color: "lime", icon: "fa-box-open" },
+    7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
+    8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
   };
 
   const orderTypeMap = {
