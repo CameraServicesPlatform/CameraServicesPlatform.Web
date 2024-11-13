@@ -231,3 +231,15 @@ export const acceptCancelOrder = async (orderId) => {
     );
   }
 };
+export const createOrderRentWithPayment = async (orderData) => {
+  try {
+    const res = await api.post(
+      "/order/create-order-rent-with-payment",
+      orderData
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error creating rental order with payment:", err);
+    return null;
+  }
+};

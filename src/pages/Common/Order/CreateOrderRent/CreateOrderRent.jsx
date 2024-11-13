@@ -1,28 +1,23 @@
-import {
-  Button,
-  Card,
-  Col,
-  Descriptions,
-  Form,
-  Input,
-  message,
-  Radio,
-  Row,
-  Select,
-  Spin,
-  Steps,
-} from "antd";
+import { Button, Card, Form, Spin, Steps, message } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createOrderRent } from "../../../../api/orderApi";
+
 import { getProductById } from "../../../../api/productApi";
 import {
   getProductVouchersByProductId,
   getVoucherById,
 } from "../../../../api/voucherApi";
-const { Option } = Select;
+import { getContractTemplateByProductId } from "../../../../api/contractTemplateApi"; // Import the function
+import { createOrderRentWithPayment } from "../../../../api/orderApi"; // Import the function
+
+import DeliveryMethod from "./DeliveryMethod";
+import OrderConfirmation from "./OrderConfirmation";
+import OrderReview from "./OrderReview";
+import ProductDetailsInfoRent from "./ProductDetailsInfoRent";
+import VoucherSelection from "./VoucherSelection";
+
 const { Step } = Steps;
 
 const CreateOrderRent = () => {
@@ -42,32 +37,39 @@ const CreateOrderRent = () => {
   const [loadingVouchers, setLoadingVouchers] = useState(true);
   const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
-  console.log(accountId);
   const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [deliveryMethod, setDeliveryMethod] = useState(0);
   const [supplierInfo, setSupplierInfo] = useState(null);
+  const [contractTemplate, setContractTemplate] = useState([]); // Initialize as an array
 
-  // Fetch product details
+  // Fetch product details and contract template
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductAndContractTemplate = async () => {
       try {
         if (productID) {
           const productData = await getProductById(productID);
           if (productData) {
             setProduct(productData);
             form.setFieldsValue({ supplierID });
+
+            // Fetch contract template
+            const contractTemplateData = await getContractTemplateByProductId(
+              productID
+            );
+            console.log("Contract Template Data:", contractTemplateData); // Log the contract template data
+            setContractTemplate(contractTemplateData);
           } else {
             message.error("Product not found or could not be retrieved.");
           }
         }
       } catch (error) {
-        message.error("Failed to fetch product details.");
+        message.error("Failed to fetch product details or contract template.");
       }
       setLoadingProduct(false);
     };
 
-    fetchProduct();
+    fetchProductAndContractTemplate();
   }, [productID]);
 
   // Fetch vouchers by supplier ID
@@ -79,7 +81,7 @@ const CreateOrderRent = () => {
           productID,
           1,
           10
-        ); // Adjust pageIndex and pageSize as needed
+        );
         if (voucherData) {
           setVouchers(voucherData);
         } else {
@@ -93,52 +95,14 @@ const CreateOrderRent = () => {
 
     fetchVouchers();
   }, [productID]);
-  useEffect(() => {
-    const fetchSupplierInfo = async () => {
-      if (deliveryMethod === 0 && supplierID) {
-        const supplierData = await getSupplierById(supplierID);
-        if (
-          supplierData &&
-          supplierData.result &&
-          supplierData.result.items.length > 0
-        ) {
-          setSupplierInfo(supplierData.result.items[0]);
-        } else {
-          message.error("Không thể lấy thông tin nhà cung cấp.");
-        }
-      }
-    };
-
-    fetchSupplierInfo();
-  }, [deliveryMethod, supplierID]);
-  // Fetch supplier info if needed
-  useEffect(() => {
-    const fetchSupplierInfo = async () => {
-      if (supplierID) {
-        // Fetch supplier information and set it to supplierInfo state
-        // ...your code to fetch supplier info...
-      }
-    };
-    fetchSupplierInfo();
-  }, [supplierID]);
 
   // Handle voucher selection
   const handleVoucherSelect = async (voucherID) => {
-    console.log("Selected Voucher ID:", voucherID); // Ghi lại ID voucher được chọn
-
-    setSelectedVoucher(vourcherID);
-    console.log("Updated Selected Voucher:", vourherID);
-
-    // Fetch voucher details
-    const voucherDetails = await getVoucherById(vourherID);
+    setSelectedVoucher(voucherID);
+    const voucherDetails = await getVoucherById(voucherID);
     setSelectedVoucherDetails(voucherDetails);
-
     calculateTotalAmount(voucherID);
   };
-
-  useEffect(() => {
-    console.log("Updated Selected Voucher:", selectedVoucher);
-  }, [selectedVoucher]); // Watch for changes to selectedVoucher
 
   // Calculate total amount
   const calculateTotalAmount = (voucherID) => {
@@ -216,7 +180,6 @@ const CreateOrderRent = () => {
       productID: product?.productID || "",
       voucherID: selectedVoucher,
       productPriceRent: product?.priceRent || 0,
-
       orderDate: new Date().toISOString(),
       orderStatus: 0,
       totalAmount: totalAmount || 0,
@@ -226,7 +189,6 @@ const CreateOrderRent = () => {
           productName: product?.productName || "",
           productDescription: product?.productDescription || "",
           priceRent: product?.priceRent || 0,
-          priceBuy: product?.priceBuy || 0,
           quality: product?.quality,
         },
       ],
@@ -237,358 +199,68 @@ const CreateOrderRent = () => {
       durationUnit: values.durationUnit || 0,
       durationValue: values.durationValue || 0,
       returnDate: calculatedReturnDate.toISOString(),
-
       deliveryMethod: deliveryMethod,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    console.log(
-      "Order Data before API call:",
-      JSON.stringify(orderData, null, 2)
-    );
-
     try {
-      const response = await createOrderRent(orderData);
+      const response = await createOrderRentWithPayment(orderData);
       message.success("Order created successfully!");
       navigate("/order-detail");
     } catch (error) {
       message.error(
         "Failed to create order. " + (error.response?.data?.title || "")
       );
-      console.error(error);
     }
-  };
-
-  const durationOptions = {
-    hour: { min: 2, max: 8 },
-    day: { min: 1, max: 3 },
-    week: { min: 1, max: 2 },
-    month: { min: 1, max: 1 },
-  };
-  const generateTableData = () => {
-    if (!product) return [];
-
-    const data = [];
-
-    for (let unit in durationOptions) {
-      const { min, max } = durationOptions[unit];
-      for (let value = min; value <= max; value++) {
-        let price = 0;
-        switch (unit) {
-          case "day":
-            price = product.pricePerDay ? product.pricePerDay * value : null;
-            break;
-          case "hour":
-            price = product.pricePerHour ? product.pricePerHour * value : null;
-            break;
-          case "week":
-            price = product.pricePerWeek ? product.pricePerWeek * value : null;
-            break;
-          case "month":
-            price = product.pricePerMonth
-              ? product.pricePerMonth * value
-              : null;
-            break;
-          default:
-            break;
-        }
-        if (price !== null) {
-          data.push({
-            key: `${unit}-${value}`,
-            durationUnit: unit.charAt(0).toUpperCase() + unit.slice(1),
-            durationValue: value,
-            price: price,
-          });
-        }
-      }
-    }
-
-    return data;
-  };
-  const columns = [
-    {
-      title: "Duration Unit",
-      dataIndex: "durationUnit",
-      key: "durationUnit",
-    },
-    {
-      title: "Duration Value",
-      dataIndex: "durationValue",
-      key: "durationValue",
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-    },
-  ];
-
-  const tableData = generateTableData();
-  const showDurationAlert = (unit) => {
-    const { min, max } = durationOptions[unit];
-    message.info(
-      `You can rent for a minimum of ${min} ${unit}(s) and a maximum of ${max} ${unit}(s).`
-    );
   };
 
   const steps = [
     {
       title: "Chi tiết sản phẩm",
       content: (
-        <Form.Item label="Thông tin sản phẩm" className="mb-4">
-          {product ? (
-            <Row gutter={16}>
-              <Col span={12}>
-                <Descriptions column={1}>
-                  <Descriptions.Item label="Mã sản phẩm">
-                    {product.productID}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Tên">
-                    {product.productName}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Mô tả">
-                    {product.productDescription}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Giá thuê">
-                    {product.priceRent}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Chất lượng">
-                    {product.quality}
-                  </Descriptions.Item>
-                </Descriptions>
-              </Col>
-              <Col span={12}>
-                <strong>Hình ảnh sản phẩm:</strong>
-                <div className="flex flex-wrap mt-2">
-                  {product.listImage && product.listImage.length > 0 ? (
-                    product.listImage.map((imageObj, index) => (
-                      <img
-                        key={imageObj.productImagesID}
-                        src={imageObj.image}
-                        alt={`Hình ảnh sản phẩm ${index + 1}`}
-                        className="w-24 h-24 mr-2 mb-2 object-cover"
-                      />
-                    ))
-                  ) : (
-                    <p>Không có hình ảnh cho sản phẩm này.</p>
-                  )}
-                </div>
-              </Col>
-            </Row>
-          ) : (
-            <p>Đang tải thông tin sản phẩm...</p>
-          )}
-        </Form.Item>
+        <ProductDetailsInfoRent
+          product={product}
+          contractTemplate={contractTemplate}
+        />
       ),
     },
     {
       title: "Phương thức giao hàng",
       content: (
-        <>
-          <Form.Item
-            label="Phương thức giao hàng"
-            name="deliveryMethod"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng chọn phương thức giao hàng!",
-              },
-            ]}
-          >
-            <Radio.Group onChange={(e) => setDeliveryMethod(e.target.value)}>
-              <Radio value={0}>Nhận tại cửa hàng</Radio>
-              <Radio value={1}>Giao hàng tận nơi</Radio>
-            </Radio.Group>
-          </Form.Item>
-          {deliveryMethod === 1 && (
-            <Form.Item
-              label="Địa chỉ giao hàng"
-              name="shippingAddress"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập địa chỉ giao hàng!",
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-          )}
-          {deliveryMethod === 0 && supplierInfo && (
-            <Descriptions bordered>
-              <Descriptions.Item label="Tên nhà cung cấp">
-                {supplierInfo.supplierName}
-              </Descriptions.Item>
-              <Descriptions.Item label="Số điện thoại">
-                {supplierInfo.contactNumber}
-              </Descriptions.Item>
-              <Descriptions.Item label="Địa chỉ nhà cung cấp">
-                {supplierInfo.supplierAddress}
-              </Descriptions.Item>
-            </Descriptions>
-          )}
-        </>
+        <DeliveryMethod
+          deliveryMethod={deliveryMethod}
+          setDeliveryMethod={setDeliveryMethod}
+          supplierInfo={supplierInfo}
+        />
       ),
     },
     {
       title: "Chọn Voucher",
       content: (
-        <Form.Item label="Chọn Voucher">
-          <Radio.Group
-            onChange={(e) => setSelectedVoucher(e.target.value)}
-            value={selectedVoucher}
-            style={{ width: "100%" }}
-          >
-            <Row gutter={[16, 16]}>
-              {vouchers.map((voucher) => (
-                <Col span={8} key={voucher.voucherID}>
-                  <Card
-                    title={voucher.voucherCode}
-                    bordered={false}
-                    style={{
-                      cursor: "pointer",
-                      borderColor:
-                        selectedVoucher === voucher.voucherID
-                          ? "#1890ff"
-                          : "#f0f0f0",
-                      backgroundColor:
-                        selectedVoucher === voucher.voucherID
-                          ? "#e6f7ff"
-                          : "#ffffff",
-                      borderWidth:
-                        selectedVoucher === voucher.voucherID ? 2 : 1,
-                      boxShadow:
-                        selectedVoucher === voucher.voucherID
-                          ? "0 4px 8px rgba(0, 0, 0, 0.1)"
-                          : "none",
-                      transition: "all 0.3s ease",
-                    }}
-                    onClick={() => setSelectedVoucher(voucher.voucherID)}
-                  >
-                    <p>{voucher.description}</p>
-                    {selectedVoucher === voucher.voucherID && (
-                      <>
-                        <p>
-                          <strong>Giảm giá:</strong> {voucher.discountAmount}
-                        </p>
-                      </>
-                    )}
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </Radio.Group>
-        </Form.Item>
+        <VoucherSelection
+          vouchers={vouchers}
+          selectedVoucher={selectedVoucher}
+          setSelectedVoucher={handleVoucherSelect}
+        />
       ),
     },
     {
       title: "Xem lại đơn hàng",
       content: (
-        <div>
-          <h3>Xem lại đơn hàng của bạn</h3>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Card
-                title="Thông tin sản phẩm"
-                bordered={false}
-                style={{ marginBottom: "16px" }}
-              >
-                <Descriptions bordered column={1}>
-                  <Descriptions.Item label="Mã sản phẩm">
-                    {product?.productID}
-                  </Descriptions.Item>
-                  // ...existing code...
-                </Descriptions>
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card
-                title="Thông tin giao hàng"
-                bordered={false}
-                style={{ marginBottom: "16px" }}
-              >
-                <Descriptions bordered column={1}>
-                  <Descriptions.Item label="Phương thức giao hàng">
-                    {deliveryMethod === 0
-                      ? "Nhận tại cửa hàng"
-                      : "Giao hàng tận nơi"}
-                  </Descriptions.Item>
-                  {deliveryMethod === 1 && (
-                    <Descriptions.Item label="Địa chỉ giao hàng">
-                      {form.getFieldValue("shippingAddress")}
-                    </Descriptions.Item>
-                  )}
-                  {deliveryMethod === 0 && supplierInfo && (
-                    <>
-                      <Descriptions.Item label="Tên nhà cung cấp">
-                        {supplierInfo.supplierName}
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Số điện thoại">
-                        {supplierInfo.contactNumber}
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Địa chỉ nhà cung cấp">
-                        {supplierInfo.supplierAddress}
-                      </Descriptions.Item>
-                    </>
-                  )}
-                </Descriptions>
-              </Card>
-            </Col>
-          </Row>
-          <Card
-            title="Thông tin Voucher"
-            bordered={false}
-            style={{ marginTop: "16px" }}
-          >
-            {selectedVoucherDetails ? (
-              <Descriptions bordered column={1}>
-                <Descriptions.Item label="Mã Voucher">
-                  {selectedVoucherDetails.voucherCode}
-                </Descriptions.Item>
-                <Descriptions.Item label="Mô tả">
-                  {selectedVoucherDetails.description}
-                </Descriptions.Item>
-                <Descriptions.Item label="Số tiền giảm">
-                  {selectedVoucherDetails.discountAmount}
-                </Descriptions.Item>
-              </Descriptions>
-            ) : (
-              <p>Không có voucher được chọn.</p>
-            )}
-          </Card>
-          <Card
-            title="Tổng kết đơn hàng"
-            bordered={false}
-            style={{ marginTop: "16px" }}
-          >
-            <Descriptions bordered column={1}>
-              <Descriptions.Item label="Tổng số tiền">
-                {totalAmount}
-              </Descriptions.Item>
-            </Descriptions>
-          </Card>
-        </div>
+        <OrderReview
+          product={product}
+          form={form}
+          deliveryMethod={deliveryMethod}
+          supplierInfo={supplierInfo}
+          selectedVoucherDetails={selectedVoucherDetails}
+          totalAmount={totalAmount}
+        />
       ),
     },
     {
       title: "Xác nhận",
-      content: (
-        <div>
-          <Card title="Xác nhận đơn hàng" bordered={false}>
-            <Descriptions bordered column={1}>
-              <Descriptions.Item label="Tổng số tiền">
-                {totalAmount}
-              </Descriptions.Item>
-            </Descriptions>
-            <Form.Item style={{ marginTop: "16px" }}>
-              <Button type="primary" htmlType="submit">
-                Tạo đơn hàng
-              </Button>
-            </Form.Item>
-          </Card>
-        </div>
-      ),
+      content: <OrderConfirmation totalAmount={totalAmount} />,
     },
   ];
 

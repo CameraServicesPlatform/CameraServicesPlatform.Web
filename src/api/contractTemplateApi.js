@@ -1,21 +1,21 @@
 import api from "../api/config";
 
- export const getContractTemplateByProductId = async (productID) => {
+export const getContractTemplateByProductId = async (productID) => {
   try {
     const response = await api.get(
-      "/contractTemplate/get-contract-template-by-product--id",
+      "/contractTemplate/get-contract-template-by-product-id",
       {
         params: { productID },
       }
     );
-    return response.data;
+    return response.data.result.items;
   } catch (error) {
     console.error("Error fetching contract templates by product ID:", error);
     throw error;
   }
 };
 
- export const createContractTemplate = async (templateData) => {
+export const createContractTemplate = async (templateData) => {
   try {
     const response = await api.post(
       "/contractTemplate/create-contract-template",
@@ -28,7 +28,7 @@ import api from "../api/config";
   }
 };
 
- export const updateContractTemplateById = async (
+export const updateContractTemplateById = async (
   contractTemplateId,
   templateData
 ) => {
@@ -47,7 +47,7 @@ import api from "../api/config";
   }
 };
 
- export const deleteContractTemplateById = async (contractTemplateId) => {
+export const deleteContractTemplateById = async (contractTemplateId) => {
   try {
     const response = await api.delete(
       "/contractTemplate/delete-contract-template-by-id",
@@ -62,7 +62,7 @@ import api from "../api/config";
   }
 };
 
- export const getContractTemplateById = async (contractTemplateId) => {
+export const getContractTemplateById = async (contractTemplateId) => {
   try {
     const response = await api.get(
       "/contractTemplate/get-contract-template-by-id",
@@ -75,9 +75,9 @@ import api from "../api/config";
     console.error("Error fetching contract template by ID:", error);
     throw error;
   }
- };
+};
 
- export const getAllContractTemplates = async (pageIndex = 1, pageSize = 10) => {
+export const getAllContractTemplates = async (pageIndex = 1, pageSize = 10) => {
   try {
     const response = await api.get(
       "/contractTemplate/get-all-contract-templates",
