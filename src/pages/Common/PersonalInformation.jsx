@@ -1,9 +1,12 @@
+import { faClock, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { message } from "antd";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import "tailwindcss/tailwind.css";
 import { getCategoryById } from "../../api/categoryApi";
 import {
+  cancelOrder,
   getOrderDetailsById,
   getOrdersByAccount,
   purchaseOrder,
@@ -12,6 +15,7 @@ import { getSupplierById } from "../../api/supplierApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
+
 const jobDescriptions = {
   0: "Học sinh",
   1: "Nhiếp ảnh chuyên nghiệp",
@@ -175,6 +179,7 @@ const PersonalInformation = () => {
 
   const handleClick = (order) => {
     setIsOrderDetail(true);
+
     fetchOrderDetails(order.orderID);
   };
   const StatusBadge = ({ status, map }) => {
@@ -209,6 +214,85 @@ const PersonalInformation = () => {
       setIsLoading(false);
     }
   };
+  const isWithin24Hours = (orderDate) => {
+    const orderTime = new Date(orderDate).getTime();
+    const currentTime = new Date().getTime();
+    const timeDifference = currentTime - orderTime;
+    return timeDifference <= 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  };
+  const calculateRemainingTime = (orderDate) => {
+    const orderTime = new Date(orderDate).getTime();
+    const currentTime = new Date().getTime();
+    const timeDifference = 24 * 60 * 60 * 1000 - (currentTime - orderTime);
+    return timeDifference > 0 ? timeDifference : 0;
+  };
+
+  const formatTime = (milliseconds) => {
+    const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+    const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
+    return `${hours}h ${minutes}m ${seconds}s`;
+  };
+
+  const OrderCancelButton = ({ order }) => {
+    const [remainingTime, setRemainingTime] = useState(
+      calculateRemainingTime(order.orderDate)
+    );
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setRemainingTime(calculateRemainingTime(order.orderDate));
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }, [order.orderDate]);
+
+    return (
+      (order.orderStatus === 0 || order.orderStatus === 8) &&
+      isWithin24Hours(order.orderDate) && (
+        <div className="flex justify-center items-center">
+          <FontAwesomeIcon icon={faClock} className="mr-2" />
+          <span className="mr-2">{formatTime(remainingTime)}</span>
+          <button
+            className="bg-red-500 text-white rounded-md py-2 px-4 my-2 flex items-center group"
+            onClick={async (e) => {
+              e.preventDefault();
+              alert("Yêu cầu hủy đơn hàng clicked"); // Show alert
+              console.log("Order:", order); // Log the order object
+              if (!order.orderID) {
+                console.error("Order ID is undefined");
+                return;
+              }
+              try {
+                const result = await cancelOrder(order.orderID);
+                console.log("API Response:", result); // Log the API response
+                if (result && result.isSuccess) {
+                  console.log("Order canceled successfully:", result);
+                  // Handle successful cancellation (e.g., update UI, show a message)
+                  window.location.reload(); // Reload the page
+                } else {
+                  console.error("Failed to cancel order:", result.messages);
+                  // Handle cancellation error (e.g., show an error message)
+                }
+              } catch (err) {
+                console.error("Error canceling order:", err);
+                // Handle error (e.g., show an error message)
+              }
+            }}
+          >
+            <FontAwesomeIcon
+              icon={faTimes}
+              className="mr-2 group-hover:hidden"
+            />
+            <span className="hidden group-hover:inline">
+              Yêu cầu hủy đơn hàng
+            </span>
+          </button>
+        </div>
+      )
+    );
+  };
+
   const renderOrderItems = (order) => (
     <tr
       key={order.orderID}
@@ -246,20 +330,7 @@ const PersonalInformation = () => {
         )}
       </td>
       <td>
-        {" "}
-        {order.orderStatus === 0 && (
-          <div className="flex justify-center">
-            <button
-              className="bg-primary text-white rounded-md py-2 px-4 my-2"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering the row click event
-                handlePaymentAgain(order.orderID);
-              }}
-            >
-              Thanh toán ngay
-            </button>
-          </div>
-        )}
+        <OrderCancelButton order={order} />
       </td>
     </tr>
   );
@@ -347,6 +418,8 @@ const PersonalInformation = () => {
                       <th className="py-3 px-4 border-b">Loại hình</th>
                       <th className="py-3 px-4 border-b">Thời gian đặt hàng</th>
                       <th className="py-3 px-4 border-b">Tổng tiền</th>
+                      <th className="py-3 px-6 border-b"> </th>{" "}
+                      <th className="py-3 px-6 border-b"> </th>
                     </tr>
                   </thead>
                   <tbody>{orders.map(renderOrderItems)}</tbody>
@@ -357,7 +430,9 @@ const PersonalInformation = () => {
         ) : (
           <div className="lg:col-span-3 bg-white shadow-xl rounded-lg p-6">
             <button
-              onClick={() => setIsOrderDetail(false)}
+              onClick={() => {
+                setIsOrderDetail(false);
+              }}
               className="text-teal-600 hover:text-teal-800 mb-4 flex items-center"
             >
               <i className="fa-solid fa-arrow-left mr-2"></i> Quay lại
