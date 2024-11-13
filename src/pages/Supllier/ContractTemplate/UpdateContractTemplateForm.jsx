@@ -45,64 +45,64 @@ const UpdateContractTemplateForm = ({
   return (
     <Modal
       visible={visible}
-      title="Update Contract Template"
+      title="Cập nhật mẫu hợp đồng"
       onCancel={onClose}
       footer={null}
     >
       <Form form={form} onFinish={handleUpdate} layout="vertical">
         <Form.Item
           name="templateName"
-          label="Template Name"
+          label="Tên mẫu hợp đồng"
           rules={[
-            { required: true, message: "Please input the template name!" },
+            { required: true, message: "Vui lòng nhập tên mẫu hợp đồng!" },
           ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="contractTerms"
-          label="Contract Terms"
+          label="Điều khoản hợp đồng"
           rules={[
-            { required: true, message: "Please input the contract terms!" },
+            { required: true, message: "Vui lòng nhập điều khoản hợp đồng!" },
           ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="templateDetails"
-          label="Template Details"
+          label="Chi tiết mẫu hợp đồng"
           rules={[
-            { required: true, message: "Please input the template details!" },
+            { required: true, message: "Vui lòng nhập chi tiết mẫu hợp đồng!" },
           ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="penaltyPolicy"
-          label="Penalty Policy"
+          label="Chính sách phạt"
           rules={[
-            { required: true, message: "Please input the penalty policy!" },
+            { required: true, message: "Vui lòng nhập chính sách phạt!" },
           ]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="accountID"
-          label="Account ID"
-          rules={[{ required: true, message: "Please input the account ID!" }]}
+          label="ID tài khoản"
+          rules={[{ required: true, message: "Vui lòng nhập ID tài khoản!" }]}
         >
-          <Input />
+          <Input disabled />
         </Form.Item>
         <Form.Item
           name="productID"
-          label="Product ID"
-          rules={[{ required: true, message: "Please input the product ID!" }]}
+          label="ID sản phẩm"
+          rules={[{ required: true, message: "Vui lòng nhập ID sản phẩm!" }]}
         >
-          <Input />
+          <Input disabled />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
-            Update
+            Cập nhật
           </Button>
         </Form.Item>
       </Form>

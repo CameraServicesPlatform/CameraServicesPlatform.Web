@@ -1,9 +1,11 @@
 import { Button, Input, message, Space, Table } from "antd";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   deleteContractTemplateById,
   getAllContractTemplates,
 } from "../../../api/contractTemplateApi";
+import { getAllProduct } from "../../../api/productApi";
 import UpdateContractTemplateForm from "./UpdateContractTemplateForm";
 
 const { Search } = Input;
@@ -15,6 +17,9 @@ const ContractTemplateList = ({ refresh }) => {
   const [searchText, setSearchText] = useState("");
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  const [products, setProducts] = useState([]);
+  const user = useSelector((state) => state.user.user || {});
+  const accountId = user.id;
 
   useEffect(() => {
     const fetchContractTemplates = async () => {
@@ -25,13 +30,25 @@ const ContractTemplateList = ({ refresh }) => {
         setContractTemplates(data.result.items);
       } catch (error) {
         setError(error);
-        message.error("Error fetching contract templates.");
+        message.error("Lỗi khi lấy danh sách mẫu hợp đồng.");
       } finally {
         setLoading(false);
       }
     };
 
+    const fetchProducts = async () => {
+      try {
+        const data = await getAllProduct(1, 100); // Provide default values for pageIndex and pageSize
+        console.log("Fetched products:", data);
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        message.error("Lỗi khi lấy danh sách sản phẩm.");
+      }
+    };
+
     fetchContractTemplates();
+    fetchProducts();
   }, [refresh]);
 
   const handleSearch = (value) => {
@@ -46,15 +63,15 @@ const ContractTemplateList = ({ refresh }) => {
   const handleDelete = async (contractTemplateId) => {
     try {
       await deleteContractTemplateById(contractTemplateId);
-      message.success("Contract template deleted successfully.");
+      message.success("Xóa mẫu hợp đồng thành công.");
       setRefreshList((prev) => !prev);
     } catch (error) {
-      message.error("Error deleting contract template.");
+      message.error("Lỗi khi xóa mẫu hợp đồng.");
     }
   };
 
   const handleUpdateSuccess = () => {
-    message.success("Contract template updated successfully.");
+    message.success("Cập nhật mẫu hợp đồng thành công.");
     setRefreshList((prev) => !prev);
   };
 
@@ -64,62 +81,69 @@ const ContractTemplateList = ({ refresh }) => {
 
   const columns = [
     {
-      title: "Template Name",
+      title: "Tên mẫu hợp đồng",
       dataIndex: "templateName",
       key: "templateName",
     },
     {
-      title: "Contract Terms",
+      title: "Điều khoản hợp đồng",
       dataIndex: "contractTerms",
       key: "contractTerms",
     },
     {
-      title: "Template Details",
+      title: "Chi tiết mẫu hợp đồng",
       dataIndex: "templateDetails",
       key: "templateDetails",
     },
     {
-      title: "Penalty Policy",
+      title: "Chính sách phạt",
       dataIndex: "penaltyPolicy",
       key: "penaltyPolicy",
     },
     {
-      title: "Account ID",
+      title: "Tên tài khoản",
       dataIndex: "accountID",
       key: "accountID",
+      render: () => `${user.firstName} ${user.lastName}`,
     },
     {
-      title: "Product ID",
+      title: "Tên sản phẩm",
       dataIndex: "productID",
       key: "productID",
+      render: (productID) => {
+        const product = products.find(
+          (product) => product.productID === productID
+        );
+        return product ? product.productName : "N/A";
+      },
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (text, record) => (
         <Space size="middle">
           <Button onClick={() => handleUpdate(record.contractTemplateID)}>
-            Update
+            Cập nhật
           </Button>
           <Button
             onClick={() => handleDelete(record.contractTemplateID)}
             danger
           >
-            Delete
+            Xóa
           </Button>
         </Space>
       ),
     },
   ];
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (loading) return <div>Đang tải...</div>;
+  if (error) return <div>Lỗi: {error.message}</div>;
 
   return (
     <div>
       <h2>Danh sách mẫu hợp đồng</h2>
       <Search
-        placeholder="Search by template name"
+        placeholder="Tìm kiếm theo tên mẫu hợp đồng"
         onSearch={handleSearch}
         enterButton
         style={{ marginBottom: 20 }}
