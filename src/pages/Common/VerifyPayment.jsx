@@ -19,15 +19,13 @@ const VerifyPayment = () => {
       setIsLoading(true);
       const searchParams = new URLSearchParams(location.search);
       const vnpResponseCode = searchParams.get("vnp_ResponseCode");
-      const partnerCode = searchParams.get("partnerCode");
-      const resultCode = searchParams.get("resultCode");
       const vnp_TxnRef = searchParams.get("vnp_TxnRef");
+      const vnpOrderInfo = decodeURIComponent(
+        searchParams.get("vnp_OrderInfo")
+      );
 
       if (vnpResponseCode) {
         setIsVNPAY(true);
-        const vnpOrderInfo = decodeURIComponent(
-          searchParams.get("vnp_OrderInfo")
-        );
         if (vnpResponseCode === "00") {
           const data = await purchaseOrder(vnp_TxnRef);
           if (data.isSuccess) {
@@ -37,21 +35,6 @@ const VerifyPayment = () => {
         } else {
           setModalMessage(
             `Thanh toán VNPay thất bại cho đơn hàng: ${vnpOrderInfo}. Vui lòng thanh toán lại`
-          );
-          setIsSuccess(false);
-        }
-        setModalIsOpen(true);
-      } else if (partnerCode === "MOMO") {
-        const orderInfo = decodeURIComponent(searchParams.get("orderInfo"));
-        if (resultCode === "0") {
-          const data = await purchaseOrder(orderInfo);
-          if (data.isSuccess) {
-            setModalMessage(`Thanh toán thành công cho ${orderInfo}`);
-            setIsSuccess(true);
-          }
-        } else {
-          setModalMessage(
-            `Thanh toán Momo thất bại cho đơn hàng: ${orderInfo}. Vui lòng thanh toán lại`
           );
           setIsSuccess(false);
         }
@@ -88,8 +71,7 @@ const VerifyPayment = () => {
                 />
               </div>
               <p className="text-center font-bold">
-                Thanh toán {isSuccess ? "thành công" : "thất bại"} với{" "}
-                {isVNPAY ? "VNPAY" : "MOMO"}
+                Thanh toán {isSuccess ? "thành công" : "thất bại"} với VNPAY
               </p>
               <p className="py-4">{modalMessage}</p>
               <div className="modal-action flex justify-end">
