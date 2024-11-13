@@ -17,25 +17,25 @@ import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
 
 const jobDescriptions = {
-  0: "Học sinh",
-  1: "Nhiếp ảnh chuyên nghiệp",
-  2: "Nhiếp ảnh tự do",
-  3: "Người sáng tạo nội dung",
-  4: "Người mới bắt đầu",
-  5: "Sinh viên nhiếp ảnh",
-  6: "Người yêu thích du lịch",
-  7: "Người dùng thông thường",
-  8: "Khác",
+  0: "Student",
+  1: "Professional Photographer",
+  2: "Freelance Photographer",
+  3: "Content Creator",
+  4: "Beginner",
+  5: "Photography Student",
+  6: "Travel Enthusiast",
+  7: "Regular User",
+  8: "Other",
 };
 
 const hobbyDescriptions = {
-  0: "Chụp ảnh phong cảnh",
-  1: "Chụp ảnh chân dung",
-  2: "Chụp ảnh động vật hoang dã",
-  3: "Chụp ảnh đường phố",
-  4: "Chụp ảnh cận cảnh",
-  5: "Chụp ảnh thể thao",
-  6: "Khác",
+  0: "Landscape Photography",
+  1: "Portrait Photography",
+  2: "Wildlife Photography",
+  3: "Street Photography",
+  4: "Macro Photography",
+  5: "Sports Photography",
+  6: "Other",
 };
 
 const orderStatusMap = {
@@ -274,7 +274,7 @@ const PersonalInformation = () => {
             className="bg-red-500 text-white rounded-md py-2 px-4 my-2 flex items-center group"
             onClick={async (e) => {
               e.preventDefault();
-              alert("Yêu cầu hủy đơn hàng clicked"); // Show alert
+              alert("Cancel Order Request clicked"); // Show alert
               console.log("Order:", order); // Log the order object
               if (!order.orderID) {
                 console.error("Order ID is undefined");
@@ -302,7 +302,7 @@ const PersonalInformation = () => {
               className="mr-2 group-hover:hidden"
             />
             <span className="hidden group-hover:inline">
-              Yêu cầu hủy đơn hàng
+              Cancel Order Request
             </span>
           </button>
         </div>
@@ -323,19 +323,19 @@ const PersonalInformation = () => {
       <td className="py-3 px-4 border-b">{order.orderID}</td>
       <td className="py-3 px-4 border-b">
         <div>
-          <strong>Tên nhà cung cấp:</strong>{" "}
+          <strong>Supplier Name:</strong>{" "}
           {supplierMap[order.supplierID]?.supplierName || " "}
         </div>
         <div>
-          <strong>Địa chỉ:</strong>{" "}
+          <strong>Address:</strong>{" "}
           {supplierMap[order.supplierID]?.supplierAddress || " "}
         </div>
         <div>
-          <strong>Mô tả:</strong>{" "}
+          <strong>Description:</strong>{" "}
           {supplierMap[order.supplierID]?.supplierDescription || " "}
         </div>
         <div>
-          <strong>Số liên lạc:</strong>{" "}
+          <strong>Contact Number:</strong>{" "}
           {supplierMap[order.supplierID]?.contactNumber || ""}
         </div>
       </td>
@@ -362,7 +362,7 @@ const PersonalInformation = () => {
                 handlePaymentAgain(order.orderID);
               }}
             >
-              Thanh toán ngay
+              Pay Now
             </button>
           </div>
         )}
@@ -371,8 +371,7 @@ const PersonalInformation = () => {
         <OrderCancelButton order={order} />
         {order.orderStatus === 1 && order.deliveryMethod === 0 && (
           <div style={{ color: "red", marginTop: "10px" }}>
-            Bạn vui lòng đến cửa hàng nhận sản phẩm trong vòng 3 ngày. Sau thời
-            gian 3 ngày đơn hàng của bạn sẽ bị hủy.
+            Please pick up your product at the store within 3 days. After 3 days, your order will be canceled.
           </div>
         )}
       </td>
@@ -392,21 +391,21 @@ const PersonalInformation = () => {
               className="w-16 h-16 rounded-full mr-4"
             />
             <h2 className="text-2xl font-bold text-teal-600 flex items-center">
-              <i className="fa-solid fa-user mr-2"></i> Thông tin cá nhân
+              <i className="fa-solid fa-user mr-2"></i> Personal Information
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex items-center">
               <i className="fa-solid fa-user mr-2 text-gray-600"></i>
               <span>
-                <strong>Họ và tên:</strong> {userMap.name}
+                <strong>Name:</strong> {userMap.name}
               </span>
             </div>
 
             <div className="flex items-center">
               <i className="fa-solid fa-phone mr-2 text-gray-600"></i>
               <span>
-                <strong>SDT:</strong> {userMap.phone}
+                <strong>Phone:</strong> {userMap.phone}
               </span>
             </div>
             <div className="flex items-center flex-wrap">
@@ -419,20 +418,20 @@ const PersonalInformation = () => {
             <div className="flex items-center">
               <i className="fa-solid fa-briefcase mr-2 text-gray-600"></i>
               <span>
-                <strong>Ngành nghề:</strong> {jobDescriptions[userMap.job]}
+                <strong>Job:</strong> {jobDescriptions[userMap.job]}
               </span>
             </div>
             <div className="flex items-center">
               <i className="fa-solid fa-heart mr-2 text-gray-600"></i>
               <span>
-                <strong>Sở thích:</strong> {hobbyDescriptions[userMap.hobby]}
+                <strong>Hobby:</strong> {hobbyDescriptions[userMap.hobby]}
               </span>
             </div>
             <div className="flex items-center">
               <i className="fa-solid fa-venus-mars mr-2 text-gray-600"></i>
               <span>
-                <strong>Giới tính:</strong>{" "}
-                {userMap.gender === 0 ? "Nam" : "Nữ"}
+                <strong>Gender:</strong>{" "}
+                {userMap.gender === 0 ? "Male" : "Female"}
               </span>
             </div>
           </div>
@@ -441,27 +440,27 @@ const PersonalInformation = () => {
         {!isOrderDetail ? (
           <div className="lg:col-span-3 bg-white shadow-lg rounded-lg p-6">
             <h2 className="text-2xl font-bold text-teal-600 mb-6 text-center">
-              Đơn hàng
+              Orders
             </h2>
             {orders.length === 0 ? (
               <p className="text-center text-gray-500">
-                Không tìm thấy đơn hàng nào.
+                No orders found.
               </p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white">
                   <thead className="bg-gray-100">
                     <tr>
-                      <th className="py-3 px-4 border-b">Mã đơn hàng</th>
-                      <th className="py-3 px-4 border-b">Mã nhà cung cấp</th>
-                      <th className="py-3 px-4 border-b">Trạng thái</th>
-                      <th className="py-3 px-4 border-b hidden md:table-cell">Địa chỉ giao hàng</th>
+                      <th className="py-3 px-4 border-b">Order ID</th>
+                      <th className="py-3 px-4 border-b">Supplier ID</th>
+                      <th className="py-3 px-4 border-b">Status</th>
+                      <th className="py-3 px-4 border-b hidden md:table-cell">Shipping Address</th>
                       <th className="py-3 px-4 border-b hidden lg:table-cell">
-                        Phương thức giao hàng
+                        Delivery Method
                       </th>
-                      <th className="py-3 px-4 border-b">Loại hình</th>
-                      <th className="py-3 px-4 border-b hidden sm:table-cell">Thời gian đặt hàng</th>
-                      <th className="py-3 px-4 border-b">Tổng tiền</th>
+                      <th className="py-3 px-4 border-b">Type</th>
+                      <th className="py-3 px-4 border-b hidden sm:table-cell">Order Date</th>
+                      <th className="py-3 px-4 border-b">Total Amount</th>
                       <th className="py-3 px-6 border-b"> </th>{" "}
                       <th className="py-3 px-6 border-b"> </th>
                       <th className="py-3 px-6 border-b"> </th>
@@ -480,20 +479,20 @@ const PersonalInformation = () => {
               }}
               className="text-teal-600 hover:text-teal-800 mb-4 flex items-center"
             >
-              <i className="fa-solid fa-arrow-left mr-2"></i> Quay lại
+              <i className="fa-solid fa-arrow-left mr-2"></i> Back
             </button>
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-teal-600 text-center">
-                Chi tiết đơn hàng
+                Order Details
               </h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white">
                   <thead className="bg-gray-100">
                     <tr>
-                      <th className="py-3 px-4 border-b">Tên sản phẩm</th>
-                      <th className="py-3 px-4 border-b">Giá</th>
-                      <th className="py-3 px-4 border-b">Chất lượng</th>
-                      <th className="py-3 px-4 border-b">Tổng giá</th>
+                      <th className="py-3 px-4 border-b">Product Name</th>
+                      <th className="py-3 px-4 border-b">Price</th>
+                      <th className="py-3 px-4 border-b">Quality</th>
+                      <th className="py-3 px-4 border-b">Total Price</th>
                       <th className="py-3 px-4 border-b">Serial Number</th>
                       <th className="py-3 px-4 border-b">Supplier Name</th>
                       <th className="py-3 px-4 border-b">Category Name</th>
@@ -525,22 +524,22 @@ const PersonalInformation = () => {
                           </td>
                           <td className="py-3 px-4 border-b">
                             <div>
-                              <strong>Tên nhà cung cấp:</strong>{" "}
+                              <strong>Supplier Name:</strong>{" "}
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.supplierName || " "}
                             </div>
                             <div>
-                              <strong>Địa chỉ:</strong>{" "}
+                              <strong>Address:</strong>{" "}
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.supplierAddress || " "}
                             </div>
                             <div>
-                              <strong>Mô tả:</strong>{" "}
+                              <strong>Description:</strong>{" "}
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.supplierDescription || " "}
                             </div>
                             <div>
-                              <strong>Số liên lạc:</strong>{" "}
+                              <strong>Contact Number:</strong>{" "}
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.contactNumber || ""}
                             </div>
@@ -561,7 +560,7 @@ const PersonalInformation = () => {
                     ) : (
                       <tr>
                         <td colSpan="9" className="text-center py-4">
-                          Không có sản phẩm nào
+                          No products found
                         </td>
                       </tr>
                     )}

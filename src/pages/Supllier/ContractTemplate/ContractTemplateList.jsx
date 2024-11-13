@@ -1,4 +1,4 @@
-import { Button, Input, message, Space, Table } from "antd";
+import { Button, Input, message, Space, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -18,6 +18,9 @@ const ContractTemplateList = ({ refresh }) => {
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [products, setProducts] = useState([]);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(20); // Set page size to 10
+  const [total, setTotal] = useState(0);
   const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
 
@@ -26,8 +29,13 @@ const ContractTemplateList = ({ refresh }) => {
       setLoading(true);
       setError(null);
       try {
-        const data = await getAllContractTemplates();
+        const data = await getAllContractTemplates(
+          pageIndex,
+          pageSize,
+          searchText
+        );
         setContractTemplates(data.result.items);
+        setTotal(data.result.totalCount);
       } catch (error) {
         setError(error);
         message.error("Lỗi khi lấy danh sách mẫu hợp đồng.");
@@ -38,8 +46,7 @@ const ContractTemplateList = ({ refresh }) => {
 
     const fetchProducts = async () => {
       try {
-        const data = await getAllProduct(1, 100); // Provide default values for pageIndex and pageSize
-        console.log("Fetched products:", data);
+        const data = await getAllProduct(1, 100);
         setProducts(data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -49,10 +56,11 @@ const ContractTemplateList = ({ refresh }) => {
 
     fetchContractTemplates();
     fetchProducts();
-  }, [refresh]);
+  }, [refresh, pageIndex, pageSize, searchText]);
 
-  const handleSearch = (value) => {
-    setSearchText(value);
+  const handleSearch = (e) => {
+    setSearchText(e.target.value);
+    setPageIndex(1); // Reset to first page on search
   };
 
   const handleUpdate = (contractTemplateId) => {
@@ -64,7 +72,11 @@ const ContractTemplateList = ({ refresh }) => {
     try {
       await deleteContractTemplateById(contractTemplateId);
       message.success("Xóa mẫu hợp đồng thành công.");
-      setRefreshList((prev) => !prev);
+      setContractTemplates((prev) =>
+        prev.filter(
+          (template) => template.contractTemplateID !== contractTemplateId
+        )
+      );
     } catch (error) {
       message.error("Lỗi khi xóa mẫu hợp đồng.");
     }
@@ -72,18 +84,52 @@ const ContractTemplateList = ({ refresh }) => {
 
   const handleUpdateSuccess = () => {
     message.success("Cập nhật mẫu hợp đồng thành công.");
-    setRefreshList((prev) => !prev);
+    setUpdateModalVisible(false);
+    setPageIndex(1); // Optionally reset pagination after update
   };
 
-  const filteredTemplates = contractTemplates.filter((template) =>
-    template.templateName.toLowerCase().includes(searchText.toLowerCase())
-  );
-
-  const columns = [
+  const getColumns = () => [
     {
       title: "Tên mẫu hợp đồng",
       dataIndex: "templateName",
       key: "templateName",
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="Tìm kiếm tên mẫu hợp đồng"
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: "block" }}
+          />
+          <Space>
+            <Button
+              type="primary"
+              onClick={() => confirm()}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Tìm kiếm
+            </Button>
+            <Button
+              onClick={() => clearFilters()}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Xóa
+            </Button>
+          </Space>
+        </div>
+      ),
+      onFilter: (value, record) =>
+        record.templateName.toLowerCase().includes(value.toLowerCase()),
     },
     {
       title: "Điều khoản hợp đồng",
@@ -122,12 +168,15 @@ const ContractTemplateList = ({ refresh }) => {
       key: "actions",
       render: (text, record) => (
         <Space size="middle">
-          <Button onClick={() => handleUpdate(record.contractTemplateID)}>
+          <Button
+            type="primary"
+            onClick={() => handleUpdate(record.contractTemplateID)}
+          >
             Cập nhật
           </Button>
           <Button
+            type="danger"
             onClick={() => handleDelete(record.contractTemplateID)}
-            danger
           >
             Xóa
           </Button>
@@ -136,23 +185,35 @@ const ContractTemplateList = ({ refresh }) => {
     },
   ];
 
-  if (loading) return <div>Đang tải...</div>;
-  if (error) return <div>Lỗi: {error.message}</div>;
-
   return (
     <div>
       <h2>Danh sách mẫu hợp đồng</h2>
       <Search
         placeholder="Tìm kiếm theo tên mẫu hợp đồng"
-        onSearch={handleSearch}
+        onChange={handleSearch}
         enterButton
         style={{ marginBottom: 20 }}
       />
-      <Table
-        dataSource={filteredTemplates}
-        columns={columns}
-        rowKey="contractTemplateID"
-      />
+      {loading ? (
+        <Spin tip="Đang tải..." />
+      ) : error ? (
+        <div>Lỗi: {error.message}</div>
+      ) : (
+        <Table
+          dataSource={contractTemplates}
+          columns={getColumns()}
+          rowKey="contractTemplateID"
+          pagination={{
+            current: pageIndex,
+            pageSize: pageSize,
+            total: total,
+            onChange: (page, size) => {
+              setPageIndex(page);
+              setPageSize(size);
+            },
+          }}
+        />
+      )}
       <UpdateContractTemplateForm
         visible={updateModalVisible}
         onClose={() => setUpdateModalVisible(false)}
