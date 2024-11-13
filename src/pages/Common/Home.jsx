@@ -6,6 +6,7 @@ import "slick-carousel/slick/slick.css";
 import ProductList from "./Product/ProductList";
 import ProposalProductFollowHobby from "./Product/ProposalProductFollowHobby";
 import ProposalProductFollowJobBuy from "./Product/ProposalProductFollowJobBuy";
+import Rating from "./Rating/Rating";
 const { Header, Content } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
@@ -76,6 +77,7 @@ const Home = () => {
         <ProposalProductFollowHobby />
         <ProposalProductFollowJobBuy />
       </section>
+      <Rating />
       <h2 className="text-2xl font-bold mb-4">Các thương hiệu đồng hành </h2>
 
       <Slider {...logoSettings}>
