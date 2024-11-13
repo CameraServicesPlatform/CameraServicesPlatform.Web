@@ -25,6 +25,7 @@ export const createProductBuy = async (data) => {
   formData.append("CategoryID", data.CategoryID);
   formData.append("ProductName", data.ProductName);
   formData.append("ProductDescription", data.ProductDescription);
+  formData.append("Quality", data.Quality);
   formData.append("PriceRent", data.PriceRent);
   formData.append("PriceBuy", data.PriceBuy);
   formData.append("Brand", data.Brand);
