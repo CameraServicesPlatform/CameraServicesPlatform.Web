@@ -203,7 +203,7 @@ const CreateProductBuy = () => {
           { required: true, message: "Vui lòng nhập chất lượng sản phẩm!" },
         ]}
       >
-        <Select placeholder="Chọn một thương hiệu">
+        <Select placeholder="Đánh giá  chất lượng sản phẩm">
           <Option value={0}>Mới</Option>
           <Option value={1}>Đã qua sử dụng</Option>
         </Select>
