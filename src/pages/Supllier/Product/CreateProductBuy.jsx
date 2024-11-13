@@ -92,13 +92,7 @@ const CreateProductBuy = () => {
     } = values;
 
     // Kiểm tra các giá trị bắt buộc
-    if (
-      !supplierId ||
-      !CategoryID ||
-      !ProductName ||
-      !SerialNumber ||
-      !Quality
-    ) {
+    if (!supplierId || !CategoryID || !ProductName || !SerialNumber) {
       message.error("Vui lòng điền tất cả các trường bắt buộc.");
       return;
     }

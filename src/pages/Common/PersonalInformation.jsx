@@ -245,6 +245,22 @@ const PersonalInformation = () => {
           </div>
         )}
       </td>
+      <td>
+        {" "}
+        {order.orderStatus === 0 && (
+          <div className="flex justify-center">
+            <button
+              className="bg-primary text-white rounded-md py-2 px-4 my-2"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering the row click event
+                handlePaymentAgain(order.orderID);
+              }}
+            >
+              Thanh toán ngay
+            </button>
+          </div>
+        )}
+      </td>
     </tr>
   );
 
