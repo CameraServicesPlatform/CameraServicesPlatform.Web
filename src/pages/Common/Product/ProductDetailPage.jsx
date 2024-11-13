@@ -1,14 +1,19 @@
-import { Button, Card, Modal, Spin, Typography, message } from "antd";
+import { Button, Card, Modal, Rate, Spin, Typography, message } from "antd";
 import React, { useEffect, useState } from "react";
-import { FaHeart, FaRegHeart } from "react-icons/fa"; // Import heart icons
+import {
+  FaCommentDots,
+  FaHeart,
+  FaRegHeart,
+  FaRegSadCry,
+} from "react-icons/fa"; // Import heart icons
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCategoryById } from "../../../api/categoryApi";
 import { getProductById } from "../../../api/productApi";
+import { getRatingsByProductId } from "../../../api/ratingApi";
 import { getSupplierById } from "../../../api/supplierApi";
-import { createWishlist } from "../../../api/wishlistApi"; // Import createWishlist function
+import { createWishlist } from "../../../api/wishlistApi";
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
-
 const { Title, Paragraph } = Typography;
 
 const ProductDetailPage = () => {
@@ -20,6 +25,7 @@ const ProductDetailPage = () => {
   const [supplierName, setSupplierName] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [isWishlisted, setIsWishlisted] = useState(false); // State to track wishlist status
+  const [ratings, setRatings] = useState([]); // State to store ratings
 
   const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
@@ -58,6 +64,10 @@ const ProductDetailPage = () => {
             console.log(
               "Category data is not in the expected format or is empty."
             );
+          }
+          const ratingsData = await getRatingsByProductId(id, 1, 10);
+          if (ratingsData && ratingsData.result) {
+            setRatings(ratingsData.result);
           }
         }
       } catch (error) {
@@ -226,6 +236,39 @@ const ProductDetailPage = () => {
                   <strong>Ngày cập nhật:</strong>{" "}
                   {new Date(product.updatedAt).toLocaleString()}
                 </p>
+                <div className="mt-4">
+                  <Title level={4}>Đánh giá </Title>
+                  {ratings.length > 0 ? (
+                    ratings.map((rating) => (
+                      <div
+                        key={rating.ratingID}
+                        className="mb-4 p-4 border rounded-lg shadow-sm"
+                      >
+                        <div className="flex items-center mb-2">
+                          <Rate disabled defaultValue={rating.ratingValue} />
+                          <span className="ml-2 text-gray-600">
+                            {rating.ratingValue} / 5
+                          </span>
+                        </div>
+                        <div className="flex items-center mb-2">
+                          <FaCommentDots className="text-gray-600 mr-2" />
+                          <p className="text-gray-800">
+                            {rating.reviewComment}
+                          </p>
+                        </div>
+                        <p className="text-gray-500 text-sm">
+                          <strong>Date:</strong>{" "}
+                          {new Date(rating.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex items-center justify-center text-gray-500 mt-4">
+                      <FaRegSadCry size={24} className="mr-2" />
+                      <p>Sản phẩm chưa có đánh giá!</p>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex justify-between mt-4">
                 {product.status === 0 && (
@@ -234,7 +277,7 @@ const ProductDetailPage = () => {
                     onClick={() => handleCreateOrderBuy(product)}
                     className="bg-primary text-white hover:bg-opacity-80 transition duration-200"
                   >
-                    Create Order for Buy
+                    Đặt hàng ngay
                   </Button>
                 )}
                 {product.status === 1 && (
@@ -243,7 +286,7 @@ const ProductDetailPage = () => {
                     onClick={() => handleCreateOrderRent(product)}
                     className="bg-mainColor hover:bg-opacity-80 transition duration-200"
                   >
-                    Create Order for Rent
+                    Thuê ngay
                   </Button>
                 )}
               </div>
