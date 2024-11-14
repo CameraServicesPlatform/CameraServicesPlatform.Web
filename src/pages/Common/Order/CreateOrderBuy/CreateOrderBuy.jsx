@@ -80,6 +80,7 @@ const CreateOrderBuy = () => {
         );
         if (voucherData) {
           setVouchers(voucherData);
+          console.log("voucherData", voucherData);
         } else {
           message.error("Không có voucher khả dụng.");
         }

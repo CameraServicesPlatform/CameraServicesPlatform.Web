@@ -15,13 +15,18 @@ import {
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   createProductVoucher,
   deleteProductVoucher,
   getAllProductVouchers,
   updateProductVoucher,
 } from "../../../api/ProductVoucherApi";
-import { getAllProduct, getProductById } from "../../../api/productApi";
+import { getSupplierIdByAccountId } from "../../../api/accountApi";
+import {
+  getProductById,
+  getProductBySupplierId,
+} from "../../../api/productApi";
 import { getAllVouchers, getVoucherById } from "../../../api/voucherApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 
@@ -41,6 +46,11 @@ const ProductVoucher = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [form] = Form.useForm();
+  const user = useSelector((state) => state.user.user || {});
+  const [supplierId, setSupplierId] = useState(null);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
+  const [total, setTotal] = useState(1);
 
   const fetchProductVouchers = async () => {
     setLoading(true);
@@ -74,25 +84,61 @@ const ProductVoucher = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchSupplierId = async () => {
+      if (user.id) {
+        try {
+          const response = await getSupplierIdByAccountId(user.id);
+          if (response?.isSuccess) {
+            setSupplierId(response.result);
+          } else {
+            message.error("Failed to fetch supplier ID.");
+          }
+        } catch (error) {
+          message.error("Error fetching supplier ID.");
+        }
+      }
+    };
+
+    fetchSupplierId();
+  }, [user]);
+
   const fetchProducts = async () => {
+    if (!supplierId) return;
+
     setLoading(true);
     try {
-      const products = await getAllProduct(1, 10);
-      const filteredProducts = products.filter(
-        (product) => product.status === 0 || product.status === 1
+      const result = await getProductBySupplierId(
+        supplierId,
+        pageIndex,
+        pageSize
       );
-      setProducts(filteredProducts);
+      if (Array.isArray(result)) {
+        setProducts(result);
+        setTotal(result.totalCount || 0);
+
+        // Fetch category names for each product
+      } else {
+        message.error("Unable to fetch products.");
+        setProducts([]);
+      }
     } catch (error) {
-      message.error("Lấy dữ liệu sản phẩm thất bại.");
+      console.error("Error fetching products:", error);
+      setProducts([]);
+      message.error("Error fetching products.");
     } finally {
       setLoading(false);
     }
   };
-
+  useEffect(() => {
+    if (supplierId) {
+      fetchProducts();
+    }
+  }, [supplierId, pageIndex, pageSize]);
   const fetchVouchers = async () => {
     setLoading(true);
     try {
-      const response = await getAllVouchers(1, 10);
+      const response = await getAllVouchers(1, 100);
       if (response && response.result) {
         const filteredVouchers = response.result.filter((voucher) =>
           dayjs(voucher.expirationDate).isAfter(dayjs())
