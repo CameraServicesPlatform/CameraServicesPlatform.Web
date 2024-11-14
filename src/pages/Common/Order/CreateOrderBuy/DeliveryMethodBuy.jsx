@@ -1,7 +1,7 @@
-import { Card, Descriptions, Form, Input, Radio } from "antd";
+import { Card, Form, Radio,Descriptions, Input } from "antd";
 import React from "react";
 
-const DeliveryMethod = ({
+ const DeliveryMethodBuy = ({
   deliveryMethod,
   setDeliveryMethod,
   supplierInfo,
@@ -61,4 +61,4 @@ const DeliveryMethod = ({
   );
 };
 
-export default DeliveryMethod;
+export default DeliveryMethodBuy;

@@ -1,16 +1,16 @@
 import { Card, Col, Form, Radio, Row } from "antd";
 import React from "react";
 
-const VoucherSelection = ({
+const VoucherSelectionBuy = ({
   vouchers,
   selectedVoucher,
   setSelectedVoucher,
   handleVoucherSelect,
   selectedVoucherDetails,
 }) => {
-  const onCardClick = (voucherID) => {
-    setSelectedVoucher(voucherID);
-    handleVoucherSelect({ target: { value: voucherID } });
+  const onCardClick = (vourcherID) => {
+    setSelectedVoucher(vourcherID);
+    handleVoucherSelect({ target: { value: vourcherID } });
   };
 
   return (
@@ -36,7 +36,7 @@ const VoucherSelection = ({
                     selectedVoucher === voucher.vourcherID
                       ? "#e6f7ff"
                       : "#ffffff",
-                  borderWidth: selectedVoucher === voucher.vourcherID ? 2 : 1,
+                  borderWidth: selectedVoucher === voucher.vourcherID,
                   boxShadow:
                     selectedVoucher === voucher.vourcherID
                       ? "0 4px 8px rgba(0, 0, 0, 0.1)"
@@ -57,6 +57,10 @@ const VoucherSelection = ({
                         <strong>Mô tả:</strong>{" "}
                         {selectedVoucherDetails.description}
                       </p>
+                      <p>
+                        <strong>Ưu đãi :</strong>{" "}
+                        {selectedVoucherDetails.discountAmount}
+                      </p>
                     </>
                   )}
               </Card>
@@ -68,4 +72,4 @@ const VoucherSelection = ({
   );
 };
 
-export default VoucherSelection;
+export default VoucherSelectionBuy;

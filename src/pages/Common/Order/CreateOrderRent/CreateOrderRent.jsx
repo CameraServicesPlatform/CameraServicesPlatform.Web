@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getContractTemplateByProductId } from "../../../../api/contractTemplateApi";
 import { createOrderRentWithPayment } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
+import { getSupplierById } from "../../../../api/supplierApi";
 import {
   getProductVouchersByProductId,
   getVoucherById,
@@ -22,8 +23,7 @@ const { Step } = Steps;
 const CreateOrderRent = () => {
   const [form] = Form.useForm();
   const [product, setProduct] = useState(null);
-  const [vouchers, setVouchers] = useState([]);
-  const [selectedVoucher, setSelectedVoucher] = useState(null);
+
   const [totalAmount, setTotalAmount] = useState(0);
   const [calculatedReturnDate, setCalculatedReturnDate] = useState(null);
   const [calculatedPrice, setCalculatedPrice] = useState(0);
@@ -36,15 +36,19 @@ const CreateOrderRent = () => {
   const navigate = useNavigate();
   const { productID, supplierID } = location.state || {};
   const [loadingProduct, setLoadingProduct] = useState(true);
-  const [loadingVouchers, setLoadingVouchers] = useState(true);
-  const user = useSelector((state) => state.user.user || {});
-  const accountId = user.id;
-  const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [deliveryMethod, setDeliveryMethod] = useState(0);
   const [supplierInfo, setSupplierInfo] = useState(null);
   const [contractTemplate, setContractTemplate] = useState([]);
   const [showContractTerms, setShowContractTerms] = useState(false);
+  //vouchers
+  const [vouchers, setVouchers] = useState([]);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [loadingVouchers, setLoadingVouchers] = useState(true);
+  const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
+
+  const user = useSelector((state) => state.user.user || {});
+  const accountId = user.id;
 
   // Fetch product details and contract template
   useEffect(() => {
@@ -74,7 +78,31 @@ const CreateOrderRent = () => {
     fetchProductAndContractTemplate();
   }, [productID]);
 
+  useEffect(() => {
+    const fetchSupplierInfo = async () => {
+      if (deliveryMethod === 1 && supplierID) {
+        try {
+          const supplierData = await getSupplierById(supplierID);
+          if (
+            supplierData &&
+            supplierData.result &&
+            supplierData.result.items.length > 0
+          ) {
+            setSupplierInfo(supplierData.result.items[0]);
+          } else {
+            message.error("Không thể lấy thông tin nhà cung cấp.");
+          }
+        } catch (error) {
+          message.error("Không thể lấy thông tin nhà cung cấp.");
+        }
+      }
+    };
+
+    fetchSupplierInfo();
+  }, [deliveryMethod, supplierID]);
+
   // Fetch vouchers by product ID
+
   useEffect(() => {
     const fetchVouchers = async () => {
       setLoadingVouchers(true);
@@ -98,18 +126,19 @@ const CreateOrderRent = () => {
     fetchVouchers();
   }, [productID]);
 
+
   // Handle voucher selection
-  const handleVoucherSelect = async (e) => {
-    const voucherID = e.target.value;
-    setSelectedVoucher(voucherID);
-    try {
-      const voucherDetails = await getVoucherById(voucherID);
-      setSelectedVoucherDetails(voucherDetails);
-      calculateTotalAmount(voucherDetails);
-    } catch (error) {
-      console.error("Lỗi khi lấy chi tiết voucher:", error);
-    }
-  };
+ const handleVoucherSelect = async (e) => {
+   const voucherID = e.target.value;
+   setSelectedVoucher(voucherID);
+   try {
+     const voucherDetails = await getVoucherById(voucherID);
+     setSelectedVoucherDetails(voucherDetails);
+     calculateTotalAmount(voucherDetails);
+   } catch (error) {
+     console.error("Lỗi khi lấy chi tiết voucher:", error);
+   }
+ };
 
   // Calculate total amount
   const calculateTotalAmount = (voucherDetails) => {
@@ -139,17 +168,29 @@ const CreateOrderRent = () => {
       accountID: accountId || "",
       productID: product?.productID || "",
       vourcherID: selectedVoucher,
-      productPriceRent: setProductPriceRent,
+      productPriceRent: productPriceRent,
       orderDate: new Date().toISOString(),
       orderStatus: 0,
-      totalAmount: totalAmount || 0,
+      totalAmount: productPriceRent || 0,
       products: [
         {
           productID: product?.productID || "",
           productName: product?.productName || "",
           productDescription: product?.productDescription || "",
-          priceRent: setProductPriceRent,
+          priceRent: productPriceRent,
           quality: product?.quality,
+        },
+      ],
+      orderDetailRequests: [
+        {
+          productID: product?.productID || "",
+          productPrice: product?.priceBuy || 0,
+          productQuality: product?.quality,
+          discount: selectedVoucher
+            ? vouchers.find((voucher) => voucher.vourcherID === selectedVoucher)
+                ?.discountAmount || 0
+            : 0,
+          productPriceTotal: totalAmount || 0,
         },
       ],
       orderType: 0,
