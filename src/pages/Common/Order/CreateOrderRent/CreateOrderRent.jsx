@@ -166,15 +166,21 @@ const CreateOrderRent = () => {
 
     try {
       const response = await createOrderRentWithPayment(orderData);
-      message.success("Order created successfully!");
-      navigate("/order-detail");
+      if (response.isSuccess && response.result) {
+        message.success(
+          "Tạo đơn hàng thành công. Đang chuyển hướng đến thanh toán..."
+        );
+        window.location.href = response.result;
+      } else {
+        message.error("Không thể khởi tạo thanh toán.");
+      }
     } catch (error) {
       message.error(
-        "Failed to create order. " + (error.response?.data?.title || "")
+        "Không thể tạo đơn hàng. " + (error.response?.data?.title || "")
       );
+      console.error(error);
     }
   };
-
   const steps = [
     {
       title: "Chi tiết sản phẩm",
