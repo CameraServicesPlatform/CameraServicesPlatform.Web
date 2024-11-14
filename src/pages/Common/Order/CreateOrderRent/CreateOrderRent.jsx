@@ -30,6 +30,9 @@ const CreateOrderRent = () => {
   const [calculatedPrice, setCalculatedPrice] = useState(0);
   const [durationUnit, setDurationUnit] = useState("hour");
   const [durationValue, setDurationValue] = useState(2);
+  const [productPriceRent, setProductPriceRent] = useState(0);
+  const [rentalStartDate, setRentalStartDate] = useState(null);
+  const [rentalEndDate, setRentalEndDate] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { productID, supplierID } = location.state || {};
@@ -42,6 +45,7 @@ const CreateOrderRent = () => {
   const [deliveryMethod, setDeliveryMethod] = useState(0);
   const [supplierInfo, setSupplierInfo] = useState(null);
   const [contractTemplate, setContractTemplate] = useState([]); // Initialize as an array
+  const [showContractTerms, setShowContractTerms] = useState(false);
 
   // Fetch product details and contract template
   useEffect(() => {
@@ -124,6 +128,7 @@ const CreateOrderRent = () => {
 
   // Handle rental start date change
   const handleRentalStartDateChange = (date) => {
+    setRentalStartDate(date);
     if (date && durationUnit && durationValue) {
       let returnDate;
       let price = 0;
@@ -151,6 +156,8 @@ const CreateOrderRent = () => {
 
       setCalculatedReturnDate(returnDate);
       setCalculatedPrice(price);
+      setRentalEndDate(returnDate);
+      form.setFieldsValue({ rentalEndDate: returnDate });
     }
   };
 
@@ -162,10 +169,13 @@ const CreateOrderRent = () => {
   };
 
   // Handle duration value change
-  const handleDurationValueChange = (e) => {
-    const value = parseInt(e.target.value, 10);
+  const handleDurationValueChange = (value) => {
     setDurationValue(value);
     handleRentalStartDateChange(form.getFieldValue("rentalStartDate"));
+  };
+
+  const toggleContractTerms = () => {
+    setShowContractTerms(!showContractTerms);
   };
 
   const onFinish = async (values) => {
@@ -179,7 +189,7 @@ const CreateOrderRent = () => {
       accountID: accountId || "",
       productID: product?.productID || "",
       voucherID: selectedVoucher,
-      productPriceRent: product?.priceRent || 0,
+      productPriceRent: productPriceRent || 0,
       orderDate: new Date().toISOString(),
       orderStatus: 0,
       totalAmount: totalAmount || 0,
@@ -188,7 +198,7 @@ const CreateOrderRent = () => {
           productID: product?.productID || "",
           productName: product?.productName || "",
           productDescription: product?.productDescription || "",
-          priceRent: product?.priceRent || 0,
+          priceRent: productPriceRent || 0,
           quality: product?.quality,
         },
       ],
@@ -196,8 +206,8 @@ const CreateOrderRent = () => {
       shippingAddress: values.shippingAddress || "",
       rentalStartDate: values.rentalStartDate.toISOString(),
       rentalEndDate: values.rentalEndDate.toISOString(),
-      durationUnit: values.durationUnit || 0,
-      durationValue: values.durationValue || 0,
+      durationUnit: durationUnit || 0,
+      durationValue: durationValue || 0,
       returnDate: calculatedReturnDate.toISOString(),
       deliveryMethod: deliveryMethod,
       createdAt: new Date().toISOString(),
@@ -222,6 +232,19 @@ const CreateOrderRent = () => {
         <ProductDetailsInfoRent
           product={product}
           contractTemplate={contractTemplate}
+          durationUnit={durationUnit}
+          setDurationUnit={setDurationUnit}
+          durationValue={durationValue}
+          setDurationValue={setDurationValue}
+          productPriceRent={productPriceRent}
+          setProductPriceRent={setProductPriceRent}
+          loading={loadingProduct}
+          showContractTerms={showContractTerms}
+          toggleContractTerms={toggleContractTerms}
+          rentalStartDate={rentalStartDate}
+          setRentalStartDate={setRentalStartDate}
+          rentalEndDate={rentalEndDate}
+          setRentalEndDate={setRentalEndDate}
         />
       ),
     },

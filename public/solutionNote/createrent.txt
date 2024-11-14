@@ -116,8 +116,7 @@ const CreateOrderRent = () => {
     const fetchSupplierInfo = async () => {
       if (supplierID) {
         // Fetch supplier information and set it to supplierInfo state
-        // ...your code to fetch supplier info...
-      }
+       }
     };
     fetchSupplierInfo();
   }, [supplierID]);
