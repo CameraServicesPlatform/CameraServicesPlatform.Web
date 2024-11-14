@@ -32,7 +32,11 @@ const OrderListBySupplier = ({ refresh }) => {
 
   const orderStatusMap = {
     0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
-    1: { text: "Đã phê duyệt", color: "green", icon: "fa-check-circle" },
+    1: {
+      text: "Sản phẩm sẵn sàng được giao",
+      color: "green",
+      icon: "fa-check-circle",
+    },
     2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
     3: { text: "Đã đặt", color: "purple", icon: "fa-shopping-cart" },
     4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
@@ -162,7 +166,7 @@ const OrderListBySupplier = ({ refresh }) => {
             .toLowerCase()
             .includes(value.toLowerCase())
         : "",
-    onFilterDropdownVisibleChange: (visible) => {
+    onFilterDropdownOpenChange: (visible) => {
       if (visible) {
         setTimeout(() => document.getElementById("search-input").select(), 100);
       }
@@ -325,7 +329,7 @@ const OrderListBySupplier = ({ refresh }) => {
   ];
 
   if (loading) {
-    return <Spin tip="Đang tải đơn hàng..." />;
+    return <Spin />;
   }
 
   if (error) {
@@ -350,9 +354,12 @@ const OrderListBySupplier = ({ refresh }) => {
       />
       <Modal
         title="Tracking Order"
-        visible={isTrackingModalVisible}
+        open={isTrackingModalVisible}
         onCancel={handleCloseTrackingModal}
         footer={null}
+        width="80%" // Adjust the width as needed
+        style={{ top: 20 }} // Adjust the top position if needed
+        styles={{ body: { maxHeight: "80vh", overflowY: "auto" } }}
       >
         {selectedOrder && (
           <TrackingOrder

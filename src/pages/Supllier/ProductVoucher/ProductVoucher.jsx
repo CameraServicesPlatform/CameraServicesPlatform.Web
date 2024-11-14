@@ -212,6 +212,8 @@ const ProductVoucher = () => {
       dataIndex: "productName",
       key: "productName",
       align: "center",
+      width: 200, // Adjust the width as needed
+      ellipsis: true, // Add ellipsis for overflow
     },
     {
       title: "Ngày tạo",
@@ -307,7 +309,16 @@ const ProductVoucher = () => {
                       }`}
                     >
                       <Card.Meta
-                        title={product.productName}
+                        title={
+                          <div
+                            style={{
+                              whiteSpace: "normal",
+                              wordWrap: "break-word",
+                            }}
+                          >
+                            {product.productName}
+                          </div>
+                        }
                         description={product.description}
                       />
                     </Card>
@@ -332,7 +343,16 @@ const ProductVoucher = () => {
                       }`}
                     >
                       <Card.Meta
-                        title={voucher.vourcherCode}
+                        title={
+                          <div
+                            style={{
+                              whiteSpace: "normal",
+                              wordWrap: "break-word",
+                            }}
+                          >
+                            {voucher.vourcherCode}
+                          </div>
+                        }
                         description={voucher.description}
                       />
                     </Card>

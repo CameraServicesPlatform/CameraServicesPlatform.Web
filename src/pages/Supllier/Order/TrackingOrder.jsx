@@ -4,15 +4,19 @@ import {
   CheckOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { Button, message, Modal, Table } from "antd";
+import { Button, message, Modal, Steps, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import {
+  acceptCancelOrder,
   cancelOrder,
   updateOrderStatusApproved,
   updateOrderStatusCompleted,
   updateOrderStatusShipped,
 } from "../../../api/orderApi";
 import { getOrderDetails } from "../../../api/orderDetailApi";
+
+const { Step } = Steps;
+
 const TrackingOrder = ({ order, onUpdate }) => {
   const [orderDetails, setOrderDetails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -90,6 +94,20 @@ const TrackingOrder = ({ order, onUpdate }) => {
     }
   };
 
+  const handleAcceptCancelOrder = async (orderId) => {
+    try {
+      const response = await acceptCancelOrder(orderId);
+      if (response?.isSuccess) {
+        message.success("Đơn hàng đã được chấp nhận hủy!");
+        onUpdate(orderId, 7); // Assuming 7 is the status for accepted cancellation
+      } else {
+        message.error("Không thể chấp nhận hủy đơn hàng.");
+      }
+    } catch (error) {
+      message.error("Lỗi khi chấp nhận hủy đơn hàng.");
+    }
+  };
+
   const showConfirm = (action, orderId) => {
     Modal.confirm({
       title: "Bạn có chắc chắn?",
@@ -108,6 +126,9 @@ const TrackingOrder = ({ order, onUpdate }) => {
           case "approve":
             handleApproveOrder(orderId);
             break;
+          case "accept-cancel":
+            handleAcceptCancelOrder(orderId);
+            break;
           default:
             break;
         }
@@ -115,87 +136,166 @@ const TrackingOrder = ({ order, onUpdate }) => {
     });
   };
 
+  const steps = [
+    {
+      title: "Phê duyệt",
+      status: 0,
+      icon: <CheckOutlined />,
+      action: "approve",
+    },
+    {
+      title: "Hủy",
+      status: 0,
+      icon: <CloseOutlined />,
+      action: "cancel",
+    },
+    {
+      title: "Chấp nhận hủy",
+      status: 6,
+      icon: <CheckCircleOutlined />,
+      action: "accept-cancel",
+    },
+    {
+      title: "Giao hàng",
+      status: 1,
+      icon: <CarOutlined />,
+      action: "ship",
+    },
+    {
+      title: "Hoàn thành",
+      status: [1, 4, 5],
+      icon: <CheckCircleOutlined />,
+      action: "complete",
+    },
+  ];
+
+  const currentStep = steps.findIndex(
+    (step) =>
+      step.status === order.orderStatus ||
+      (Array.isArray(step.status) && step.status.includes(order.orderStatus))
+  );
+
+  // Define the columns for the Table component
   const columns = [
     {
-      title: "Product Name",
+      title: "Mã chi tiết đơn hàng",
+      dataIndex: "orderDetailsID",
+      key: "orderDetailsID",
+    },
+    {
+      title: "Mã đơn hàng",
+      dataIndex: "orderID",
+      key: "orderID",
+    },
+    {
+      title: "Tên sản phẩm",
       dataIndex: "productName",
       key: "productName",
     },
     {
-      title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
+      title: "Số lượng sản phẩm",
+      dataIndex: "productQuality",
+      key: "productQuality",
     },
     {
-      title: "Price",
-      dataIndex: "price",
+      title: "Tổng giá sản phẩm",
+      dataIndex: "productPrice",
       key: "price",
     },
     {
-      title: "Total",
-      dataIndex: "total",
-      key: "total",
+      title: "Tổng giá sản phẩm",
+      dataIndex: "productPriceTotal",
+      key: "productPriceTotal",
+    },
+    {
+      title: "Thời gian thuê",
+      dataIndex: "rentalPeriod",
+      key: "rentalPeriod",
     },
   ];
 
   return (
     <div>
-      {order.orderStatus === 0 && (
-        <>
+      <Steps current={currentStep}>
+        {steps.map((step, index) => (
+          <Step key={index} title={step.title} icon={step.icon} />
+        ))}
+      </Steps>
+      <div className="steps-action" style={{ marginTop: 16 }}>
+        {(order.orderStatus === 0 || order.orderStatus === 8) && (
           <Button
             type="primary"
             onClick={() => showConfirm("approve", order.orderID)}
             className="ml-2"
             icon={<CheckOutlined />}
+            style={{ marginRight: 8, marginBottom: 8 }}
           >
             Phê duyệt
           </Button>
+        )}
+        {order.orderStatus === 0 && (
           <Button
             type="danger"
             onClick={() => showConfirm("cancel", order.orderID)}
             className="ml-2"
             icon={<CloseOutlined />}
+            style={{ marginRight: 8, marginBottom: 8 }}
           >
             Hủy
           </Button>
-        </>
-      )}
-      {order.orderStatus === 7 && (
-        <Button
-          type="primary"
-          onClick={() => showConfirm("approve", order.orderID)}
-          className="ml-2"
-          icon={<CheckOutlined />}
-        >
-          Phê duyệt
-        </Button>
-      )}
-      {order.orderStatus === 1 && (
-        <Button
-          type="default"
-          onClick={() => showConfirm("ship", order.orderID)}
-          className="ml-2"
-          icon={<CarOutlined />}
-        >
-          Giao hàng
-        </Button>
-      )}
-      {order.orderStatus !== 2 && order.orderStatus !== 6 && (
-        <Button
-          type="primary"
-          onClick={() => showConfirm("complete", order.orderID)}
-          className="ml-2"
-          icon={<CheckCircleOutlined />}
-        >
-          Hoàn thành
-        </Button>
-      )}
+        )}
+        {order.orderStatus === 6 && (
+          <Button
+            type="primary"
+            onClick={() => showConfirm("accept-cancel", order.orderID)}
+            className="ml-2"
+            icon={<CheckCircleOutlined />}
+            style={{ marginRight: 8, marginBottom: 8 }}
+          >
+            Chấp nhận hủy
+          </Button>
+        )}
+        {order.orderStatus === 1 && order.shippingAddress && (
+          <Button
+            type="default"
+            onClick={() => showConfirm("ship", order.orderID)}
+            className="ml-2"
+            icon={<CarOutlined />}
+            style={{ marginRight: 8, marginBottom: 8 }}
+          >
+            Giao hàng
+          </Button>
+        )}
+        {order.orderStatus === 1 && !order.shippingAddress && (
+          <Button
+            type="default"
+            onClick={() => showConfirm("complete", order.orderID)}
+            className="ml-2"
+            icon={<CheckCircleOutlined />}
+            style={{ marginRight: 8, marginBottom: 8 }}
+          >
+            Hoàn thành
+          </Button>
+        )}
+        {(order.orderStatus === 4 || order.orderStatus === 5) && (
+          <Button
+            type="primary"
+            onClick={() => showConfirm("complete", order.orderID)}
+            className="ml-2"
+            icon={<CheckCircleOutlined />}
+            style={{ marginRight: 8, marginBottom: 8 }}
+          >
+            Hoàn thành
+          </Button>
+        )}
+      </div>
       <Table
         dataSource={orderDetails}
         columns={columns}
         rowKey="id"
         loading={loading}
         pagination={false}
+        style={{ marginTop: 16 }}
       />
     </div>
   );

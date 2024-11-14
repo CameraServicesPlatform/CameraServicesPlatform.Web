@@ -24,12 +24,14 @@ import ProductPageRent from "../pages/Common/Product/ProductPageRent";
 import DashboardAdmin from "../pages/Admin/DashboardAdmin";
 import CreateOrderRent from "../pages/Common/Order/CreateOrderRent/CreateOrderRent";
 import VerifyPayment from "../pages/Common/VerifyPayment";
+import Wishlist from "../pages/Common/Wishlish/Wishlist";
 import OrderDetail from "../pages/CommonManager/OrderDetail";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ManageProduct from "../pages/Staff/Product/ManageProduct";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
+import ManageContractTemplate from "../pages/Supllier/ContractTemplate/ManageContractTemplate";
 import DashboardSupplier from "../pages/Supllier/DashboardSupplier";
 import InformationSupplierDetail from "../pages/Supllier/InformationSupllierDetail";
 import ManageOrder from "../pages/Supllier/Order/ManageOrder";
@@ -37,7 +39,6 @@ import DetailProduct from "../pages/Supllier/Product/DetailProduct";
 import ManageProductOfSuplier from "../pages/Supllier/Product/ManageProductOfSuplier";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
-import Wishlist from "../pages/Common/Wishlish/Wishlist";
 
 function Routers() {
   const routing = useRoutes([
@@ -134,6 +135,10 @@ function Routers() {
         {
           path: "manage-order",
           element: <ManageOrder />,
+        },
+        {
+          path: "manage-contract-template",
+          element: <ManageContractTemplate />,
         },
       ],
     },

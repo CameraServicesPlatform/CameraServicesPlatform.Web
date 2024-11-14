@@ -40,6 +40,16 @@ const SideBar = () => {
         link: "manage-order",
         icon: <FaClipboardList />,
       },
+      {
+        name: "QUẢN LÍ ĐIỂU KHOẢN HỢP ĐÔNG",
+        link: "manage-contract-template",
+        icon: <FaClipboardList />,
+      },
+      {
+        name: "QUẢN LÍ ĐIỂU KHOẢN HỢP ĐÔNG",
+        link: "manage-order",
+        icon: <FaClipboardList />,
+      },
     ],
     ADMIN: [
       { name: "THỐNG KÊ", link: "dashboard", icon: <FaHome /> },
