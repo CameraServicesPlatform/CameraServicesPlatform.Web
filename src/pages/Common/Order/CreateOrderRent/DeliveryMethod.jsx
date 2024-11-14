@@ -60,4 +60,5 @@ const DeliveryMethod = ({
     </Card>
   );
 };
+
 export default DeliveryMethod;

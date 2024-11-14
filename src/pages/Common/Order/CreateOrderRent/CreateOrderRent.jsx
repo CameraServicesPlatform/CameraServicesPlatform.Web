@@ -6,11 +6,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getContractTemplateByProductId } from "../../../../api/contractTemplateApi";
 import { createOrderRentWithPayment } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
-import { getSupplierById } from "../../../../api/supplierApi";
 import {
   getProductVouchersByProductId,
   getVoucherById,
 } from "../../../../api/voucherApi";
+import { getSupplierById } from "../../../../api/supplierApi";
 
 import DeliveryMethod from "./DeliveryMethod";
 import OrderConfirmation from "./OrderConfirmation";

@@ -1,4 +1,4 @@
-import { Card, Form, Radio, Descriptions, Input } from "antd";
+import { Card, Form, Radio,Descriptions, Input } from "antd";
 import React from "react";
 
  const DeliveryMethodBuy = ({
