@@ -49,7 +49,7 @@ const orderStatusMap = {
   3: { text: "Đã đặt", color: "purple", icon: "fa-shopping-cart" },
   4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
 
-  5: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
+  5: { text: "Thanh toán thất bại", color: "cyan", icon: "fa-money-bill-wave" },
   6: { text: "Đang hủy ", color: "lime", icon: "fa-box-open" },
   7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
   8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
@@ -342,14 +342,18 @@ const PersonalInformation = () => {
       <td className="py-3 px-4 border-b">
         <StatusBadge status={order.orderStatus} map={orderStatusMap} />
       </td>
-      <td className="py-3 px-4 border-b hidden md:table-cell">{order.shippingAddress}</td>
+      <td className="py-3 px-4 border-b hidden md:table-cell">
+        {order.shippingAddress}
+      </td>
       <td className="py-3 px-4 border-b hidden lg:table-cell">
         <StatusBadge status={order.deliveryMethod} map={deliveryStatusMap} />
       </td>
       <td className="py-3 px-4 border-b">
         <StatusBadge status={order.orderType} map={orderTypeMap} />
       </td>
-      <td className="py-3 px-4 border-b hidden sm:table-cell">{formatDateTime(order.orderDate)}</td>
+      <td className="py-3 px-4 border-b hidden sm:table-cell">
+        {formatDateTime(order.orderDate)}
+      </td>
       <td className="py-3 px-4 border-b">{formatPrice(order.totalAmount)}</td>
       <td>
         {" "}
@@ -371,7 +375,8 @@ const PersonalInformation = () => {
         <OrderCancelButton order={order} />
         {order.orderStatus === 1 && order.deliveryMethod === 0 && (
           <div style={{ color: "red", marginTop: "10px" }}>
-            Please pick up your product at the store within 3 days. After 3 days, your order will be canceled.
+            Please pick up your product at the store within 3 days. After 3
+            days, your order will be canceled.
           </div>
         )}
       </td>
@@ -443,9 +448,7 @@ const PersonalInformation = () => {
               Orders
             </h2>
             {orders.length === 0 ? (
-              <p className="text-center text-gray-500">
-                No orders found.
-              </p>
+              <p className="text-center text-gray-500">No orders found.</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white">
@@ -454,12 +457,16 @@ const PersonalInformation = () => {
                       <th className="py-3 px-4 border-b">Order ID</th>
                       <th className="py-3 px-4 border-b">Supplier ID</th>
                       <th className="py-3 px-4 border-b">Status</th>
-                      <th className="py-3 px-4 border-b hidden md:table-cell">Shipping Address</th>
+                      <th className="py-3 px-4 border-b hidden md:table-cell">
+                        Shipping Address
+                      </th>
                       <th className="py-3 px-4 border-b hidden lg:table-cell">
                         Delivery Method
                       </th>
                       <th className="py-3 px-4 border-b">Type</th>
-                      <th className="py-3 px-4 border-b hidden sm:table-cell">Order Date</th>
+                      <th className="py-3 px-4 border-b hidden sm:table-cell">
+                        Order Date
+                      </th>
                       <th className="py-3 px-4 border-b">Total Amount</th>
                       <th className="py-3 px-6 border-b"> </th>{" "}
                       <th className="py-3 px-6 border-b"> </th>

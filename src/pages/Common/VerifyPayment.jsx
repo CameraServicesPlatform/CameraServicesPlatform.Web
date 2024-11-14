@@ -24,13 +24,23 @@ const VerifyPayment = () => {
         searchParams.get("vnp_OrderInfo")
       );
 
+      console.log("vnpResponseCode:", vnpResponseCode);
+      console.log("vnp_TxnRef:", vnp_TxnRef);
+      console.log("vnpOrderInfo:", vnpOrderInfo);
+
       if (vnpResponseCode) {
         setIsVNPAY(true);
         if (vnpResponseCode === "00") {
           const data = await purchaseOrder(vnp_TxnRef);
+          console.log("purchaseOrder data:", data);
           if (data.isSuccess) {
             setModalMessage(`Thanh toán thành công cho ${vnpOrderInfo}`);
             setIsSuccess(true);
+          } else {
+            setModalMessage(
+              `Thanh toán VNPay thất bại cho đơn hàng: ${vnpOrderInfo}. Vui lòng thanh toán lại`
+            );
+            setIsSuccess(false);
           }
         } else {
           setModalMessage(

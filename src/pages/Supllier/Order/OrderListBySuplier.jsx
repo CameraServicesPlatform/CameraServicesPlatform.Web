@@ -40,7 +40,11 @@ const OrderListBySupplier = ({ refresh }) => {
     2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
     3: { text: "Đã đặt", color: "purple", icon: "fa-shopping-cart" },
     4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
-    5: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
+    5: {
+      text: "Thanh toán thất bại",
+      color: "cyan",
+      icon: "fa-money-bill-wave",
+    },
     6: { text: "Đang hủy ", color: "lime", icon: "fa-box-open" },
     7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
     8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },

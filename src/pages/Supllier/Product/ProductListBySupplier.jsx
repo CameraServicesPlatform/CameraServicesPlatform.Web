@@ -75,6 +75,9 @@ const ProductListBySupplier = () => {
         setProducts(result);
         setTotal(result.totalCount || 0);
 
+        if (result.totalCount === 50) {
+          alert("Hệ thống đã giúp bạn phân trang.");
+        }
         // Fetch category names for each product
         const categoryPromises = result.map(async (product) => {
           if (product.categoryID) {
@@ -292,9 +295,9 @@ const ProductListBySupplier = () => {
           <Typography.Paragraph ellipsis={{ rows: 2, expandable: true }}>
             {expandedDescriptions[record.productID]
               ? text
-              : `${text.slice(0, 100)}...`}
+              : `${text ? text.slice(0, 100) : ""}...`}
           </Typography.Paragraph>
-          {text.length > 100 && (
+          {text && text.length > 100 && (
             <Button
               type="link"
               onClick={() => handleExpandDescription(record.productID)}
