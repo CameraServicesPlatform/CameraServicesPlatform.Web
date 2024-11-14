@@ -1,4 +1,4 @@
-import { Button, Card, Descriptions, Form } from "antd";
+import { Card, Descriptions } from "antd";
 import React from "react";
 
 const OrderConfirmation = ({ totalAmount }) => (
@@ -9,11 +9,6 @@ const OrderConfirmation = ({ totalAmount }) => (
           {totalAmount}
         </Descriptions.Item>
       </Descriptions>
-      <Form.Item style={{ marginTop: "16px" }}>
-        <Button type="primary" htmlType="submit">
-          Tạo đơn hàng
-        </Button>
-      </Form.Item>
     </Card>
   </div>
 );

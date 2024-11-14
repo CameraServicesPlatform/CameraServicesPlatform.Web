@@ -106,17 +106,22 @@ const CreateOrderBuy = () => {
   const handleVoucherSelect = async (e) => {
     const vourcherID = e.target.value;
     setSelectedVoucher(vourcherID);
-    try {
-      const voucherDetails = await getVoucherById(vourcherID);
-      setSelectedVoucherDetails(voucherDetails);
-      console.log("voucherDetails", voucherDetails);
-      console.log(
-        "voucherDetails.discountAmount",
-        voucherDetails.discountAmount
-      );
-      calculateTotalAmount(vourcherID);
-    } catch (error) {
-      console.error("Lỗi khi lấy chi tiết voucher:", error);
+    if (vourcherID) {
+      try {
+        const voucherDetails = await getVoucherById(vourcherID);
+        setSelectedVoucherDetails(voucherDetails);
+        console.log("voucherDetails", voucherDetails);
+        console.log(
+          "voucherDetails.discountAmount",
+          voucherDetails.discountAmount
+        );
+        calculateTotalAmount(vourcherID);
+      } catch (error) {
+        console.error("Lỗi khi lấy chi tiết voucher:", error);
+      }
+    } else {
+      setSelectedVoucherDetails(null);
+      calculateTotalAmount(null);
     }
   };
 
@@ -141,7 +146,7 @@ const CreateOrderBuy = () => {
       }
     }
 
-    const productPrice = Number(product.priceBuy) || 0;
+    const productPrice = Number(product.priceBuy);
     const total = productPrice - discount;
 
     setTotalAmount(total);
@@ -164,7 +169,7 @@ const CreateOrderBuy = () => {
           productID: product?.productID || "",
           productName: product?.productName || "",
           productDescription: product?.productDescription || "",
-          price: product.price || 0,
+          price: product.priceBuy || 0,
           quality: product?.quality,
         },
       ],
