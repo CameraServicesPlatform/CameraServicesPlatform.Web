@@ -1,11 +1,10 @@
 import { Button, Card, Form, Spin, Steps, message } from "antd";
-import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { getContractTemplateByProductId } from "../../../../api/contractTemplateApi"; // Import the function
-import { createOrderRentWithPayment } from "../../../../api/orderApi"; // Import the function
+import { getContractTemplateByProductId } from "../../../../api/contractTemplateApi";
+import { createOrderRentWithPayment } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
 import {
   getProductVouchersByProductId,
@@ -44,7 +43,7 @@ const CreateOrderRent = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [deliveryMethod, setDeliveryMethod] = useState(0);
   const [supplierInfo, setSupplierInfo] = useState(null);
-  const [contractTemplate, setContractTemplate] = useState([]); // Initialize as an array
+  const [contractTemplate, setContractTemplate] = useState([]);
   const [showContractTerms, setShowContractTerms] = useState(false);
 
   // Fetch product details and contract template
@@ -61,7 +60,6 @@ const CreateOrderRent = () => {
             const contractTemplateData = await getContractTemplateByProductId(
               productID
             );
-            console.log("Contract Template Data:", contractTemplateData); // Log the contract template data
             setContractTemplate(contractTemplateData);
           } else {
             message.error("Product not found or could not be retrieved.");
@@ -76,7 +74,7 @@ const CreateOrderRent = () => {
     fetchProductAndContractTemplate();
   }, [productID]);
 
-  // Fetch vouchers by supplier ID
+  // Fetch vouchers by product ID
   useEffect(() => {
     const fetchVouchers = async () => {
       setLoadingVouchers(true);
@@ -89,10 +87,10 @@ const CreateOrderRent = () => {
         if (voucherData) {
           setVouchers(voucherData);
         } else {
-          message.error("No vouchers available.");
+          message.error("Không có voucher khả dụng.");
         }
       } catch (error) {
-        message.error("Failed to fetch vouchers.");
+        message.error("Không thể lấy voucher.");
       }
       setLoadingVouchers(false);
     };
@@ -101,77 +99,29 @@ const CreateOrderRent = () => {
   }, [productID]);
 
   // Handle voucher selection
-  const handleVoucherSelect = async (voucherID) => {
+  const handleVoucherSelect = async (e) => {
+    const voucherID = e.target.value;
     setSelectedVoucher(voucherID);
-    const voucherDetails = await getVoucherById(voucherID);
-    setSelectedVoucherDetails(voucherDetails);
-    calculateTotalAmount(voucherID);
+    try {
+      const voucherDetails = await getVoucherById(voucherID);
+      setSelectedVoucherDetails(voucherDetails);
+      calculateTotalAmount(voucherDetails);
+    } catch (error) {
+      console.error("Lỗi khi lấy chi tiết voucher:", error);
+    }
   };
 
   // Calculate total amount
-  const calculateTotalAmount = (voucherID) => {
+  const calculateTotalAmount = (voucherDetails) => {
     if (!product) return;
 
     let discountAmount = 0;
-    if (voucherID) {
-      const selectedVoucher = vouchers.find(
-        (voucher) => voucher.voucherID === voucherID
-      );
-      if (selectedVoucher) {
-        discountAmount = selectedVoucher.discountAmount;
-      }
+    if (voucherDetails) {
+      discountAmount = voucherDetails.discountAmount;
     }
 
-    const total = calculatedPrice - discountAmount;
+    const total = productPriceRent - discountAmount;
     setTotalAmount(total);
-  };
-
-  // Handle rental start date change
-  const handleRentalStartDateChange = (date) => {
-    setRentalStartDate(date);
-    if (date && durationUnit && durationValue) {
-      let returnDate;
-      let price = 0;
-
-      switch (durationUnit) {
-        case "day":
-          returnDate = moment(date).add(durationValue, "days");
-          price = product.pricePerDay * durationValue;
-          break;
-        case "hour":
-          returnDate = moment(date).add(durationValue, "hours");
-          price = product.pricePerHour * durationValue;
-          break;
-        case "week":
-          returnDate = moment(date).add(durationValue, "weeks");
-          price = product.pricePerWeek * durationValue;
-          break;
-        case "month":
-          returnDate = moment(date).add(durationValue, "months");
-          price = product.pricePerMonth * durationValue;
-          break;
-        default:
-          returnDate = date;
-      }
-
-      setCalculatedReturnDate(returnDate);
-      setCalculatedPrice(price);
-      setRentalEndDate(returnDate);
-      form.setFieldsValue({ rentalEndDate: returnDate });
-    }
-  };
-
-  // Handle duration unit change
-  const handleDurationUnitChange = (value) => {
-    setDurationUnit(value);
-    handleRentalStartDateChange(form.getFieldValue("rentalStartDate"));
-    showDurationAlert(value);
-  };
-
-  // Handle duration value change
-  const handleDurationValueChange = (value) => {
-    setDurationValue(value);
-    handleRentalStartDateChange(form.getFieldValue("rentalStartDate"));
   };
 
   const toggleContractTerms = () => {
@@ -188,8 +138,8 @@ const CreateOrderRent = () => {
       supplierID: supplierID || "",
       accountID: accountId || "",
       productID: product?.productID || "",
-      voucherID: selectedVoucher,
-      productPriceRent: productPriceRent || 0,
+      vourcherID: selectedVoucher,
+      productPriceRent: setProductPriceRent,
       orderDate: new Date().toISOString(),
       orderStatus: 0,
       totalAmount: totalAmount || 0,
@@ -198,17 +148,17 @@ const CreateOrderRent = () => {
           productID: product?.productID || "",
           productName: product?.productName || "",
           productDescription: product?.productDescription || "",
-          priceRent: productPriceRent || 0,
+          priceRent: setProductPriceRent,
           quality: product?.quality,
         },
       ],
       orderType: 0,
-      shippingAddress: values.shippingAddress || "",
-      rentalStartDate: values.rentalStartDate.toISOString(),
-      rentalEndDate: values.rentalEndDate.toISOString(),
-      durationUnit: durationUnit || 0,
-      durationValue: durationValue || 0,
-      returnDate: calculatedReturnDate.toISOString(),
+      shippingAddress: setDeliveryMethod,
+      rentalStartDate: setRentalStartDate,
+      rentalEndDate: setRentalEndDate,
+      durationUnit: setDurationValue,
+      durationValue: setDurationValue,
+      returnDate: setRentalEndDate,
       deliveryMethod: deliveryMethod,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -264,7 +214,9 @@ const CreateOrderRent = () => {
         <VoucherSelection
           vouchers={vouchers}
           selectedVoucher={selectedVoucher}
-          setSelectedVoucher={handleVoucherSelect}
+          setSelectedVoucher={setSelectedVoucher}
+          handleVoucherSelect={handleVoucherSelect}
+          selectedVoucherDetails={selectedVoucherDetails}
         />
       ),
     },
