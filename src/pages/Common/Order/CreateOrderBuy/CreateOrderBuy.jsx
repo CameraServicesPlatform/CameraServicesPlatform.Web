@@ -2,7 +2,7 @@ import { Button, Card, Form, message, Select, Spin, Steps } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createOrderBuy } from "../../../../api/orderApi";
+import { createOrderWithPayment } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
 import { getSupplierById } from "../../../../api/supplierApi";
 import {
@@ -67,6 +67,7 @@ const CreateOrderBuy = () => {
         );
         if (voucherData) {
           setVouchers(voucherData);
+          console.log("voucherData", voucherData);
         } else {
           message.error("Không có voucher khả dụng.");
         }
@@ -103,29 +104,51 @@ const CreateOrderBuy = () => {
   }, [deliveryMethod, supplierID]);
 
   const handleVoucherSelect = async (e) => {
-    const voucherID = e.target.value;
-    setSelectedVoucher(voucherID);
+    const vourcherID = e.target.value;
+    setSelectedVoucher(vourcherID);
     try {
-      const voucherDetails = await getVoucherById(voucherID);
+      const voucherDetails = await getVoucherById(vourcherID);
       setSelectedVoucherDetails(voucherDetails);
-      calculateTotalAmount(voucherDetails);
+      console.log("voucherDetails", voucherDetails);
+      console.log(
+        "voucherDetails.discountAmount",
+        voucherDetails.discountAmount
+      );
+      calculateTotalAmount(vourcherID);
     } catch (error) {
       console.error("Lỗi khi lấy chi tiết voucher:", error);
     }
   };
 
-  const calculateTotalAmount = (voucherDetails) => {
-    if (!product) return;
-
-    let discountAmount = 0;
-    if (voucherDetails) {
-      discountAmount = voucherDetails.discountAmount;
+  const calculateTotalAmount = async (vourcherID) => {
+    if (!product) {
+      console.error("Sản phẩm không được xác định");
+      return;
     }
 
-    const total = product.price - discountAmount;
-    setTotalAmount(total);
-  };
+    let discount = 0;
+    if (vourcherID) {
+      try {
+        const voucherDetails = await getVoucherById(vourcherID);
 
+        if (voucherDetails) {
+          discount = Number(voucherDetails.discountAmount) || 0;
+        } else {
+          console.error("Không tìm thấy chi tiết voucher");
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy chi tiết voucher:", error);
+      }
+    }
+
+    const productPrice = Number(product.priceBuy) || 0;
+    const total = productPrice - discount;
+
+    setTotalAmount(total);
+    console.log("discount", discount);
+    console.log("productPrice", productPrice);
+    console.log("total", total);
+  };
   const onFinish = async (values) => {
     const orderData = {
       supplierID: supplierID || "",
@@ -165,7 +188,7 @@ const CreateOrderBuy = () => {
     };
 
     try {
-      const response = await createOrderBuy(orderData);
+      const response = await createOrderWithPayment(orderData);
       if (response.isSuccess && response.result) {
         message.success(
           "Tạo đơn hàng thành công. Đang chuyển hướng đến thanh toán..."

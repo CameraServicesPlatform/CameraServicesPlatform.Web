@@ -1,5 +1,3 @@
-
-
 import {
   Button,
   Card,
@@ -44,7 +42,7 @@ const CreateOrderBuy = () => {
   const [loadingVouchers, setLoadingVouchers] = useState(true);
 
   const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
-const user = useSelector((state) => state.user.user || {});
+  const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
 
   useEffect(() => {
@@ -211,7 +209,6 @@ const user = useSelector((state) => state.user.user || {});
   };
 
   const steps = [
-    
     {
       title: "Phương thức giao hàng",
       content: (
@@ -338,9 +335,7 @@ const user = useSelector((state) => state.user.user || {});
                   <Descriptions.Item label="Mô tả">
                     {product?.productDescription}
                   </Descriptions.Item>
-                  <Descriptions.Item label="Giá mua">
-                    {product?.priceBuy}
-                  </Descriptions.Item>
+                  <Descriptions.Item label="Giá mua"></Descriptions.Item>
                   <Descriptions.Item label="Chất lượng">
                     {product?.quality}
                   </Descriptions.Item>

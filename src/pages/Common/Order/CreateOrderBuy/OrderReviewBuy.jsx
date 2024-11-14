@@ -15,6 +15,8 @@ const OrderReviewBuy = ({
   selectedVoucherDetails,
   totalAmount,
 }) => {
+  const formattedTotalAmount = isNaN(totalAmount) ? 0 : totalAmount;
+
   return (
     <Card title="Xem lại đơn hàng" bordered={false}>
       <Row gutter={16}>
@@ -58,7 +60,7 @@ const OrderReviewBuy = ({
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(product.price)}
+                }).format(product?.priceBuy)}
               </div>
             </Descriptions.Item>
             <Descriptions.Item
@@ -75,21 +77,40 @@ const OrderReviewBuy = ({
         <Col span={12}>
           <Descriptions column={1} bordered>
             <Descriptions.Item label="Phương thức giao hàng">
-              {deliveryMethod === 0 ? "Giao hàng tận nơi" : "Nhận tại cửa hàng"}
+              {deliveryMethod === 0 ? "Nhận tại cửa hàng" : "Giao hàng tận nơi"}
             </Descriptions.Item>
             <Descriptions.Item label="Thông tin nhà cung cấp">
-              {supplierInfo ? supplierInfo.name : "Không có thông tin"}
+              {supplierInfo ? supplierInfo.supplierName : "Không có thông tin"}
             </Descriptions.Item>
+            <Descriptions.Item label="Số điện thoại">
+              {supplierInfo ? supplierInfo.contactNumber : "Không có thông tin"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Địa chỉ nhà cung cấp">
+              {supplierInfo
+                ? supplierInfo.supplierAddress
+                : "Không có thông tin"}
+            </Descriptions.Item>
+          </Descriptions>
+        </Col>
+        <Col span={12}>
+          <Descriptions column={1} bordered>
             <Descriptions.Item label="Voucher đã chọn">
-              {selectedVoucherDetails
-                ? `${selectedVoucherDetails.vourcherCode} - Giảm giá: ${selectedVoucherDetails.discountAmount}`
-                : "Không có voucher"}
+              {selectedVoucherDetails?.vourcherCode || "Không có"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Mô tả">
+              {selectedVoucherDetails?.description || "Không có"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Số tiền giảm">
+              {new Intl.NumberFormat("vi-VN", {
+                style: "currency",
+                currency: "VND",
+              }).format(selectedVoucherDetails?.discountAmount || 0)}
             </Descriptions.Item>
             <Descriptions.Item label="Tổng số tiền">
               {new Intl.NumberFormat("vi-VN", {
                 style: "currency",
                 currency: "VND",
-              }).format(totalAmount)}
+              }).format(formattedTotalAmount)}
             </Descriptions.Item>
           </Descriptions>
         </Col>

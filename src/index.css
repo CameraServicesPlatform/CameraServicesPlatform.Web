@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* Old way using -ms-high-contrast */
+/* Old CSS using -ms-high-contrast */
 @media screen and (-ms-high-contrast: active) {
   /* High contrast styles */
   body {
@@ -10,11 +10,11 @@
   }
 }
 
-/* New way using forced-colors */
+/* New CSS using forced-colors */
 @media (forced-colors: active) {
   /* High contrast styles */
   body {
-    background-color: CanvasText;
-    color: Canvas;
+    background-color: Canvas;
+    color: CanvasText;
   }
 }

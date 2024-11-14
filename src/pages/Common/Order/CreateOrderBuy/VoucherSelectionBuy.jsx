@@ -8,9 +8,9 @@ const VoucherSelectionBuy = ({
   handleVoucherSelect,
   selectedVoucherDetails,
 }) => {
-  const onCardClick = (voucherID) => {
-    setSelectedVoucher(voucherID);
-    handleVoucherSelect({ target: { value: voucherID } });
+  const onCardClick = (vourcherID) => {
+    setSelectedVoucher(vourcherID);
+    handleVoucherSelect({ target: { value: vourcherID } });
   };
 
   return (
@@ -36,7 +36,7 @@ const VoucherSelectionBuy = ({
                     selectedVoucher === voucher.vourcherID
                       ? "#e6f7ff"
                       : "#ffffff",
-                  borderWidth: selectedVoucher === voucher.vourcherID ? 2 : 1,
+                  borderWidth: selectedVoucher === voucher.vourcherID,
                   boxShadow:
                     selectedVoucher === voucher.vourcherID
                       ? "0 4px 8px rgba(0, 0, 0, 0.1)"
@@ -56,6 +56,10 @@ const VoucherSelectionBuy = ({
                       <p>
                         <strong>Mô tả:</strong>{" "}
                         {selectedVoucherDetails.description}
+                      </p>
+                      <p>
+                        <strong>Ưu đãi :</strong>{" "}
+                        {selectedVoucherDetails.discountAmount}
                       </p>
                     </>
                   )}
