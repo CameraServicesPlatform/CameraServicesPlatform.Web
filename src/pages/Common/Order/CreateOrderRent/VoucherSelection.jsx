@@ -22,37 +22,43 @@ const VoucherSelection = ({
       >
         <Row gutter={[16, 16]}>
           {vouchers.map((voucher) => (
-            <Col span={8} key={voucher.voucherID}>
+            <Col span={8} key={voucher.productVoucherID}>
               <Card
-                title={voucher.voucherCode}
+                title={voucher.vourcherID}
                 bordered={false}
                 style={{
                   cursor: "pointer",
                   borderColor:
-                    selectedVoucher === voucher.voucherID
+                    selectedVoucher === voucher.vourcherID
                       ? "#1890ff"
                       : "#f0f0f0",
                   backgroundColor:
-                    selectedVoucher === voucher.voucherID
+                    selectedVoucher === voucher.vourcherID
                       ? "#e6f7ff"
                       : "#ffffff",
-                  borderWidth: selectedVoucher === voucher.voucherID ? 2 : 1,
+                  borderWidth: selectedVoucher === voucher.vourcherID ? 2 : 1,
                   boxShadow:
-                    selectedVoucher === voucher.voucherID
+                    selectedVoucher === voucher.vourcherID
                       ? "0 4px 8px rgba(0, 0, 0, 0.1)"
                       : "none",
                   transition: "all 0.3s ease",
                 }}
-                onClick={() => onCardClick(voucher.voucherID)}
+                onClick={() => onCardClick(voucher.vourcherID)}
               >
-                <p>{voucher.description}</p>
-                {selectedVoucher === voucher.voucherID && (
-                  <>
-                    <p>
-                      <strong>Giảm giá:</strong> {voucher.discountAmount}
-                    </p>
-                  </>
-                )}
+                <p>{voucher.vourcherID}</p>
+                {selectedVoucher === voucher.vourcherID &&
+                  selectedVoucherDetails && (
+                    <>
+                      <p>
+                        <strong>Mã Voucher:</strong>{" "}
+                        {selectedVoucherDetails.vourcherCode}
+                      </p>
+                      <p>
+                        <strong>Mô tả:</strong>{" "}
+                        {selectedVoucherDetails.description}
+                      </p>
+                    </>
+                  )}
               </Card>
             </Col>
           ))}
