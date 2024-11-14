@@ -4,13 +4,13 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { getContractTemplateByProductId } from "../../../../api/contractTemplateApi"; // Import the function
+import { createOrderRentWithPayment } from "../../../../api/orderApi"; // Import the function
 import { getProductById } from "../../../../api/productApi";
 import {
   getProductVouchersByProductId,
   getVoucherById,
 } from "../../../../api/voucherApi";
-import { getContractTemplateByProductId } from "../../../../api/contractTemplateApi"; // Import the function
-import { createOrderRentWithPayment } from "../../../../api/orderApi"; // Import the function
 
 import DeliveryMethod from "./DeliveryMethod";
 import OrderConfirmation from "./OrderConfirmation";
@@ -255,6 +255,7 @@ const CreateOrderRent = () => {
           supplierInfo={supplierInfo}
           selectedVoucherDetails={selectedVoucherDetails}
           totalAmount={totalAmount}
+          contractTemplate={contractTemplate}
         />
       ),
     },

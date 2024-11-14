@@ -1,3 +1,10 @@
+import {
+  DollarOutlined,
+  FileTextOutlined,
+  InfoCircleOutlined,
+  PictureOutlined,
+  TagOutlined,
+} from "@ant-design/icons";
 import { Card, Col, Descriptions, Row, Spin } from "antd";
 import React from "react";
 
@@ -14,25 +21,89 @@ const ProductDetailsInfoRent = ({ product, contractTemplate, loading }) => (
         <Row gutter={16}>
           <Col span={12}>
             <Descriptions column={1} bordered>
-              <Descriptions.Item label="Mã sản phẩm">
+              <Descriptions.Item
+                label={
+                  <span>
+                    <TagOutlined /> Mã sản phẩm
+                  </span>
+                }
+              >
                 {product.productID}
               </Descriptions.Item>
-              <Descriptions.Item label="Tên">
+              <Descriptions.Item
+                label={
+                  <span>
+                    <InfoCircleOutlined /> Tên
+                  </span>
+                }
+              >
                 {product.productName}
               </Descriptions.Item>
-              <Descriptions.Item label="Mô tả">
+              <Descriptions.Item
+                label={
+                  <span>
+                    <FileTextOutlined /> Mô tả
+                  </span>
+                }
+              >
                 {product.productDescription}
               </Descriptions.Item>
-              <Descriptions.Item label="Giá thuê">
-                {product.priceRent}
+              <Descriptions.Item
+                label={
+                  <span>
+                    <DollarOutlined /> Giá thuê
+                  </span>
+                }
+              >
+                <div style={{ color: "#1890ff" }}>
+                  <strong>Ngày:</strong>{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(product.pricePerDay)}
+                </div>
+                <div style={{ color: "#52c41a" }}>
+                  <strong>Giờ: </strong>{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(product.pricePerHour)}
+                </div>
+                <div style={{ color: "#faad14" }}>
+                  <strong>Tuần:</strong>{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(product.pricePerWeek)}
+                </div>
+                <div style={{ color: "#f5222d" }}>
+                  <strong>Tháng:</strong>{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(product.pricePerMonth)}
+                </div>
               </Descriptions.Item>
-              <Descriptions.Item label="Chất lượng">
+              <Descriptions.Item
+                label={
+                  <span>
+                    <InfoCircleOutlined /> Chất lượng
+                  </span>
+                }
+              >
                 {product.quality}
               </Descriptions.Item>
             </Descriptions>
           </Col>
           <Col span={12}>
-            <Card title="Hình ảnh sản phẩm" bordered={false}>
+            <Card
+              title={
+                <span>
+                  <PictureOutlined /> Hình ảnh sản phẩm
+                </span>
+              }
+              bordered={false}
+            >
               <div className="flex flex-wrap mt-2">
                 {product.listImage && product.listImage.length > 0 ? (
                   product.listImage.map((imageObj, index) => (
@@ -68,7 +139,11 @@ const ProductDetailsInfoRent = ({ product, contractTemplate, loading }) => (
                   {contractTemplate.map((item) => (
                     <Descriptions.Item
                       key={item.contractTemplateID}
-                      label={item.templateName}
+                      label={
+                        <span>
+                          <FileTextOutlined /> {item.templateName}
+                        </span>
+                      }
                     >
                       <p>
                         <strong>Điều khoản hợp đồng:</strong>{" "}
