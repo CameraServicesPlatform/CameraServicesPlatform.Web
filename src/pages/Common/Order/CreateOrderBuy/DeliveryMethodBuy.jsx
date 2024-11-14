@@ -1,7 +1,7 @@
-import { Card, Form, Radio } from "antd";
+import { Card, Form, Radio, Descriptions, Input } from "antd";
 import React from "react";
 
-const DeliveryMethodBuy = ({
+ const DeliveryMethodBuy = ({
   deliveryMethod,
   setDeliveryMethod,
   supplierInfo,
@@ -12,27 +12,50 @@ const DeliveryMethodBuy = ({
 
   return (
     <Card title="Phương thức giao hàng" bordered={false}>
-      <Form.Item label="Chọn phương thức giao hàng">
+      <Form.Item
+        label="Chọn phương thức giao hàng"
+        rules={[
+          {
+            required: true,
+            message: "Vui lòng chọn phương thức giao hàng!",
+          },
+        ]}
+      >
         <Radio.Group
           onChange={handleDeliveryMethodChange}
           value={deliveryMethod}
         >
-          <Radio value={0}>Giao hàng tận nơi</Radio>
-          <Radio value={1}>Nhận tại cửa hàng</Radio>
+          <Radio value={0}>Nhận tại cửa hàng</Radio>
+          <Radio value={1}>Giao hàng tận nơi</Radio>
         </Radio.Group>
       </Form.Item>
-      {deliveryMethod === 1 && supplierInfo && (
-        <Card title="Thông tin nhà cung cấp" bordered={false}>
-          <p>
-            <strong>Tên nhà cung cấp:</strong> {supplierInfo.name}
-          </p>
-          <p>
-            <strong>Địa chỉ:</strong> {supplierInfo.address}
-          </p>
-          <p>
-            <strong>Số điện thoại:</strong> {supplierInfo.phone}
-          </p>
-        </Card>
+      {deliveryMethod === 1 && (
+        <Form.Item
+          label="Địa chỉ giao hàng"
+          name="shippingAddress"
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng nhập địa chỉ giao hàng!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+      )}
+
+      {deliveryMethod === 0 && supplierInfo && (
+        <Descriptions bordered>
+          <Descriptions.Item label="Tên nhà cung cấp">
+            {supplierInfo.supplierName}
+          </Descriptions.Item>
+          <Descriptions.Item label="Số điện thoại">
+            {supplierInfo.contactNumber}
+          </Descriptions.Item>
+          <Descriptions.Item label="Địa chỉ nhà cung cấp">
+            {supplierInfo.supplierAddress}
+          </Descriptions.Item>
+        </Descriptions>
       )}
     </Card>
   );

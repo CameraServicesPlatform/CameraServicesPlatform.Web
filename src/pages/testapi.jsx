@@ -211,55 +211,7 @@ const user = useSelector((state) => state.user.user || {});
   };
 
   const steps = [
-    {
-      title: "Chi tiết sản phẩm",
-      content: (
-        <Form.Item label="Thông tin sản phẩm" className="mb-4">
-          {product ? (
-            <Row gutter={16}>
-              <Col span={12}>
-                <Descriptions column={1}>
-                  <Descriptions.Item label="Mã sản phẩm">
-                    {product.productID}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Tên">
-                    {product.productName}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Mô tả">
-                    {product.productDescription}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Giá mua">
-                    {product.priceBuy}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Chất lượng">
-                    {product.quality}
-                  </Descriptions.Item>
-                </Descriptions>
-              </Col>
-              <Col span={12}>
-                <strong>Hình ảnh sản phẩm:</strong>
-                <div className="flex flex-wrap mt-2">
-                  {product.listImage && product.listImage.length > 0 ? (
-                    product.listImage.map((imageObj, index) => (
-                      <img
-                        key={imageObj.productImagesID}
-                        src={imageObj.image}
-                        alt={`Hình ảnh sản phẩm ${index + 1}`}
-                        className="w-24 h-24 mr-2 mb-2 object-cover"
-                      />
-                    ))
-                  ) : (
-                    <p>Không có hình ảnh cho sản phẩm này.</p>
-                  )}
-                </div>
-              </Col>
-            </Row>
-          ) : (
-            <p>Đang tải thông tin sản phẩm...</p>
-          )}
-        </Form.Item>
-      ),
-    },
+    
     {
       title: "Phương thức giao hàng",
       content: (

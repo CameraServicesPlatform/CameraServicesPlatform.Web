@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getContractTemplateByProductId } from "../../../../api/contractTemplateApi";
 import { createOrderRentWithPayment } from "../../../../api/orderApi";
 import { getProductById } from "../../../../api/productApi";
+import { getSupplierById } from "../../../../api/supplierApi";
 import {
   getProductVouchersByProductId,
   getVoucherById,
@@ -73,6 +74,29 @@ const CreateOrderRent = () => {
 
     fetchProductAndContractTemplate();
   }, [productID]);
+
+  useEffect(() => {
+    const fetchSupplierInfo = async () => {
+      if (deliveryMethod === 1 && supplierID) {
+        try {
+          const supplierData = await getSupplierById(supplierID);
+          if (
+            supplierData &&
+            supplierData.result &&
+            supplierData.result.items.length > 0
+          ) {
+            setSupplierInfo(supplierData.result.items[0]);
+          } else {
+            message.error("Không thể lấy thông tin nhà cung cấp.");
+          }
+        } catch (error) {
+          message.error("Không thể lấy thông tin nhà cung cấp.");
+        }
+      }
+    };
+
+    fetchSupplierInfo();
+  }, [deliveryMethod, supplierID]);
 
   // Fetch vouchers by product ID
   useEffect(() => {
