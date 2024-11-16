@@ -38,7 +38,6 @@ const VerifyPayment = () => {
           } else {
             data = await createSupplierPaymentAgain({
               orderID: vnp_TxnRef,
-              orderInfo: vnpOrderInfo,
             });
           }
           console.log("Payment data:", data);
