@@ -181,9 +181,12 @@ const ProductDetailsInfoRent = ({
                     </span>
                   }
                 >
-                  {product.depositProduct}
-                  </Descriptions.Item>
-                  
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(product.depositProduct)}
+                </Descriptions.Item>
+
                 <Descriptions.Item
                   label={
                     <span>
@@ -192,28 +195,28 @@ const ProductDetailsInfoRent = ({
                   }
                 >
                   <div style={{ color: "#52c41a" }}>
-                    <strong>Giờ: </strong>{" "}
+                    <strong>Giờ: </strong>
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }).format(product.pricePerHour)}
                   </div>
                   <div style={{ color: "#1890ff" }}>
-                    <strong>Ngày:</strong>{" "}
+                    <strong>Ngày:</strong>
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }).format(product.pricePerDay)}
                   </div>
                   <div style={{ color: "#faad14" }}>
-                    <strong>Tuần:</strong>{" "}
+                    <strong>Tuần:</strong>
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }).format(product.pricePerWeek)}
                   </div>
                   <div style={{ color: "#f5222d" }}>
-                    <strong>Tháng:</strong>{" "}
+                    <strong>Tháng:</strong>
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
@@ -292,12 +295,12 @@ const ProductDetailsInfoRent = ({
                 />
               </Form.Item>
               <div style={{ marginTop: "16px", width: "100%" }}>
-                <strong>Giá thuê sản phẩm:</strong>{" "}
+                <strong>Giá thuê sản phẩm:</strong>
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
                 }).format(productPriceRent)}
-              </div>{" "}
+              </div>
               <Form.Item label="Ngày bắt đầu thuê" style={{ width: "100%" }}>
                 <DatePicker
                   showTime
@@ -346,15 +349,15 @@ const ProductDetailsInfoRent = ({
                           }
                         >
                           <p>
-                            <strong>Điều khoản hợp đồng:</strong>{" "}
+                            <strong>Điều khoản hợp đồng:</strong>
                             {item.contractTerms}
                           </p>
                           <p>
-                            <strong>Chính sách phạt:</strong>{" "}
+                            <strong>Chính sách phạt:</strong>
                             {item.penaltyPolicy}
                           </p>
                           <p>
-                            <strong>Chi tiết mẫu:</strong>{" "}
+                            <strong>Chi tiết mẫu:</strong>
                             {item.templateDetails}
                           </p>
                         </Descriptions.Item>
