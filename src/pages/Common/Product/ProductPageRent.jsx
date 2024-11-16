@@ -1,25 +1,19 @@
 import {
-  AppstoreAddOutlined,
   CalendarOutlined,
   DollarOutlined,
   EditOutlined,
+  FolderOpenOutlined,
   InfoCircleOutlined,
   SearchOutlined,
+  ShopOutlined,
   StarOutlined,
   TagOutlined,
-  TeamOutlined,
-  ShopOutlined,
-  FolderOpenOutlined,
 } from "@ant-design/icons"; // Import Ant Design icons
 import { Button, Card, Input, Layout, message, Spin, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"; // Import useParams
 import { getCategoryById } from "../../../api/categoryApi";
-import {
-  getAllProduct,
-  getProductById,
-  getProductByName,
-} from "../../../api/productApi";
+import { getAllProduct, getProductByName } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
 
@@ -202,6 +196,12 @@ const ProductPageRent = () => {
                   <p className="text-gray-700 text-left">
                     {product.productDescription}
                   </p>
+                  {product.depositProduct != null && (
+                    <p className="font-bold text-left text-red-500">
+                      <DollarOutlined className="inline mr-1" />
+                      Giá Cọc: {formatPrice(product.depositProduct)}
+                    </p>
+                  )}
                   {product.pricePerHour != null && (
                     <p className="font-bold text-left text-green-500">
                       <DollarOutlined className="inline mr-1" />
