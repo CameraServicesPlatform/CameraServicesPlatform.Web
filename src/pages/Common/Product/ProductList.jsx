@@ -272,6 +272,7 @@ const ProductList = () => {
                               {product.serialNumber}
                             </span>
                           </p>
+
                           {product.priceRent != null && (
                             <p>
                               <strong>Giá (Thuê)/giờ:</strong>
@@ -327,6 +328,16 @@ const ProductList = () => {
                                 style={{ color: "green", fontWeight: "bold" }}
                               >
                                 VND{product.pricePerMonth}
+                              </span>
+                            </p>
+                          )}
+                          {product.depositProduct != null && (
+                            <p>
+                              <strong>Giá cọc:</strong>
+                              <span
+                                style={{ color: "green", fontWeight: "bold" }}
+                              >
+                                VND{product.depositProduct}
                               </span>
                             </p>
                           )}
@@ -430,6 +441,15 @@ const ProductList = () => {
               </Descriptions.Item>
               <Descriptions.Item label="Mô tả">
                 {productDetail.productDescription}
+              </Descriptions.Item>
+              <Descriptions.Item
+                label={
+                  <span>
+                    <FileTextOutlined /> Cọc sản phẩm
+                  </span>
+                }
+              >
+                {productDetail.depositProduct}
               </Descriptions.Item>
               {productDetail.priceRent != null && (
                 <Descriptions.Item label="Giá (Thuê)">

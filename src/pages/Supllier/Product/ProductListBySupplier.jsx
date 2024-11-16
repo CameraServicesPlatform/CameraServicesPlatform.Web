@@ -310,6 +310,11 @@ const ProductListBySupplier = () => {
       ),
     },
     {
+      title: "Giá(Cọc)",
+      dataIndex: "depositProduct",
+      sorter: (a, b) => a.depositProduct - b.depositProduct,
+    },
+    {
       title: "Giá (Thuê)",
       dataIndex: "priceRent",
       render: renderPriceRent,

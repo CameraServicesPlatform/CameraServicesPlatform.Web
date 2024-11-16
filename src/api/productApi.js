@@ -60,6 +60,7 @@ export const createProductRent = async (data) => {
   formData.append("ProductName", data.ProductName);
   formData.append("ProductDescription", data.ProductDescription);
   formData.append("Quality", data.Quality);
+  formData.append("DepositProduct", data.DepositProduct);
   formData.append("PricePerHour", data.PricePerHour);
   formData.append("PricePerDay", data.PricePerDay);
   formData.append("PricePerWeek", data.PricePerWeek);

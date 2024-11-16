@@ -233,7 +233,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Phê duyệt
           </Button>
         )}
-        {order.orderStatus === 0 && (
+        {(order.orderStatus === 0 || order.orderStatus === 5) && (
           <Button
             type="danger"
             onClick={() => showConfirm("cancel", order.orderID)}
@@ -277,7 +277,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Hoàn thành
           </Button>
         )}
-        {(order.orderStatus === 4 || order.orderStatus === 5) && (
+        {order.orderStatus === 4 && (
           <Button
             type="primary"
             onClick={() => showConfirm("complete", order.orderID)}

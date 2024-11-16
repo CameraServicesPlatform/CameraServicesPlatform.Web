@@ -177,6 +177,16 @@ const ProductDetailsInfoRent = ({
                 <Descriptions.Item
                   label={
                     <span>
+                      <FileTextOutlined /> Cọc sản phẩm
+                    </span>
+                  }
+                >
+                  {product.depositProduct}
+                  </Descriptions.Item>
+                  
+                <Descriptions.Item
+                  label={
+                    <span>
                       <DollarOutlined /> Giá thuê
                     </span>
                   }

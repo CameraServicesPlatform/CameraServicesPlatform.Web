@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { purchaseOrder } from "../../api/orderApi";
+import { createSupplierPaymentAgain } from "../../api/transactionApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import paymentFailed from "../../images/payment-failed.gif";
 import paymentSuccess from "../../images/payment-success.gif";
@@ -31,8 +32,16 @@ const VerifyPayment = () => {
       if (vnpResponseCode) {
         setIsVNPAY(true);
         if (vnpResponseCode === "00") {
-          const data = await purchaseOrder(vnp_TxnRef);
-          console.log("purchaseOrder data:", data);
+          let data;
+          if (vnp_TxnRef) {
+            data = await purchaseOrder(vnp_TxnRef);
+          } else {
+            data = await createSupplierPaymentAgain({
+              orderID: vnp_TxnRef,
+              orderInfo: vnpOrderInfo,
+            });
+          }
+          console.log("Payment data:", data);
           if (data.isSuccess) {
             setModalMessage(`Thanh toán thành công cho ${vnpOrderInfo}`);
             setIsSuccess(true);
