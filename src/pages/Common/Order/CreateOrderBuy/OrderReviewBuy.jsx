@@ -75,22 +75,37 @@ const OrderReviewBuy = ({
           </Descriptions>
         </Col>
         <Col span={12}>
-          <Descriptions column={1} bordered>
-            <Descriptions.Item label="Phương thức giao hàng">
-              {deliveryMethod === 0 ? "Nhận tại cửa hàng" : "Giao hàng tận nơi"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Thông tin nhà cung cấp">
-              {supplierInfo ? supplierInfo.supplierName : "Không có thông tin"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Số điện thoại">
-              {supplierInfo ? supplierInfo.contactNumber : "Không có thông tin"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Địa chỉ nhà cung cấp">
-              {supplierInfo
-                ? supplierInfo.supplierAddress
-                : "Không có thông tin"}
-            </Descriptions.Item>
-          </Descriptions>
+          <Card
+            title="Thông tin giao hàng"
+            bordered={false}
+            style={{ marginBottom: "16px" }}
+          >
+            <Descriptions bordered column={1}>
+              <Descriptions.Item label="Phương thức giao hàng">
+                {deliveryMethod === 0
+                  ? "Nhận tại cửa hàng"
+                  : "Giao hàng tận nơi"}
+              </Descriptions.Item>
+              {deliveryMethod === 1 && (
+                <Descriptions.Item label="Địa chỉ giao hàng">
+                  {form.getFieldValue("shippingAddress")}
+                </Descriptions.Item>
+              )}
+              {deliveryMethod === 0 && supplierInfo && (
+                <>
+                  <Descriptions.Item label="Tên nhà cung cấp">
+                    {supplierInfo.supplierName}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Số điện thoại">
+                    {supplierInfo.contactNumber}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Địa chỉ nhà cung cấp">
+                    {supplierInfo.supplierAddress}
+                  </Descriptions.Item>
+                </>
+              )}
+            </Descriptions>
+          </Card>
         </Col>
         <Col span={12}>
           <Descriptions column={1} bordered>

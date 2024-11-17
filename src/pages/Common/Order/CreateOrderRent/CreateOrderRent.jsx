@@ -274,7 +274,7 @@ const CreateOrderRent = () => {
           selectedVoucherDetails={selectedVoucherDetails}
           totalAmount={totalAmount}
           contractTemplate={contractTemplate}
-        />
+         />
       ),
     },
     {

@@ -17,6 +17,7 @@ const OrderReview = ({
   totalAmount,
   contractTemplate,
   loading,
+  setProductPriceRent,
 }) => (
   <div>
     <h3>Xem lại đơn hàng của bạn</h3>
@@ -223,7 +224,7 @@ const OrderReview = ({
       {selectedVoucherDetails ? (
         <Descriptions bordered column={1}>
           <Descriptions.Item label="Mã Voucher">
-            {selectedVoucherDetails.voucherCode}
+            {selectedVoucherDetails.vourcherCode}
           </Descriptions.Item>
           <Descriptions.Item label="Mô tả">
             {selectedVoucherDetails.description}
