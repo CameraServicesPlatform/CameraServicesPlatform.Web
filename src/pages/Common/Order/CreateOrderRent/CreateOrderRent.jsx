@@ -145,7 +145,8 @@ const CreateOrderRent = () => {
       discountAmount = voucherDetails.discountAmount;
     }
 
-    const total = productPriceRent - discountAmount;
+    const total =
+      productPriceRent - discountAmount + (product?.depositProduct || 0);
     setTotalAmount(total);
   };
 
@@ -186,7 +187,8 @@ const CreateOrderRent = () => {
             ? vouchers.find((voucher) => voucher.vourcherID === selectedVoucher)
                 ?.discountAmount || 0
             : 0,
-          productPriceTotal: totalAmount || 0,
+          productPriceTotal:
+            (totalAmount || 0) + (product?.depositProduct || 0),
         },
       ],
       orderType: 0,
@@ -274,12 +276,20 @@ const CreateOrderRent = () => {
           selectedVoucherDetails={selectedVoucherDetails}
           totalAmount={totalAmount}
           contractTemplate={contractTemplate}
-         />
+          depositProduct={product?.depositProduct}
+          productPriceRent={productPriceRent}
+        />
       ),
     },
     {
       title: "Xác nhận",
-      content: <OrderConfirmation totalAmount={totalAmount} />,
+      content: (
+        <OrderConfirmation
+          totalAmount={totalAmount}
+          depositProduct={product?.depositProduct}
+          productPriceRent={productPriceRent}
+        />
+      ),
     },
   ];
 
