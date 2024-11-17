@@ -168,7 +168,7 @@ const CreateOrderRent = () => {
       productPriceRent: productPriceRent,
       orderDate: new Date().toISOString(),
       orderStatus: 0,
-      totalAmount: productPriceRent || 0,
+      totalAmount: totalAmount,
       products: [
         {
           productID: product?.productID || "",
@@ -187,8 +187,7 @@ const CreateOrderRent = () => {
             ? vouchers.find((voucher) => voucher.vourcherID === selectedVoucher)
                 ?.discountAmount || 0
             : 0,
-          productPriceTotal:
-            (totalAmount || 0) + (product?.depositProduct || 0),
+          productPriceTotal: totalAmount,
         },
       ],
       orderType: 0,
@@ -287,6 +286,7 @@ const CreateOrderRent = () => {
         <OrderConfirmation
           totalAmount={totalAmount}
           depositProduct={product?.depositProduct}
+          selectedVoucherDetails={selectedVoucherDetails}
           productPriceRent={productPriceRent}
         />
       ),

@@ -32,7 +32,11 @@ const VoucherSelection = ({
 
     fetchVoucherCodes();
   }, [vouchers]);
-
+useEffect(() => {
+  if (!selectedVoucher) {
+    handleVoucherSelect({ target: { value: null } });
+  }
+}, [selectedVoucher, handleVoucherSelect]);
   const onCardClick = (voucherID) => {
     setSelectedVoucher(voucherID);
     handleVoucherSelect({ target: { value: voucherID } });
