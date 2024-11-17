@@ -112,7 +112,16 @@ const ProductDetailsInfoRent = ({
     }
     return endDate;
   };
-
+  const handleDurationValueChange = (value) => {
+    if (durationUnit === "hour" && value > 13) {
+      message.warning(
+        "Thời gian thuê theo giờ không được vượt quá 13 giờ. Vui lòng thuê theo ngày."
+      );
+      setDurationValue(13); // Set to maximum allowed hours
+    } else {
+      setDurationValue(value);
+    }
+  };
   useEffect(() => {
     if (durationUnit && durationValue) {
       calculateProductPriceRent();
@@ -129,11 +138,28 @@ const ProductDetailsInfoRent = ({
   };
 
   const handleRentalStartDateChange = (date) => {
-    setRentalStartDate(date);
+    const startHour = moment(date).hour();
+    if (startHour > 7 || startHour >= 20) {
+      message.error("Thời gian bắt đầu thuê phải trong khoảng 7:00 - 20:00.");
+      setRentalStartDate(null);
+      setRentalEndDate(null);
+      return;
+    }
+
     const endDate = calculateRentalEndDate(date);
+    const endHour = moment(endDate).hour();
+    if (endHour < 7 || endHour >= 20) {
+      message.warning(
+        "Thời gian thuê vượt quá khung giờ hoạt động (7:00 - 20:00). Vui lòng thuê theo ngày hoặc chọn thời gian khác."
+      );
+      setRentalStartDate(null);
+      setRentalEndDate(null);
+      return;
+    }
+
+    setRentalStartDate(date);
     setRentalEndDate(endDate);
   };
-
   return (
     <Card
       title="Thông tin sản phẩm"
@@ -289,18 +315,12 @@ const ProductDetailsInfoRent = ({
                   min={durationUnit ? durationOptions[durationUnit].min : 0}
                   max={durationUnit ? durationOptions[durationUnit].max : 0}
                   value={durationValue}
-                  onChange={setDurationValue}
+                  onChange={handleDurationValueChange}
                   disabled={!durationUnit}
                   style={{ width: "100%" }}
                 />
               </Form.Item>
-              <div style={{ marginTop: "16px", width: "100%" }}>
-                <strong>Giá thuê sản phẩm:</strong>
-                {new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(productPriceRent)}
-              </div>
+
               <Form.Item label="Ngày bắt đầu thuê" style={{ width: "100%" }}>
                 <DatePicker
                   showTime
@@ -318,7 +338,37 @@ const ProductDetailsInfoRent = ({
                 />
               </Form.Item>
             </Card>
+            <div
+              style={{ marginTop: "16px", width: "100%", textAlign: "center" }}
+            >
+              <Card
+                bordered={false}
+                style={{
+                  backgroundColor: "#f6f8fa",
+                  padding: "16px",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <strong style={{ fontSize: "16px", color: "#333" }}>
+                  Giá thuê sản phẩm:
+                </strong>
+                <div
+                  style={{
+                    fontSize: "24px",
+                    color: "#52c41a",
+                    marginTop: "8px",
+                  }}
+                >
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(productPriceRent)}
+                </div>
+              </Card>
+            </div>
           </Form>
+
           <Button
             type="link"
             onClick={toggleContractTerms}
