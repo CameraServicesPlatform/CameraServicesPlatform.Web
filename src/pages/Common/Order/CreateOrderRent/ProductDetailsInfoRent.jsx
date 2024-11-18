@@ -39,17 +39,24 @@ const ProductDetailsInfoRent = ({
   setRentalStartDate,
   rentalEndDate,
   setRentalEndDate,
+  returnDate,
+  setReturnDate,
 }) => {
   const pricePerHour = product.pricePerHour;
   const pricePerDay = product.pricePerDay;
   const pricePerWeek = product.pricePerWeek;
   const pricePerMonth = product.pricePerMonth;
-
+  const RentalDurationUnit = {
+    HOUR: 0,
+    DAY: 1,
+    WEEK: 2,
+    MONTH: 3,
+  };
   const durationOptions = {
-    hour: { min: 2, max: 8 },
-    day: { min: 1, max: 3 },
-    week: { min: 1, max: 2 },
-    month: { min: 1, max: 1 },
+    [RentalDurationUnit.HOUR]: { min: 2, max: 8 },
+    [RentalDurationUnit.DAY]: { min: 1, max: 3 },
+    [RentalDurationUnit.WEEK]: { min: 1, max: 2 },
+    [RentalDurationUnit.MONTH]: { min: 1, max: 1 },
   };
 
   const calculateProductPriceRent = () => {
@@ -160,6 +167,7 @@ const ProductDetailsInfoRent = ({
     setRentalStartDate(date);
     setRentalEndDate(endDate);
   };
+
   return (
     <Card
       title="Thông tin sản phẩm"
@@ -333,6 +341,17 @@ const ProductDetailsInfoRent = ({
                 <DatePicker
                   showTime
                   value={rentalEndDate}
+                  disabled
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+              <Form.Item
+                label="Thời gian trả sản phẩm "
+                style={{ width: "100%" }}
+              >
+                <DatePicker
+                  showTime
+                  value={returnDate}
                   disabled
                   style={{ width: "100%" }}
                 />

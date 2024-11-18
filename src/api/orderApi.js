@@ -243,3 +243,25 @@ export const createOrderRentWithPayment = async (orderData) => {
     return null;
   }
 };
+export const updateOrderStatusPlaced = async (orderId) => {
+  try {
+    const res = await api.put(
+      `/order/update-order-status-placed/${orderId}`,
+      {},
+      {
+        headers: {
+          accept: "text/plain",
+        },
+      }
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error updating order status to placed:", err);
+    return (
+      err.response?.data || {
+        isSuccess: false,
+        messages: ["Error updating order status to placed"],
+      }
+    );
+  }
+};

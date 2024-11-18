@@ -2,6 +2,8 @@ import { Card, Descriptions, Form, Input, Radio } from "antd";
 import React from "react";
 
 const DeliveryMethod = ({
+  shippingAddress,
+  setShippingAddress,
   deliveryMethod,
   setDeliveryMethod,
   supplierInfo,

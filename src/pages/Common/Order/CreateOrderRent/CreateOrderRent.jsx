@@ -25,11 +25,13 @@ const CreateOrderRent = () => {
   const [product, setProduct] = useState(null);
 
   const [totalAmount, setTotalAmount] = useState(0);
-  const [durationUnit, setDurationUnit] = useState("hour");
+  const [durationUnit, setDurationUnit] = useState(0);
   const [durationValue, setDurationValue] = useState(2);
   const [productPriceRent, setProductPriceRent] = useState(0);
   const [rentalStartDate, setRentalStartDate] = useState(null);
   const [rentalEndDate, setRentalEndDate] = useState(null);
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [returnDate, setReturnDate] = useState(null);
   const location = useLocation();
   const { productID, supplierID } = location.state || {};
   const [loadingProduct, setLoadingProduct] = useState(true);
@@ -191,12 +193,12 @@ const CreateOrderRent = () => {
         },
       ],
       orderType: 0,
-      shippingAddress: setDeliveryMethod,
-      rentalStartDate: setRentalStartDate,
-      rentalEndDate: setRentalEndDate,
-      durationUnit: setDurationValue,
-      durationValue: setDurationValue,
-      returnDate: setRentalEndDate,
+      shippingAddress: shippingAddress,
+      rentalStartDate: rentalStartDate,
+      rentalEndDate: rentalEndDate,
+      durationUnit: durationUnit,
+      durationValue: durationValue,
+      returnDate: returnDate,
       deliveryMethod: deliveryMethod,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -239,6 +241,8 @@ const CreateOrderRent = () => {
           setRentalStartDate={setRentalStartDate}
           rentalEndDate={rentalEndDate}
           setRentalEndDate={setRentalEndDate}
+          returnDate={returnDate}
+          setReturnDate={setReturnDate}
         />
       ),
     },
@@ -246,6 +250,8 @@ const CreateOrderRent = () => {
       title: "Phương thức giao hàng",
       content: (
         <DeliveryMethod
+          shippingAddress={shippingAddress}
+          setShippingAddress={setShippingAddress}
           deliveryMethod={deliveryMethod}
           setDeliveryMethod={setDeliveryMethod}
           supplierInfo={supplierInfo}
