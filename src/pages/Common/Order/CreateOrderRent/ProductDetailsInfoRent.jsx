@@ -210,7 +210,10 @@ const ProductDetailsInfoRent = ({
     }
     return rentalEndTime;
   };
-
+  const disabledTime = () => ({
+    disabledHours: () =>
+      [...Array(24)].map((_, i) => i).filter((h) => h < 7 || h >= 20),
+  });
   return (
     <Card
       title="Thông tin sản phẩm"
@@ -372,11 +375,26 @@ const ProductDetailsInfoRent = ({
 
               <Form.Item label="Ngày bắt đầu thuê" style={{ width: "100%" }}>
                 <DatePicker
-                  showTime
+                  showTime={{
+                    format: "HH:mm",
+                    hideDisabledOptions: true,
+                  }}
                   value={rentalStartDate}
                   onChange={handleRentalStartDateChange}
                   format="DD - MM - YYYY HH:mm"
                   style={{ width: "100%" }}
+                  disabledTime={disabledTime}
+                  onOk={(value) => {
+                    const hour = value.hour();
+                    if (hour < 7 || hour >= 20) {
+                      message.error(
+                        "Chỉ được chọn thời gian từ 7:00 đến 20:00"
+                      );
+                      return;
+                    }
+                    handleRentalStartDateChange(value);
+                  }}
+                  placeholder="Chọn ngày và giờ bắt đầu thuê"
                 />
               </Form.Item>
               <Form.Item label="Ngày kết thúc thuê" style={{ width: "100%" }}>
