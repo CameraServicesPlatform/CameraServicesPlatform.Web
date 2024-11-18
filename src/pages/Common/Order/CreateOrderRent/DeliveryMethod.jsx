@@ -9,13 +9,12 @@ const DeliveryMethod = ({
   supplierInfo,
 }) => {
   const handleDeliveryMethodChange = (e) => {
+    console.log("Selected delivery method:", e.target.value);
     setDeliveryMethod(e.target.value);
   };
-
   const handleShippingAddressChange = (e) => {
     setShippingAddress(e.target.value);
   };
-
   return (
     <Card title="Phương thức giao hàng" bordered={false}>
       <Form.Item

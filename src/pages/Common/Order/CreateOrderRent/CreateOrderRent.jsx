@@ -36,7 +36,7 @@ const CreateOrderRent = () => {
   const { productID, supplierID } = location.state || {};
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
-  const [deliveryMethod, setDeliveryMethod] = useState(0);
+  const [deliveryMethod, setDeliveryMethod] = useState();
   const [supplierInfo, setSupplierInfo] = useState(null);
   const [contractTemplate, setContractTemplate] = useState([]);
   const [showContractTerms, setShowContractTerms] = useState(false);
