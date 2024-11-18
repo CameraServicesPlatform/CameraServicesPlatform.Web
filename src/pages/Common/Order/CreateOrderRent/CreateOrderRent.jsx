@@ -25,8 +25,8 @@ const CreateOrderRent = () => {
   const [product, setProduct] = useState(null);
 
   const [totalAmount, setTotalAmount] = useState(0);
-  const [durationUnit, setDurationUnit] = useState(0);
-  const [durationValue, setDurationValue] = useState(2);
+  const [durationUnit, setDurationUnit] = useState(null);
+  const [durationValue, setDurationValue] = useState(null);
   const [productPriceRent, setProductPriceRent] = useState(0);
   const [rentalStartDate, setRentalStartDate] = useState(null);
   const [rentalEndDate, setRentalEndDate] = useState(null);
