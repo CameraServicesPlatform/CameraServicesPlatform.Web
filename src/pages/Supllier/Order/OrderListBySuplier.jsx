@@ -15,8 +15,8 @@ import Highlighter from "react-highlight-words";
 import { useSelector } from "react-redux";
 import { getSupplierIdByAccountId } from "../../../api/accountApi";
 import { getOrderOfSupplierId } from "../../../api/orderApi";
+import ContractOrder from "../Contract/ContractOrder";
 import TrackingOrder from "./TrackingOrder";
-
 const OrderListBySupplier = ({ refresh }) => {
   const user = useSelector((state) => state.user.user || {});
   const [orders, setOrders] = useState([]);
@@ -29,6 +29,8 @@ const OrderListBySupplier = ({ refresh }) => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+  const [trackingModalVisible, setTrackingModalVisible] = useState(false);
+  const [contractModalVisible, setContractModalVisible] = useState(false);
 
   const orderStatusMap = {
     0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
@@ -251,6 +253,15 @@ const OrderListBySupplier = ({ refresh }) => {
     setSearchText("");
   };
 
+  const handleOpenContractModal = (record) => {
+    setSelectedOrder(record);
+    setContractModalVisible(true);
+  };
+  const handleCloseContractModal = () => {
+    setContractModalVisible(false);
+    setSelectedOrder(null);
+  };
+
   const columns = [
     {
       title: "Mã đơn hàng",
@@ -330,9 +341,21 @@ const OrderListBySupplier = ({ refresh }) => {
       title: "Hành động",
       key: "actions",
       render: (text, record) => (
-        <Button type="primary" onClick={() => handleOpenTrackingModal(record)}>
-          Tracking Order
-        </Button>
+        <>
+          <Button
+            type="primary"
+            onClick={() => handleOpenTrackingModal(record)}
+          >
+            Theo dõi đơn hàng
+          </Button>
+          <Button
+            type="default"
+            onClick={() => handleOpenContractModal(record)}
+            style={{ marginLeft: 8 }}
+          >
+            Hợp đồng
+          </Button>
+        </>
       ),
     },
   ];
@@ -362,7 +385,7 @@ const OrderListBySupplier = ({ refresh }) => {
         }}
       />
       <Modal
-        title="Tracking Order"
+        title="Theo dõi đơn hàng"
         open={isTrackingModalVisible}
         onCancel={handleCloseTrackingModal}
         footer={null}
@@ -376,6 +399,15 @@ const OrderListBySupplier = ({ refresh }) => {
             onUpdate={handleUpdateOrderStatus}
           />
         )}
+      </Modal>
+      <Modal
+        title="Hợp đồng"
+        visible={contractModalVisible}
+        onCancel={handleCloseContractModal}
+        footer={null}
+        width={800}
+      >
+        {selectedOrder && <ContractOrder orderID={selectedOrder.orderID} />}
       </Modal>
     </>
   );
