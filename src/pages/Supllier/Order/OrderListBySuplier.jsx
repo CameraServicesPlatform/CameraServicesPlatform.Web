@@ -38,7 +38,7 @@ const OrderListBySupplier = ({ refresh }) => {
       icon: "fa-check-circle",
     },
     2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
-    3: { text: "Đã đặt", color: "purple", icon: "fa-shopping-cart" },
+    3: { text: "Đã nhận sản phẩm", color: "purple", icon: "fa-shopping-cart" },
     4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
     5: {
       text: "Thanh toán thất bại",
@@ -290,6 +290,11 @@ const OrderListBySupplier = ({ refresh }) => {
       dataIndex: "totalAmount",
       key: "totalAmount",
       sorter: (a, b) => a.totalAmount - b.totalAmount,
+      render: (text) =>
+        new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(text),
     },
     {
       title: "Loại đơn hàng",

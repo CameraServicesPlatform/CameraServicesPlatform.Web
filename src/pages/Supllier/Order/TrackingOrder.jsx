@@ -3,8 +3,10 @@ import {
   CheckCircleOutlined,
   CheckOutlined,
   CloseOutlined,
+  SmileOutlined,
 } from "@ant-design/icons";
 import { Button, message, Modal, Steps, Table } from "antd";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
   acceptCancelOrder,
@@ -143,8 +145,21 @@ const TrackingOrder = ({ order, onUpdate }) => {
       icon: <CheckOutlined />,
       action: "approve",
     },
+
     {
-      title: "Hủy",
+      title: "Đợi khách hàng đến nhận",
+      status: 1,
+      icon: <SmileOutlined />,
+      action: "ship",
+    },
+    {
+      title: "Đang vận chuyển sản phẩm",
+      status: 1,
+      icon: <CarOutlined />,
+      action: "ship",
+    },
+    {
+      title: "Yêu cầu hủy",
       status: 0,
       icon: <CloseOutlined />,
       action: "cancel",
@@ -154,12 +169,6 @@ const TrackingOrder = ({ order, onUpdate }) => {
       status: 6,
       icon: <CheckCircleOutlined />,
       action: "accept-cancel",
-    },
-    {
-      title: "Giao hàng",
-      status: 1,
-      icon: <CarOutlined />,
-      action: "ship",
     },
     {
       title: "Hoàn thành",
@@ -201,16 +210,27 @@ const TrackingOrder = ({ order, onUpdate }) => {
       title: "Tổng giá sản phẩm",
       dataIndex: "productPrice",
       key: "price",
+      render: (text) =>
+        new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(text),
     },
     {
       title: "Tổng giá sản phẩm",
       dataIndex: "productPriceTotal",
       key: "productPriceTotal",
+      render: (text) =>
+        new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(text),
     },
     {
       title: "Thời gian thuê",
-      dataIndex: "rentalPeriod",
-      key: "rentalPeriod",
+      dataIndex: "periodRental",
+      key: "periodRental",
+      render: (text) => moment(text).format("DD - MM - YYYY HH:mm"),
     },
   ];
 
@@ -255,7 +275,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Chấp nhận hủy
           </Button>
         )}
-        {order.orderStatus === 1 && order.shippingAddress && (
+        {order.orderStatus === 1 && order.deliveryMethod === 1 && (
           <Button
             type="default"
             onClick={() => showConfirm("ship", order.orderID)}

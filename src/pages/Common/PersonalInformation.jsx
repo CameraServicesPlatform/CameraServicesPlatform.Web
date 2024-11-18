@@ -10,6 +10,7 @@ import {
   getOrderDetailsById,
   getOrdersByAccount,
   purchaseOrder,
+  updateOrderStatusPlaced,
 } from "../../api/orderApi";
 import { getSupplierById } from "../../api/supplierApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
@@ -45,7 +46,7 @@ const orderStatusMap = {
     icon: "fa-check-circle",
   },
   2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
-  3: { text: "Đã đặt", color: "purple", icon: "fa-shopping-cart" },
+  3: { text: "Đã nhận sản phẩm", color: "purple", icon: "fa-shopping-cart" },
   4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
 
   5: { text: "Thanh toán thất bại", color: "cyan", icon: "fa-money-bill-wave" },
@@ -322,19 +323,19 @@ const PersonalInformation = () => {
       <td className="py-3 px-4 border-b">{order.orderID}</td>
       <td className="py-3 px-4 border-b">
         <div>
-          <strong>Supplier Name:</strong>{" "}
+          <strong>Tên nhà cung cấp:</strong>{" "}
           {supplierMap[order.supplierID]?.supplierName || " "}
         </div>
         <div>
-          <strong>Address:</strong>{" "}
+          <strong>Địa chỉ:</strong>{" "}
           {supplierMap[order.supplierID]?.supplierAddress || " "}
         </div>
         <div>
-          <strong>Description:</strong>{" "}
+          <strong>Mô tả:</strong>{" "}
           {supplierMap[order.supplierID]?.supplierDescription || " "}
         </div>
         <div>
-          <strong>Contact Number:</strong>{" "}
+          <strong>Số điện thoại liên hệ:</strong>{" "}
           {supplierMap[order.supplierID]?.contactNumber || ""}
         </div>
       </td>
@@ -355,34 +356,64 @@ const PersonalInformation = () => {
       </td>
       <td className="py-3 px-4 border-b">{formatPrice(order.totalAmount)}</td>
       <td>
-        {" "}
         {order.orderStatus === 0 && (
           <div className="flex justify-center">
             <button
               className="bg-primary text-white rounded-md py-2 px-4 my-2"
               onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering the row click event
+                e.stopPropagation();
                 handlePaymentAgain(order.orderID);
               }}
             >
-              Pay Now
+              Thanh toán ngay
             </button>
           </div>
         )}
       </td>
       <td>
         <OrderCancelButton order={order} />
-        {order.orderStatus === 1 && order.deliveryMethod === 0 && (
-          <div style={{ color: "red", marginTop: "10px" }}>
-            Please pick up your product at the store within 3 days. After 3
-            days, your order will be canceled.
-          </div>
-        )}
+        {order.orderStatus === 1 &&
+          order.deliveryMethod === 0 &&
+          order.orderType === 0 && (
+            <>
+              <div style={{ color: "red", marginTop: "10px" }}>
+                Vui lòng nhận sản phẩm tại cửa hàng trong vòng 3 ngày. Sau 3
+                ngày, đơn hàng của bạn sẽ bị hủy.
+              </div>
+              <button
+                className="bg-blue-500 text-white rounded-md py-2 px-4 my-2"
+                onClick={async (e) => {
+                  e.stopPropagation(); // Prevent triggering the row click event
+                  await updateOrderStatusPlaced(order.orderID);
+                }}
+              >
+                Nhận hàng
+              </button>
+            </>
+          )}
+        {order.orderStatus === 1 &&
+          order.deliveryMethod === 0 &&
+          order.orderType === 1 && (
+            <>
+              <div style={{ color: "red", marginTop: "10px" }}>
+                Vui lòng đến trước 30 phút thời gian thuê để có thể nhận và kiểm
+                tra sản phẩm.
+              </div>
+              <button
+                className="bg-blue-500 text-white rounded-md py-2 px-4 my-2"
+                onClick={async (e) => {
+                  e.stopPropagation(); // Prevent triggering the row click event
+                  await updateOrderStatusPlaced(order.orderID);
+                }}
+              >
+                Nhận hàng
+              </button>
+            </>
+          )}
       </td>
       <td></td>
     </tr>
   );
-
   return (
     <div className="container mx-auto py-8 px-4">
       <LoadingComponent isLoading={isLoading} title="Loading data..." />
@@ -439,7 +470,7 @@ const PersonalInformation = () => {
         {!isOrderDetail ? (
           <div className="lg:col-span-3 bg-white shadow-lg rounded-lg p-6">
             <h2 className="text-2xl font-bold text-teal-600 mb-6 text-center">
-              Orders
+              Đơn hàng của bạn
             </h2>
             {orders.length === 0 ? (
               <p className="text-center text-gray-500">No orders found.</p>
@@ -448,21 +479,21 @@ const PersonalInformation = () => {
                 <table className="min-w-full bg-white">
                   <thead className="bg-gray-100">
                     <tr>
-                      <th className="py-3 px-4 border-b">Order ID</th>
-                      <th className="py-3 px-4 border-b">Supplier ID</th>
-                      <th className="py-3 px-4 border-b">Status</th>
+                      <th className="py-3 px-4 border-b">Mã đơn hàng</th>
+                      <th className="py-3 px-4 border-b">Mã nhà cung cấp</th>
+                      <th className="py-3 px-4 border-b">Trạng thái</th>
                       <th className="py-3 px-4 border-b hidden md:table-cell">
-                        Shipping Address
+                        Địa chỉ giao hàng
                       </th>
                       <th className="py-3 px-4 border-b hidden lg:table-cell">
-                        Delivery Method
+                        Phương thức giao hàng
                       </th>
-                      <th className="py-3 px-4 border-b">Type</th>
+                      <th className="py-3 px-4 border-b">Loại</th>
                       <th className="py-3 px-4 border-b hidden sm:table-cell">
-                        Order Date
+                        Ngày đặt hàng
                       </th>
-                      <th className="py-3 px-4 border-b">Total Amount</th>
-                      <th className="py-3 px-6 border-b"> </th>{" "}
+                      <th className="py-3 px-4 border-b">Tổng số tiền</th>
+                      <th className="py-3 px-6 border-b"> </th>
                       <th className="py-3 px-6 border-b"> </th>
                       <th className="py-3 px-6 border-b"> </th>
                     </tr>
@@ -484,21 +515,21 @@ const PersonalInformation = () => {
             </button>
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-teal-600 text-center">
-                Order Details
+                THông tin chi tiết
               </h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white">
                   <thead className="bg-gray-100">
                     <tr>
-                      <th className="py-3 px-4 border-b">Product Name</th>
-                      <th className="py-3 px-4 border-b">Price</th>
-                      <th className="py-3 px-4 border-b">Quality</th>
-                      <th className="py-3 px-4 border-b">Total Price</th>
-                      <th className="py-3 px-4 border-b">Serial Number</th>
-                      <th className="py-3 px-4 border-b">Supplier Name</th>
-                      <th className="py-3 px-4 border-b">Category Name</th>
-                      <th className="py-3 px-4 border-b">Created At</th>
-                      <th className="py-3 px-4 border-b">Updated At</th>
+                      <th className="py-3 px-4 border-b">Tên sản phẩm</th>
+                      <th className="py-3 px-4 border-b">Giá</th>
+                      <th className="py-3 px-4 border-b">Chất lượng</th>
+                      <th className="py-3 px-4 border-b">Tổng giá</th>
+                      <th className="py-3 px-4 border-b">Số seri</th>
+                      <th className="py-3 px-4 border-b">Tên nhà cung cấp</th>
+                      <th className="py-3 px-4 border-b">Tên danh mục</th>
+                      <th className="py-3 px-4 border-b">Ngày tạo</th>
+                      <th className="py-3 px-4 border-b">Ngày cập nhật</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -512,7 +543,10 @@ const PersonalInformation = () => {
                             {orderdetails.product.productName || "N/A"}
                           </td>
                           <td className="py-2 px-4 border-b">
-                            {formatPrice(orderdetails.product.priceBuy)}
+                            {formatPrice(
+                              orderdetails.product.priceBuy ||
+                                orderdetails.productPrice
+                            )}
                           </td>
                           <td className="py-2 px-4 border-b">
                             {orderdetails.product.quality}
@@ -525,22 +559,22 @@ const PersonalInformation = () => {
                           </td>
                           <td className="py-3 px-4 border-b">
                             <div>
-                              <strong>Supplier Name:</strong>{" "}
+                              <strong>Tên nhà cung cấp:</strong>{" "}
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.supplierName || " "}
                             </div>
                             <div>
-                              <strong>Address:</strong>{" "}
+                              <strong>Địa chỉ:</strong>{" "}
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.supplierAddress || " "}
                             </div>
                             <div>
-                              <strong>Description:</strong>{" "}
+                              <strong>Mô tả:</strong>{" "}
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.supplierDescription || " "}
                             </div>
                             <div>
-                              <strong>Contact Number:</strong>{" "}
+                              <strong>Số điện thoại liên hệ:</strong>{" "}
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.contactNumber || ""}
                             </div>
