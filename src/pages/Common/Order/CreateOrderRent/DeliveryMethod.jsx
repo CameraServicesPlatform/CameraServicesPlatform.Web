@@ -12,6 +12,10 @@ const DeliveryMethod = ({
     setDeliveryMethod(e.target.value);
   };
 
+  const handleShippingAddressChange = (e) => {
+    setShippingAddress(e.target.value);
+  };
+
   return (
     <Card title="Phương thức giao hàng" bordered={false}>
       <Form.Item
@@ -42,7 +46,10 @@ const DeliveryMethod = ({
             },
           ]}
         >
-          <Input />
+          <Input
+            value={shippingAddress}
+            onChange={handleShippingAddressChange}
+          />
         </Form.Item>
       )}
 

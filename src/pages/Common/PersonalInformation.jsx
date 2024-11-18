@@ -17,27 +17,26 @@ import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
 
 const jobDescriptions = {
-  0: "Student",
-  1: "Professional Photographer",
-  2: "Freelance Photographer",
-  3: "Content Creator",
-  4: "Beginner",
-  5: "Photography Student",
-  6: "Travel Enthusiast",
-  7: "Regular User",
-  8: "Other",
+  0: "Sinh viên",
+  1: "Nhiếp ảnh gia chuyên nghiệp",
+  2: "Nhiếp ảnh gia tự do",
+  3: "Người sáng tạo nội dung",
+  4: "Người mới bắt đầu",
+  5: "Sinh viên nhiếp ảnh",
+  6: "Người đam mê du lịch",
+  7: "Người dùng thường xuyên",
+  8: "Khác",
 };
 
 const hobbyDescriptions = {
-  0: "Landscape Photography",
-  1: "Portrait Photography",
-  2: "Wildlife Photography",
-  3: "Street Photography",
-  4: "Macro Photography",
-  5: "Sports Photography",
-  6: "Other",
+  0: "Nhiếp ảnh phong cảnh",
+  1: "Nhiếp ảnh chân dung",
+  2: "Nhiếp ảnh động vật hoang dã",
+  3: "Nhiếp ảnh đường phố",
+  4: "Nhiếp ảnh macro",
+  5: "Nhiếp ảnh thể thao",
+  6: "Khác",
 };
-
 const orderStatusMap = {
   0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
   1: {
@@ -390,27 +389,22 @@ const PersonalInformation = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="bg-white shadow-md rounded-lg p-6">
           <div className="flex items-center mb-6">
-            <img
-              src={user?.avatarUrl || "/default-avatar.png"}
-              alt="User Avatar"
-              className="w-16 h-16 rounded-full mr-4"
-            />
             <h2 className="text-2xl font-bold text-teal-600 flex items-center">
-              <i className="fa-solid fa-user mr-2"></i> Personal Information
+              <i className="fa-solid fa-user mr-2"></i> Thông tin cá nhân
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex items-center">
               <i className="fa-solid fa-user mr-2 text-gray-600"></i>
               <span>
-                <strong>Name:</strong> {userMap.name}
+                <strong>Tên:</strong> {userMap.name}
               </span>
             </div>
 
             <div className="flex items-center">
               <i className="fa-solid fa-phone mr-2 text-gray-600"></i>
               <span>
-                <strong>Phone:</strong> {userMap.phone}
+                <strong>Điện thoại:</strong> {userMap.phone}
               </span>
             </div>
             <div className="flex items-center flex-wrap">
@@ -423,20 +417,20 @@ const PersonalInformation = () => {
             <div className="flex items-center">
               <i className="fa-solid fa-briefcase mr-2 text-gray-600"></i>
               <span>
-                <strong>Job:</strong> {jobDescriptions[userMap.job]}
+                <strong>Công việc:</strong> {jobDescriptions[userMap.job]}
               </span>
             </div>
             <div className="flex items-center">
               <i className="fa-solid fa-heart mr-2 text-gray-600"></i>
               <span>
-                <strong>Hobby:</strong> {hobbyDescriptions[userMap.hobby]}
+                <strong>Sở thích:</strong> {hobbyDescriptions[userMap.hobby]}
               </span>
             </div>
             <div className="flex items-center">
               <i className="fa-solid fa-venus-mars mr-2 text-gray-600"></i>
               <span>
-                <strong>Gender:</strong>{" "}
-                {userMap.gender === 0 ? "Male" : "Female"}
+                <strong>Giới tính:</strong>{" "}
+                {userMap.gender === 0 ? "Nam" : "Nữ"}
               </span>
             </div>
           </div>
