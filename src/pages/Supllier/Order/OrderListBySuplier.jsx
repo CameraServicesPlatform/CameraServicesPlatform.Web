@@ -348,13 +348,15 @@ const OrderListBySupplier = ({ refresh }) => {
           >
             Theo dõi đơn hàng
           </Button>
-          <Button
-            type="default"
-            onClick={() => handleOpenContractModal(record)}
-            style={{ marginLeft: 8 }}
-          >
-            Hợp đồng
-          </Button>
+          {record.orderType === 1 && (
+            <Button
+              type="default"
+              onClick={() => handleOpenContractModal(record)}
+              style={{ marginLeft: 8 }}
+            >
+              Hợp đồng
+            </Button>
+          )}
         </>
       ),
     },
