@@ -84,6 +84,7 @@ const CreateProductBuy = () => {
       CategoryID,
       ProductName,
       ProductDescription,
+      Quality,
       PriceRent = 0,
       PriceBuy,
       Brand,
@@ -102,6 +103,7 @@ const CreateProductBuy = () => {
       CategoryID,
       ProductName,
       ProductDescription,
+      Quality,
       PriceRent,
       PriceBuy,
       Brand,
@@ -188,7 +190,18 @@ const CreateProductBuy = () => {
       >
         <Input.TextArea />
       </Form.Item>
-
+      <Form.Item
+        name="Quality"
+        label="Chất lượng"
+        rules={[
+          { required: true, message: "Vui lòng nhập chất lượng sản phẩm!" },
+        ]}
+      >
+        <Select placeholder="Đánh giá  chất lượng sản phẩm">
+          <Option value={0}>Mới</Option>
+          <Option value={1}>Đã qua sử dụng</Option>
+        </Select>
+      </Form.Item>
       <Form.Item name="PriceBuy" label="Giá (Mua)">
         <Input type="number" />
       </Form.Item>

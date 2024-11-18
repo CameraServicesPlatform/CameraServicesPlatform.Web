@@ -19,17 +19,17 @@ const getBrandName = (brandEnumValue) => {
 };
 
 const brandNames = {
-  1: "Canon",
-  2: "Nikon",
-  3: "Sony",
-  4: "Fujifilm",
-  5: "Olympus",
-  6: "Panasonic",
-  7: "Leica",
-  8: "Pentax",
-  9: "Hasselblad",
-  10: "Sigma",
-  11: "Others",
+  0: "Canon",
+  1: "Nikon",
+  2: "Sony",
+  3: "Fujifilm",
+  4: "Olympus",
+  5: "Panasonic",
+  6: "Leica",
+  7: "Pentax",
+  8: "Hasselblad",
+  9: "Sigma",
+  10: "Others",
 };
 
 const ApplicableObject = {

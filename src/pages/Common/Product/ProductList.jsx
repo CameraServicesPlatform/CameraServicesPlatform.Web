@@ -14,9 +14,12 @@ import {
   Typography,
 } from "antd";
 import React, { useEffect, useState } from "react";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import { getCategoryById } from "../../../api/categoryApi";
 import { getAllProduct, getProductById } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
+import { createWishlist } from "../../../api/wishlistApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 import { getBrandName } from "../../../utils/constant";
 
@@ -41,7 +44,10 @@ const ProductList = () => {
   const totalProducts = products.length;
   const [supplierName, setSupplierName] = useState("");
   const [categoryName, setCategoryName] = useState("");
+  const [wishlistedProducts, setWishlistedProducts] = useState([]); // State to track wishlisted products
 
+  const user = useSelector((state) => state.user.user || {});
+  const accountId = user.id;
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -130,6 +136,25 @@ const ProductList = () => {
     };
     fetchProducts();
   };
+  const handleAddToWishlist = async (product) => {
+    try {
+      const data = {
+        accountId: accountId,
+        productID: product.productID,
+        // Add any other necessary data here
+      };
+      const result = await createWishlist(data);
+      if (result) {
+        message.success("Product added to wishlist!");
+        setWishlistedProducts([...wishlistedProducts, product.productID]);
+      } else {
+        message.error("Failed to add product to wishlist.");
+      }
+    } catch (error) {
+      console.error("Error adding product to wishlist:", error);
+      message.error("Failed to add product to wishlist.");
+    }
+  };
 
   return (
     <Layout>
@@ -154,9 +179,6 @@ const ProductList = () => {
         >
           Danh Sách Sản Phẩm
         </Title>
-        <Button type="primary" size="large">
-          Thêm Sản Phẩm
-        </Button>
       </Header>
       <Content style={{ padding: "20px" }}>
         <Carousel autoplay style={{ marginBottom: "20px" }}>
@@ -224,7 +246,21 @@ const ProductList = () => {
                     }
                   >
                     <Card.Meta
-                      title={product.productName}
+                      title={
+                        <div className="flex justify-between items-center">
+                          {product.productName}
+                          <button
+                            onClick={() => handleAddToWishlist(product)}
+                            className="focus:outline-none"
+                          >
+                            {wishlistedProducts.includes(product.productID) ? (
+                              <FaHeart size={24} className="text-red-500" />
+                            ) : (
+                              <FaRegHeart size={24} className="text-gray-500" />
+                            )}
+                          </button>
+                        </div>
+                      }
                       description={
                         <div>
                           <p>{product.productDescription}</p>
@@ -236,6 +272,7 @@ const ProductList = () => {
                               {product.serialNumber}
                             </span>
                           </p>
+
                           {product.priceRent != null && (
                             <p>
                               <strong>Giá (Thuê)/giờ:</strong>
@@ -294,6 +331,16 @@ const ProductList = () => {
                               </span>
                             </p>
                           )}
+                          {product.depositProduct != null && (
+                            <p>
+                              <strong>Giá cọc:</strong>
+                              <span
+                                style={{ color: "green", fontWeight: "bold" }}
+                              >
+                                VND{product.depositProduct}
+                              </span>
+                            </p>
+                          )}
                           <p>
                             <strong>Đánh giá:</strong>
                             {Array.from({ length: 5 }, (_, index) => (
@@ -346,53 +393,104 @@ const ProductList = () => {
           <Button key="close" onClick={handleModalClose}>
             Đóng
           </Button>,
+
+          <Button
+            key="wishlist"
+            onClick={() => handleAddToWishlist(productDetail)}
+            className="focus:outline-none"
+          >
+            {wishlistedProducts.includes(productDetail?.productID) ? (
+              <FaHeart size={24} className="text-red-500" />
+            ) : (
+              <FaRegHeart size={24} className="text-gray-500" />
+            )}
+          </Button>,
         ]}
         bodyStyle={{ padding: "20px", borderRadius: "8px" }}
         centered
       >
         {productDetail ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <img
               src={productDetail.listImage[0]?.image}
               alt={productDetail.productName}
-              style={{ width: "100%", height: "auto", marginBottom: "20px", borderRadius: "8px" }}
+              style={{
+                width: "100%",
+                height: "auto",
+                marginBottom: "20px",
+                borderRadius: "8px",
+              }}
               loading="lazy"
             />
-            <Descriptions bordered column={1} layout="vertical" style={{ width: "100%" }}>
+            <Descriptions
+              bordered
+              column={1}
+              layout="vertical"
+              style={{ width: "100%" }}
+            >
               <Descriptions.Item label="Serial Number">
-                <span style={{ color: "blue" }}>{productDetail.serialNumber}</span>
+                <span style={{ color: "blue" }}>
+                  {productDetail.serialNumber}
+                </span>
               </Descriptions.Item>
               <Descriptions.Item label="Mô tả">
                 {productDetail.productDescription}
               </Descriptions.Item>
+              <Descriptions.Item
+                label={
+                  <span>
+                    <FileTextOutlined /> Cọc sản phẩm
+                  </span>
+                }
+              >
+                {productDetail.depositProduct}
+              </Descriptions.Item>
               {productDetail.priceRent != null && (
                 <Descriptions.Item label="Giá (Thuê)">
-                  <span style={{ color: "blue" }}>VND{productDetail.priceRent}</span>
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.priceRent}
+                  </span>
                 </Descriptions.Item>
               )}
               {productDetail.priceBuy != null && (
                 <Descriptions.Item label="Giá (Mua)">
-                  <span style={{ color: "green", fontWeight: "bold" }}>VND{productDetail.priceBuy}</span>
+                  <span style={{ color: "green", fontWeight: "bold" }}>
+                    VND{productDetail.priceBuy}
+                  </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerHour != null && (
                 <Descriptions.Item label="Giá (Thuê)/giờ">
-                  <span style={{ color: "blue" }}>VND{productDetail.pricePerHour}</span>
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerHour}
+                  </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerDay != null && (
                 <Descriptions.Item label="Giá (Thuê)/ngày">
-                  <span style={{ color: "blue" }}>VND{productDetail.pricePerDay}</span>
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerDay}
+                  </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerWeek != null && (
                 <Descriptions.Item label="Giá (Thuê)/tuần">
-                  <span style={{ color: "blue" }}>VND{productDetail.pricePerWeek}</span>
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerWeek}
+                  </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerMonth != null && (
                 <Descriptions.Item label="Giá (Thuê)/tháng">
-                  <span style={{ color: "blue" }}>VND{productDetail.pricePerMonth}</span>
+                  <span style={{ color: "blue" }}>
+                    VND{productDetail.pricePerMonth}
+                  </span>
                 </Descriptions.Item>
               )}
               <Descriptions.Item label="Nhà cung cấp">

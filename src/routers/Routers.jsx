@@ -24,12 +24,14 @@ import ProductPageRent from "../pages/Common/Product/ProductPageRent";
 import DashboardAdmin from "../pages/Admin/DashboardAdmin";
 import CreateOrderRent from "../pages/Common/Order/CreateOrderRent/CreateOrderRent";
 import VerifyPayment from "../pages/Common/VerifyPayment";
+import Wishlist from "../pages/Common/Wishlish/Wishlist";
 import OrderDetail from "../pages/CommonManager/OrderDetail";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ManageProduct from "../pages/Staff/Product/ManageProduct";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
+import ManageContractTemplate from "../pages/Supllier/ContractTemplate/ManageContractTemplate";
 import DashboardSupplier from "../pages/Supllier/DashboardSupplier";
 import InformationSupplierDetail from "../pages/Supllier/InformationSupllierDetail";
 import ManageOrder from "../pages/Supllier/Order/ManageOrder";
@@ -55,7 +57,7 @@ function Routers() {
         { path: "about", element: <About /> },
         { path: "contact", element: <Contact /> },
         { path: "policy", element: <Policy /> },
-        { path: "gio-hang", element: <Cart /> },
+        { path: "cart", element: <Cart /> },
         { path: "personal-information", element: <PersonalInformation /> },
         { path: "register-supplier", element: <RegisterSupplier /> },
         { path: "product", element: <ProductPage /> },
@@ -71,6 +73,10 @@ function Routers() {
         {
           path: "supplier-information-detail/:id",
           element: <InformationSupplierDetail />,
+        },
+        {
+          path: "wishlist",
+          element: <Wishlist />,
         },
       ],
     },
@@ -129,6 +135,10 @@ function Routers() {
         {
           path: "manage-order",
           element: <ManageOrder />,
+        },
+        {
+          path: "manage-contract-template",
+          element: <ManageContractTemplate />,
         },
       ],
     },

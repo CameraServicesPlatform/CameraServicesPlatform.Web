@@ -65,7 +65,7 @@ export const getAllWishlists = async (pageIndex = 1, pageSize = 10) => {
 };
 
 // Get wishlist by member ID (AccountID)
-export const getWishlistByMemberId = async (
+export const getWishlistByAccountId = async (
   accountID,
   pageIndex = 1,
   pageSize = 10

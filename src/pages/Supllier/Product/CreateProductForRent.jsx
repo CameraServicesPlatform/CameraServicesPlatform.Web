@@ -11,10 +11,9 @@ import {
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getSupplierIdByAccountId } from "../../../api/accountApi"; // Điều chỉnh đường dẫn nếu cần
+import { getSupplierIdByAccountId } from "../../../api/accountApi";
 import { getAllCategories } from "../../../api/categoryApi";
-import { createProductRent } from "../../../api/productApi"; // Điều chỉnh đường dẫn nếu cần
-
+import { createProductRent } from "../../../api/productApi";
 const { Option } = Select;
 
 const CreateProductForRent = () => {
@@ -29,7 +28,7 @@ const CreateProductForRent = () => {
   const [specifications, setSpecifications] = useState([
     { feature: "", description: "" },
   ]);
-  const [priceType, setPriceType] = useState("PricePerHour"); // Giá mặc định là theo giờ
+  const [priceType, setPriceType] = useState([]);
 
   // Fetch Supplier ID and Categories
   useEffect(() => {
@@ -95,6 +94,7 @@ const CreateProductForRent = () => {
       ProductName,
       ProductDescription,
       Quality,
+      DepositProduct,
       PricePerHour = 0,
       PricePerDay = 0,
       PricePerWeek = 0,
@@ -114,6 +114,7 @@ const CreateProductForRent = () => {
       ProductName,
       ProductDescription,
       Quality,
+      DepositProduct,
       PricePerHour,
       PricePerDay,
       PricePerWeek,
@@ -189,6 +190,7 @@ const CreateProductForRent = () => {
       onFinish={handleCreateProduct}
       initialValues={{
         Quality: 0,
+        DepositProduct: "",
         PricePerHour: 0,
         PricePerDay: 0,
         PricePerWeek: 0,
@@ -240,9 +242,20 @@ const CreateProductForRent = () => {
           { required: true, message: "Vui lòng nhập chất lượng sản phẩm!" },
         ]}
       >
+        <Select placeholder="Đánh giá chất lượng sản phẩm">
+          <Option value={0}>Mới</Option>
+          <Option value={1}>Đã qua sử dụng</Option>
+        </Select>
+      </Form.Item>
+      <Form.Item
+        name="DepositProduct"
+        label="Cọc"
+        rules={[
+          { required: true, message: "Vui lòng nhập tiền cọc cho sản phẩm!" },
+        ]}
+      >
         <Input />
       </Form.Item>
-
       <Form.Item label="Chọn loại giá">
         <Checkbox.Group onChange={handlePriceTypeChange} value={priceType}>
           <Checkbox value="PricePerHour">Giá theo giờ</Checkbox>

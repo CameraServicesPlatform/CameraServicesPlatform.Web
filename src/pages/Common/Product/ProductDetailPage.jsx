@@ -1,11 +1,19 @@
-import { Button, Card, Modal, Spin, Typography, message } from "antd";
+import { Button, Card, Modal, Rate, Spin, Typography, message } from "antd";
 import React, { useEffect, useState } from "react";
+import {
+  FaCommentDots,
+  FaHeart,
+  FaRegHeart,
+  FaRegSadCry,
+} from "react-icons/fa"; // Import heart icons
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCategoryById } from "../../../api/categoryApi";
 import { getProductById } from "../../../api/productApi";
+import { getRatingsByProductId } from "../../../api/ratingApi";
 import { getSupplierById } from "../../../api/supplierApi";
+import { createWishlist } from "../../../api/wishlistApi";
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
-
 const { Title, Paragraph } = Typography;
 
 const ProductDetailPage = () => {
@@ -16,7 +24,11 @@ const ProductDetailPage = () => {
   const [selectedImage, setSelectedImage] = useState("");
   const [supplierName, setSupplierName] = useState("");
   const [categoryName, setCategoryName] = useState("");
+  const [isWishlisted, setIsWishlisted] = useState(false); // State to track wishlist status
+  const [ratings, setRatings] = useState([]); // State to store ratings
 
+  const user = useSelector((state) => state.user.user || {});
+  const accountId = user.id;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,6 +65,10 @@ const ProductDetailPage = () => {
               "Category data is not in the expected format or is empty."
             );
           }
+          const ratingsData = await getRatingsByProductId(id, 1, 10);
+          if (ratingsData && ratingsData.result) {
+            setRatings(ratingsData.result);
+          }
         }
       } catch (error) {
         console.error("Failed to load product:", error);
@@ -74,10 +90,6 @@ const ProductDetailPage = () => {
     setSelectedImage("");
   };
 
-  if (loading) {
-    return <Spin size="large" className="flex justify-center mt-10" />;
-  }
-
   const handleCreateOrderRent = (product) => {
     navigate("/create-order-rent", {
       state: {
@@ -97,6 +109,30 @@ const ProductDetailPage = () => {
       },
     });
   };
+
+  const handleAddToWishlist = async () => {
+    try {
+      const data = {
+        accountId: accountId,
+        productID: product.productID,
+        // Add any other necessary data here
+      };
+      const result = await createWishlist(data);
+      if (result) {
+        message.success("Product added to wishlist!");
+        setIsWishlisted(true);
+      } else {
+        message.error("Failed to add product to wishlist.");
+      }
+    } catch (error) {
+      console.error("Error adding product to wishlist:", error);
+      message.error("Failed to add product to wishlist.");
+    }
+  };
+
+  if (loading) {
+    return <Spin size="large" className="flex justify-center mt-10" />;
+  }
 
   return (
     <div className="container mx-auto p-6">
@@ -121,9 +157,21 @@ const ProductDetailPage = () => {
 
           <div className="md:w-1/2 md:pl-6 flex justify-center">
             <Card className="shadow-lg rounded-lg w-full h-full flex flex-col">
-              <Title level={2} className="text-center text-lg font-bold">
-                {product.productName}
-              </Title>
+              <div className="flex justify-between items-center">
+                <Title level={2} className="text-center text-lg font-bold">
+                  {product.productName}
+                </Title>
+                <button
+                  onClick={handleAddToWishlist}
+                  className="focus:outline-none"
+                >
+                  {isWishlisted ? (
+                    <FaHeart size={24} className="text-red-500" />
+                  ) : (
+                    <FaRegHeart size={24} className="text-gray-500" />
+                  )}
+                </button>
+              </div>
               <Paragraph className="text-center">
                 {product.productDescription}
               </Paragraph>
@@ -141,6 +189,46 @@ const ProductDetailPage = () => {
                     Giá mua:{" "}
                     <span className="text-green-500">
                       VND {product.priceBuy.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {product.depositProduct != null && (
+                  <p className="font-bold">
+                    Tiền đặt cọc:{" "}
+                    <span className="text-red-500">
+                      VND {product.depositProduct.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {product.pricePerDay != null && (
+                  <p className="font-bold">
+                    Giá thuê theo ngày:{" "}
+                    <span className="text-green-500">
+                      VND/ngày {product.pricePerDay.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {product.pricePerHour != null && (
+                  <p className="font-bold">
+                    Giá thuê theo giờ:{" "}
+                    <span className="text-green-500">
+                      VND/giờ {product.pricePerHour.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {product.pricePerMonth != null && (
+                  <p className="font-bold">
+                    Giá thuê theo tháng:{" "}
+                    <span className="text-green-500">
+                      VND/tháng {product.pricePerMonth.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {product.pricePerWeek != null && (
+                  <p className="font-bold">
+                    Giá thuê theo tuần:{" "}
+                    <span className="text-green-500">
+                      VND/tuần {product.pricePerWeek.toFixed(2)}
                     </span>
                   </p>
                 )}
@@ -188,6 +276,39 @@ const ProductDetailPage = () => {
                   <strong>Ngày cập nhật:</strong>{" "}
                   {new Date(product.updatedAt).toLocaleString()}
                 </p>
+                <div className="mt-4">
+                  <Title level={4}>Đánh giá </Title>
+                  {ratings.length > 0 ? (
+                    ratings.map((rating) => (
+                      <div
+                        key={rating.ratingID}
+                        className="mb-4 p-4 border rounded-lg shadow-sm"
+                      >
+                        <div className="flex items-center mb-2">
+                          <Rate disabled defaultValue={rating.ratingValue} />
+                          <span className="ml-2 text-gray-600">
+                            {rating.ratingValue} / 5
+                          </span>
+                        </div>
+                        <div className="flex items-center mb-2">
+                          <FaCommentDots className="text-gray-600 mr-2" />
+                          <p className="text-gray-800">
+                            {rating.reviewComment}
+                          </p>
+                        </div>
+                        <p className="text-gray-500 text-sm">
+                          <strong>Date:</strong>{" "}
+                          {new Date(rating.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex items-center justify-center text-gray-500 mt-4">
+                      <FaRegSadCry size={24} className="mr-2" />
+                      <p>Sản phẩm chưa có đánh giá!</p>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex justify-between mt-4">
                 {product.status === 0 && (
@@ -196,7 +317,7 @@ const ProductDetailPage = () => {
                     onClick={() => handleCreateOrderBuy(product)}
                     className="bg-primary text-white hover:bg-opacity-80 transition duration-200"
                   >
-                    Create Order for Buy
+                    Đặt hàng ngay
                   </Button>
                 )}
                 {product.status === 1 && (
@@ -205,7 +326,7 @@ const ProductDetailPage = () => {
                     onClick={() => handleCreateOrderRent(product)}
                     className="bg-mainColor hover:bg-opacity-80 transition duration-200"
                   >
-                    Create Order for Rent
+                    Thuê ngay
                   </Button>
                 )}
               </div>
