@@ -59,111 +59,102 @@ const ProductDetailsInfoRent = ({
   };
 
   useEffect(() => {
-    if (durationUnit && durationValue && rentalStartDate) {
+    if (durationUnit !== undefined && durationValue && rentalStartDate) {
       calculateProductPriceRent();
-      const endDate = calculateRentalEndDate(rentalStartDate);
-      setRentalEndDate(endDate);
+      const endDate = calculateRentalEndTime(
+        rentalStartDate.toDate(),
+        durationValue,
+        durationUnit
+      );
+      setRentalEndDate(moment(endDate));
+
+      // Calculate Return Date after setting rentalEndDate
+      const calculatedReturnDate = calculateReturnDate(endDate);
+      setReturnDate(moment(calculatedReturnDate));
     }
   }, [durationUnit, durationValue, rentalStartDate]);
 
   const handleDurationUnitChange = (value) => {
     setDurationUnit(value);
+    setDurationValue(durationOptions[value].min);
     const { min, max } = durationOptions[value];
-    setDurationValue(min);
-    message.info(
-      `Vui lòng chọn thời gian thuê từ ${min} đến ${max} ${
-        value === 0 ? "giờ" : ""
-      }.`
-    );
+    message.info(`Please select a duration between ${min} and ${max}.`);
   };
 
   const calculateReturnDate = (endDate) => {
     if (!endDate) return null;
-    return moment(endDate).clone().add(1, "hours"); // Add buffer
+    return moment(endDate).clone().add(1, "hours");
   };
 
-  // Update set logic
+  // Add this debug check at the start of component
   useEffect(() => {
-    if (rentalEndDate) {
-      const calculatedReturnDate = calculateReturnDate(rentalEndDate);
-      setReturnDate(calculatedReturnDate);
-    }
-  }, [rentalEndDate]);
-
-  const isValidHourlyRange = (startDate, endDate) => {
-    const hoursDiff = moment(endDate).diff(moment(startDate), "hours");
-    return hoursDiff === durationValue;
-  };
+    console.log("Price variables:", {
+      pricePerHour,
+      pricePerDay,
+      pricePerWeek,
+      pricePerMonth,
+    });
+  }, []);
 
   const calculateProductPriceRent = () => {
-    if (!durationUnit || !durationValue) {
-      message.error("Vui lòng chọn đơn vị và giá trị thời gian");
+    // Debug logging
+    console.log("Calculating price with:", {
+      durationUnit,
+      durationValue,
+      pricePerHour,
+      pricePerDay,
+      pricePerWeek,
+      pricePerMonth,
+    });
+
+    if (!durationOptions[durationUnit]) {
+      message.error("Invalid duration unit");
       return;
     }
 
-    const limits = durationOptions[durationUnit];
-    if (!limits) {
-      message.error("Đơn vị thời gian không hợp lệ");
+    // Validate inputs
+    if (!durationValue || durationValue <= 0) {
+      message.error("Duration value must be greater than 0");
       return;
     }
 
-    if (durationValue < limits.min || durationValue > limits.max) {
-      message.error(`Thời gian phải từ ${limits.min} đến ${limits.max}`);
+    const { min, max } = durationOptions[durationUnit];
+    if (durationValue < min || durationValue > max) {
+      message.error(
+        `Invalid duration value. Please choose between ${min} and ${max}.`
+      );
       return;
     }
 
     let price = 0;
-    switch (parseInt(durationUnit)) {
-      case 0: // Hour
-        if (!pricePerHour) {
-          message.error("Chưa có giá cho thuê theo giờ");
-          return;
-        }
-        price = durationValue * pricePerHour;
+    switch (durationUnit) {
+      case 0:
+        price = durationValue * (pricePerHour || 0);
         break;
-
-      case 1: // Day
-        if (!pricePerDay) {
-          message.error("Chưa có giá cho thuê theo ngày");
-          return;
-        }
-        price = durationValue * pricePerDay;
+      case 1:
+        price = durationValue * (pricePerDay || 0);
         break;
-
-      case 2: // Week
-        if (!pricePerWeek) {
-          message.error("Chưa có giá cho thuê theo tuần");
-          return;
-        }
-        price = durationValue * pricePerWeek;
+      case 2:
+        price = durationValue * (pricePerWeek || 0);
         break;
-
-      case 3: // Month
-        if (!pricePerMonth) {
-          message.error("Chưa có giá cho thuê theo tháng");
-          return;
-        }
-        price = durationValue * pricePerMonth;
+      case 3:
+        price = durationValue * (pricePerMonth || 0);
         break;
-
       default:
-        message.error("Đơn vị thời gian không hợp lệ");
-        return;
+        price = 0;
     }
 
-    if (price <= 0 || !isFinite(price)) {
-      message.error("Lỗi tính toán giá thuê");
-      return;
-    }
-
+    // Debug final price
+    console.log("Calculated price:", price);
     setProductPriceRent(price);
-    return price;
   };
 
-  const isValidDateRange = (startDate, endDate) => {
-    if (!startDate || !endDate) return false;
-    return moment(endDate).isAfter(moment(startDate));
-  };
+  // Make sure calculation runs when needed
+  useEffect(() => {
+    if (durationUnit !== undefined && durationValue > 0) {
+      calculateProductPriceRent();
+    }
+  }, [durationUnit, durationValue]);
 
   const handleRentalStartDateChange = (date) => {
     if (!date) {
@@ -173,52 +164,51 @@ const ProductDetailsInfoRent = ({
 
     setRentalStartDate(date);
 
-    const calculatedEndDate = calculateRentalEndDate(date);
+    const calculatedEndDate = calculateRentalEndTime(
+      date.toDate(),
+      durationValue,
+      durationUnit
+    );
     if (calculatedEndDate) {
-      setRentalEndDate(calculatedEndDate);
+      setRentalEndDate(moment(calculatedEndDate));
 
       // Calculate Return Date after setting rentalEndDate
       const calculatedReturnDate = calculateReturnDate(calculatedEndDate);
-      setReturnDate(calculatedReturnDate);
+      setReturnDate(moment(calculatedReturnDate));
     }
   };
 
-  const calculateRentalEndDate = (startDate) => {
-    if (!startDate || durationUnit === undefined || !durationValue) {
-      message.error("Vui lòng chọn thời gian bắt đầu và thời lượng thuê");
-      return null;
+  const calculateRentalEndTime = (
+    rentalStartTime,
+    rentalDuration,
+    durationType
+  ) => {
+    let rentalEndTime;
+    switch (durationType) {
+      case 0: // Hour
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 60 * 60 * 1000
+        );
+        break;
+      case 1: // Day
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 24 * 60 * 60 * 1000
+        );
+        break;
+      case 2: // Week
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 7 * 24 * 60 * 60 * 1000
+        );
+        break;
+      case 3: // Month
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 30 * 24 * 60 * 60 * 1000
+        );
+        break;
+      default:
+        throw new Error("Invalid duration type");
     }
-
-    const start = moment(startDate);
-    let endDate;
-
-    try {
-      switch (parseInt(durationUnit, 10)) {
-        case 0: // Hour
-          endDate = start.clone().add(durationValue, "hours");
-          break;
-        case 1: // Day
-          endDate = start.clone().add(durationValue, "days");
-          break;
-        case 2: // Week
-          endDate = start.clone().add(durationValue, "weeks");
-          break;
-        case 3: // Month
-          endDate = start.clone().add(durationValue, "months");
-          break;
-        default:
-          message.error("Đơn vị thời gian không hợp lệ");
-          return null;
-      }
-      if (!isValidDateRange(start, endDate)) {
-        message.error("Thời gian kết thúc phải sau thời gian bắt đầu");
-        return null;
-      }
-      return endDate;
-    } catch (error) {
-      message.error("Lỗi tính toán thời gian kết thúc thuê");
-      return null;
-    }
+    return rentalEndTime;
   };
 
   return (
