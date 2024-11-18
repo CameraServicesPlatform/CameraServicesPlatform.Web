@@ -16,13 +16,16 @@ import {
   updateOrderStatusShipped,
 } from "../../../api/orderApi";
 import { getOrderDetails } from "../../../api/orderDetailApi";
+import CreateReturnDetailForm from "../ReturnDetail/CreateReturnDetailForm";
 
 const { Step } = Steps;
 
 const TrackingOrder = ({ order, onUpdate }) => {
   const [orderDetails, setOrderDetails] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentStepTitle, setCurrentStepTitle] = useState("");
+  const [showReturnDetailForm, setShowReturnDetailForm] = useState(false);
+  const [selectedOrderID, setSelectedOrderID] = useState(null);
+  const [returnInitiated, setReturnInitiated] = useState(false);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -172,7 +175,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
     },
     {
       title: "Hoàn thành",
-      status: [1, 4, 5],
+      status: [3, 4, 5],
       icon: <CheckCircleOutlined />,
       action: "complete",
     },
@@ -183,12 +186,6 @@ const TrackingOrder = ({ order, onUpdate }) => {
       step.status === order.orderStatus ||
       (Array.isArray(step.status) && step.status.includes(order.orderStatus))
   );
-
-  useEffect(() => {
-    if (currentStep !== -1) {
-      setCurrentStepTitle(steps[currentStep].title);
-    }
-  }, [currentStep]);
 
   // Define the columns for the Table component
   const columns = [
@@ -240,6 +237,12 @@ const TrackingOrder = ({ order, onUpdate }) => {
     },
   ];
 
+  const handleReturnClick = (orderID) => {
+    setSelectedOrderID(orderID);
+    setShowReturnDetailForm(true);
+    setReturnInitiated(true);
+  };
+
   return (
     <div>
       <Steps current={currentStep}>
@@ -247,9 +250,6 @@ const TrackingOrder = ({ order, onUpdate }) => {
           <Step key={index} title={step.title} icon={step.icon} />
         ))}
       </Steps>
-      <div style={{ marginTop: 16 }}>
-        <h3>Current Step: {currentStepTitle}</h3>
-      </div>
       <div className="steps-action" style={{ marginTop: 16 }}>
         {(order.orderStatus === 0 || order.orderStatus === 8) && (
           <Button
@@ -306,7 +306,25 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Hoàn thành
           </Button>
         )}
-        {order.orderStatus === 4 && (
+        {(order.orderStatus === 4 ||
+          (order.orderStatus === 3 && order.orderType === 1)) && (
+          <Button onClick={() => handleReturnClick(order.orderID)}>
+            Trả hàng
+          </Button>
+        )}
+
+        <Modal
+          title="Create Return Detail"
+          visible={showReturnDetailForm}
+          onCancel={() => setShowReturnDetailForm(false)}
+          footer={null}
+        >
+          <CreateReturnDetailForm
+            orderID={selectedOrderID}
+            onSuccess={() => setShowReturnDetailForm(false)}
+          />
+        </Modal>
+        {(order.orderStatus === 4 || returnInitiated) && (
           <Button
             type="primary"
             onClick={() => showConfirm("complete", order.orderID)}
