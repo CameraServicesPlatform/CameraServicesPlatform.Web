@@ -46,17 +46,12 @@ const ProductDetailsInfoRent = ({
   const pricePerDay = product.pricePerDay;
   const pricePerWeek = product.pricePerWeek;
   const pricePerMonth = product.pricePerMonth;
-  const RentalDurationUnit = {
-    HOUR: 0,
-    DAY: 1,
-    WEEK: 2,
-    MONTH: 3,
-  };
+
   const durationOptions = {
-    [RentalDurationUnit.HOUR]: { min: 2, max: 8 },
-    [RentalDurationUnit.DAY]: { min: 1, max: 3 },
-    [RentalDurationUnit.WEEK]: { min: 1, max: 2 },
-    [RentalDurationUnit.MONTH]: { min: 1, max: 1 },
+    hour: { min: 2, max: 8 },
+    day: { min: 1, max: 3 },
+    week: { min: 1, max: 2 },
+    month: { min: 1, max: 1 },
   };
 
   const calculateProductPriceRent = () => {
@@ -75,16 +70,16 @@ const ProductDetailsInfoRent = ({
 
     let price = 0;
     switch (durationUnit) {
-      case "hour":
+      case 0:
         price = durationValue * pricePerHour;
         break;
-      case "day":
+      case 1:
         price = durationValue * pricePerDay;
         break;
-      case "week":
+      case 2:
         price = durationValue * pricePerWeek;
         break;
-      case "month":
+      case 3:
         price = durationValue * pricePerMonth;
         break;
       default:
@@ -99,20 +94,17 @@ const ProductDetailsInfoRent = ({
 
     let endDate;
     switch (durationUnit) {
-      case "hour":
-        endDate = moment(startDate + durationValue).add(durationValue, "hours");
+      case 0:
+        endDate = moment(startDate + durationValue).add(durationValue, 0);
         break;
-      case "day":
-        endDate = moment(startDate + durationValue).add(durationValue, "days");
+      case 1:
+        endDate = moment(startDate + durationValue).add(durationValue, 1);
         break;
-      case "week":
-        endDate = moment(startDate + durationValue).add(durationValue, "weeks");
+      case 2:
+        endDate = moment(startDate + durationValue).add(durationValue, 2);
         break;
-      case "month":
-        endDate = moment(startDate + durationValue).add(
-          durationValue,
-          "months"
-        );
+      case 3:
+        endDate = moment(startDate + durationValue).add(durationValue, 3);
         break;
       default:
         endDate = startDate;
@@ -120,7 +112,7 @@ const ProductDetailsInfoRent = ({
     return endDate;
   };
   const handleDurationValueChange = (value) => {
-    if (durationUnit === "hour" && value > 13) {
+    if (durationUnit === 0 && value > 13) {
       message.warning(
         "Thời gian thuê theo giờ không được vượt quá 13 giờ. Vui lòng thuê theo ngày."
       );
@@ -167,7 +159,17 @@ const ProductDetailsInfoRent = ({
     setRentalStartDate(date);
     setRentalEndDate(endDate);
   };
+  const calculateRentalDuration = (rentalStartDate, rentalEndDate) => {
+    const start = moment(rentalStartDate);
+    const end = moment(rentalEndDate);
+    const duration = moment.duration(end.diff(start));
 
+    const days = duration.asDays();
+    const hours = duration.asHours();
+    const minutes = duration.asMinutes();
+
+    return { days, hours, minutes };
+  };
   return (
     <Card
       title="Thông tin sản phẩm"
@@ -312,10 +314,10 @@ const ProductDetailsInfoRent = ({
                   onChange={handleDurationUnitChange}
                   style={{ width: "100%" }}
                 >
-                  <Option value="hour">Giờ</Option>
-                  <Option value="day">Ngày</Option>
-                  <Option value="week">Tuần</Option>
-                  <Option value="month">Tháng</Option>
+                  <Option value={0}>Giờ</Option>
+                  <Option value={1}>Ngày</Option>
+                  <Option value={2}>Tuần</Option>
+                  <Option value={3}>Tháng</Option>
                 </Select>
               </Form.Item>
               <Form.Item label="Giá trị thời gian" style={{ width: "100%" }}>
@@ -341,17 +343,6 @@ const ProductDetailsInfoRent = ({
                 <DatePicker
                   showTime
                   value={rentalEndDate}
-                  disabled
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
-              <Form.Item
-                label="Thời gian trả sản phẩm "
-                style={{ width: "100%" }}
-              >
-                <DatePicker
-                  showTime
-                  value={returnDate}
                   disabled
                   style={{ width: "100%" }}
                 />
