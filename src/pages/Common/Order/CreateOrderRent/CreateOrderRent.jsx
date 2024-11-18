@@ -157,6 +157,8 @@ const CreateOrderRent = () => {
   };
 
   const onFinish = async (values) => {
+    console.log("Success:", values);
+
     if (!product) {
       message.error("Product information is incomplete.");
       return;
