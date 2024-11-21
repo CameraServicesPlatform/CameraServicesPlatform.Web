@@ -13,7 +13,10 @@ export const createReport = async (data) => {
 // Update an existing report by ID
 export const updateReport = async (reportId, data) => {
   try {
-    const res = await api.put(`/report/update-report-by-id?reportId=${reportId}`, data);
+    const res = await api.put(
+      `/report/update-report-by-id?reportId=${reportId}`,
+      data
+    );
     return res.data;
   } catch (err) {
     console.error("Error updating report:", err);
@@ -23,7 +26,9 @@ export const updateReport = async (reportId, data) => {
 // Delete a report by ID
 export const deleteReport = async (reportId) => {
   try {
-    const res = await api.delete(`/report/delete-report-by-id?reportId=${reportId}`);
+    const res = await api.delete(
+      `/report/delete-report-by-id?reportId=${reportId}`
+    );
     return res.data;
   } catch (err) {
     console.error("Error deleting report:", err);
@@ -41,7 +46,7 @@ export const getReportById = async (reportId) => {
   }
 };
 // Get all reports with pagination
-export const getAllReports = async (pageIndex = 1, pageSize = 10) => {
+export const getAllReports = async (pageIndex = 1, pageSize = 100) => {
   try {
     const res = await api.get(`/report/get-all-reports`, {
       params: { pageIndex, pageSize },

@@ -1,3 +1,4 @@
+import { FileTextOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -10,6 +11,7 @@ import {
   Modal,
   Pagination,
   Row,
+  Select,
   Tag,
   Typography,
 } from "antd";
@@ -17,13 +19,12 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { getCategoryById, } from "../../../api/categoryApi";
+import { getCategoryById } from "../../../api/categoryApi";
 import { getAllProduct, getProductById } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
 import { createWishlist } from "../../../api/wishlistApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 import { getBrandName } from "../../../utils/constant";
-import { Select, Slider } from "antd";
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
@@ -454,8 +455,8 @@ const ProductList = () => {
             />
             <Descriptions
               bordered
-              column={1}
-              layout="vertical"
+              column={1} 
+              layout="horizontal" 
               style={{ width: "100%" }}
             >
               <Descriptions.Item label="Serial Number">
@@ -531,7 +532,7 @@ const ProductList = () => {
                   <strong>Chất lượng:</strong> {productDetail.quality}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Specifications">
+              <Descriptions.Item label="Specifications" span={2}>
                 <ul style={{ paddingLeft: "20px" }}>
                   {productDetail.listProductSpecification.map((spec) => (
                     <li key={spec.productSpecificationID}>

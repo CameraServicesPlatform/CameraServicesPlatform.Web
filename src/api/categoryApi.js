@@ -33,7 +33,7 @@ export const getCategoryById = async (id) => {
 export const getCategoryByName = async (
   filter,
   pageIndex = 1,
-  pageSize = 10
+  pageSize = 100
 ) => {
   try {
     const response = await api.get("/category/get-category-by-name", {

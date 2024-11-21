@@ -52,7 +52,7 @@ export const getWishlistById = async (wishlistId) => {
 };
 
 // Get all wishlists with pagination
-export const getAllWishlists = async (pageIndex = 1, pageSize = 10) => {
+export const getAllWishlists = async (pageIndex = 1, pageSize = 100) => {
   try {
     const res = await api.get(
       `/wishlist/get-all-wish-list?pageIndex=${pageIndex}&pageSize=${pageSize}`
