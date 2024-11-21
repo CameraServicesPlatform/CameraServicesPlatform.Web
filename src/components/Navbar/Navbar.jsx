@@ -47,9 +47,9 @@ const NavBar = () => {
         >
           <li>
             <NavLink to="/personal-information">Tài khoản</NavLink>
-            <NavLink to="/personal-cart">Giỏ hàng</NavLink>
             <NavLink to="/personal-review">Đánh giá</NavLink>
             <NavLink to="/personal-order-history">Lịch sử đơn hàng</NavLink>
+            <NavLink to="/create-report-form">Báo cáo </NavLink>
           </li>
           {roleName === "ADMIN" && (
             <NavLink to="/admin">

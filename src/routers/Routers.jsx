@@ -23,6 +23,7 @@ import ProductPageRent from "../pages/Common/Product/ProductPageRent";
 
 import DashboardAdmin from "../pages/Admin/DashboardAdmin";
 import CreateOrderRent from "../pages/Common/Order/CreateOrderRent/CreateOrderRent";
+import ManageCreateReportForm from "../pages/Common/Report/ManageCreateReportForm";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import Wishlist from "../pages/Common/Wishlish/Wishlist";
 import OrderDetail from "../pages/CommonManager/OrderDetail";
@@ -77,6 +78,10 @@ function Routers() {
         {
           path: "wishlist",
           element: <Wishlist />,
+        },
+        {
+          path: "create-report-form",
+          element: <ManageCreateReportForm />,
         },
       ],
     },
