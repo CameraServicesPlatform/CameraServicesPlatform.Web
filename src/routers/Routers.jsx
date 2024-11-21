@@ -31,6 +31,7 @@ import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
 import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ManageProduct from "../pages/Staff/Product/ManageProduct";
+import ManageTransactionSystem from "../pages/Staff/Transaction/ManageTransactionSystem";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
 import ManageContractTemplate from "../pages/Supllier/ContractTemplate/ManageContractTemplate";
 import DashboardSupplier from "../pages/Supllier/DashboardSupplier";
@@ -157,6 +158,10 @@ function Routers() {
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
         { path: "manage-voucher", element: <ManageVoucher /> },
+        {
+          path: "manage-transaction-system",
+          element: <ManageTransactionSystem />,
+        },
       ],
     },
   ]);

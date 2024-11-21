@@ -25,6 +25,7 @@ const SideBar = () => {
       { name: "DANH MỤC", link: "manage-category", icon: <FaTags /> },
       { name: "SẢN PHẨM", link: "manage-product", icon: <FaBoxOpen /> },
       { name: "VOUCHER", link: "manage-voucher", icon: <FaGift /> },
+      { name: "GIAO DỊCH", link: "manage-transaction-system" },
     ],
 
     SUPPLIER: [
