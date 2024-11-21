@@ -24,6 +24,12 @@ const ManageProduct = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
+      console.log(
+        "Fetching products with pageIndex:",
+        pageIndex,
+        "and pageSize:",
+        pageSize
+      ); // Log the values
       const data = filter
         ? await getProductByName(filter, pageIndex, pageSize)
         : await getAllProduct(pageIndex, pageSize);
@@ -46,13 +52,7 @@ const ManageProduct = () => {
         <Spin />
       ) : (
         <ProductListTable
-          products={products}
-          searchTerm={searchTerm} // Pass search term to the table
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          totalProducts={totalProducts}
-          setPageIndex={setPageIndex}
-          setPageSize={setPageSize}
+           
         />
       )}
 
