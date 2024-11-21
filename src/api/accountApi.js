@@ -146,6 +146,15 @@ export const getAccountById = async (accountId, token) => {
     return null;
   }
 };
+export const getUserById = async (accountId) => {
+  try {
+    const res = await api.post(`/account/get-account-by-userId/${accountId}`);
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching account by ID:", err);
+    return null;
+  }
+};
 
 export const sendResetPassOTP = async (email) => {
   try {
