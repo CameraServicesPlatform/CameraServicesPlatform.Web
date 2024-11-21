@@ -1,29 +1,40 @@
-import { Button, Spin, Table } from "antd";
+import { Button, Modal, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
-import { getAllTransactions } from "../../../api/transactionApi"; // Adjust the import path as necessary
+import {
+  getAllTransactions,
+  getTransactionById,
+} from "../../../api/transactionApi"; 
 
 const TransactionType = {
-  0: "Payment",
-  1: "Refund",
+  0: "Thanh toán",
+  1: "Hoàn tiền",
 };
 
 const PaymentStatus = {
-  0: "Pending",
-  1: "Completed",
-  2: "Failed",
+  0: "Đang chờ",
+  1: "Hoàn thành",
+  2: "Thất bại",
 };
 
 const PaymentMethod = {
   0: "VNPAY",
-  1: "CreditCard",
-  2: "BankTransfer",
+  1: "Thẻ tín dụng",
+  2: "Chuyển khoản ngân hàng",
+};
+
+const VNPAYTransactionStatus = {
+  0: "Thành công",
+  1: "Thất bại",
+  2: "Đang chờ",
 };
 
 const TransactionList = () => {
   const [transactions, setTransactions] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize] = useState(10); // You can make this dynamic if needed
+  const [pageSize] = useState(10); 
   const [loading, setLoading] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -46,41 +57,54 @@ const TransactionList = () => {
     setPageIndex((prevPageIndex) => Math.max(prevPageIndex - 1, 1));
   };
 
+  const handleRowDoubleClick = async (record) => {
+    const data = await getTransactionById(record.transactionID);
+    if (data) {
+      setSelectedTransaction(data.result);
+      setIsModalVisible(true);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedTransaction(null);
+  };
+
   const columns = [
     {
-      title: "Transaction ID",
+      title: "Mã giao dịch",
       dataIndex: "transactionID",
       key: "transactionID",
     },
     {
-      title: "Order ID",
+      title: "Mã đơn hàng",
       dataIndex: "orderID",
       key: "orderID",
     },
     {
-      title: "Transaction Date",
+      title: "Ngày giao dịch",
       dataIndex: "transactionDate",
       key: "transactionDate",
     },
     {
-      title: "Amount",
+      title: "Số tiền",
       dataIndex: "amount",
       key: "amount",
     },
     {
-      title: "Transaction Type",
+      title: "Loại giao dịch",
       dataIndex: "transactionType",
       key: "transactionType",
       render: (type) => TransactionType[type],
     },
     {
-      title: "Payment Status",
+      title: "Trạng thái thanh toán",
       dataIndex: "paymentStatus",
       key: "paymentStatus",
       render: (status) => PaymentStatus[status],
     },
     {
-      title: "Payment Method",
+      title: "Phương thức thanh toán",
       dataIndex: "paymentMethod",
       key: "paymentMethod",
       render: (method) => PaymentMethod[method],
@@ -89,7 +113,7 @@ const TransactionList = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Transaction List</h1>
+      <h1 className="text-2xl font-bold mb-4">Danh sách giao dịch</h1>
       {loading ? (
         <div className="flex justify-center items-center">
           <Spin size="large" />
@@ -101,16 +125,75 @@ const TransactionList = () => {
             columns={columns}
             rowKey="transactionID"
             pagination={false}
+            onRow={(record) => ({
+              onDoubleClick: () => handleRowDoubleClick(record),
+            })}
           />
           <div className="flex justify-between items-center mt-4">
             <Button onClick={handlePreviousPage} disabled={pageIndex === 1}>
-              Previous
+              Trước
             </Button>
-            <span>Page {pageIndex}</span>
-            <Button onClick={handleNextPage}>Next</Button>
+            <span>Trang {pageIndex}</span>
+            <Button onClick={handleNextPage}>Tiếp</Button>
           </div>
         </div>
       )}
+      <Modal
+        title="Chi tiết giao dịch"
+        visible={isModalVisible}
+        onCancel={handleModalClose}
+        footer={[
+          <Button key="close" onClick={handleModalClose}>
+            Đóng
+          </Button>,
+        ]}
+      >
+        {selectedTransaction && (
+          <div>
+            <p>
+              <strong>Mã giao dịch:</strong> {selectedTransaction.transactionID}
+            </p>
+            <p>
+              <strong>Mã đơn hàng:</strong> {selectedTransaction.orderID}
+            </p>
+            <p>
+              <strong>Ngày giao dịch:</strong>{" "}
+              {selectedTransaction.transactionDate}
+            </p>
+            <p>
+              <strong>Số tiền:</strong> {selectedTransaction.amount}
+            </p>
+            <p>
+              <strong>Loại giao dịch:</strong>{" "}
+              {TransactionType[selectedTransaction.transactionType]}
+            </p>
+            <p>
+              <strong>Trạng thái thanh toán:</strong>{" "}
+              {PaymentStatus[selectedTransaction.paymentStatus]}
+            </p>
+            <p>
+              <strong>Phương thức thanh toán:</strong>{" "}
+              {PaymentMethod[selectedTransaction.paymentMethod]}
+            </p>
+            <p>
+              <strong>Mã giao dịch VNPAY:</strong>{" "}
+              {selectedTransaction.vnpayTransactionID}
+            </p>
+            <p>
+              <strong>Trạng thái giao dịch VNPAY:</strong>{" "}
+              {
+                VNPAYTransactionStatus[
+                  selectedTransaction.vnpayTransactionStatus
+                ]
+              }
+            </p>
+            <p>
+              <strong>Thời gian giao dịch VNPAY:</strong>{" "}
+              {selectedTransaction.vnpayTransactionTime}
+            </p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
