@@ -39,6 +39,8 @@ const ProductDetailsInfoRent = ({
   setRentalStartDate,
   rentalEndDate,
   setRentalEndDate,
+  returnDate,
+  setReturnDate,
 }) => {
   const pricePerHour = product.pricePerHour;
   const pricePerDay = product.pricePerDay;
@@ -46,15 +48,73 @@ const ProductDetailsInfoRent = ({
   const pricePerMonth = product.pricePerMonth;
 
   const durationOptions = {
-    hour: { min: 2, max: 8 },
-    day: { min: 1, max: 3 },
-    week: { min: 1, max: 2 },
-    month: { min: 1, max: 1 },
+    0: { min: 2, max: 8 }, // Hour
+    1: { min: 1, max: 3 }, // Day
+    2: { min: 1, max: 2 }, // Week
+    3: { min: 1, max: 1 }, // Month
   };
 
+  const handleDurationValueChange = (value) => {
+    setDurationValue(value);
+  };
+
+  useEffect(() => {
+    if (durationUnit !== undefined && durationValue && rentalStartDate) {
+      calculateProductPriceRent();
+      const endDate = calculateRentalEndTime(
+        rentalStartDate.toDate(),
+        durationValue,
+        durationUnit
+      );
+      setRentalEndDate(moment(endDate));
+
+      // Calculate Return Date after setting rentalEndDate
+      const calculatedReturnDate = calculateReturnDate(endDate);
+      setReturnDate(moment(calculatedReturnDate));
+    }
+  }, [durationUnit, durationValue, rentalStartDate]);
+
+  const handleDurationUnitChange = (value) => {
+    setDurationUnit(value);
+    setDurationValue(durationOptions[value].min);
+    const { min, max } = durationOptions[value];
+    message.info(`Please select a duration between ${min} and ${max}.`);
+  };
+
+  const calculateReturnDate = (endDate) => {
+    if (!endDate) return null;
+    return moment(endDate).clone().add(1, "hours");
+  };
+
+  // Add this debug check at the start of component
+  useEffect(() => {
+    console.log("Price variables:", {
+      pricePerHour,
+      pricePerDay,
+      pricePerWeek,
+      pricePerMonth,
+    });
+  }, []);
+
   const calculateProductPriceRent = () => {
+    // Debug logging
+    console.log("Calculating price with:", {
+      durationUnit,
+      durationValue,
+      pricePerHour,
+      pricePerDay,
+      pricePerWeek,
+      pricePerMonth,
+    });
+
     if (!durationOptions[durationUnit]) {
       message.error("Invalid duration unit");
+      return;
+    }
+
+    // Validate inputs
+    if (!durationValue || durationValue <= 0) {
+      message.error("Duration value must be greater than 0");
       return;
     }
 
@@ -68,98 +128,92 @@ const ProductDetailsInfoRent = ({
 
     let price = 0;
     switch (durationUnit) {
-      case "hour":
-        price = durationValue * pricePerHour;
+      case 0:
+        price = durationValue * (pricePerHour || 0);
         break;
-      case "day":
-        price = durationValue * pricePerDay;
+      case 1:
+        price = durationValue * (pricePerDay || 0);
         break;
-      case "week":
-        price = durationValue * pricePerWeek;
+      case 2:
+        price = durationValue * (pricePerWeek || 0);
         break;
-      case "month":
-        price = durationValue * pricePerMonth;
+      case 3:
+        price = durationValue * (pricePerMonth || 0);
         break;
       default:
         price = 0;
     }
 
+    // Debug final price
+    console.log("Calculated price:", price);
     setProductPriceRent(price);
   };
 
-  const calculateRentalEndDate = (startDate) => {
-    if (!startDate || !durationUnit || !durationValue) return null;
-
-    let endDate;
-    switch (durationUnit) {
-      case "hour":
-        endDate = moment(startDate + durationValue).add(durationValue, "hours");
-        break;
-      case "day":
-        endDate = moment(startDate + durationValue).add(durationValue, "days");
-        break;
-      case "week":
-        endDate = moment(startDate + durationValue).add(durationValue, "weeks");
-        break;
-      case "month":
-        endDate = moment(startDate + durationValue).add(
-          durationValue,
-          "months"
-        );
-        break;
-      default:
-        endDate = startDate;
-    }
-    return endDate;
-  };
-  const handleDurationValueChange = (value) => {
-    if (durationUnit === "hour" && value > 13) {
-      message.warning(
-        "Thời gian thuê theo giờ không được vượt quá 13 giờ. Vui lòng thuê theo ngày."
-      );
-      setDurationValue(13); // Set to maximum allowed hours
-    } else {
-      setDurationValue(value);
-    }
-  };
+  // Make sure calculation runs when needed
   useEffect(() => {
-    if (durationUnit && durationValue) {
+    if (durationUnit !== undefined && durationValue > 0) {
       calculateProductPriceRent();
-      const endDate = calculateRentalEndDate(rentalStartDate);
-      setRentalEndDate(endDate);
     }
-  }, [durationUnit, durationValue, rentalStartDate]);
-
-  const handleDurationUnitChange = (value) => {
-    setDurationUnit(value);
-    setDurationValue(durationOptions[value].min); // Set default value to min
-    const { min, max } = durationOptions[value];
-    message.info(`You need to choose between ${min} and ${max}.`);
-  };
+  }, [durationUnit, durationValue]);
 
   const handleRentalStartDateChange = (date) => {
-    const startHour = moment(date).hour();
-    if (startHour > 7 || startHour >= 20) {
-      message.error("Thời gian bắt đầu thuê phải trong khoảng 7:00 - 20:00.");
-      setRentalStartDate(null);
-      setRentalEndDate(null);
-      return;
-    }
-
-    const endDate = calculateRentalEndDate(date);
-    const endHour = moment(endDate).hour();
-    if (endHour < 7 || endHour >= 20) {
-      message.warning(
-        "Thời gian thuê vượt quá khung giờ hoạt động (7:00 - 20:00). Vui lòng thuê theo ngày hoặc chọn thời gian khác."
-      );
-      setRentalStartDate(null);
-      setRentalEndDate(null);
+    if (!date) {
+      message.error("Vui lòng chọn ngày bắt đầu thuê");
       return;
     }
 
     setRentalStartDate(date);
-    setRentalEndDate(endDate);
+
+    const calculatedEndDate = calculateRentalEndTime(
+      date.toDate(),
+      durationValue,
+      durationUnit
+    );
+    if (calculatedEndDate) {
+      setRentalEndDate(moment(calculatedEndDate));
+
+      // Calculate Return Date after setting rentalEndDate
+      const calculatedReturnDate = calculateReturnDate(calculatedEndDate);
+      setReturnDate(moment(calculatedReturnDate));
+    }
   };
+
+  const calculateRentalEndTime = (
+    rentalStartTime,
+    rentalDuration,
+    durationType
+  ) => {
+    let rentalEndTime;
+    switch (durationType) {
+      case 0: // Hour
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 60 * 60 * 1000
+        );
+        break;
+      case 1: // Day
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 24 * 60 * 60 * 1000
+        );
+        break;
+      case 2: // Week
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 7 * 24 * 60 * 60 * 1000
+        );
+        break;
+      case 3: // Month
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 30 * 24 * 60 * 60 * 1000
+        );
+        break;
+      default:
+        throw new Error("Invalid duration type");
+    }
+    return rentalEndTime;
+  };
+  const disabledTime = () => ({
+    disabledHours: () =>
+      [...Array(24)].map((_, i) => i).filter((h) => h < 7 || h >= 20),
+  });
   return (
     <Card
       title="Thông tin sản phẩm"
@@ -304,29 +358,43 @@ const ProductDetailsInfoRent = ({
                   onChange={handleDurationUnitChange}
                   style={{ width: "100%" }}
                 >
-                  <Option value="hour">Giờ</Option>
-                  <Option value="day">Ngày</Option>
-                  <Option value="week">Tuần</Option>
-                  <Option value="month">Tháng</Option>
+                  <Option value={0}>Giờ</Option>
+                  <Option value={1}>Ngày</Option>
+                  <Option value={2}>Tuần</Option>
+                  <Option value={3}>Tháng</Option>
                 </Select>
               </Form.Item>
               <Form.Item label="Giá trị thời gian" style={{ width: "100%" }}>
                 <InputNumber
-                  min={durationUnit ? durationOptions[durationUnit].min : 0}
-                  max={durationUnit ? durationOptions[durationUnit].max : 0}
+                  min={durationOptions[durationUnit]?.min || 1}
+                  max={durationOptions[durationUnit]?.max || 1}
                   value={durationValue}
                   onChange={handleDurationValueChange}
-                  disabled={!durationUnit}
-                  style={{ width: "100%" }}
                 />
               </Form.Item>
 
               <Form.Item label="Ngày bắt đầu thuê" style={{ width: "100%" }}>
                 <DatePicker
-                  showTime
+                  showTime={{
+                    format: "HH:mm",
+                    hideDisabledOptions: true,
+                  }}
                   value={rentalStartDate}
                   onChange={handleRentalStartDateChange}
+                  format="DD - MM - YYYY HH:mm"
                   style={{ width: "100%" }}
+                  disabledTime={disabledTime}
+                  onOk={(value) => {
+                    const hour = value.hour();
+                    if (hour < 7 || hour >= 20) {
+                      message.error(
+                        "Chỉ được chọn thời gian từ 7:00 đến 20:00"
+                      );
+                      return;
+                    }
+                    handleRentalStartDateChange(value);
+                  }}
+                  placeholder="Chọn ngày và giờ bắt đầu thuê"
                 />
               </Form.Item>
               <Form.Item label="Ngày kết thúc thuê" style={{ width: "100%" }}>
@@ -334,6 +402,16 @@ const ProductDetailsInfoRent = ({
                   showTime
                   value={rentalEndDate}
                   disabled
+                  format="DD - MM - YYYY HH:mm"
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+              <Form.Item label="Ngày trả hàng" style={{ width: "100%" }}>
+                <DatePicker
+                  showTime
+                  value={returnDate}
+                  disabled
+                  format="DD - MM - YYYY HH:mm"
                   style={{ width: "100%" }}
                 />
               </Form.Item>

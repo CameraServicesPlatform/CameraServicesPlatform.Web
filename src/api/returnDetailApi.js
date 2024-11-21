@@ -52,7 +52,7 @@ export const getReturnDetailById = async (returnId) => {
 };
 
 // Get all return details with pagination
-export const getAllReturnDetails = async (pageIndex = 1, pageSize = 10) => {
+export const getAllReturnDetails = async (pageIndex = 1, pageSize = 100) => {
   try {
     const res = await api.get("/returnDetail/get-all-return-detail", {
       params: { pageIndex, pageSize },

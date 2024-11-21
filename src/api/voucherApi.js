@@ -2,7 +2,7 @@ import { message } from "antd";
 import api from "../api/config";
 
 // Function to get all vouchers with pagination
-export const getAllVouchers = async (pageIndex = 1, pageSize = 10) => {
+export const getAllVouchers = async (pageIndex = 1, pageSize = 100) => {
   try {
     const response = await api.get(`/voucher/get-all-voucher`, {
       params: { pageIndex, pageSize },

@@ -25,16 +25,18 @@ const CreateOrderRent = () => {
   const [product, setProduct] = useState(null);
 
   const [totalAmount, setTotalAmount] = useState(0);
-  const [durationUnit, setDurationUnit] = useState("hour");
-  const [durationValue, setDurationValue] = useState(2);
+  const [durationUnit, setDurationUnit] = useState(null);
+  const [durationValue, setDurationValue] = useState(null);
   const [productPriceRent, setProductPriceRent] = useState(0);
   const [rentalStartDate, setRentalStartDate] = useState(null);
   const [rentalEndDate, setRentalEndDate] = useState(null);
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [returnDate, setReturnDate] = useState(null);
   const location = useLocation();
   const { productID, supplierID } = location.state || {};
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
-  const [deliveryMethod, setDeliveryMethod] = useState(0);
+  const [deliveryMethod, setDeliveryMethod] = useState();
   const [supplierInfo, setSupplierInfo] = useState(null);
   const [contractTemplate, setContractTemplate] = useState([]);
   const [showContractTerms, setShowContractTerms] = useState(false);
@@ -155,6 +157,14 @@ const CreateOrderRent = () => {
   };
 
   const onFinish = async (values) => {
+    console.log("Success:", values);
+    console.log("Delivery Method:", deliveryMethod);
+    console.log("Product Price Rent:", productPriceRent);
+    console.log("Duration Unit:", durationUnit);
+    console.log("Duration Value:", durationValue);
+    console.log("Rental Start Date:", rentalStartDate);
+    console.log("Rental End Date:", rentalEndDate);
+    console.log("Return Date:", returnDate);
     if (!product) {
       message.error("Product information is incomplete.");
       return;
@@ -191,13 +201,13 @@ const CreateOrderRent = () => {
         },
       ],
       orderType: 0,
-      shippingAddress: setDeliveryMethod,
-      rentalStartDate: setRentalStartDate,
-      rentalEndDate: setRentalEndDate,
-      durationUnit: setDurationValue,
-      durationValue: setDurationValue,
-      returnDate: setRentalEndDate,
-      deliveryMethod: deliveryMethod,
+      shippingAddress: shippingAddress,
+      rentalStartDate: rentalStartDate,
+      rentalEndDate: rentalEndDate,
+      durationUnit: durationUnit,
+      durationValue: durationValue,
+      returnDate: returnDate,
+      deliveryMethod: deliveryMethod, 
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -219,6 +229,7 @@ const CreateOrderRent = () => {
       console.error(error);
     }
   };
+
   const steps = [
     {
       title: "Chi tiết sản phẩm",
@@ -239,6 +250,8 @@ const CreateOrderRent = () => {
           setRentalStartDate={setRentalStartDate}
           rentalEndDate={rentalEndDate}
           setRentalEndDate={setRentalEndDate}
+          returnDate={returnDate}
+          setReturnDate={setReturnDate}
         />
       ),
     },
@@ -246,10 +259,11 @@ const CreateOrderRent = () => {
       title: "Phương thức giao hàng",
       content: (
         <DeliveryMethod
+          shippingAddress={shippingAddress}
+          setShippingAddress={setShippingAddress}
           deliveryMethod={deliveryMethod}
           setDeliveryMethod={setDeliveryMethod}
-          supplierInfo={supplierInfo}
-        />
+          supplierInfo={supplierInfo}/>
       ),
     },
     {

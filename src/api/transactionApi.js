@@ -30,7 +30,7 @@ export const createTransaction = async (data) => {
 };
 
 // Get all transactions with pagination
-export const getAllTransactions = async (pageIndex = 1, pageSize = 10) => {
+export const getAllTransactions = async (pageIndex = 1, pageSize = 100) => {
   try {
     const res = await api.get(`/transaction/get-all-transaction?pageIndex=${pageIndex}&pageSize=${pageSize}`);
     return res.data;
@@ -41,7 +41,7 @@ export const getAllTransactions = async (pageIndex = 1, pageSize = 10) => {
 };
 
 // Get a transaction by ID
-export const getTransactionById = async (id, pageIndex = 1, pageSize = 10) => {
+export const getTransactionById = async (id, pageIndex = 1, pageSize = 100) => {
   try {
     const res = await api.get(`/transaction/get-transaction-by-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`);
     return res.data;
@@ -52,7 +52,7 @@ export const getTransactionById = async (id, pageIndex = 1, pageSize = 10) => {
 };
 
 // Get transactions by supplier ID
-export const getTransactionBySupplierId = async (id, pageIndex = 1, pageSize = 10) => {
+export const getTransactionBySupplierId = async (id, pageIndex = 1, pageSize = 100) => {
   try {
     const res = await api.get(`/transaction/get-transaction-by-supplier-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`);
     return res.data;
