@@ -192,6 +192,46 @@ const ProductDetailPage = () => {
                     </span>
                   </p>
                 )}
+                {product.depositProduct != null && (
+                  <p className="font-bold">
+                    Tiền đặt cọc:{" "}
+                    <span className="text-red-500">
+                      VND {product.depositProduct.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {product.pricePerDay != null && (
+                  <p className="font-bold">
+                    Giá thuê theo ngày:{" "}
+                    <span className="text-green-500">
+                      VND/ngày {product.pricePerDay.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {product.pricePerHour != null && (
+                  <p className="font-bold">
+                    Giá thuê theo giờ:{" "}
+                    <span className="text-green-500">
+                      VND/giờ {product.pricePerHour.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {product.pricePerMonth != null && (
+                  <p className="font-bold">
+                    Giá thuê theo tháng:{" "}
+                    <span className="text-green-500">
+                      VND/tháng {product.pricePerMonth.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {product.pricePerWeek != null && (
+                  <p className="font-bold">
+                    Giá thuê theo tuần:{" "}
+                    <span className="text-green-500">
+                      VND/tuần {product.pricePerWeek.toFixed(2)}
+                    </span>
+                  </p>
+                )}
               </div>
 
               <div className="mt-4">

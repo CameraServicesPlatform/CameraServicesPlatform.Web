@@ -4,7 +4,8 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { getSupplierIdByAccountId } from "../../api/accountApi"; // Đảm bảo rằng đây là đường dẫn nhập đúng
 import { getSupplierById, updateSupplier } from "../../api/supplierApi";
-import ProductList from "../../pages/Common/Product/ProductList";
+import ProductCardViewOfSupplier from "../Common/Product/ProductCardViewOfSupplier";
+
 const InformationSupplierDetail = () => {
   const { id } = useParams();
   const [supplier, setSupplier] = useState(null);
@@ -162,7 +163,7 @@ const InformationSupplierDetail = () => {
           </div>
         )}
       </div>
-      <ProductList />
+      <ProductCardViewOfSupplier />
     </>
   );
 };

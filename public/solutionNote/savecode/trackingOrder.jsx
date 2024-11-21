@@ -16,16 +16,11 @@ import {
   updateOrderStatusShipped,
 } from "../../../api/orderApi";
 import { getOrderDetails } from "../../../api/orderDetailApi";
-import CreateReturnDetailForm from "../ReturnDetail/CreateReturnDetailForm";
-
 const { Step } = Steps;
 
 const TrackingOrder = ({ order, onUpdate }) => {
   const [orderDetails, setOrderDetails] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showReturnDetailForm, setShowReturnDetailForm] = useState(false);
-  const [selectedOrderID, setSelectedOrderID] = useState(null);
-  const [returnInitiated, setReturnInitiated] = useState(false);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -162,7 +157,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
       action: "accept-cancel",
     },
     {
-      title: "Đang vận chuyện sản phẩm",
+      title: "Đang vận chuyển sản phẩm",
       status: 1,
       icon: <CarOutlined />,
       action: "ship",
@@ -175,7 +170,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
     },
     {
       title: "Hoàn thành",
-      status: [3, 4, 5],
+      status: [1, 4, 5],
       icon: <CheckCircleOutlined />,
       action: "complete",
     },
@@ -236,12 +231,6 @@ const TrackingOrder = ({ order, onUpdate }) => {
       render: (text) => moment(text).format("DD - MM - YYYY HH:mm"),
     },
   ];
-
-  const handleReturnClick = (orderID) => {
-    setSelectedOrderID(orderID);
-    setShowReturnDetailForm(true);
-    setReturnInitiated(true);
-  };
 
   return (
     <div>
@@ -306,25 +295,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Hoàn thành
           </Button>
         )}
-        {(order.orderStatus === 4 ||
-          (order.orderStatus === 3 && order.orderType === 1)) && (
-          <Button onClick={() => handleReturnClick(order.orderID)}>
-            Trả hàng
-          </Button>
-        )}
-
-        <Modal
-          title="Create Return Detail"
-          visible={showReturnDetailForm}
-          onCancel={() => setShowReturnDetailForm(false)}
-          footer={null}
-        >
-          <CreateReturnDetailForm
-            orderID={selectedOrderID}
-            onSuccess={() => setShowReturnDetailForm(false)}
-          />
-        </Modal>
-        {(order.orderStatus === 4 || returnInitiated) && (
+        {order.orderStatus === 4 && (
           <Button
             type="primary"
             onClick={() => showConfirm("complete", order.orderID)}

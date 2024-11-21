@@ -1,25 +1,28 @@
 import {
-  AppstoreAddOutlined,
   CalendarOutlined,
   DollarOutlined,
   EditOutlined,
+  FolderOpenOutlined,
   InfoCircleOutlined,
   SearchOutlined,
+  ShopOutlined,
   StarOutlined,
   TagOutlined,
-  TeamOutlined,
-  ShopOutlined,
-  FolderOpenOutlined,
 } from "@ant-design/icons"; // Import Ant Design icons
-import { Button, Card, Input, Layout, message, Spin, Typography } from "antd";
+import {
+  Button,
+  Card,
+  Input,
+  Layout,
+  message,
+  Pagination,
+  Spin,
+  Typography,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"; // Import useParams
 import { getCategoryById } from "../../../api/categoryApi";
-import {
-  getAllProduct,
-  getProductById,
-  getProductByName,
-} from "../../../api/productApi";
+import { getAllProduct, getProductByName } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
 
@@ -33,6 +36,9 @@ const ProductPageRent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const { id } = useParams();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const pageSize = 20;
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -129,6 +135,9 @@ const ProductPageRent = () => {
         return "text-black"; // Default color
     }
   };
+  const onPageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   const availableProducts = products.filter((product) => product.status === 1);
 
@@ -168,121 +177,138 @@ const ProductPageRent = () => {
             <p className="mt-4 text-lg">Đang tải sản phẩm...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {availableProducts.map((product) => (
-              <Card
-                key={product.productID}
-                className="shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-200"
-                cover={
-                  product.listImage.length > 0 ? (
-                    <img
-                      src={product.listImage[0].image}
-                      alt={product.productName}
-                      className="w-full object-cover h-64 rounded-t-lg"
-                    />
-                  ) : (
-                    <img
-                      src="https://placehold.co/300x200"
-                      alt="Placeholder for product image"
-                      className="w-full object-cover h-64 rounded-t-lg"
-                    />
-                  )
-                }
-              >
-                <Card.Meta
-                  title={
-                    <div className="flex justify-center">
-                      <span className="text-lg font-semibold">
-                        {product.productName}
-                      </span>
-                    </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {availableProducts.map((product) => (
+                <Card
+                  key={product.productID}
+                  className="shadow-lg rounded-lg hover:shadow-xl transition-shadow duration-200"
+                  cover={
+                    product.listImage.length > 0 ? (
+                      <img
+                        src={product.listImage[0].image}
+                        alt={product.productName}
+                        className="w-full object-cover h-64 rounded-t-lg"
+                      />
+                    ) : (
+                      <img
+                        src="https://placehold.co/300x200"
+                        alt="Placeholder for product image"
+                        className="w-full object-cover h-64 rounded-t-lg"
+                      />
+                    )
                   }
-                />
-                <div className="mt-2 p-4">
-                  <p className="text-gray-700 text-left">
-                    {product.productDescription}
-                  </p>
-                  {product.pricePerHour != null && (
-                    <p className="font-bold text-left text-green-500">
-                      <DollarOutlined className="inline mr-1" />
-                      Giá thuê: {formatPrice(product.pricePerHour)}/giờ
+                >
+                  <Card.Meta
+                    title={
+                      <div className="flex justify-center">
+                        <span className="text-lg font-semibold">
+                          {product.productName}
+                        </span>
+                      </div>
+                    }
+                  />
+                  <div className="mt-2 p-4">
+                    <p className="text-gray-700 text-left">
+                      {product.productDescription}
                     </p>
-                  )}
-                  {product.pricePerDay != null && (
-                    <p className="font-bold text-left text-green-500">
-                      <DollarOutlined className="inline mr-1" />
-                      Giá thuê: {formatPrice(product.pricePerDay)}/ngày
+                    {product.depositProduct != null && (
+                      <p className="font-bold text-left text-red-500">
+                        <DollarOutlined className="inline mr-1" />
+                        Giá Cọc: {formatPrice(product.depositProduct)}
+                      </p>
+                    )}
+                    {product.pricePerHour != null && (
+                      <p className="font-bold text-left text-green-500">
+                        <DollarOutlined className="inline mr-1" />
+                        Giá thuê: {formatPrice(product.pricePerHour)}/giờ
+                      </p>
+                    )}
+                    {product.pricePerDay != null && (
+                      <p className="font-bold text-left text-green-500">
+                        <DollarOutlined className="inline mr-1" />
+                        Giá thuê: {formatPrice(product.pricePerDay)}/ngày
+                      </p>
+                    )}
+                    {product.pricePerWeek != null && (
+                      <p className="font-bold text-left text-green-500">
+                        <DollarOutlined className="inline mr-1" />
+                        Giá thuê: {formatPrice(product.pricePerWeek)}/tuần
+                      </p>
+                    )}
+                    {product.pricePerMonth != null && (
+                      <p className="font-bold text-left text-green-500">
+                        <DollarOutlined className="inline mr-1" />
+                        Giá thuê: {formatPrice(product.pricePerMonth)}/tháng
+                      </p>
+                    )}
+                    {product.priceBuy != null && (
+                      <p className="font-bold text-left text-green-500">
+                        <DollarOutlined className="inline mr-1" />
+                        Giá mua: {formatPrice(product.priceBuy)}
+                      </p>
+                    )}
+                    <p className="font-semibold text-left">
+                      <TagOutlined className="inline mr-1" />
+                      Thương hiệu: {getBrandName(product.brand)}
                     </p>
-                  )}
-                  {product.pricePerWeek != null && (
-                    <p className="font-bold text-left text-green-500">
-                      <DollarOutlined className="inline mr-1" />
-                      Giá thuê: {formatPrice(product.pricePerWeek)}/tuần
+                    <p className="font-semibold text-left">
+                      <InfoCircleOutlined className="inline mr-1" />
+                      Chất lượng: {product.quality}
                     </p>
-                  )}
-                  {product.pricePerMonth != null && (
-                    <p className="font-bold text-left text-green-500">
-                      <DollarOutlined className="inline mr-1" />
-                      Giá thuê: {formatPrice(product.pricePerMonth)}/tháng
+                    <p className="font-semibold text-left">
+                      <InfoCircleOutlined className="inline mr-1" />
+                      Trạng thái:{" "}
+                      <span className={getStatusColor(product.status)}>
+                        {getProductStatusEnum(product.status)}
+                      </span>
                     </p>
-                  )}
-                  {product.priceBuy != null && (
-                    <p className="font-bold text-left text-green-500">
-                      <DollarOutlined className="inline mr-1" />
-                      Giá mua: {formatPrice(product.priceBuy)}
+                    <p className="font-semibold text-left">
+                      <StarOutlined className="inline mr-1" />
+                      Đánh giá: {product.rating}
                     </p>
-                  )}
-                  <p className="font-semibold text-left">
-                    <TagOutlined className="inline mr-1" />
-                    Thương hiệu: {getBrandName(product.brand)}
-                  </p>
-                  <p className="font-semibold text-left">
-                    <InfoCircleOutlined className="inline mr-1" />
-                    Chất lượng: {product.quality}
-                  </p>
-                  <p className="font-semibold text-left">
-                    <InfoCircleOutlined className="inline mr-1" />
-                    Trạng thái:{" "}
-                    <span className={getStatusColor(product.status)}>
-                      {getProductStatusEnum(product.status)}
-                    </span>
-                  </p>
-                  <p className="font-semibold text-left">
-                    <StarOutlined className="inline mr-1" />
-                    Đánh giá: {product.rating}
-                  </p>
-                  <p className="font-semibold text-left">
-                    <InfoCircleOutlined className="inline mr-1" />
-                    Số Serial: {product.serialNumber}
-                  </p>
-                  <p className="text-left">
-                    <ShopOutlined className="inline mr-1" />
-                    <strong>Nhà cung cấp:</strong> {product.supplierName}
-                  </p>
-                  <p className="text-left">
-                    <FolderOpenOutlined className="inline mr-1" />
-                    <strong>Danh mục:</strong> {product.categoryName}
-                  </p>
-                  <p className="font-semibold text-left">
-                    <CalendarOutlined className="inline mr-1" />
-                    Ngày tạo: {new Date(product.createdAt).toLocaleString()}
-                  </p>
-                  <p className="font-semibold text-left">
-                    <EditOutlined className="inline mr-1" />
-                    Ngày cập nhật:{" "}
-                    {new Date(product.updatedAt).toLocaleString()}
-                  </p>
-                  <Button
-                    type="primary"
-                    onClick={() => navigate(`/product/${product.productID}`)}
-                    className="mt-2 rounded-lg transition duration-200 hover:bg-blue-600"
-                  >
-                    Xem Chi Tiết
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
+                    <p className="font-semibold text-left">
+                      <InfoCircleOutlined className="inline mr-1" />
+                      Số Serial: {product.serialNumber}
+                    </p>
+                    <p className="text-left">
+                      <ShopOutlined className="inline mr-1" />
+                      <strong>Nhà cung cấp:</strong> {product.supplierName}
+                    </p>
+                    <p className="text-left">
+                      <FolderOpenOutlined className="inline mr-1" />
+                      <strong>Danh mục:</strong> {product.categoryName}
+                    </p>
+                    <p className="font-semibold text-left">
+                      <CalendarOutlined className="inline mr-1" />
+                      Ngày tạo: {new Date(product.createdAt).toLocaleString()}
+                    </p>
+                    <p className="font-semibold text-left">
+                      <EditOutlined className="inline mr-1" />
+                      Ngày cập nhật:{" "}
+                      {new Date(product.updatedAt).toLocaleString()}
+                    </p>
+                    <Button
+                      type="primary"
+                      onClick={() => navigate(`/product/${product.productID}`)}
+                      className="mt-2 rounded-lg transition duration-200 hover:bg-blue-600"
+                    >
+                      Xem Chi Tiết
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+            <div className="flex justify-center mt-6">
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={totalProducts}
+                onChange={onPageChange}
+                showSizeChanger={false}
+              />
+            </div>
+          </>
         )}
       </Content>
     </Layout>

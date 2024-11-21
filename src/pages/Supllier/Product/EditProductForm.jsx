@@ -206,6 +206,9 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
         </Form.Item>
         {status === 1 && (
           <>
+            <Form.Item name="depositProduct" label="Giá Cọc">
+              <Input type="number" />
+            </Form.Item>
             <Form.Item name="pricePerHour" label="Giá Theo Giờ">
               <Input type="number" />
             </Form.Item>

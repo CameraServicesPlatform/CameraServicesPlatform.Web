@@ -49,7 +49,7 @@ const DetailProduct = ({ product, loading, onClose }) => {
     categoryID,
     productName,
     productDescription,
-    priceRent,
+    depositProduct,
     priceBuy,
     pricePerHour,
     pricePerDay,
@@ -113,6 +113,11 @@ const DetailProduct = ({ product, loading, onClose }) => {
     { key: "4", field: "Tên Loại Hàng", value: categoryID },
     { key: "5", field: "Tên Sản Phẩm", value: productName },
     { key: "6", field: "Mô Tả", value: productDescription },
+    {
+      key: "7",
+      field: "Giá Đặt Cọc",
+      value: depositProduct !== null ? `${depositProduct} VND` : "Không có",
+    },
 
     {
       key: "8",

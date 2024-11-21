@@ -1,5 +1,5 @@
 import { Card, Col, Form, Radio, Row } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 
 const VoucherSelectionBuy = ({
   vouchers,
@@ -8,6 +8,12 @@ const VoucherSelectionBuy = ({
   handleVoucherSelect,
   selectedVoucherDetails,
 }) => {
+  useEffect(() => {
+    if (!selectedVoucher) {
+      handleVoucherSelect({ target: { value: null } });
+    }
+  }, [selectedVoucher, handleVoucherSelect]);
+
   const onCardClick = (vourcherID) => {
     setSelectedVoucher(vourcherID);
     handleVoucherSelect({ target: { value: vourcherID } });
@@ -36,7 +42,6 @@ const VoucherSelectionBuy = ({
                     selectedVoucher === voucher.vourcherID
                       ? "#e6f7ff"
                       : "#ffffff",
-                  borderWidth: selectedVoucher === voucher.vourcherID,
                   boxShadow:
                     selectedVoucher === voucher.vourcherID
                       ? "0 4px 8px rgba(0, 0, 0, 0.1)"

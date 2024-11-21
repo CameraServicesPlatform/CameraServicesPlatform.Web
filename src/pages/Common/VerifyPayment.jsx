@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { purchaseOrder } from "../../api/orderApi";
+import { createSupplierPaymentPurchuse } from "../../api/transactionApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import paymentFailed from "../../images/payment-failed.gif";
 import paymentSuccess from "../../images/payment-success.gif";
@@ -24,22 +25,32 @@ const VerifyPayment = () => {
         searchParams.get("vnp_OrderInfo")
       );
 
+      console.log("vnpResponseCode:", vnpResponseCode);
+      console.log("vnp_TxnRef:", vnp_TxnRef);
+      console.log("vnpOrderInfo:", vnpOrderInfo);
+
       if (vnpResponseCode) {
         setIsVNPAY(true);
         if (vnpResponseCode === "00") {
-          const data = await purchaseOrder(vnp_TxnRef);
-          if (data.isSuccess) {
-            setModalMessage(`Thanh toán thành công cho ${vnpOrderInfo}`);
-            setIsSuccess(true);
-          }
+          const data =
+            (await purchaseOrder(vnp_TxnRef)) ||
+            (await createSupplierPaymentPurchuse(vnp_TxnRef));
+          console.log("purchaseOrder data:", data);
+          setModalMessage(`Thanh toán thành công cho ${vnpOrderInfo}`);
+          setIsSuccess(true);
         } else {
           setModalMessage(
             `Thanh toán VNPay thất bại cho đơn hàng: ${vnpOrderInfo}. Vui lòng thanh toán lại`
           );
           setIsSuccess(false);
         }
-        setModalIsOpen(true);
+      } else {
+        setModalMessage(
+          `Thanh toán VNPay thất bại cho đơn hàng: ${vnpOrderInfo}. Vui lòng thanh toán lại`
+        );
+        setIsSuccess(false);
       }
+      setModalIsOpen(true);
     } catch (err) {
       console.error("Error handling payment:", err);
     } finally {

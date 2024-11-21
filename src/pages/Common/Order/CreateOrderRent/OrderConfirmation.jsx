@@ -1,21 +1,49 @@
-import { Button, Card, Descriptions, Form } from "antd";
+import { Card, Descriptions } from "antd";
 import React from "react";
 
-const OrderConfirmation = ({ totalAmount }) => (
-  <div>
+const OrderConfirmation = ({
+  totalAmount,
+  depositProduct,
+  productPriceRent,
+  selectedVoucherDetails,
+}) => {
+  return (
     <Card title="Xác nhận đơn hàng" bordered={false}>
       <Descriptions bordered column={1}>
+        <Descriptions.Item label="Giá thuê sản phẩm">
+          {new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          }).format(productPriceRent)}
+        </Descriptions.Item>
+        <Descriptions.Item label="Tiền cọc sản phẩm">
+          {new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          }).format(depositProduct)}
+        </Descriptions.Item>
+        {selectedVoucherDetails && (
+          <Descriptions.Item label="Mã Voucher">
+            {selectedVoucherDetails.vourcherCode}
+          </Descriptions.Item>
+        )}
+        {selectedVoucherDetails && (
+          <Descriptions.Item label="Số tiền giảm">
+            {new Intl.NumberFormat("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            }).format(selectedVoucherDetails.discountAmount)}
+          </Descriptions.Item>
+        )}
         <Descriptions.Item label="Tổng số tiền">
-          {totalAmount}
+          {new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          }).format(totalAmount)}
         </Descriptions.Item>
       </Descriptions>
-      <Form.Item style={{ marginTop: "16px" }}>
-        <Button type="primary" htmlType="submit">
-          Tạo đơn hàng
-        </Button>
-      </Form.Item>
     </Card>
-  </div>
-);
+  );
+};
 
 export default OrderConfirmation;

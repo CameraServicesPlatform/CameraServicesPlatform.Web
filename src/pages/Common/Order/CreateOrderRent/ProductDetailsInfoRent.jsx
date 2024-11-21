@@ -39,6 +39,8 @@ const ProductDetailsInfoRent = ({
   setRentalStartDate,
   rentalEndDate,
   setRentalEndDate,
+  returnDate,
+  setReturnDate,
 }) => {
   const pricePerHour = product.pricePerHour;
   const pricePerDay = product.pricePerDay;
@@ -46,15 +48,73 @@ const ProductDetailsInfoRent = ({
   const pricePerMonth = product.pricePerMonth;
 
   const durationOptions = {
-    hour: { min: 2, max: 8 },
-    day: { min: 1, max: 3 },
-    week: { min: 1, max: 2 },
-    month: { min: 1, max: 1 },
+    0: { min: 2, max: 8 }, // Hour
+    1: { min: 1, max: 3 }, // Day
+    2: { min: 1, max: 2 }, // Week
+    3: { min: 1, max: 1 }, // Month
   };
 
+  const handleDurationValueChange = (value) => {
+    setDurationValue(value);
+  };
+
+  useEffect(() => {
+    if (durationUnit !== undefined && durationValue && rentalStartDate) {
+      calculateProductPriceRent();
+      const endDate = calculateRentalEndTime(
+        rentalStartDate.toDate(),
+        durationValue,
+        durationUnit
+      );
+      setRentalEndDate(moment(endDate));
+
+      // Calculate Return Date after setting rentalEndDate
+      const calculatedReturnDate = calculateReturnDate(endDate);
+      setReturnDate(moment(calculatedReturnDate));
+    }
+  }, [durationUnit, durationValue, rentalStartDate]);
+
+  const handleDurationUnitChange = (value) => {
+    setDurationUnit(value);
+    setDurationValue(durationOptions[value].min);
+    const { min, max } = durationOptions[value];
+    message.info(`Please select a duration between ${min} and ${max}.`);
+  };
+
+  const calculateReturnDate = (endDate) => {
+    if (!endDate) return null;
+    return moment(endDate).clone().add(1, "hours");
+  };
+
+  // Add this debug check at the start of component
+  useEffect(() => {
+    console.log("Price variables:", {
+      pricePerHour,
+      pricePerDay,
+      pricePerWeek,
+      pricePerMonth,
+    });
+  }, []);
+
   const calculateProductPriceRent = () => {
+    // Debug logging
+    console.log("Calculating price with:", {
+      durationUnit,
+      durationValue,
+      pricePerHour,
+      pricePerDay,
+      pricePerWeek,
+      pricePerMonth,
+    });
+
     if (!durationOptions[durationUnit]) {
       message.error("Invalid duration unit");
+      return;
+    }
+
+    // Validate inputs
+    if (!durationValue || durationValue <= 0) {
+      message.error("Duration value must be greater than 0");
       return;
     }
 
@@ -68,72 +128,92 @@ const ProductDetailsInfoRent = ({
 
     let price = 0;
     switch (durationUnit) {
-      case "hour":
-        price = durationValue * pricePerHour;
+      case 0:
+        price = durationValue * (pricePerHour || 0);
         break;
-      case "day":
-        price = durationValue * pricePerDay;
+      case 1:
+        price = durationValue * (pricePerDay || 0);
         break;
-      case "week":
-        price = durationValue * pricePerWeek;
+      case 2:
+        price = durationValue * (pricePerWeek || 0);
         break;
-      case "month":
-        price = durationValue * pricePerMonth;
+      case 3:
+        price = durationValue * (pricePerMonth || 0);
         break;
       default:
         price = 0;
     }
 
+    // Debug final price
+    console.log("Calculated price:", price);
     setProductPriceRent(price);
   };
 
-  const calculateRentalEndDate = (startDate) => {
-    if (!startDate || !durationUnit || !durationValue) return null;
+  // Make sure calculation runs when needed
+  useEffect(() => {
+    if (durationUnit !== undefined && durationValue > 0) {
+      calculateProductPriceRent();
+    }
+  }, [durationUnit, durationValue]);
 
-    let endDate;
-    switch (durationUnit) {
-      case "hour":
-        endDate = moment(startDate + durationValue).add(durationValue, "hours");
+  const handleRentalStartDateChange = (date) => {
+    if (!date) {
+      message.error("Vui lòng chọn ngày bắt đầu thuê");
+      return;
+    }
+
+    setRentalStartDate(date);
+
+    const calculatedEndDate = calculateRentalEndTime(
+      date.toDate(),
+      durationValue,
+      durationUnit
+    );
+    if (calculatedEndDate) {
+      setRentalEndDate(moment(calculatedEndDate));
+
+      // Calculate Return Date after setting rentalEndDate
+      const calculatedReturnDate = calculateReturnDate(calculatedEndDate);
+      setReturnDate(moment(calculatedReturnDate));
+    }
+  };
+
+  const calculateRentalEndTime = (
+    rentalStartTime,
+    rentalDuration,
+    durationType
+  ) => {
+    let rentalEndTime;
+    switch (durationType) {
+      case 0: // Hour
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 60 * 60 * 1000
+        );
         break;
-      case "day":
-        endDate = moment(startDate + durationValue).add(durationValue, "days");
+      case 1: // Day
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 24 * 60 * 60 * 1000
+        );
         break;
-      case "week":
-        endDate = moment(startDate + durationValue).add(durationValue, "weeks");
+      case 2: // Week
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 7 * 24 * 60 * 60 * 1000
+        );
         break;
-      case "month":
-        endDate = moment(startDate + durationValue).add(
-          durationValue,
-          "months"
+      case 3: // Month
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 30 * 24 * 60 * 60 * 1000
         );
         break;
       default:
-        endDate = startDate;
+        throw new Error("Invalid duration type");
     }
-    return endDate;
+    return rentalEndTime;
   };
-
-  useEffect(() => {
-    if (durationUnit && durationValue) {
-      calculateProductPriceRent();
-      const endDate = calculateRentalEndDate(rentalStartDate);
-      setRentalEndDate(endDate);
-    }
-  }, [durationUnit, durationValue, rentalStartDate]);
-
-  const handleDurationUnitChange = (value) => {
-    setDurationUnit(value);
-    setDurationValue(durationOptions[value].min); // Set default value to min
-    const { min, max } = durationOptions[value];
-    message.info(`You need to choose between ${min} and ${max}.`);
-  };
-
-  const handleRentalStartDateChange = (date) => {
-    setRentalStartDate(date);
-    const endDate = calculateRentalEndDate(date);
-    setRentalEndDate(endDate);
-  };
-
+  const disabledTime = () => ({
+    disabledHours: () =>
+      [...Array(24)].map((_, i) => i).filter((h) => h < 7 || h >= 20),
+  });
   return (
     <Card
       title="Thông tin sản phẩm"
@@ -177,33 +257,46 @@ const ProductDetailsInfoRent = ({
                 <Descriptions.Item
                   label={
                     <span>
+                      <FileTextOutlined /> Cọc sản phẩm
+                    </span>
+                  }
+                >
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(product.depositProduct)}
+                </Descriptions.Item>
+
+                <Descriptions.Item
+                  label={
+                    <span>
                       <DollarOutlined /> Giá thuê
                     </span>
                   }
                 >
                   <div style={{ color: "#52c41a" }}>
-                    <strong>Giờ: </strong>{" "}
+                    <strong>Giờ: </strong>
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }).format(product.pricePerHour)}
                   </div>
                   <div style={{ color: "#1890ff" }}>
-                    <strong>Ngày:</strong>{" "}
+                    <strong>Ngày:</strong>
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }).format(product.pricePerDay)}
                   </div>
                   <div style={{ color: "#faad14" }}>
-                    <strong>Tuần:</strong>{" "}
+                    <strong>Tuần:</strong>
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
                     }).format(product.pricePerWeek)}
                   </div>
                   <div style={{ color: "#f5222d" }}>
-                    <strong>Tháng:</strong>{" "}
+                    <strong>Tháng:</strong>
                     {new Intl.NumberFormat("vi-VN", {
                       style: "currency",
                       currency: "VND",
@@ -265,35 +358,43 @@ const ProductDetailsInfoRent = ({
                   onChange={handleDurationUnitChange}
                   style={{ width: "100%" }}
                 >
-                  <Option value="hour">Giờ</Option>
-                  <Option value="day">Ngày</Option>
-                  <Option value="week">Tuần</Option>
-                  <Option value="month">Tháng</Option>
+                  <Option value={0}>Giờ</Option>
+                  <Option value={1}>Ngày</Option>
+                  <Option value={2}>Tuần</Option>
+                  <Option value={3}>Tháng</Option>
                 </Select>
               </Form.Item>
               <Form.Item label="Giá trị thời gian" style={{ width: "100%" }}>
                 <InputNumber
-                  min={durationUnit ? durationOptions[durationUnit].min : 0}
-                  max={durationUnit ? durationOptions[durationUnit].max : 0}
+                  min={durationOptions[durationUnit]?.min || 1}
+                  max={durationOptions[durationUnit]?.max || 1}
                   value={durationValue}
-                  onChange={setDurationValue}
-                  disabled={!durationUnit}
-                  style={{ width: "100%" }}
+                  onChange={handleDurationValueChange}
                 />
               </Form.Item>
-              <div style={{ marginTop: "16px", width: "100%" }}>
-                <strong>Giá thuê sản phẩm:</strong>{" "}
-                {new Intl.NumberFormat("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                }).format(productPriceRent)}
-              </div>{" "}
+
               <Form.Item label="Ngày bắt đầu thuê" style={{ width: "100%" }}>
                 <DatePicker
-                  showTime
+                  showTime={{
+                    format: "HH:mm",
+                    hideDisabledOptions: true,
+                  }}
                   value={rentalStartDate}
                   onChange={handleRentalStartDateChange}
+                  format="DD - MM - YYYY HH:mm"
                   style={{ width: "100%" }}
+                  disabledTime={disabledTime}
+                  onOk={(value) => {
+                    const hour = value.hour();
+                    if (hour < 7 || hour >= 20) {
+                      message.error(
+                        "Chỉ được chọn thời gian từ 7:00 đến 20:00"
+                      );
+                      return;
+                    }
+                    handleRentalStartDateChange(value);
+                  }}
+                  placeholder="Chọn ngày và giờ bắt đầu thuê"
                 />
               </Form.Item>
               <Form.Item label="Ngày kết thúc thuê" style={{ width: "100%" }}>
@@ -301,11 +402,51 @@ const ProductDetailsInfoRent = ({
                   showTime
                   value={rentalEndDate}
                   disabled
+                  format="DD - MM - YYYY HH:mm"
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+              <Form.Item label="Ngày trả hàng" style={{ width: "100%" }}>
+                <DatePicker
+                  showTime
+                  value={returnDate}
+                  disabled
+                  format="DD - MM - YYYY HH:mm"
                   style={{ width: "100%" }}
                 />
               </Form.Item>
             </Card>
+            <div
+              style={{ marginTop: "16px", width: "100%", textAlign: "center" }}
+            >
+              <Card
+                bordered={false}
+                style={{
+                  backgroundColor: "#f6f8fa",
+                  padding: "16px",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <strong style={{ fontSize: "16px", color: "#333" }}>
+                  Giá thuê sản phẩm:
+                </strong>
+                <div
+                  style={{
+                    fontSize: "24px",
+                    color: "#52c41a",
+                    marginTop: "8px",
+                  }}
+                >
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(productPriceRent)}
+                </div>
+              </Card>
+            </div>
           </Form>
+
           <Button
             type="link"
             onClick={toggleContractTerms}
@@ -336,15 +477,15 @@ const ProductDetailsInfoRent = ({
                           }
                         >
                           <p>
-                            <strong>Điều khoản hợp đồng:</strong>{" "}
+                            <strong>Điều khoản hợp đồng:</strong>
                             {item.contractTerms}
                           </p>
                           <p>
-                            <strong>Chính sách phạt:</strong>{" "}
+                            <strong>Chính sách phạt:</strong>
                             {item.penaltyPolicy}
                           </p>
                           <p>
-                            <strong>Chi tiết mẫu:</strong>{" "}
+                            <strong>Chi tiết mẫu:</strong>
                             {item.templateDetails}
                           </p>
                         </Descriptions.Item>
