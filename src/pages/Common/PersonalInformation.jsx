@@ -62,7 +62,7 @@ const orderTypeMap = {
 
 const deliveryStatusMap = {
   0: { text: "Nhận tại cửa hàng", color: "blue", icon: "fa-store" }, // LPH: Lấy Phát Hàng
-  1: { text: "Giao hàng", color: "green", icon: "fa-truck" },
+  1: { text: "Giao hàng tận nơi", color: "green", icon: "fa-truck" },
   2: { text: "Trả lại", color: "red", icon: "fa-undo" },
 };
 
@@ -346,7 +346,7 @@ const PersonalInformation = () => {
         {order.shippingAddress}
       </td>
       <td className="py-3 px-4 border-b hidden lg:table-cell">
-        <StatusBadge status={order.deliveryMethod} map={deliveryStatusMap} />
+        <StatusBadge status={order.deliveriesMethod} map={deliveryStatusMap} />
       </td>
       <td className="py-3 px-4 border-b">
         <StatusBadge status={order.orderType} map={orderTypeMap} />
