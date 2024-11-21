@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { purchaseOrder } from "../../api/orderApi";
-import { createSupplierPaymentPurchuse } from "../../api/transactionApi";
+import {
+  createStaffRefundPurchuse,
+  createSupplierPaymentPurchuse,
+} from "../../api/transactionApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import paymentFailed from "../../images/payment-failed.gif";
 import paymentSuccess from "../../images/payment-success.gif";
@@ -39,6 +42,8 @@ const VerifyPayment = () => {
           setModalMessage(`Thanh toán thành công cho ${vnpOrderInfo}`);
           setIsSuccess(true);
         } else {
+          const refundData = await createStaffRefundPurchuse(vnp_TxnRef);
+          console.log("createStaffRefundPurchuse data:", refundData);
           setModalMessage(
             `Thanh toán VNPay thất bại cho đơn hàng: ${vnpOrderInfo}. Vui lòng thanh toán lại`
           );

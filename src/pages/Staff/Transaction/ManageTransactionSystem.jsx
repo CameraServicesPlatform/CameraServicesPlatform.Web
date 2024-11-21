@@ -1,6 +1,7 @@
 import { Tabs } from "antd";
 import React, { useState } from "react";
-import HistoryTransactionList from "./HistoryTransactionList.jsx";
+import CreateStaffRefundMember from "./CreateStaffRefundMember";
+import HistoryTransactionList from "./HistoryTransactionList";
 import TransactionList from "./TransactionList";
 const ManageTransactionSystem = () => {
   const [refreshList, setRefreshList] = useState(false);
@@ -16,6 +17,11 @@ const ManageTransactionSystem = () => {
 
       label: "Danh Sách Giao Dịch Hoàn Trả",
       children: <HistoryTransactionList refresh={refreshList} />,
+    },
+    {
+      key: "3",
+      label: "Tạo Giao Dịch Hoàn Trả Cho Nhà cung cấp",
+      children: <CreateStaffRefundMember refresh={refreshList} />,
     },
   ];
 

@@ -72,24 +72,10 @@ export const getTransactionBySupplierId = async (
   }
 };
 
-// Create a supplier payment
+// Create a supplier payment  
 export const createSupplierPayment = async (data) => {
   try {
     const res = await api.post("/transaction/create-supplier-payment", data);
-    return res.data;
-  } catch (err) {
-    console.error("Error creating supplier payment:", err);
-    return null;
-  }
-};
-
-// Create a supplier payment again
-export const createSupplierPaymentAgain = async (data) => {
-  try {
-    const res = await api.post(
-      "/transaction/create-supplier-payment-again",
-      data
-    );
     return res.data;
   } catch (err) {
     console.error("Error creating supplier payment again:", err);
@@ -100,7 +86,7 @@ export const createSupplierPaymentAgain = async (data) => {
 // Create a staff refund
 export const createStaffRefund = async (data) => {
   try {
-    const res = await api.post("/transaction/create-staff-refund", data);
+    const res = await api.post("/transaction/create-staff-refund-member", data);
     return res.data;
   } catch (err) {
     console.error("Error creating staff refund:", err);
@@ -110,7 +96,7 @@ export const createStaffRefund = async (data) => {
 export const createStaffRefundPurchuse = async (orderId) => {
   try {
     const res = await api.post(
-      `/transaction/create-staff-refund-purchuse?orderId=${orderId}`,
+      `/transaction/create-staff-refund-member-purchuse?orderId=${orderId}`,
       ""
     );
     return res.data;
