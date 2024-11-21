@@ -11,7 +11,7 @@ const ManageContractTemplate = () => {
       key: "1",
       label: (
         <span className="font-medium text-lg text-gray-700">
-          Danh sách mẫu hợp đồng
+          Danh sách điều khoản hợp đồng
         </span>
       ),
       children: <ContractTemplateList refresh={refreshList} />,
@@ -20,7 +20,7 @@ const ManageContractTemplate = () => {
       key: "2",
       label: (
         <span className="font-medium text-lg text-gray-700">
-          Tạo mẫu hợp đồng
+          Tạo điều khoản hợp đồng sản phẩm
         </span>
       ),
       children: <CreateContractTemplate />,

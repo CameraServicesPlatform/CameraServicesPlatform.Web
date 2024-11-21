@@ -13,19 +13,22 @@ import {
   Tag,
   Typography,
 } from "antd";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { getCategoryById } from "../../../api/categoryApi";
+import { getCategoryById, } from "../../../api/categoryApi";
 import { getAllProduct, getProductById } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
 import { createWishlist } from "../../../api/wishlistApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 import { getBrandName } from "../../../utils/constant";
+import { Select, Slider } from "antd";
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
+const { Option } = Select;
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -44,16 +47,21 @@ const ProductList = () => {
   const totalProducts = products.length;
   const [supplierName, setSupplierName] = useState("");
   const [categoryName, setCategoryName] = useState("");
-  const [wishlistedProducts, setWishlistedProducts] = useState([]); // State to track wishlisted products
+  const [wishlistedProducts, setWishlistedProducts] = useState([]);
 
   const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
+
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
         const productList = await getAllProduct(1, 100);
-        setProducts(productList);
+        // Sort products by createdAt in descending order
+        const sortedProducts = productList.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setProducts(sortedProducts);
       } catch (error) {
         message.error("Có lỗi xảy ra khi tải danh sách sản phẩm.");
       } finally {
@@ -111,8 +119,12 @@ const ProductList = () => {
       const filteredProducts = productList.filter((product) =>
         product.productName.toLowerCase().includes(value.toLowerCase())
       );
-      setProducts(filteredProducts);
-      setCurrentPage(1); // Reset to the first page when searching
+      // Sort filtered products by createdAt in descending order
+      const sortedProducts = filteredProducts.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setProducts(sortedProducts);
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error fetching products:", error);
       message.error("Có lỗi xảy ra khi tìm kiếm sản phẩm.");
@@ -127,7 +139,11 @@ const ProductList = () => {
     const fetchProducts = async () => {
       try {
         const productList = await getAllProduct(1, 100);
-        setProducts(productList);
+        // Sort products by createdAt in descending order
+        const sortedProducts = productList.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setProducts(sortedProducts);
       } catch (error) {
         message.error("Có lỗi xảy ra khi tải danh sách sản phẩm.");
       } finally {
@@ -136,6 +152,7 @@ const ProductList = () => {
     };
     fetchProducts();
   };
+
   const handleAddToWishlist = async (product) => {
     try {
       const data = {
@@ -272,7 +289,14 @@ const ProductList = () => {
                               {product.serialNumber}
                             </span>
                           </p>
-
+                          <p>
+                            <strong>Created At:</strong>
+                            <span style={{ color: "blue" }}>
+                              {moment(product.createdAt).format(
+                                "DD/MM/YYYY HH:mm"
+                              )}
+                            </span>
+                          </p>
                           {product.priceRent != null && (
                             <p>
                               <strong>Giá (Thuê)/giờ:</strong>
