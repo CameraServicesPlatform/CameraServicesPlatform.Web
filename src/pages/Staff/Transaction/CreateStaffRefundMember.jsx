@@ -21,7 +21,7 @@ const CreateStaffRefundMember = () => {
   }, []);
 
   const handleRefund = async (orderID, accountId, amount) => {
-    const staffId = "your-staff-id"; // Replace with actual staff ID
+    const staffId = "";  
     const data = { orderID, accountId, staffId, amount };
     const result = await createStaffRefund(data);
     if (result && result.isSuccess) {

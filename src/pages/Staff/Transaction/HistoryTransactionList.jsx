@@ -2,6 +2,7 @@ import { Button, Spin, Table } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { getUserById } from "../../../api/accountApi";
+import { getStaffById } from "../../../api/staffApi";
 import { getAllHistoryTransactions } from "../../../api/transactionApi"; // Adjust the import path as necessary
 
 const HistoryTransactionList = () => {
@@ -10,6 +11,7 @@ const HistoryTransactionList = () => {
   const [pageSize, setPageSize] = useState(10); // You can make this dynamic if needed
   const [loading, setLoading] = useState(false);
   const [accountNames, setAccountNames] = useState({});
+  const [staffNames, setStaffNames] = useState({});
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -17,19 +19,31 @@ const HistoryTransactionList = () => {
       const data = await getAllHistoryTransactions(pageIndex, pageSize);
       if (data) {
         setTransactions(data.result);
-        // Fetch account names for each transaction
+        // Fetch account names and staff names for each transaction
         const accountNamesMap = {};
+        const staffNamesMap = {};
         await Promise.all(
           data.result.map(async (transaction) => {
-            const accountData = await getUserById(transaction.accountID);
-            if (accountData && accountData.result) {
-              accountNamesMap[
-                transaction.accountID
-              ] = `${accountData.result.lastName} ${accountData.result.firstName}`;
+            if (transaction.accountID) {
+              const accountData = await getUserById(transaction.accountID);
+              if (accountData && accountData.result) {
+                accountNamesMap[
+                  transaction.accountID
+                ] = `${accountData.result.lastName} ${accountData.result.firstName}`;
+              }
+            }
+            if (transaction.staffID) {
+              const staffData = await getStaffById(transaction.staffID);
+              if (staffData) {
+                staffNamesMap[
+                  transaction.staffID
+                ] = `${staffData.result.name} `;
+              }
             }
           })
         );
         setAccountNames(accountNamesMap);
+        setStaffNames(staffNamesMap);
       }
       setLoading(false);
     };
@@ -58,9 +72,10 @@ const HistoryTransactionList = () => {
       render: (accountID) => accountNames[accountID],
     },
     {
-      title: "Mã nhân viên",
+      title: "Tên nhân viên",
       dataIndex: "staffID",
       key: "staffID",
+      render: (staffID) => staffNames[staffID],
     },
     {
       title: "Số tiền",
