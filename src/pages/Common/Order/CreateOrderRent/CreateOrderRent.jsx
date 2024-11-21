@@ -158,7 +158,13 @@ const CreateOrderRent = () => {
 
   const onFinish = async (values) => {
     console.log("Success:", values);
-
+    console.log("Delivery Method:", deliveryMethod);
+    console.log("Product Price Rent:", productPriceRent);
+    console.log("Duration Unit:", durationUnit);
+    console.log("Duration Value:", durationValue);
+    console.log("Rental Start Date:", rentalStartDate);
+    console.log("Rental End Date:", rentalEndDate);
+    console.log("Return Date:", returnDate);
     if (!product) {
       message.error("Product information is incomplete.");
       return;
@@ -201,7 +207,7 @@ const CreateOrderRent = () => {
       durationUnit: durationUnit,
       durationValue: durationValue,
       returnDate: returnDate,
-      deliveryMethod: deliveryMethod,
+      deliveryMethod: deliveryMethod, 
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -223,6 +229,7 @@ const CreateOrderRent = () => {
       console.error(error);
     }
   };
+
   const steps = [
     {
       title: "Chi tiết sản phẩm",
@@ -256,8 +263,7 @@ const CreateOrderRent = () => {
           setShippingAddress={setShippingAddress}
           deliveryMethod={deliveryMethod}
           setDeliveryMethod={setDeliveryMethod}
-          supplierInfo={supplierInfo}
-        />
+          supplierInfo={supplierInfo}/>
       ),
     },
     {
