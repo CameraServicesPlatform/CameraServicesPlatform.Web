@@ -1,4 +1,4 @@
-import { Pagination, Spin, message } from "antd";
+import { Spin, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { getAllProduct, getProductByName } from "../../../api/productApi";
 import ProductListTable from "../../Staff/Product/ProductListTable";
@@ -46,28 +46,7 @@ const ManageProduct = () => {
     setLoading(false);
   };
 
-  return (
-    <div>
-      {loading ? (
-        <Spin />
-      ) : (
-        <ProductListTable
-           
-        />
-      )}
-
-      <Pagination
-        current={pageIndex}
-        pageSize={pageSize}
-        total={totalProducts}
-        onChange={(page, size) => {
-          setPageIndex(page);
-          setPageSize(size);
-        }}
-        style={{ marginTop: 16, textAlign: "right" }}
-      />
-    </div>
-  );
+  return <div>{loading ? <Spin /> : <ProductListTable />}</div>;
 };
 
 export default ManageProduct;

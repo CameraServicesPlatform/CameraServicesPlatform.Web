@@ -11,13 +11,12 @@ import {
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getSupplierIdByAccountId } from "../../../api/accountApi";
 import { getCategoryById } from "../../../api/categoryApi"; // Import the API for fetching category by ID
 import {
   deleteProduct,
+  getAllProduct,
   getProductById,
-  getProductBySupplierId,
-} from "../../../api/productApi";
+} from "../../../api/productApi"; // Import getAllProduct
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
 import DetailAllProduct from "./DetailAllProduct";
 
@@ -39,37 +38,11 @@ const ProductListTable = () => {
   const [expandedDescriptions, setExpandedDescriptions] = useState({}); // Track expanded descriptions
   const { id } = useParams(); // Assume `id` is passed via URL parameters
 
-  // Fetch supplier ID on component mount
-  useEffect(() => {
-    const fetchSupplierId = async () => {
-      if (user.id) {
-        try {
-          const response = await getSupplierIdByAccountId(user.id);
-          if (response?.isSuccess) {
-            setSupplierId(response.result);
-          } else {
-            message.error("Failed to fetch supplier ID.");
-          }
-        } catch (error) {
-          message.error("Error fetching supplier ID.");
-        }
-      }
-    };
-
-    fetchSupplierId();
-  }, [user]);
-
-  // Fetch products based on supplier ID, page index, and page size
+  // Fetch products based on page index and page size
   const fetchProducts = async () => {
-    if (!supplierId) return;
-
     setLoading(true);
     try {
-      const result = await getProductBySupplierId(
-        supplierId,
-        pageIndex,
-        pageSize
-      );
+      const result = await getAllProduct(pageIndex, pageSize);
       if (Array.isArray(result)) {
         setProducts(result);
         setTotal(result.totalCount || 0);
@@ -104,10 +77,8 @@ const ProductListTable = () => {
   };
 
   useEffect(() => {
-    if (supplierId) {
-      fetchProducts();
-    }
-  }, [supplierId, pageIndex, pageSize]);
+    fetchProducts();
+  }, [pageIndex, pageSize]);
 
   // Handle product deletion
   const handleDelete = async (productId) => {
@@ -400,27 +371,7 @@ const ProductListTable = () => {
               borderColor: "#1890ff",
             }}
           ></Button>
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            style={{
-              marginRight: "8px",
-              backgroundColor: "#52c41a",
-              color: "#fff",
-              borderColor: "#52c41a",
-            }}
-          ></Button>
-          <Button
-            type="danger"
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.productID)}
-            style={{
-              backgroundColor: "#f5222d",
-              color: "#fff",
-              borderColor: "#f5222d",
-            }}
-          ></Button>
+          
         </div>
       ),
     },

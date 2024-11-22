@@ -43,10 +43,30 @@ const CreateStaffRefundMember = () => {
   const [total, setTotal] = useState(0);
   const [supplierNames, setSupplierNames] = useState({});
   const [accountNames, setAccountNames] = useState({});
+  const [staffId, setStaffId] = useState("");
 
   const user = useSelector((state) => state.user.user || {});
-  const acc = user.id;
-  console.log(acc);
+
+  useEffect(() => {
+    const fetchStaffId = async () => {
+      try {
+        const staffData = await getStaffByAccountId(user.id);
+        if (staffData && staffData.isSuccess) {
+          setStaffId(staffData.result);
+          console.log("Fetched staffId:", staffData.result);
+        } else {
+          console.error("Failed to fetch staffId");
+        }
+      } catch (error) {
+        console.error("Error fetching staffId:", error);
+      }
+    };
+
+    if (user && user.id) {
+      fetchStaffId();
+    }
+  }, [user]);
+
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
@@ -89,7 +109,8 @@ const CreateStaffRefundMember = () => {
 
   const handleRefund = async (orderID, accountId, deposit) => {
     const staffData = await getStaffByAccountId(user.id);
-    const staffId = staffData ? staffData.staffId : "";
+
+    const staffId = staffData ? staffData.result : "";
     console.log(staffId);
     const orderData = { orderID, accountId, staffId, amount: deposit };
 
