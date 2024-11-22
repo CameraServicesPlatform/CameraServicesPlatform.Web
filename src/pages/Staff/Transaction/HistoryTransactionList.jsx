@@ -37,7 +37,7 @@ const HistoryTransactionList = () => {
               if (staffData) {
                 staffNamesMap[
                   transaction.staffID
-                ] = `${staffData.result.name} `;
+                ] = `${staffData.result.account.firstName} ${staffData.result.account.lastName} `;
               }
             }
           })

@@ -1,9 +1,10 @@
 import { Button, Modal, Spin, Table } from "antd";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
   getAllTransactions,
   getTransactionById,
-} from "../../../api/transactionApi"; 
+} from "../../../api/transactionApi";
 
 const TransactionType = {
   0: "Thanh toán",
@@ -31,7 +32,7 @@ const VNPAYTransactionStatus = {
 const TransactionList = () => {
   const [transactions, setTransactions] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize] = useState(10); 
+  const [pageSize] = useState(10);
   const [loading, setLoading] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -85,11 +86,18 @@ const TransactionList = () => {
       title: "Ngày giao dịch",
       dataIndex: "transactionDate",
       key: "transactionDate",
+      render: (transactionDate) =>
+        moment(transactionDate).format("DD - MM - YYYY HH:mm"),
     },
     {
       title: "Số tiền",
       dataIndex: "amount",
       key: "amount",
+      render: (amount) =>
+        new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(amount),
     },
     {
       title: "Loại giao dịch",

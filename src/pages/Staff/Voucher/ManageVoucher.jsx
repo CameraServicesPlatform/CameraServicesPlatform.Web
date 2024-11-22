@@ -1,7 +1,6 @@
 import { Tabs, message } from "antd";
 import React, { useState } from "react";
 import VoucherList from "../../Staff/Voucher/VoucherList";
-import CreateVoucherForm from "./CreateVoucherForm";
 
 const { TabPane } = Tabs;
 
@@ -23,10 +22,10 @@ const ManageVoucher = () => {
           <VoucherList refresh={refreshList} />
         </TabPane>
 
-        {/* Tab for creating a new voucher */}
+        {/* Tab for creating a new voucher
         <TabPane tab="Create Voucher" key="2">
           <CreateVoucherForm onVoucherCreated={handleVoucherCreated} />
-        </TabPane>
+        </TabPane> */}
       </Tabs>
     </div>
   );
