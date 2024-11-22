@@ -327,15 +327,15 @@ const OrderListBySupplier = ({ refresh }) => {
     },
     {
       title: "Phương thức giao hàng",
-      dataIndex: "deliveryMethod",
-      key: "deliveryMethod",
+      dataIndex: "deliveriesMethod",
+      key: "deliveriesMethod",
       render: (status) => {
         const deliveryInfo = deliveryStatusMap[status];
         return deliveryInfo ? (
           <Tag color={deliveryInfo.color}>{deliveryInfo.text}</Tag>
         ) : null;
       },
-      sorter: (a, b) => a.deliveryMethod - b.deliveryMethod,
+      sorter: (a, b) => a.deliveriesMethod - b.deliveriesMethod,
     },
     {
       title: "Hành động",

@@ -158,7 +158,8 @@ const InformationSupplierDetail = () => {
             {supplierId === supplier.supplierID && (
               <Button type="primary" onClick={() => setIsEditing(true)}>
                 Chỉnh Sửa Thông tin trang cá nhân
-              </Button>
+                </Button>
+                
             )}
           </div>
         )}

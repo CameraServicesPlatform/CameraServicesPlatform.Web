@@ -162,17 +162,18 @@ const TrackingOrder = ({ order, onUpdate }) => {
       action: "accept-cancel",
     },
     {
-      title: "Đang vận chuyện sản phẩm",
-      status: 1,
-      icon: <CarOutlined />,
-      action: "ship",
-    },
-    {
       title: "Đợi khách hàng đến nhận",
       status: 1,
       icon: <SmileOutlined />,
       action: "ship",
     },
+    {
+      title: "Đang vận chuyện sản phẩm",
+      status: 1,
+      icon: <CarOutlined />,
+      action: "ship",
+    },
+
     {
       title: "Hoàn thành",
       status: [3, 4, 5],
@@ -230,7 +231,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
         }).format(text),
     },
     {
-      title: "Thời gian thuê",
+      title: "Thời gian trả",
       dataIndex: "periodRental",
       key: "periodRental",
       render: (text) => moment(text).format("DD - MM - YYYY HH:mm"),
@@ -284,7 +285,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Chấp nhận hủy
           </Button>
         )}
-        {order.orderStatus === 1 && order.deliveryMethod === 1 && (
+        {order.orderStatus === 1 && order.deliveriesMethod === 1 && (
           <Button
             type="default"
             onClick={() => showConfirm("ship", order.orderID)}

@@ -154,7 +154,7 @@ export const createOrderRent = async (orderData) => {
 export const updateOrderStatusShipped = async (orderId) => {
   try {
     const response = await api.put(
-      `${BASE_URL}/update-order-status-Shipped/${orderId}`,
+      `/order/update-order-status-Shipped/${orderId}`,
       {
         headers: {
           accept: "text/plain",
