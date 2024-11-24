@@ -196,8 +196,6 @@ const ManageUserList = () => {
               <th className="text-center">Quyền</th>
               <th className="text-center">Trạng thái</th>
               <th className="text-center">Giới tính</th>
-              <th className="text-center">Ngày tạo</th>
-              <th className="text-center">Ngày cập nhật</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -228,8 +226,6 @@ const ManageUserList = () => {
                   <td className="text-center">
                     {genderLabels[item.gender] || "Không xác định"}
                   </td>
-                  <td className="text-center">{item.createdAt}</td>
-                  <td className="text-center">{item.updatedAt}</td>
                 </tr>
               ))
             ) : (
@@ -262,3 +258,4 @@ const ManageUserList = () => {
 };
 
 export default ManageUserList;
+S
