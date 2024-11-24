@@ -41,7 +41,7 @@ const DeliveryMethod = ({
           rules={[
             {
               required: true,
-              message: "Vui lòng nhập địa chỉ giao hàng!",
+              message: "Vui lòng nbsp địa chỉ giao hàng!",
             },
           ]}
         >
@@ -70,3 +70,4 @@ const DeliveryMethod = ({
 };
 
 export default DeliveryMethod;
+

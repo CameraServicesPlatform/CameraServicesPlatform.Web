@@ -24,10 +24,10 @@ const VoucherList = () => {
           setOriginalVouchers(response.result); // Store original vouchers
           setTotal(response.result.length); // Update this if you have total count
         } else {
-          console.error("Failed to fetch vouchers:", response.messages);
+          console.error("Không thể tải danh sách voucher:", response.messages);
         }
       } catch (error) {
-        console.error("Error fetching vouchers:", error);
+        console.error("Lỗi khi tải danh sách voucher:", error);
       } finally {
         setLoading(false);
       }
@@ -59,45 +59,45 @@ const VoucherList = () => {
 
   const columns = [
     {
-      title: "Supplier ID",
+      title: "Mã nhà cung cấp",
       dataIndex: "supplierID",
       key: "supplierID",
     },
     {
-      title: "Voucher ID",
+      title: "Mã voucher",
       dataIndex: "vourcherID",
       key: "vourcherID",
     },
     {
-      title: "Voucher Code",
+      title: "Mã voucher",
       dataIndex: "vourcherCode",
       key: "vourcherCode",
     },
     {
-      title: "Description",
+      title: "Mô tả",
       dataIndex: "description",
       key: "description",
     },
     {
-      title: "Discount Amount",
+      title: "Số tiền giảm giá",
       dataIndex: "discountAmount",
       key: "discountAmount",
       render: (text) => `${text} VND`,
     },
     {
-      title: "Valid From",
+      title: "Hiệu lực từ",
       dataIndex: "validFrom",
       key: "validFrom",
       render: (text) => new Date(text).toLocaleDateString(),
     },
     {
-      title: "Expiration Date",
+      title: "Ngày hết hạn",
       dataIndex: "expirationDate",
       key: "expirationDate",
       render: (text) => new Date(text).toLocaleDateString(),
     },
     {
-      title: "Active",
+      title: "Hoạt động",
       dataIndex: "isActive",
       key: "isActive",
       render: (isActive) =>
@@ -112,7 +112,7 @@ const VoucherList = () => {
   return (
     <div>
       <Input
-        placeholder="Search by voucher code or description"
+        placeholder="Tìm kiếm theo mã voucher hoặc mô tả"
         onChange={(e) => handleSearch(e.target.value)}
         style={{ marginBottom: 16 }}
       />
@@ -139,7 +139,7 @@ const VoucherList = () => {
             style={{ marginTop: 16, textAlign: "right" }}
           />
           <Modal
-            title="Voucher Details"
+            title="Chi tiết voucher"
             visible={visible}
             onCancel={() => setVisible(false)}
             footer={null}
@@ -147,28 +147,28 @@ const VoucherList = () => {
             {selectedVoucher && (
               <div>
                 <p>
-                  <strong>Voucher Code:</strong> {selectedVoucher.vourcherCode}
+                  <strong>Mã voucher:</strong> {selectedVoucher.vourcherCode}
                 </p>
                 <p>
-                  <strong>Description:</strong> {selectedVoucher.description}
+                  <strong>Mô tả:</strong> {selectedVoucher.description}
                 </p>
                 <p>
-                  <strong>Discount Amount:</strong>{" "}
+                  <strong>Số tiền giảm giá:</strong>{" "}
                   {selectedVoucher.discountAmount} VND
                 </p>
                 <p>
-                  <strong>Valid From:</strong>{" "}
+                  <strong>Hiệu lực từ:</strong>{" "}
                   {new Date(selectedVoucher.validFrom).toLocaleDateString()}
                 </p>
                 <p>
-                  <strong>Expiration Date:</strong>{" "}
+                  <strong>Ngày hết hạn:</strong>{" "}
                   {new Date(
                     selectedVoucher.expirationDate
                   ).toLocaleDateString()}
                 </p>
                 <p>
-                  <strong>Active:</strong>{" "}
-                  {selectedVoucher.isActive ? "Yes" : "No"}
+                  <strong>Hoạt động:</strong>{" "}
+                  {selectedVoucher.isActive ? "Có" : "Không"}
                 </p>
               </div>
             )}

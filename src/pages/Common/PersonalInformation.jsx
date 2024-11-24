@@ -1,4 +1,4 @@
-import { faClock, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faClock, faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { message } from "antd";
 import { useEffect, useState } from "react";
@@ -16,7 +16,6 @@ import { getSupplierById } from "../../api/supplierApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
-
 const jobDescriptions = {
   0: "Sinh viên",
   1: "Nhiếp ảnh gia chuyên nghiệp",
@@ -48,11 +47,13 @@ const orderStatusMap = {
   2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
   3: { text: "Đã nhận sản phẩm", color: "purple", icon: "fa-shopping-cart" },
   4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
-
   5: { text: "Thanh toán thất bại", color: "cyan", icon: "fa-money-bill-wave" },
-  6: { text: "Đang hủy ", color: "lime", icon: "fa-box-open" },
+  6: { text: "Đang hủy", color: "lime", icon: "fa-box-open" },
   7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
   8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
+  9: { text: "Hoàn tiền đang chờ xử lý", color: "pink", icon: "fa-clock" },
+  10: { text: "Hoàn tiền", color: "brown", icon: "fa-undo" },
+  11: { text: "Hoàn trả tiền đặt cọc", color: "gold", icon: "fa-piggy-bank" },
 };
 
 const orderTypeMap = {
@@ -62,7 +63,7 @@ const orderTypeMap = {
 
 const deliveryStatusMap = {
   0: { text: "Nhận tại cửa hàng", color: "blue", icon: "fa-store" }, // LPH: Lấy Phát Hàng
-  1: { text: "Giao hàng", color: "green", icon: "fa-truck" },
+  1: { text: "Giao hàng tận nơi", color: "green", icon: "fa-truck" },
   2: { text: "Trả lại", color: "red", icon: "fa-undo" },
 };
 
@@ -346,7 +347,7 @@ const PersonalInformation = () => {
         {order.shippingAddress}
       </td>
       <td className="py-3 px-4 border-b hidden lg:table-cell">
-        <StatusBadge status={order.deliveryMethod} map={deliveryStatusMap} />
+        <StatusBadge status={order.deliveriesMethod} map={deliveryStatusMap} />
       </td>
       <td className="py-3 px-4 border-b">
         <StatusBadge status={order.orderType} map={orderTypeMap} />
@@ -423,6 +424,12 @@ const PersonalInformation = () => {
             <h2 className="text-2xl font-bold text-teal-600 flex items-center">
               <i className="fa-solid fa-user mr-2"></i> Thông tin cá nhân
             </h2>
+            <button
+              className="btn bg-primary text-white flex items-center"
+              onClick={() => setIsUpdateModalOpen(true)}
+            >
+              <FontAwesomeIcon icon={faEdit} className="mr-2" />
+            </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex items-center">

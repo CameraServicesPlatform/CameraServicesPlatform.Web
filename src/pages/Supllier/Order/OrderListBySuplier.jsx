@@ -32,25 +32,28 @@ const OrderListBySupplier = ({ refresh }) => {
   const [trackingModalVisible, setTrackingModalVisible] = useState(false);
   const [contractModalVisible, setContractModalVisible] = useState(false);
 
-  const orderStatusMap = {
-    0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
-    1: {
-      text: "Sản phẩm sẵn sàng được giao",
-      color: "green",
-      icon: "fa-check-circle",
-    },
-    2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
-    3: { text: "Đã nhận sản phẩm", color: "purple", icon: "fa-shopping-cart" },
-    4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
-    5: {
-      text: "Thanh toán thất bại",
-      color: "cyan",
-      icon: "fa-money-bill-wave",
-    },
-    6: { text: "Đang hủy ", color: "lime", icon: "fa-box-open" },
-    7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
-    8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
-  };
+ const orderStatusMap = {
+   0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
+   1: {
+     text: "Sản phẩm sẵn sàng được giao",
+     color: "green",
+     icon: "fa-check-circle",
+   },
+   2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
+   3: { text: "Đã nhận sản phẩm", color: "purple", icon: "fa-shopping-cart" },
+   4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
+   5: {
+     text: "Thanh toán thất bại",
+     color: "cyan",
+     icon: "fa-money-bill-wave",
+   },
+   6: { text: "Đang hủy", color: "lime", icon: "fa-box-open" },
+   7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
+   8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
+   9: { text: "Hoàn tiền đang chờ xử lý", color: "pink", icon: "fa-clock" },
+   10: { text: "Hoàn tiền", color: "brown", icon: "fa-undo" },
+   11: { text: "Hoàn trả tiền đặt cọc", color: "gold", icon: "fa-piggy-bank" },
+ };
 
   const orderTypeMap = {
     0: { text: "Mua", color: "blue" },
@@ -327,15 +330,15 @@ const OrderListBySupplier = ({ refresh }) => {
     },
     {
       title: "Phương thức giao hàng",
-      dataIndex: "deliveryMethod",
-      key: "deliveryMethod",
+      dataIndex: "deliveriesMethod",
+      key: "deliveriesMethod",
       render: (status) => {
         const deliveryInfo = deliveryStatusMap[status];
         return deliveryInfo ? (
           <Tag color={deliveryInfo.color}>{deliveryInfo.text}</Tag>
         ) : null;
       },
-      sorter: (a, b) => a.deliveryMethod - b.deliveryMethod,
+      sorter: (a, b) => a.deliveriesMethod - b.deliveriesMethod,
     },
     {
       title: "Hành động",

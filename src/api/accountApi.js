@@ -146,6 +146,15 @@ export const getAccountById = async (accountId, token) => {
     return null;
   }
 };
+export const getUserById = async (accountId) => {
+  try {
+    const res = await api.post(`/account/get-account-by-userId/${accountId}`);
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching account by ID:", err);
+    return null;
+  }
+};
 
 export const sendResetPassOTP = async (email) => {
   try {
@@ -190,7 +199,16 @@ export const getSupplierIdByAccountId = async (accountId) => {
     return null;
   }
 };
-
+export const getStaffByAccountId = async (accountId) => {
+  try {
+    const res = await api.get(
+      `/account/get-staff-id-by-account-id/${accountId}`
+    );
+    return res.data;
+  } catch (err) {
+    return null;
+  }
+};
 export const updateAccount = async (data) => {
   try {
     const res = await api.put(`/account/update-account`, data);

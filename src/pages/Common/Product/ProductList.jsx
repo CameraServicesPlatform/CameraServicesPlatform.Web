@@ -1,3 +1,4 @@
+import { FileTextOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -10,9 +11,11 @@ import {
   Modal,
   Pagination,
   Row,
+  Select,
   Tag,
   Typography,
 } from "antd";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { useSelector } from "react-redux";
@@ -26,6 +29,7 @@ import { getBrandName } from "../../../utils/constant";
 const { Header, Content } = Layout;
 const { Title } = Typography;
 const { Search } = Input;
+const { Option } = Select;
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -44,16 +48,21 @@ const ProductList = () => {
   const totalProducts = products.length;
   const [supplierName, setSupplierName] = useState("");
   const [categoryName, setCategoryName] = useState("");
-  const [wishlistedProducts, setWishlistedProducts] = useState([]); // State to track wishlisted products
+  const [wishlistedProducts, setWishlistedProducts] = useState([]);
 
   const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
+
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
         const productList = await getAllProduct(1, 100);
-        setProducts(productList);
+        // Sort products by createdAt in descending order
+        const sortedProducts = productList.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setProducts(sortedProducts);
       } catch (error) {
         message.error("Có lỗi xảy ra khi tải danh sách sản phẩm.");
       } finally {
@@ -111,8 +120,12 @@ const ProductList = () => {
       const filteredProducts = productList.filter((product) =>
         product.productName.toLowerCase().includes(value.toLowerCase())
       );
-      setProducts(filteredProducts);
-      setCurrentPage(1); // Reset to the first page when searching
+      // Sort filtered products by createdAt in descending order
+      const sortedProducts = filteredProducts.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setProducts(sortedProducts);
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error fetching products:", error);
       message.error("Có lỗi xảy ra khi tìm kiếm sản phẩm.");
@@ -127,7 +140,11 @@ const ProductList = () => {
     const fetchProducts = async () => {
       try {
         const productList = await getAllProduct(1, 100);
-        setProducts(productList);
+        // Sort products by createdAt in descending order
+        const sortedProducts = productList.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setProducts(sortedProducts);
       } catch (error) {
         message.error("Có lỗi xảy ra khi tải danh sách sản phẩm.");
       } finally {
@@ -136,6 +153,7 @@ const ProductList = () => {
     };
     fetchProducts();
   };
+
   const handleAddToWishlist = async (product) => {
     try {
       const data = {
@@ -272,7 +290,14 @@ const ProductList = () => {
                               {product.serialNumber}
                             </span>
                           </p>
-
+                          <p>
+                            <strong>Created At:</strong>
+                            <span style={{ color: "blue" }}>
+                              {moment(product.createdAt).format(
+                                "DD/MM/YYYY HH:mm"
+                              )}
+                            </span>
+                          </p>
                           {product.priceRent != null && (
                             <p>
                               <strong>Giá (Thuê)/giờ:</strong>
@@ -430,8 +455,8 @@ const ProductList = () => {
             />
             <Descriptions
               bordered
-              column={1}
-              layout="vertical"
+              column={1} 
+              layout="horizontal" 
               style={{ width: "100%" }}
             >
               <Descriptions.Item label="Serial Number">
@@ -507,7 +532,7 @@ const ProductList = () => {
                   <strong>Chất lượng:</strong> {productDetail.quality}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Specifications">
+              <Descriptions.Item label="Specifications" span={2}>
                 <ul style={{ paddingLeft: "20px" }}>
                   {productDetail.listProductSpecification.map((spec) => (
                     <li key={spec.productSpecificationID}>

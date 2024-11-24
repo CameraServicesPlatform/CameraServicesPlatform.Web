@@ -17,7 +17,7 @@ export const createSupplierPaymentPurchuse = async (orderId) => {
     );
   }
 };
- 
+
 // Create a new transaction
 export const createTransaction = async (data) => {
   try {
@@ -30,9 +30,11 @@ export const createTransaction = async (data) => {
 };
 
 // Get all transactions with pagination
-export const getAllTransactions = async (pageIndex = 1, pageSize = 10) => {
+export const getAllTransactions = async (pageIndex = 1, pageSize = 100) => {
   try {
-    const res = await api.get(`/transaction/get-all-transaction?pageIndex=${pageIndex}&pageSize=${pageSize}`);
+    const res = await api.get(
+      `/transaction/get-all-transaction?pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
     return res.data;
   } catch (err) {
     console.error("Error fetching all transactions:", err);
@@ -41,9 +43,11 @@ export const getAllTransactions = async (pageIndex = 1, pageSize = 10) => {
 };
 
 // Get a transaction by ID
-export const getTransactionById = async (id, pageIndex = 1, pageSize = 10) => {
+export const getTransactionById = async (id, pageIndex = 1, pageSize = 100) => {
   try {
-    const res = await api.get(`/transaction/get-transaction-by-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`);
+    const res = await api.get(
+      `/transaction/get-transaction-by-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
     return res.data;
   } catch (err) {
     console.error("Error fetching transaction by ID:", err);
@@ -52,9 +56,15 @@ export const getTransactionById = async (id, pageIndex = 1, pageSize = 10) => {
 };
 
 // Get transactions by supplier ID
-export const getTransactionBySupplierId = async (id, pageIndex = 1, pageSize = 10) => {
+export const getTransactionBySupplierId = async (
+  id,
+  pageIndex = 1,
+  pageSize = 100
+) => {
   try {
-    const res = await api.get(`/transaction/get-transaction-by-supplier-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`);
+    const res = await api.get(
+      `/transaction/get-transaction-by-supplier-id?id=${id}&pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
     return res.data;
   } catch (err) {
     console.error("Error fetching transactions by supplier ID:", err);
@@ -68,18 +78,75 @@ export const createSupplierPayment = async (data) => {
     const res = await api.post("/transaction/create-supplier-payment", data);
     return res.data;
   } catch (err) {
-    console.error("Error creating supplier payment:", err);
+    console.error("Error creating supplier payment again:", err);
     return null;
   }
 };
 
-// Create a supplier payment again
-export const createSupplierPaymentAgain = async (data) => {
+// Create a staff refund
+export const createStaffRefund = async (data) => {
   try {
-    const res = await api.post("/transaction/create-supplier-payment-again", data);
+    const res = await api.post("/transaction/create-staff-refund-member", data);
     return res.data;
   } catch (err) {
-    console.error("Error creating supplier payment again:", err);
+    console.error("Error creating staff refund:", err);
+    return null;
+  }
+};
+
+export const createStaffRefundPurchuse = async (orderId) => {
+  try {
+    const res = await api.post(
+      `/transaction/create-staff-refund-member-purchuse?orderId=${orderId}`,
+      ""
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error creating staff refund purchase:", err);
+    return null;
+  }
+};
+
+export const getAllHistoryTransactions = async (
+  pageIndex = 1,
+  pageSize = 10
+) => {
+  try {
+    const res = await api.get(
+      `/historyTransaction/get-all-history-transaction?pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching all history transactions:", err);
+    return null;
+  }
+};
+
+export const createStaffRefundReturnDetail = async (orderID, staffId) => {
+  try {
+    const res = await api.post(
+      "/transaction/create-staff-refund-return-detail",
+      {
+        orderID,
+        staffId,
+      }
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error creating staff refund return detail:", err);
+    return null;
+  }
+};
+
+export const createStaffRefundDeposit = async (orderID, staffId) => {
+  try {
+    const res = await api.post("/transaction/create-staff-refund-deposit", {
+      orderID,
+      staffId,
+    });
+    return res.data;
+  } catch (err) {
+    console.error("Error creating staff refund deposit:", err);
     return null;
   }
 };
