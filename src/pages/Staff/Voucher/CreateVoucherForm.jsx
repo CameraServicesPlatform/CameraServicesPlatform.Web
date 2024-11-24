@@ -5,7 +5,7 @@ import { createVoucher } from "../../../api/voucherApi";
 const CreateVoucherForm = () => {
   const [voucherData, setVoucherData] = useState({
     supplierID: "",
-    voucherCode: "",
+    vourcherCode: "",
     discountAmount: 0,
     description: "",
     validFrom: "",
@@ -22,7 +22,7 @@ const CreateVoucherForm = () => {
       message.success("Voucher created successfully!");
       setVoucherData({
         supplierID: "",
-        voucherCode: "",
+        vourcherCode: "",
         discountAmount: 0,
         description: "",
         validFrom: "",
@@ -50,11 +50,11 @@ const CreateVoucherForm = () => {
       </Form.Item>
       <Form.Item
         label="Voucher Code"
-        name="voucherCode"
+        name="vourcherCode"
         rules={[{ required: true }]}
       >
         <Input
-          onChange={(e) => handleChange({ voucherCode: e.target.value })}
+          onChange={(e) => handleChange({ vourcherCode: e.target.value })}
         />
       </Form.Item>
       <Form.Item
