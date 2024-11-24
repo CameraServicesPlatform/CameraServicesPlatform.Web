@@ -1,5 +1,5 @@
 import { message, Modal } from "antd";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import "tailwindcss/tailwind.css";
 import { getCategoryById } from "../../api/categoryApi";
@@ -8,7 +8,6 @@ import { getSupplierById } from "../../api/supplierApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import { formatDateTime, formatPrice } from "../../utils/util";
 import CreateRatingForm from "../Common/Rating/CreateRatingForm";
-// import PersonalModal from "./Account/PersonalModal";
 
 const orderStatusMap = {
   0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
@@ -35,7 +34,7 @@ const orderTypeMap = {
 };
 
 const deliveryStatusMap = {
-  0: { text: "Nhận tại cửa hàng", color: "blue", icon: "fa-store" }, // LPH: Lấy Phát Hàng
+  0: { text: "Nhận tại cửa hàng", color: "blue", icon: "fa-store" },
   1: { text: "Giao hàng tận nơi", color: "green", icon: "fa-truck" },
   2: { text: "Trả lại", color: "red", icon: "fa-undo" },
 };
@@ -204,7 +203,7 @@ const PersonalReview = () => {
           order.orderStatus === 10 ||
           order.orderStatus === 11) &&
           order.orderDetails?.map((detail) => (
-            <React.Fragment key={detail.orderDetailsID}>
+            <Fragment key={detail.orderDetailsID}>
               <button
                 className="bg-blue-500 text-white rounded-md py-2 px-4 my-2"
                 onClick={(e) => {
@@ -229,7 +228,7 @@ const PersonalReview = () => {
                   onClose={() => setIsRatingFormOpen(false)}
                 />
               </Modal>
-            </React.Fragment>
+            </Fragment>
           ))}
       </td>
     </tr>
