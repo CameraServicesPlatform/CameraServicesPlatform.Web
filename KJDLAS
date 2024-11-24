@@ -1,0 +1,719 @@
+[33mcommit 2e69b45d0497257210e981378e8b0a1f76a64d62[m[33m ([m[1;36mHEAD -> [m[1;32mAnn_Fe[m[33m)[m
+Merge: b1eb320 809b92e
+Author: root <root@andb.dev.apn-oytd-nikg>
+Date:   Tue Nov 12 00:38:52 2024 +0700
+
+    Resolved merge conflict in package-lock.json
+
+[33mcommit b1eb32050e646f601b647ec3ec1043c00fe10fbb[m
+Author: root <root@andb.dev.apn-oytd-nikg>
+Date:   Tue Nov 12 00:35:14 2024 +0700
+
+    Save local changes to package-lock.json
+
+[33mcommit 809b92e91a4bc8b9ae730dfd5ecc79c551f38ee3[m[33m ([m[1;31morigin/Ann_Fe[m[33m)[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Nov 12 00:31:24 2024 +0700
+
+    updte ui like buy
+
+[33mcommit 13ad27f23ed40a48a7a097315ae4a4838533b842[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Nov 12 00:12:54 2024 +0700
+
+    update for payment, and handle payment agian
+
+[33mcommit db9999fb8f535877c6e5772e00ed40ece06a2b5a[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Nov 11 21:25:29 2024 +0700
+
+    calculate
+
+[33mcommit 1c29aeb96afd8ef226693d868af837566439d9bd[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Nov 11 21:08:17 2024 +0700
+
+    fix vourcher for buy
+
+[33mcommit 871cc1de9b3b1f77a7aebd3532c176681971fff5[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Nov 11 17:16:10 2024 +0700
+
+    update
+
+[33mcommit 7c4ba24faa08f33db9032a57ac70fdbf284a6499[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Nov 11 16:03:46 2024 +0700
+
+    update ui and fix to show ỏder
+
+[33mcommit 48e2ac5784cd081676604ac2fc3796ef9add5813[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Nov 11 14:50:42 2024 +0700
+
+    update page personal-information
+
+[33mcommit 7458927081a7b09cfa540e4511fe76ad67a3226d[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Nov 11 03:43:50 2024 +0700
+
+    update
+
+[33mcommit becc2fd7d4b8b6cb07f3cad0ba5c184f4cf18b32[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sun Nov 10 17:57:29 2024 +0700
+
+    update ui
+
+[33mcommit b1f2804df65cc57cddcf952a58bd4b8776ca7443[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sun Nov 10 17:47:30 2024 +0700
+
+    update policy page
+
+[33mcommit 46ea2eed5ba5d11bae2e6fa8328e64b956e1e96b[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sun Nov 10 17:19:28 2024 +0700
+
+    update policy for each role
+
+[33mcommit d35cd77ad5914f8085cef58ff0c7166e4ffa1f5d[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sat Nov 9 10:38:56 2024 +0700
+
+    write api js for report, rating, productrating, return, wishlish
+
+[33mcommit 16033a95d5fa9b5fa743c7c7d4b67994c75eefab[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 8 20:19:46 2024 +0700
+
+    UPDATE VOUCHER FOR CREATE PAGE RENT AND BUY
+
+[33mcommit 0504d40f6dbe290400bb00627805b31fda4ac8d3[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 8 17:10:36 2024 +0700
+
+    update name of category and supplier, fix icon for each
+
+[33mcommit 49a0c984b92619af56ee35fca53df01704c3c34c[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 8 16:38:35 2024 +0700
+
+    update color status category
+
+[33mcommit 4d725b6a8119004e661eca2158f807b8d5d76d5d[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Nov 7 07:31:58 2024 +0700
+
+    update tranck order usse getOrderDetails
+
+[33mcommit 51dc43cde0b80a52d423dbfc904d1acb1023e37a[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Nov 7 07:27:15 2024 +0700
+
+    feat: add search functionality and highlight for order list, update order status and type rendering, update manage order of supllier
+
+[33mcommit a9c6825343f7090a4620ff39461ddf122a4abc9a[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Nov 7 05:52:09 2024 +0700
+
+    crweate tracking order
+
+[33mcommit 9681a0aaaaecba9a4e97fd47006dd7abc5a72277[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Nov 7 05:38:26 2024 +0700
+
+    finish update product rent and buy
+
+[33mcommit d73137b323c05096b9e20af5c8c3885eaad26006[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Nov 7 04:33:22 2024 +0700
+
+    upadte detail product
+
+[33mcommit 8f841b5473811a5e111ab9ad0a7ffe998c87e8c9[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Nov 6 18:19:58 2024 +0700
+
+    refactor: update API calls to use template literals and improve styling in voucher forms, update crud ProductVourcher
+
+[33mcommit 0b89abe103c77b041f22e264fb25cbd4ddaeff18[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Nov 6 15:42:31 2024 +0700
+
+    fix: correct voucher ID references and improve product filtering logic
+
+[33mcommit 756c1452d7cea5ea0b112bbe697205c7c9145f3a[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Nov 6 14:21:55 2024 +0700
+
+    update vourcher layout design page manage-vourcher
+
+[33mcommit 6840371da026b214c277e6d4e028b0d4331f783d[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 1 07:34:54 2024 +0700
+
+    commit
+
+[33mcommit 8000f41f6ebba333cb1a7cea4ae4d947fc298822[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 1 07:25:43 2024 +0700
+
+    update order manage
+
+[33mcommit 2057644d907d7e88ecf1ca38374ebabf10037899[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 1 06:19:35 2024 +0700
+
+    payment successfully
+
+[33mcommit 700f42d96ab1a9c2a078422f35a5cb0a5d33cebf[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 1 06:09:38 2024 +0700
+
+    update product success
+
+[33mcommit 266b53fadfcd560983d63312930f4dd3fd4ca428[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 1 04:39:05 2024 +0700
+
+    update voucher
+
+[33mcommit 3ff4dde140b3162b016beb1aa4015464853cf48d[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 1 04:32:54 2024 +0700
+
+    can payment
+
+[33mcommit 4397932beaf32cee9b61933c65ff94af01f4ba70[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 1 00:50:15 2024 +0700
+
+    update for deloy
+
+[33mcommit 2bf27c2adbe31769a461f60f68c778b0ccec767e[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 1 00:41:36 2024 +0700
+
+    update for page product
+
+[33mcommit b21af395f52718fbd626246edc5a12c7511c28b5[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Nov 1 00:21:14 2024 +0700
+
+    Refactor API calls for getting product by ID and order management
+
+[33mcommit 23a33c34d22fbe4137f1910992eb30e16cc3bd9f[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 31 14:35:40 2024 +0700
+
+    Refactor API calls for getting product by ID and order management
+    
+    - Update getProductById function in productApi.js to include pagination parameters
+    - Modify getOrderOfMember function in orderApi.js to use AccountID instead of memberId
+    - Add updateOrderStatusShipped and updateOrderStatusApproved functions in orderApi.js
+    - Update ProductDetailPage.jsx to handle errors when loading product data
+    - Add ManageOrder.jsx for managing orders, including creating, completing, and canceling orders
+
+[33mcommit c1f7dd5534916b73527de948e8424c17e22b7ec3[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 31 09:40:42 2024 +0700
+
+    update
+
+[33mcommit f18cf5dbbe2c02494eb299da3f71ea347c8a1590[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 31 09:29:08 2024 +0700
+
+    dashboard
+
+[33mcommit 1351d052000c3e61cd2084b6905f4ea51969e585[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 31 08:27:45 2024 +0700
+
+    Refactor voucher management components and add product voucher functionality
+
+[33mcommit 0c0f125476dadfccdb3b09fe36b3fe7b7918eeb1[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 31 02:38:12 2024 +0700
+
+    fix custom sỏt and search for vourcher
+
+[33mcommit 1d05f1155d930df20535c1c021c6a53a58b1effa[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 31 02:29:07 2024 +0700
+
+    CRUD product
+
+[33mcommit 12c59487fe1b72a7fe170f6e3ef4ad549122995d[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Oct 30 17:55:49 2024 +0700
+
+    up[dte code
+
+[33mcommit 9249f7dbd6796fb7da3c92e33b8ab8a6ab575907[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Oct 30 16:41:16 2024 +0700
+
+    update-product-manege-supllier
+
+[33mcommit 435ce0a6e8551a7766f2177125d2e7a039a576ce[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Oct 30 15:25:10 2024 +0700
+
+    fix fetch dât category
+
+[33mcommit c3b6028b9a749845ca6c2ec60d4a0e68fff81055[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 29 06:25:16 2024 +0700
+
+    product table for supplier
+
+[33mcommit 6a7a596e30be2001f7c350dff1b3e989183fa172[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Oct 28 09:03:18 2024 +0700
+
+    update relate product
+
+[33mcommit 1329f7526bd7da3edddd9050233da0c2abcf48ca[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Oct 28 06:56:10 2024 +0700
+
+    finish create success
+
+[33mcommit 64d9e6227da4a386571869178c5ac033d2888b24[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Oct 28 06:00:41 2024 +0700
+
+    update
+
+[33mcommit 13d18a2b261a16dbcf49bea97e45b5225cc93a3c[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sun Oct 27 14:13:25 2024 +0700
+
+    update cretae ỏder
+
+[33mcommit 5eee8f38f5177a43e9b47a6e02fa9f62872a8030[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sun Oct 27 05:33:22 2024 +0700
+
+    update page for rent and  buy prodcut
+
+[33mcommit 82e344196a2dd116b9aeb3d26b1249198a5d74ef[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sun Oct 27 04:57:38 2024 +0700
+
+    upload code for Category page, ìnormationsupplier, supplier ìnormation detail,
+
+[33mcommit 036ef12a2c8c2dc7a6df88abdecce448efd5b905[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 24 06:23:54 2024 +0700
+
+    add https://cors-anywhere.herokuapp.com/ for can deploy
+
+[33mcommit 6cbe8fc4525ec10579d0e131b86d12342a761eeb[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Oct 23 07:25:19 2024 +0700
+
+    create buy success ỏder details
+
+[33mcommit c8802ae83eb1e24f533a6ecf3bd1fed942522b4b[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Oct 23 06:09:00 2024 +0700
+
+    form for create but can not create
+
+[33mcommit c3daf3d7d6cabf9d11c4cd9d7f49c0b835372932[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Oct 23 04:23:42 2024 +0700
+
+    fix for update account ìnormation
+
+[33mcommit 058f7122b83a8c1bbaa63141fd8e31a3214d6646[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Oct 23 03:50:25 2024 +0700
+
+    fix and rdesign for productpage
+
+[33mcommit 11d780bebf64ce4857986f28fc5cad21cbde6449[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Oct 23 00:49:51 2024 +0700
+
+    fix homepage , and design prodcut list
+
+[33mcommit 97d88daa4addf196e4aeec30a3a71ac09e89cd15[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 22 10:12:32 2024 +0700
+
+    update product page and prodcut detail
+
+[33mcommit c938f26c372460773eb7b72246bf84201e883a6c[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 22 08:26:09 2024 +0700
+
+    update page personal-information
+
+[33mcommit 8bfafc87d5d533550e6f7360c71349c98be06093[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 22 07:45:39 2024 +0700
+
+    update code and img for forgot-password
+
+[33mcommit 8c2a598e7ea5878490730a2a25b4dcb294021d9b[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 22 07:14:21 2024 +0700
+
+    finish page getinformationaccount
+
+[33mcommit 6c01f1cd12b3671d3d25a6c1296b6eb6f307d224[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 22 06:42:11 2024 +0700
+
+    finish create and désign for create staff form
+
+[33mcommit 2d7550ae843f918e853b36ccf6835f7cefcf904e[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 22 06:32:31 2024 +0700
+
+    update for mânge user of admin dashboard, and create staff form create
+
+[33mcommit 0aec4a93fceaa280a909d6db5eeb0ada30a08219[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 22 05:42:03 2024 +0700
+
+    design agian for register-supplier
+
+[33mcommit 28e9f025db81de6cd294e7bd3fb33ca4aedcdaaa[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 22 02:16:11 2024 +0700
+
+    updte image login-logout-signup for account, translate vietnamese for page login and sign up , add register supplier
+
+[33mcommit 553feae0504f9c93e6ae2be16958f7092287f468[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Oct 18 08:53:25 2024 +0700
+
+    Refactor `getAllVouchers` in `voucherApi.js`, set default values in `productApi.js`, fix Policy path in `Routers.jsx`, add ManageVoucher page, create `CreateVoucherForm`, and update `Home.jsx` for search functionality and product card descriptions.
+
+[33mcommit 30e9be16f7d5b9ec9925dca36ee849576fb7ce57[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Oct 18 06:35:57 2024 +0700
+
+    add suplier management and send active for suplier
+
+[33mcommit cf48e70dc1a4ef589c4c730b3b7be455213d7333[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Oct 18 05:21:57 2024 +0700
+
+    search usser
+
+[33mcommit a51294e1eca9c66820396c1ea5f9b48966f57df6[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Oct 18 05:19:54 2024 +0700
+
+    manage-product search
+
+[33mcommit 42ffd187f9d6c0dde1c4b2a97c1d31a189ffeb58[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Oct 18 05:12:30 2024 +0700
+
+    finish policy
+
+[33mcommit bf607fdeaa50536b524fdd049d687751baee9738[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Oct 18 04:14:10 2024 +0700
+
+    fix page creatr order buy, not finish
+
+[33mcommit 465da89477fb1ebea5594d3354902d1d8e21b06e[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Oct 18 03:33:47 2024 +0700
+
+    add bank name into rgister-sullier page
+
+[33mcommit ce09ff0a84ca29fa31ea1463f40d63864626af15[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Oct 18 02:20:02 2024 +0700
+
+    update img indentitypersonal for register supllier
+
+[33mcommit 3377f79d9210774f36165fead0982f40a582905c[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 17 07:29:19 2024 +0700
+
+    fix supplierid for create prodcut page
+
+[33mcommit d489b1304abcd9f8898042546b79626a8eb94c73[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 17 07:23:46 2024 +0700
+
+    fix page create vourcher
+
+[33mcommit 075c366ac88496949f50f6e829daf9cb1476c5f6[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 17 07:05:33 2024 +0700
+
+    fix vourcher for 2 role
+
+[33mcommit 54312164f44963d718f67941ef57512f29168c29[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 17 03:38:16 2024 +0700
+
+    fix vourcher list and product page
+
+[33mcommit 4a6ff9ff4011c9e61151bf92d03169e9ba869bea[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 15 19:40:56 2024 +0700
+
+    Refactor sidebar to include "Voucher" link for both Sponsor and Supplier roles
+
+[33mcommit 9326d843b4d61194e141e566c6dff1a51fd7c14f[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 15 07:34:29 2024 +0700
+
+    Refactor sidebar to include "Voucher" link for both Sponsor and Supplier roles
+
+[33mcommit b2fd99b0a8e30be37c25d64d68c571302200d365[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 15 07:34:01 2024 +0700
+
+    Refactor sidebar to include "Voucher" link for both Sponsor and Supplier roles
+
+[33mcommit 06d1f9d533f1bc46bec9d970f1ef9810d2698b3a[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 15 07:01:03 2024 +0700
+
+    update order àn supplier api (be bugs, fix later)
+
+[33mcommit d6780ce6c1077289b1ecc2738a2c0deee4fcd84e[m
+Merge: dc8a892 64a45ba
+Author: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+Date:   Tue Oct 15 06:49:35 2024 +0700
+
+    Merge branch 'main' into Ann_Fe
+    
+    Signed-off-by: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+
+[33mcommit dc8a892a46f91543a01d84d444e5396aaea2dfd5[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 15 06:47:41 2024 +0700
+
+    write api order, create policy page
+
+[33mcommit 83a06db28643db3aff065ecc57c8cfa167a1fb80[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 15 05:23:05 2024 +0700
+
+    update manage user
+
+[33mcommit 97eefcbec49eeabe694e1b14e4fa46dd01688a61[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 15 01:42:08 2024 +0700
+
+    - Refactored `productApi.js` to remove the "SupplierID" from `formData` in `updateProduct`, and updated `Home.jsx` to use `getBrandName` for displaying the "Brand".
+
+[33mcommit c6f8d7df2df10a31d857bbe804b8492a2a694ce7[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Oct 14 13:58:52 2024 +0700
+
+    create search funtion for home,
+
+[33mcommit dc690cb0068bb44f8d4d74440b82b6128e4b0a85[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Oct 14 02:31:45 2024 +0700
+
+    fix prodcut page and home, reate product
+
+[33mcommit 64a45badf2b53de7b42b3b7245d01441d2c75aab[m
+Merge: 060ef78 49d3ad1
+Author: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+Date:   Thu Oct 10 09:47:23 2024 +0700
+
+    Merge pull request #5 from CameraServicesPlatform/product
+    
+    Product
+
+[33mcommit 49d3ad17335121443c82bf454ffbded4922a98c2[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 10 09:44:32 2024 +0700
+
+    Add ManageOrder page
+
+[33mcommit 01bdc500e40af630e71ced75b93e487321dd1a1f[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 10 09:07:08 2024 +0700
+
+    Add ManageProduct page to Routers
+
+[33mcommit 1aaa261b6339d9c13b12060df0d5c2700d8ec5b4[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 10 05:50:15 2024 +0700
+
+    create productpage but not add to cart
+
+[33mcommit 7c1f2c31ddeecf2a322a129fa8c9acb197db3adf[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 10 03:31:40 2024 +0700
+
+    mânge-category page, but can not update category
+
+[33mcommit 395a03c48cb3221b2b310a8f2a58addca58ecd5f[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Thu Oct 10 00:51:50 2024 +0700
+
+    update page manageuser for role addmin
+
+[33mcommit c54bc74495a80c049fa8b6e48db5824880273730[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 8 06:48:49 2024 +0700
+
+    role page for
+
+[33mcommit 2e759f7a910f41c5fd6b447f846a652199ff2116[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Tue Oct 8 06:35:07 2024 +0700
+
+    Refactor API and login page code, update base URL
+
+[33mcommit 8fbae717cdcacc002fe9611469b104372865e0c0[m
+Merge: 0dacc7b 6687fdc
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Oct 7 00:52:47 2024 +0700
+
+    Merge branch 'product' of https://github.com/CameraServicesPlatform/CameraServicesPlatform.Web into product
+
+[33mcommit 0dacc7bb2f5bcafc2b44ab41ff593fba84d9d329[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Oct 7 00:51:10 2024 +0700
+
+    Refactor API and login page code, add getAllProduct function, and update navbar, done cart no api
+
+[33mcommit 6687fdcacb2bc83e9c38ba8b4cc3740dd5e72c65[m
+Merge: 1a891c7 14f3c48
+Author: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+Date:   Sun Oct 6 12:22:00 2024 +0700
+
+    Merge branch 'hau_loginSignup' into product
+    
+    Signed-off-by: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+
+[33mcommit 14f3c482d92672cefca7848300fd8f8f2b83de0a[m
+Author: dkhauuu <dokimhau476@gmail.com>
+Date:   Sun Oct 6 12:17:03 2024 +0700
+
+    updale page product list, fix déign some page
+
+[33mcommit 060ef78e6ca1adf2dbb4bcbc1eb432af990f8f0d[m
+Merge: 02ca80b 1a891c7
+Author: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+Date:   Sun Oct 6 11:14:16 2024 +0700
+
+    Merge pull request #3 from CameraServicesPlatform/product
+    
+    Product
+
+[33mcommit 1a891c74b760ab4cd23e2f59caf1b385b1d45869[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sat Oct 5 09:47:10 2024 +0700
+
+    homeage base, finish about, contact
+
+[33mcommit f26bab3a89a8cdef09fa8c88029fd9e87750ac55[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sat Oct 5 05:47:34 2024 +0700
+
+    update navbar
+
+[33mcommit 8c3b66047ba57a935ae99d766989e90cc8fa74b0[m
+Merge: 4d8a593 1dae4e9
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sat Oct 5 05:47:24 2024 +0700
+
+    Merge branch 'product' of https://github.com/CameraServicesPlatform/CameraServicesPlatform.Web into product
+
+[33mcommit 4d8a5938095d9e773e294bf4fc01871baba775d8[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Sat Oct 5 05:46:27 2024 +0700
+
+    Refactor API and login page code, and update navbar
+
+[33mcommit 02ca80bf78027d7fd803ff046bfd37b0388494cb[m
+Merge: 0b83654 1dae4e9
+Author: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+Date:   Tue Oct 1 02:42:10 2024 +0700
+
+    Merge pull request #2 from CameraServicesPlatform/product
+    
+    Product
+
+[33mcommit 1dae4e9d5daa21f91449ccf919535cf6c6c5151b[m
+Merge: bdc80a4 0b83654
+Author: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+Date:   Tue Oct 1 02:41:47 2024 +0700
+
+    Merge branch 'main' into product
+    
+    Signed-off-by: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+
+[33mcommit 0b83654330362d2819d24f30b55241b447044f65[m
+Merge: ea8af53 2ccd980
+Author: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+Date:   Tue Oct 1 02:38:22 2024 +0700
+
+    Merge pull request #1 from CameraServicesPlatform/hau_uihomepage
+    
+    refactor
+
+[33mcommit bdc80a4d33a154367fc97aadca82fab88655e38f[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Sep 30 06:55:13 2024 +0700
+
+    fix login account
+
+[33mcommit af62268d8b0929bed18d3d7ff9ff1a4f19dfb6ce[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Sep 30 05:08:13 2024 +0700
+
+    Refactor code to update page title and project configuration
+
+[33mcommit 162888fc5f3f5135f27d83fe9a36300ce88a5091[m
+Author: dkhauuu <dokimhau476@gmail.com>
+Date:   Sun Sep 29 22:32:15 2024 +0700
+
+    modify form forgot password
+
+[33mcommit 6f1999a45211e475cd055aac7fec940296707055[m
+Author: dkhauuu <dokimhau476@gmail.com>
+Date:   Sun Sep 29 18:02:11 2024 +0700
+
+    validate loginSignup
+
+[33mcommit 2ccd98006c9111db87fee76ec7d1732517ab4e37[m[33m ([m[1;31morigin/hau_uihomepage[m[33m)[m
+Author: dkhauuu <dokimhau476@gmail.com>
+Date:   Sun Sep 29 16:35:45 2024 +0700
+
+    refactor
+
+[33mcommit ea8af53d85df941f4065adbda8bd3b68bbf20b98[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Mon Sep 23 00:45:29 2024 +0700
+
+    update base sucessfull
+
+[33mcommit 2f3de07ad0fbc96f7798c3d8c44c216660aebaac[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Fri Sep 20 00:27:16 2024 +0700
+
+    commit
+
+[33mcommit 0a753a5ba00d757ac715e09e52530a4cc0458519[m
+Author: AnBinh1703 <dan1314705@gmail.com>
+Date:   Wed Sep 18 10:32:27 2024 +0700
+
+    Add initial project files
+
+[33mcommit 9860f4f2b5c4cb9dd6c5af400972d9f082edcd47[m
+Author: Dương Bình An <130985699+AnBinh1703@users.noreply.github.com>
+Date:   Wed Sep 18 10:26:59 2024 +0700
+
+    Initial commit

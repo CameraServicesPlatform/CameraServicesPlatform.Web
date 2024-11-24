@@ -1,0 +1,8 @@
+run and build
+1. npm i
+2. npm run dev
+
+-----
+some library new need to add
+npm install slick-carousel react-slick
+npm install tailwindcss postcss autoprefixer
