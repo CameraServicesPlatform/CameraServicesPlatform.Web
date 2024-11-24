@@ -4,19 +4,22 @@ import {
   CheckOutlined,
   CloseOutlined,
   SmileOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
-import { Button, message, Modal, Steps, Table } from "antd";
+import { Button, message, Modal, Steps, Table, Upload } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
   acceptCancelOrder,
+  addImgProductAfter,
+  addImgProductBefore,
   cancelOrder,
   updateOrderStatusApproved,
   updateOrderStatusCompleted,
+  updateOrderStatusPendingRefund,
   updateOrderStatusShipped,
 } from "../../../api/orderApi";
 import { getOrderDetails } from "../../../api/orderDetailApi";
-import CreateReturnDetailForm from "../ReturnDetail/CreateReturnDetailForm";
 
 const { Step } = Steps;
 
@@ -26,6 +29,8 @@ const TrackingOrder = ({ order, onUpdate }) => {
   const [showReturnDetailForm, setShowReturnDetailForm] = useState(false);
   const [selectedOrderID, setSelectedOrderID] = useState(null);
   const [returnInitiated, setReturnInitiated] = useState(false);
+  const [beforeImageUrl, setBeforeImageUrl] = useState(null);
+  const [afterImageUrl, setAfterImageUrl] = useState(null);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -114,6 +119,48 @@ const TrackingOrder = ({ order, onUpdate }) => {
     }
   };
 
+  const handleUploadBefore = async (file) => {
+    try {
+      const response = await addImgProductBefore(order.orderID, file);
+      if (response?.isSuccess) {
+        message.success("Ảnh đã được thêm trước khi giao hàng!");
+        setBeforeImageUrl(URL.createObjectURL(file)); // Update the state with the image URL
+      } else {
+        message.error("Không thể thêm ảnh trước khi giao hàng.");
+      }
+    } catch (error) {
+      message.error("Lỗi khi thêm ảnh trước khi giao hàng.");
+    }
+  };
+
+  const handleUploadAfter = async (file) => {
+    try {
+      const response = await addImgProductAfter(order.orderID, file);
+      if (response?.isSuccess) {
+        message.success("Ảnh đã được thêm sau khi giao hàng!");
+        setAfterImageUrl(URL.createObjectURL(file)); // Update the state with the image URL
+      } else {
+        message.error("Không thể thêm ảnh sau khi giao hàng.");
+      }
+    } catch (error) {
+      message.error("Lỗi khi thêm ảnh sau khi giao hàng.");
+    }
+  };
+
+  const handlePendingRefund = async (orderId) => {
+    try {
+      const response = await updateOrderStatusPendingRefund(orderId);
+      if (response?.isSuccess) {
+        message.success("Đơn hàng đã được cập nhật trạng thái chờ hoàn tiền!");
+        onUpdate(orderId, 9);
+      } else {
+        message.error("Không thể cập nhật trạng thái chờ hoàn tiền.");
+      }
+    } catch (error) {
+      message.error("Lỗi khi cập nhật trạng thái chờ hoàn tiền.");
+    }
+  };
+
   const showConfirm = (action, orderId) => {
     Modal.confirm({
       title: "Bạn có chắc chắn?",
@@ -134,6 +181,15 @@ const TrackingOrder = ({ order, onUpdate }) => {
             break;
           case "accept-cancel":
             handleAcceptCancelOrder(orderId);
+            break;
+          case "upload-before":
+            document.getElementById("uploadBeforeInput").click();
+            break;
+          case "upload-after":
+            document.getElementById("uploadAfterInput").click();
+            break;
+          case "pending-refund":
+            handlePendingRefund(orderId);
             break;
           default:
             break;
@@ -162,22 +218,28 @@ const TrackingOrder = ({ order, onUpdate }) => {
       action: "accept-cancel",
     },
     {
-      title: "Đang vận chuyện sản phẩm",
-      status: 1,
-      icon: <CarOutlined />,
-      action: "ship",
-    },
-    {
       title: "Đợi khách hàng đến nhận",
       status: 1,
       icon: <SmileOutlined />,
       action: "ship",
     },
     {
+      title: "Đang vận chuyện sản phẩm",
+      status: 1,
+      icon: <CarOutlined />,
+      action: "ship",
+    },
+    {
       title: "Hoàn thành",
-      status: [3, 4, 5],
+      status: [3, 4],
       icon: <CheckCircleOutlined />,
       action: "complete",
+    },
+    {
+      title: "Chờ hoàn tiền",
+      status: [2, 7],
+      icon: <CheckCircleOutlined />,
+      action: "pending-refund",
     },
   ];
 
@@ -230,7 +292,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
         }).format(text),
     },
     {
-      title: "Thời gian thuê",
+      title: "Thời gian trả",
       dataIndex: "periodRental",
       key: "periodRental",
       render: (text) => moment(text).format("DD - MM - YYYY HH:mm"),
@@ -284,7 +346,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Chấp nhận hủy
           </Button>
         )}
-        {order.orderStatus === 1 && order.deliveryMethod === 1 && (
+        {order.orderStatus === 1 && order.deliveriesMethod === 1 && (
           <Button
             type="default"
             onClick={() => showConfirm("ship", order.orderID)}
@@ -295,35 +357,6 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Giao hàng
           </Button>
         )}
-        {order.orderStatus === 1 && !order.shippingAddress && (
-          <Button
-            type="default"
-            onClick={() => showConfirm("complete", order.orderID)}
-            className="ml-2"
-            icon={<CheckCircleOutlined />}
-            style={{ marginRight: 8, marginBottom: 8 }}
-          >
-            Hoàn thành
-          </Button>
-        )}
-        {(order.orderStatus === 4 ||
-          (order.orderStatus === 3 && order.orderType === 1)) && (
-          <Button onClick={() => handleReturnClick(order.orderID)}>
-            Trả hàng
-          </Button>
-        )}
-
-        <Modal
-          title="Create Return Detail"
-          visible={showReturnDetailForm}
-          onCancel={() => setShowReturnDetailForm(false)}
-          footer={null}
-        >
-          <CreateReturnDetailForm
-            orderID={selectedOrderID}
-            onSuccess={() => setShowReturnDetailForm(false)}
-          />
-        </Modal>
         {(order.orderStatus === 4 || returnInitiated) && (
           <Button
             type="primary"
@@ -332,10 +365,78 @@ const TrackingOrder = ({ order, onUpdate }) => {
             icon={<CheckCircleOutlined />}
             style={{ marginRight: 8, marginBottom: 8 }}
           >
-            Hoàn thành
+            Kết thúc đơn thuê
           </Button>
         )}
+        {(order.orderStatus === 4 || returnInitiated) && (
+          <Button
+            type="primary"
+            onClick={() => showConfirm("pending-refund", order.orderID)}
+            className="ml-2"
+            icon={<CheckCircleOutlined />}
+            style={{ marginRight: 8, marginBottom: 8 }}
+          >
+            Gửi yêu cầu hoàn tiền cho hệ thống
+          </Button>
+        )}
+        {order.orderStatus === 7 && (
+          <Button
+            type="primary"
+            onClick={() => showConfirm("pending-refund", order.orderID)}
+            className="ml-2"
+            icon={<CheckCircleOutlined />}
+            style={{ marginRight: 8, marginBottom: 8 }}
+          >
+            Gửi yêu cầu hoàn tiền cho hệ thống
+          </Button>
+        )}
+        {order.orderStatus === 1 && (
+          <Upload
+            customRequest={({ file }) => handleUploadBefore(file)}
+            showUploadList={false}
+          >
+            <Button
+              icon={<UploadOutlined />}
+              style={{ marginRight: 8, marginBottom: 8 }}
+            >
+              Thêm ảnh trước khi giao hàng
+            </Button>
+          </Upload>
+        )}
+        {order.orderStatus === 4 && order.orderType === 1 && (
+          <Upload
+            customRequest={({ file }) => handleUploadAfter(file)}
+            showUploadList={false}
+          >
+            <Button
+              icon={<UploadOutlined />}
+              style={{ marginRight: 8, marginBottom: 8 }}
+            >
+              Thêm ảnh sau khi giao hàng
+            </Button>
+          </Upload>
+        )}
       </div>
+      {beforeImageUrl && (
+        <div>
+          <h3>Ảnh trước khi giao hàng:</h3>
+          <img
+            src={beforeImageUrl}
+            alt="Before Delivery"
+            style={{ maxWidth: "100%" }}
+          />
+        </div>
+      )}
+      {afterImageUrl && (
+        <div>
+          <h3>Ảnh sau khi giao hàng:</h3>
+          <img
+            src={afterImageUrl}
+            alt="After Delivery"
+            style={{ maxWidth: "100%" }}
+          />
+        </div>
+      )}
       <Table
         dataSource={orderDetails}
         columns={columns}
@@ -343,6 +444,18 @@ const TrackingOrder = ({ order, onUpdate }) => {
         loading={loading}
         pagination={false}
         style={{ marginTop: 16 }}
+      />
+      <input
+        type="file"
+        id="uploadBeforeInput"
+        style={{ display: "none" }}
+        onChange={(e) => handleUploadBefore(e.target.files[0])}
+      />
+      <input
+        type="file"
+        id="uploadAfterInput"
+        style={{ display: "none" }}
+        onChange={(e) => handleUploadAfter(e.target.files[0])}
       />
     </div>
   );

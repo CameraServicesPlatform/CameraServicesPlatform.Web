@@ -1,4 +1,4 @@
-import { Pagination, Spin, message } from "antd";
+import { Spin, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { getAllProduct, getProductByName } from "../../../api/productApi";
 import ProductListTable from "../../Staff/Product/ProductListTable";
@@ -24,6 +24,12 @@ const ManageProduct = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
+      console.log(
+        "Fetching products with pageIndex:",
+        pageIndex,
+        "and pageSize:",
+        pageSize
+      ); // Log the values
       const data = filter
         ? await getProductByName(filter, pageIndex, pageSize)
         : await getAllProduct(pageIndex, pageSize);
@@ -40,34 +46,7 @@ const ManageProduct = () => {
     setLoading(false);
   };
 
-  return (
-    <div>
-      {loading ? (
-        <Spin />
-      ) : (
-        <ProductListTable
-          products={products}
-          searchTerm={searchTerm} // Pass search term to the table
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          totalProducts={totalProducts}
-          setPageIndex={setPageIndex}
-          setPageSize={setPageSize}
-        />
-      )}
-
-      <Pagination
-        current={pageIndex}
-        pageSize={pageSize}
-        total={totalProducts}
-        onChange={(page, size) => {
-          setPageIndex(page);
-          setPageSize(size);
-        }}
-        style={{ marginTop: 16, textAlign: "right" }}
-      />
-    </div>
-  );
+  return <div>{loading ? <Spin /> : <ProductListTable />}</div>;
 };
 
 export default ManageProduct;

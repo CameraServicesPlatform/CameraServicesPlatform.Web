@@ -283,7 +283,7 @@ const ProductList = () => {
                         <div>
                           <p>{product.productDescription}</p>
                           <p>
-                            <strong>Serial Number:</strong>
+                            <strong>Seri:</strong>
                             <span
                               style={{ color: "green", fontWeight: "bold" }}
                             >
@@ -291,7 +291,7 @@ const ProductList = () => {
                             </span>
                           </p>
                           <p>
-                            <strong>Created At:</strong>
+                            <strong>Tạo:</strong>
                             <span style={{ color: "blue" }}>
                               {moment(product.createdAt).format(
                                 "DD/MM/YYYY HH:mm"
@@ -302,7 +302,10 @@ const ProductList = () => {
                             <p>
                               <strong>Giá (Thuê)/giờ:</strong>
                               <span style={{ color: "blue" }}>
-                                VND{product.priceRent}
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(product.priceRent)}
                               </span>
                             </p>
                           )}
@@ -312,7 +315,10 @@ const ProductList = () => {
                               <span
                                 style={{ color: "green", fontWeight: "bold" }}
                               >
-                                VND{product.priceBuy}
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(product.priceBuy)}
                               </span>
                             </p>
                           )}
@@ -322,7 +328,10 @@ const ProductList = () => {
                               <span
                                 style={{ color: "green", fontWeight: "bold" }}
                               >
-                                VND{product.pricePerHour}
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(product.pricePerHour)}
                               </span>
                             </p>
                           )}
@@ -332,7 +341,10 @@ const ProductList = () => {
                               <span
                                 style={{ color: "green", fontWeight: "bold" }}
                               >
-                                VND{product.pricePerDay}
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(product.pricePerDay)}
                               </span>
                             </p>
                           )}
@@ -342,7 +354,10 @@ const ProductList = () => {
                               <span
                                 style={{ color: "green", fontWeight: "bold" }}
                               >
-                                VND{product.pricePerWeek}
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(product.pricePerWeek)}
                               </span>
                             </p>
                           )}
@@ -352,7 +367,10 @@ const ProductList = () => {
                               <span
                                 style={{ color: "green", fontWeight: "bold" }}
                               >
-                                VND{product.pricePerMonth}
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(product.pricePerMonth)}
                               </span>
                             </p>
                           )}
@@ -362,7 +380,10 @@ const ProductList = () => {
                               <span
                                 style={{ color: "green", fontWeight: "bold" }}
                               >
-                                VND{product.depositProduct}
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(product.depositProduct)}
                               </span>
                             </p>
                           )}
@@ -455,8 +476,8 @@ const ProductList = () => {
             />
             <Descriptions
               bordered
-              column={1} 
-              layout="horizontal" 
+              column={1}
+              layout="horizontal"
               style={{ width: "100%" }}
             >
               <Descriptions.Item label="Serial Number">
@@ -479,42 +500,60 @@ const ProductList = () => {
               {productDetail.priceRent != null && (
                 <Descriptions.Item label="Giá (Thuê)">
                   <span style={{ color: "blue" }}>
-                    VND{productDetail.priceRent}
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(productDetail.priceRent)}
                   </span>
                 </Descriptions.Item>
               )}
               {productDetail.priceBuy != null && (
                 <Descriptions.Item label="Giá (Mua)">
                   <span style={{ color: "green", fontWeight: "bold" }}>
-                    VND{productDetail.priceBuy}
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(productDetail.priceBuy)}
                   </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerHour != null && (
                 <Descriptions.Item label="Giá (Thuê)/giờ">
                   <span style={{ color: "blue" }}>
-                    VND{productDetail.pricePerHour}
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(productDetail.pricePerHour)}
                   </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerDay != null && (
                 <Descriptions.Item label="Giá (Thuê)/ngày">
                   <span style={{ color: "blue" }}>
-                    VND{productDetail.pricePerDay}
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(productDetail.pricePerDay)}
                   </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerWeek != null && (
                 <Descriptions.Item label="Giá (Thuê)/tuần">
                   <span style={{ color: "blue" }}>
-                    VND{productDetail.pricePerWeek}
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(productDetail.pricePerWeek)}
                   </span>
                 </Descriptions.Item>
               )}
               {productDetail.pricePerMonth != null && (
                 <Descriptions.Item label="Giá (Thuê)/tháng">
                   <span style={{ color: "blue" }}>
-                    VND{productDetail.pricePerMonth}
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(productDetail.pricePerMonth)}
                   </span>
                 </Descriptions.Item>
               )}

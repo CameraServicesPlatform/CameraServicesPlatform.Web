@@ -180,7 +180,11 @@ const ProductDetailPage = () => {
                   <p className="font-bold">
                     Giá thuê:{" "}
                     <span className="text-green-500">
-                      VND/giờ {product.priceRent.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.priceRent)}
+                      /giờ
                     </span>
                   </p>
                 )}
@@ -188,7 +192,10 @@ const ProductDetailPage = () => {
                   <p className="font-bold">
                     Giá mua:{" "}
                     <span className="text-green-500">
-                      VND {product.priceBuy.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.priceBuy)}
                     </span>
                   </p>
                 )}
@@ -196,7 +203,10 @@ const ProductDetailPage = () => {
                   <p className="font-bold">
                     Tiền đặt cọc:{" "}
                     <span className="text-red-500">
-                      VND {product.depositProduct.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.depositProduct)}
                     </span>
                   </p>
                 )}
@@ -204,7 +214,11 @@ const ProductDetailPage = () => {
                   <p className="font-bold">
                     Giá thuê theo ngày:{" "}
                     <span className="text-green-500">
-                      VND/ngày {product.pricePerDay.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.pricePerDay)}
+                      /ngày
                     </span>
                   </p>
                 )}
@@ -212,7 +226,11 @@ const ProductDetailPage = () => {
                   <p className="font-bold">
                     Giá thuê theo giờ:{" "}
                     <span className="text-green-500">
-                      VND/giờ {product.pricePerHour.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.pricePerHour)}
+                      /giờ
                     </span>
                   </p>
                 )}
@@ -220,7 +238,11 @@ const ProductDetailPage = () => {
                   <p className="font-bold">
                     Giá thuê theo tháng:{" "}
                     <span className="text-green-500">
-                      VND/tháng {product.pricePerMonth.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.pricePerMonth)}
+                      /tháng
                     </span>
                   </p>
                 )}
@@ -228,7 +250,11 @@ const ProductDetailPage = () => {
                   <p className="font-bold">
                     Giá thuê theo tuần:{" "}
                     <span className="text-green-500">
-                      VND/tuần {product.pricePerWeek.toFixed(2)}
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.pricePerWeek)}
+                      /tuần
                     </span>
                   </p>
                 )}

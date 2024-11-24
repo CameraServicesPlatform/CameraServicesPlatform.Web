@@ -23,13 +23,12 @@ const ManageCategory = () => {
     try {
       const data = await getAllCategories(page, pageSize);
       if (data && data.isSuccess) {
-        // Set the categories from the result
-        setCategories(data.result); // Use data.result directly as it contains the array of categories
+        setCategories(data.result);
       } else {
-        message.error("Failed to load categories.");
+        message.error("Không thể tải danh mục.");
       }
     } catch (error) {
-      message.error("Failed to load categories.");
+      message.error("Không thể tải danh mục.");
       console.error("Error fetching categories:", error);
     } finally {
       setLoading(false);
@@ -43,10 +42,10 @@ const ManageCategory = () => {
   const handleDelete = async (categoryID) => {
     const success = await deleteCategory(categoryID);
     if (success && success.isSuccess) {
-      message.success("Category deleted successfully!");
+      message.success("Xóa danh mục thành công!");
       setCategories(categories.filter((cat) => cat.categoryID !== categoryID));
     } else {
-      message.error("Failed to delete category.");
+      message.error("Không thể xóa danh mục.");
     }
   };
 
@@ -56,14 +55,14 @@ const ManageCategory = () => {
       values.categoryDescription
     );
     if (response && response.isSuccess) {
-      message.success("Category created successfully!");
+      message.success("Tạo danh mục thành công!");
       setCategories([...categories, response.result]);
       setModalVisible(false);
       form.resetFields();
     } else {
       const errorMessage = response.messages
         ? response.messages[0]
-        : "Failed to create category.";
+        : "Không thể tạo danh mục.";
       message.error(errorMessage);
     }
   };
@@ -71,15 +70,15 @@ const ManageCategory = () => {
   const handleSearch = async (values) => {
     const data = await getCategoryByName(values.filter || "", 1, 10);
     if (data && data.isSuccess) {
-      setCategories(data.result); // Update to directly set result
+      setCategories(data.result);
     } else {
-      message.error("Failed to search categories.");
+      message.error("Không thể tìm kiếm danh mục.");
     }
   };
 
   const handleUpdate = async (values) => {
     if (!selectedCategory || !selectedCategory.categoryID) {
-      message.error("Selected category is invalid.");
+      message.error("Danh mục được chọn không hợp lệ.");
       return;
     }
 
@@ -90,7 +89,7 @@ const ManageCategory = () => {
     );
 
     if (response && response.isSuccess) {
-      message.success("Category updated successfully!");
+      message.success("Cập nhật danh mục thành công!");
       setCategories(
         categories.map((cat) =>
           cat.categoryID === selectedCategory.categoryID
@@ -104,7 +103,7 @@ const ManageCategory = () => {
     } else {
       const errorMessage = response.messages
         ? response.messages[0]
-        : "Failed to update category.";
+        : "Không thể cập nhật danh mục.";
       message.error(errorMessage);
     }
   };
@@ -125,18 +124,18 @@ const ManageCategory = () => {
 
   return (
     <div>
-      <h2>Manage Categories</h2>
+      <h2>Quản lý danh mục</h2>
       <Form
         layout="inline"
         onFinish={handleSearch}
         style={{ marginBottom: "20px" }}
       >
         <Form.Item name="filter">
-          <Input placeholder="Search by name" />
+          <Input placeholder="Tìm kiếm theo tên" />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Search
+            Tìm kiếm
           </Button>
         </Form.Item>
       </Form>
@@ -149,22 +148,22 @@ const ManageCategory = () => {
         }}
         style={{ marginBottom: "20px" }}
       >
-        Create Category
+        Tạo danh mục
       </Button>
       <Table
         dataSource={categories}
         rowKey="categoryID"
         columns={[
           {
-            title: "Category Name",
+            title: "Tên danh mục",
             dataIndex: "categoryName",
           },
           {
-            title: "Description",
+            title: "Mô tả",
             dataIndex: "categoryDescription",
           },
           {
-            title: "Actions",
+            title: "Hành động",
             render: (text, record) => (
               <>
                 <Button
@@ -184,7 +183,7 @@ const ManageCategory = () => {
         ]}
       />
       <Modal
-        title={isUpdating ? "Update Category" : "Create Category"}
+        title={isUpdating ? "Cập nhật danh mục" : "Tạo danh mục"}
         visible={modalVisible}
         onCancel={() => {
           setModalVisible(false);
@@ -199,29 +198,27 @@ const ManageCategory = () => {
           onFinish={isUpdating ? handleUpdate : handleCreate}
         >
           <Form.Item
-            label="Category Name"
+            label="Tên danh mục"
             name="categoryName"
-            rules={[
-              { required: true, message: "Please input the category name!" },
-            ]}
+            rules={[{ required: true, message: "Vui lòng nhập tên danh mục!" }]}
           >
-            <Input placeholder="Enter category name" />
+            <Input placeholder="Nhập tên danh mục" />
           </Form.Item>
           <Form.Item
-            label="Category Description"
+            label="Mô tả danh mục"
             name="categoryDescription"
             rules={[
               {
                 required: true,
-                message: "Please input the category description!",
+                message: "Vui lòng nhập mô tả danh mục!",
               },
             ]}
           >
-            <Input.TextArea placeholder="Enter category description" rows={4} />
+            <Input.TextArea placeholder="Nhập mô tả danh mục" rows={4} />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              {isUpdating ? "Update Category" : "Create Category"}
+              {isUpdating ? "Cập nhật danh mục" : "Tạo danh mục"}
             </Button>
           </Form.Item>
         </Form>
@@ -231,3 +228,4 @@ const ManageCategory = () => {
 };
 
 export default ManageCategory;
+

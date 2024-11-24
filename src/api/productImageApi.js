@@ -59,3 +59,5 @@ export const deleteProductImage = async (productImageId) => {
     throw error;
   }
 };
+
+// Function to update order status to pending refund

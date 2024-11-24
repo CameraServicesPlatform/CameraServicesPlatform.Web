@@ -23,13 +23,14 @@ import ProductPageRent from "../pages/Common/Product/ProductPageRent";
 
 import DashboardAdmin from "../pages/Admin/DashboardAdmin";
 import CreateOrderRent from "../pages/Common/Order/CreateOrderRent/CreateOrderRent";
+import ManageCreateReportForm from "../pages/Common/Report/ManageCreateReportForm";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import Wishlist from "../pages/Common/Wishlish/Wishlist";
 import OrderDetail from "../pages/CommonManager/OrderDetail";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
-import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ManageProduct from "../pages/Staff/Product/ManageProduct";
+import ManageTransactionSystem from "../pages/Staff/Transaction/ManageTransactionSystem";
 import ManageVoucher from "../pages/Staff/Voucher/ManageVoucher";
 import ManageContractTemplate from "../pages/Supllier/ContractTemplate/ManageContractTemplate";
 import DashboardSupplier from "../pages/Supllier/DashboardSupplier";
@@ -39,6 +40,7 @@ import DetailProduct from "../pages/Supllier/Product/DetailProduct";
 import ManageProductOfSuplier from "../pages/Supllier/Product/ManageProductOfSuplier";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
+import PersonalReview from "../pages/Common/PersonalReview";
 
 function Routers() {
   const routing = useRoutes([
@@ -53,7 +55,6 @@ function Routers() {
         { index: true, element: <Home /> },
         { path: "login", element: <LoginPage /> },
         { path: "verify-payment/*", element: <VerifyPayment /> },
-        { path: "check-in", element: <CheckInPage /> },
         { path: "about", element: <About /> },
         { path: "contact", element: <Contact /> },
         { path: "policy", element: <Policy /> },
@@ -65,6 +66,7 @@ function Routers() {
         { path: "product-for-buy", element: <ProductPageBuy /> },
         { path: "create-order-buy", element: <CreateOrderBuy /> },
         { path: "create-order-rent", element: <CreateOrderRent /> },
+        { path: "personal-review", element: <PersonalReview /> },
 
         { path: "/product/:id", element: <ProductDetailPage /> },
         { path: "order-detail", element: <OrderDetail /> },
@@ -77,6 +79,10 @@ function Routers() {
         {
           path: "wishlist",
           element: <Wishlist />,
+        },
+        {
+          path: "create-report-form",
+          element: <ManageCreateReportForm />,
         },
       ],
     },
@@ -152,6 +158,10 @@ function Routers() {
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
         { path: "manage-voucher", element: <ManageVoucher /> },
+        {
+          path: "manage-transaction-system",
+          element: <ManageTransactionSystem />,
+        },
       ],
     },
   ]);

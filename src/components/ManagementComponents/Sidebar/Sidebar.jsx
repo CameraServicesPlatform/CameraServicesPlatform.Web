@@ -25,6 +25,7 @@ const SideBar = () => {
       { name: "DANH MỤC", link: "manage-category", icon: <FaTags /> },
       { name: "SẢN PHẨM", link: "manage-product", icon: <FaBoxOpen /> },
       { name: "VOUCHER", link: "manage-voucher", icon: <FaGift /> },
+      { name: "GIAO DỊCH", link: "manage-transaction-system" },
     ],
 
     SUPPLIER: [
@@ -45,11 +46,11 @@ const SideBar = () => {
         link: "manage-contract-template",
         icon: <FaClipboardList />,
       },
-      {
-        name: "QUẢN LÍ ĐIỂU KHOẢN HỢP ĐÔNG",
-        link: "manage-order",
-        icon: <FaClipboardList />,
-      },
+      // {
+      //   name: "QUẢN LÍ   KHOẢN HỢP ĐÔNG",
+      //   link: "manage-order",
+      //   icon: <FaClipboardList />,
+      // },
     ],
     ADMIN: [
       { name: "THỐNG KÊ", link: "dashboard", icon: <FaHome /> },

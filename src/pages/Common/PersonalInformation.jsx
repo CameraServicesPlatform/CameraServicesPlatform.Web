@@ -1,4 +1,4 @@
-import { faClock, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faClock, faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { message } from "antd";
 import { useEffect, useState } from "react";
@@ -16,7 +16,6 @@ import { getSupplierById } from "../../api/supplierApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
-
 const jobDescriptions = {
   0: "Sinh viên",
   1: "Nhiếp ảnh gia chuyên nghiệp",
@@ -48,11 +47,13 @@ const orderStatusMap = {
   2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
   3: { text: "Đã nhận sản phẩm", color: "purple", icon: "fa-shopping-cart" },
   4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
-
   5: { text: "Thanh toán thất bại", color: "cyan", icon: "fa-money-bill-wave" },
-  6: { text: "Đang hủy ", color: "lime", icon: "fa-box-open" },
+  6: { text: "Đang hủy", color: "lime", icon: "fa-box-open" },
   7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
   8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
+  9: { text: "Hoàn tiền đang chờ xử lý", color: "pink", icon: "fa-clock" },
+  10: { text: "Hoàn tiền", color: "brown", icon: "fa-undo" },
+  11: { text: "Hoàn trả tiền đặt cọc", color: "gold", icon: "fa-piggy-bank" },
 };
 
 const orderTypeMap = {
@@ -62,7 +63,7 @@ const orderTypeMap = {
 
 const deliveryStatusMap = {
   0: { text: "Nhận tại cửa hàng", color: "blue", icon: "fa-store" }, // LPH: Lấy Phát Hàng
-  1: { text: "Giao hàng", color: "green", icon: "fa-truck" },
+  1: { text: "Giao hàng tận nơi", color: "green", icon: "fa-truck" },
   2: { text: "Trả lại", color: "red", icon: "fa-undo" },
 };
 
@@ -285,15 +286,12 @@ const PersonalInformation = () => {
                 console.log("API Response:", result); // Log the API response
                 if (result && result.isSuccess) {
                   console.log("Order canceled successfully:", result);
-                  // Handle successful cancellation (e.g., update UI, show a message)
                   window.location.reload(); // Reload the page
                 } else {
                   console.error("Failed to cancel order:", result.messages);
-                  // Handle cancellation error (e.g., show an error message)
                 }
               } catch (err) {
                 console.error("Error canceling order:", err);
-                // Handle error (e.g., show an error message)
               }
             }}
           >
@@ -302,7 +300,7 @@ const PersonalInformation = () => {
               className="mr-2 group-hover:hidden"
             />
             <span className="hidden group-hover:inline">
-              Cancel Order Request
+              Yêu cầu hủy đơn hàng
             </span>
           </button>
         </div>
@@ -346,7 +344,7 @@ const PersonalInformation = () => {
         {order.shippingAddress}
       </td>
       <td className="py-3 px-4 border-b hidden lg:table-cell">
-        <StatusBadge status={order.deliveryMethod} map={deliveryStatusMap} />
+        <StatusBadge status={order.deliveriesMethod} map={deliveryStatusMap} />
       </td>
       <td className="py-3 px-4 border-b">
         <StatusBadge status={order.orderType} map={orderTypeMap} />
@@ -402,7 +400,7 @@ const PersonalInformation = () => {
               <button
                 className="bg-blue-500 text-white rounded-md py-2 px-4 my-2"
                 onClick={async (e) => {
-                  e.stopPropagation(); // Prevent triggering the row click event
+                  e.stopPropagation();
                   await updateOrderStatusPlaced(order.orderID);
                 }}
               >
@@ -423,6 +421,12 @@ const PersonalInformation = () => {
             <h2 className="text-2xl font-bold text-teal-600 flex items-center">
               <i className="fa-solid fa-user mr-2"></i> Thông tin cá nhân
             </h2>
+            <button
+              className="btn bg-primary text-white flex items-center"
+              onClick={() => setIsUpdateModalOpen(true)}
+            >
+              <FontAwesomeIcon icon={faEdit} className="mr-2" />
+            </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex items-center">
@@ -462,6 +466,24 @@ const PersonalInformation = () => {
               <span>
                 <strong>Giới tính:</strong>{" "}
                 {userMap.gender === 0 ? "Nam" : "Nữ"}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-university mr-2 text-gray-600"></i>
+              <span>
+                <strong>Ngân hàng:</strong> {userMap.bankName}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-credit-card mr-2 text-gray-600"></i>
+              <span>
+                <strong>Số tài khoản:</strong> {userMap.accountNumber}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-user-tie mr-2 text-gray-600"></i>
+              <span>
+                <strong>Chủ tài khoản:</strong> {userMap.accountHolder}
               </span>
             </div>
           </div>
@@ -543,7 +565,10 @@ const PersonalInformation = () => {
                             {orderdetails.product.productName || "N/A"}
                           </td>
                           <td className="py-2 px-4 border-b">
-                            {formatPrice(
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(
                               orderdetails.product.priceBuy ||
                                 orderdetails.productPrice
                             )}
@@ -552,7 +577,10 @@ const PersonalInformation = () => {
                             {orderdetails.product.quality}
                           </td>
                           <td className="py-2 px-4 border-b">
-                            {formatPrice(orderdetails.productPriceTotal)}
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(orderdetails.productPriceTotal)}
                           </td>
                           <td className="py-2 px-4 border-b">
                             {orderdetails.product.serialNumber || "N/A"}
