@@ -1,11 +1,15 @@
-import { Button, Table, Tag, Typography, message } from "antd";
+import { Button, Modal, Table, Tag, Typography, message } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getStaffByAccountId, getUserById } from "../../../api/accountApi";
 import { getAllOrders } from "../../../api/orderApi";
 import { getSupplierById } from "../../../api/supplierApi";
-import { createStaffRefund } from "../../../api/transactionApi";
+import {
+  createStaffRefundDeposit,
+  createStaffRefundReturnDetail,
+} from "../../../api/transactionApi";
+
 const { Title } = Typography;
 
 const orderStatusMap = {
@@ -52,22 +56,25 @@ const CreateStaffRefundMember = () => {
 
   useEffect(() => {
     const fetchStaffId = async () => {
+      if (!user || !user.id) {
+        console.error("User ID is not available");
+        return;
+      }
+
       try {
         const staffData = await getStaffByAccountId(user.id);
         if (staffData && staffData.isSuccess) {
           setStaffId(staffData.result);
           console.log("Fetched staffId:", staffData.result);
         } else {
-          console.error("Failed to fetch staffId");
+          console.error("Failed to fetch staffId:", staffData.messages);
         }
       } catch (error) {
         console.error("Error fetching staffId:", error);
       }
     };
 
-    if (user && user.id) {
-      fetchStaffId();
-    }
+    fetchStaffId();
   }, [user]);
 
   useEffect(() => {
@@ -135,20 +142,54 @@ const CreateStaffRefundMember = () => {
     fetchOrders();
   }, [pageIndex, pageSize]);
 
-  const handleRefund = async (orderID, accountId, deposit) => {
-    const staffData = await getStaffByAccountId(user.id);
-
-    const staffId = staffData ? staffData.result : "";
-    console.log(staffId);
-    const orderData = { orderID, accountId, staffId, amount: deposit };
+  const handleRefund = async (orderID, orderStatus, orderType) => {
+    if (!user || !user.id) {
+      console.error("User ID is not available");
+      return;
+    }
 
     try {
-      const response = await createStaffRefund(orderData);
-      if (response.isSuccess && response.result) {
-        message.success(
-          "Tạo đơn hàng thành công. Đang chuyển hướng đến thanh toán..."
+      const staffData = await getStaffByAccountId(user.id);
+      if (!staffData || !staffData.isSuccess) {
+        console.error(
+          "Failed to fetch staffId:",
+          staffData ? staffData.messages : "No response"
         );
-        window.location.href = response.result;
+        return;
+      }
+
+      const staffId = staffData.result;
+      console.log("Staff ID:", staffId);
+
+      let response;
+      if (
+        (orderStatus === 7 && orderType === 1) ||
+        (orderStatus === 7 && orderType === 0)
+      ) {
+        response = await createStaffRefundReturnDetail(orderID, staffId);
+      } else if (orderStatus === 2 && orderType === 1) {
+        response = await createStaffRefundDeposit(orderID, staffId);
+      }
+
+      if (response && response.isSuccess) {
+        Modal.success({
+          title: "Thông tin hoàn tiền",
+          content: (
+            <div>
+              <p>Ngân hàng: {response.result.bankName}</p>
+              <p>Số tài khoản: {response.result.accountNumber}</p>
+              <p>Chủ tài khoản: {response.result.accountHolder}</p>
+              <p>Mã đơn hàng: {response.result.orderId}</p>
+              <p>
+                Tổng số tiền:{" "}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(response.result.totalAmount)}
+              </p>
+            </div>
+          ),
+        });
       } else {
         message.error("Không thể khởi tạo thanh toán.");
       }
@@ -156,7 +197,7 @@ const CreateStaffRefundMember = () => {
       message.error(
         "Không thể tạo đơn hàng. " + (error.response?.data?.title || "")
       );
-      console.error(error);
+      console.error("Error creating refund:", error);
     }
   };
 
@@ -252,11 +293,13 @@ const CreateStaffRefundMember = () => {
       title: "Hành động",
       key: "action",
       render: (text, record) =>
-        (record.orderStatus === 7 || record.orderType === 1) && (
+        ((record.orderStatus === 7 && record.orderType === 0) ||
+          (record.orderStatus === 7 && record.orderType === 1) ||
+          (record.orderStatus === 2 && record.orderType === 1)) && (
           <Button
             type="primary"
             onClick={() =>
-              handleRefund(record.orderID, record.accountID, record.deposit)
+              handleRefund(record.orderID, record.orderStatus, record.orderType)
             }
           >
             Hoàn tiền

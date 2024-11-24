@@ -72,7 +72,7 @@ export const getTransactionBySupplierId = async (
   }
 };
 
-// Create a supplier payment  
+// Create a supplier payment
 export const createSupplierPayment = async (data) => {
   try {
     const res = await api.post("/transaction/create-supplier-payment", data);
@@ -93,6 +93,7 @@ export const createStaffRefund = async (data) => {
     return null;
   }
 };
+
 export const createStaffRefundPurchuse = async (orderId) => {
   try {
     const res = await api.post(
@@ -105,6 +106,7 @@ export const createStaffRefundPurchuse = async (orderId) => {
     return null;
   }
 };
+
 export const getAllHistoryTransactions = async (
   pageIndex = 1,
   pageSize = 10
@@ -116,6 +118,35 @@ export const getAllHistoryTransactions = async (
     return res.data;
   } catch (err) {
     console.error("Error fetching all history transactions:", err);
+    return null;
+  }
+};
+
+export const createStaffRefundReturnDetail = async (orderID, staffId) => {
+  try {
+    const res = await api.post(
+      "/transaction/create-staff-refund-return-detail",
+      {
+        orderID,
+        staffId,
+      }
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error creating staff refund return detail:", err);
+    return null;
+  }
+};
+
+export const createStaffRefundDeposit = async (orderID, staffId) => {
+  try {
+    const res = await api.post("/transaction/create-staff-refund-deposit", {
+      orderID,
+      staffId,
+    });
+    return res.data;
+  } catch (err) {
+    console.error("Error creating staff refund deposit:", err);
     return null;
   }
 };
