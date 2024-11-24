@@ -1,4 +1,4 @@
-import { faClock, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faClock, faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { message } from "antd";
 import { useEffect, useState } from "react";
@@ -16,7 +16,6 @@ import { getSupplierById } from "../../api/supplierApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
-
 const jobDescriptions = {
   0: "Sinh viên",
   1: "Nhiếp ảnh gia chuyên nghiệp",
@@ -423,6 +422,12 @@ const PersonalInformation = () => {
             <h2 className="text-2xl font-bold text-teal-600 flex items-center">
               <i className="fa-solid fa-user mr-2"></i> Thông tin cá nhân
             </h2>
+            <button
+              className="btn bg-primary text-white flex items-center"
+              onClick={() => setIsUpdateModalOpen(true)}
+            >
+              <FontAwesomeIcon icon={faEdit} className="mr-2" />
+            </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex items-center">

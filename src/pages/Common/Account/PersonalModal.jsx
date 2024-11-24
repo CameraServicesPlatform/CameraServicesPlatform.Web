@@ -245,7 +245,7 @@ const PersonalModal = ({ onClose }) => {
                   <option value="">Chọn giới tính</option>
                   <option value={1}>Nam</option>
                   <option value={2}>Nữ</option>
-                  <option value={3}>Khác</option>
+                  <option value={3}>Không cung cấp</option>
                 </Field>
                 <ErrorMessage
                   name="gender"
