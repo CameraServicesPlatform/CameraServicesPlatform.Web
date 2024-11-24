@@ -258,4 +258,3 @@ const ManageUserList = () => {
 };
 
 export default ManageUserList;
-S
