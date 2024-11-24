@@ -225,7 +225,11 @@ const ProductPageBuy = () => {
                   {product.priceBuy != null && (
                     <p className="font-bold text-left text-green-500">
                       <DollarOutlined className="inline mr-1" />
-                      Giá mua: {formatPrice(product.priceBuy)}
+                      Giá mua:{" "}
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(product.priceBuy)}
                     </p>
                   )}
                   <p className="font-semibold text-left">
