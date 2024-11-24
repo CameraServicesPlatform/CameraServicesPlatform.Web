@@ -23,6 +23,7 @@ import ProductPageRent from "../pages/Common/Product/ProductPageRent";
 
 import DashboardAdmin from "../pages/Admin/DashboardAdmin";
 import CreateOrderRent from "../pages/Common/Order/CreateOrderRent/CreateOrderRent";
+import PersonalReview from "../pages/Common/PersonalReview";
 import ManageCreateReportForm from "../pages/Common/Report/ManageCreateReportForm";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import Wishlist from "../pages/Common/Wishlish/Wishlist";
