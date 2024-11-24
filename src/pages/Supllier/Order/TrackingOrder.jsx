@@ -237,7 +237,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
     },
     {
       title: "Chờ hoàn tiền",
-      status: 2,
+      status: [2, 7],
       icon: <CheckCircleOutlined />,
       action: "pending-refund",
     },
@@ -376,7 +376,18 @@ const TrackingOrder = ({ order, onUpdate }) => {
             icon={<CheckCircleOutlined />}
             style={{ marginRight: 8, marginBottom: 8 }}
           >
-            Chờ hoàn tiền
+            Gửi yêu cầu hoàn tiền cho hệ thống
+          </Button>
+        )}
+        {order.orderStatus === 7 && (
+          <Button
+            type="primary"
+            onClick={() => showConfirm("pending-refund", order.orderID)}
+            className="ml-2"
+            icon={<CheckCircleOutlined />}
+            style={{ marginRight: 8, marginBottom: 8 }}
+          >
+            Gửi yêu cầu hoàn tiền cho hệ thống
           </Button>
         )}
         {order.orderStatus === 1 && (
