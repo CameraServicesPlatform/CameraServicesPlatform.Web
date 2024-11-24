@@ -23,12 +23,12 @@ import ProductPageRent from "../pages/Common/Product/ProductPageRent";
 
 import DashboardAdmin from "../pages/Admin/DashboardAdmin";
 import CreateOrderRent from "../pages/Common/Order/CreateOrderRent/CreateOrderRent";
+import PersonalReview from "../pages/Common/PersonalReview";
 import ManageCreateReportForm from "../pages/Common/Report/ManageCreateReportForm";
 import VerifyPayment from "../pages/Common/VerifyPayment";
 import Wishlist from "../pages/Common/Wishlish/Wishlist";
 import OrderDetail from "../pages/CommonManager/OrderDetail";
 import RegisterSupplier from "../pages/CommonManager/RegisterSupplier";
-import CheckInPage from "../pages/PM/CheckInPage";
 import ManageCategory from "../pages/Staff/Category/ManageCategory";
 import ManageProduct from "../pages/Staff/Product/ManageProduct";
 import ManageTransactionSystem from "../pages/Staff/Transaction/ManageTransactionSystem";
@@ -55,7 +55,7 @@ function Routers() {
         { index: true, element: <Home /> },
         { path: "login", element: <LoginPage /> },
         { path: "verify-payment/*", element: <VerifyPayment /> },
-         { path: "about", element: <About /> },
+        { path: "about", element: <About /> },
         { path: "contact", element: <Contact /> },
         { path: "policy", element: <Policy /> },
         { path: "cart", element: <Cart /> },
@@ -66,6 +66,7 @@ function Routers() {
         { path: "product-for-buy", element: <ProductPageBuy /> },
         { path: "create-order-buy", element: <CreateOrderBuy /> },
         { path: "create-order-rent", element: <CreateOrderRent /> },
+        { path: "personal-review", element: <PersonalReview /> },
 
         { path: "/product/:id", element: <ProductDetailPage /> },
         { path: "order-detail", element: <OrderDetail /> },
