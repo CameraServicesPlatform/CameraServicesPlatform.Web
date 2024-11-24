@@ -49,9 +49,9 @@
     "redux-persist": "^6.0.0",
     "slick-carousel": "^1.8.1",
     "styled-components": "^6.1.13",
-    "sweetalert2": "^11.6.14",
+    "sweetalert2": "^11.6.13",
     "swiper": "^11.1.3",
-    "vietqr": "^1.1.9",
+    "vietqr": "^0.0.1",
     "web-vitals": "^3.5.2",
     "yup": "^1.4.0"
   },
