@@ -468,6 +468,24 @@ const PersonalInformation = () => {
                 {userMap.gender === 0 ? "Nam" : "Nữ"}
               </span>
             </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-university mr-2 text-gray-600"></i>
+              <span>
+                <strong>Ngân hàng:</strong> {userMap.bankName}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-credit-card mr-2 text-gray-600"></i>
+              <span>
+                <strong>Số tài khoản:</strong> {userMap.accountNumber}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-user-tie mr-2 text-gray-600"></i>
+              <span>
+                <strong>Chủ tài khoản:</strong> {userMap.accountHolder}
+              </span>
+            </div>
           </div>
         </div>
 
