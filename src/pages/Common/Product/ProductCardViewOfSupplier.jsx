@@ -235,7 +235,10 @@ const ProductCardViewOfSupplier = () => {
                                 <DollarOutlined className="mr-2" />
                                 Giá Bán:{" "}
                                 {product.priceBuy && product.priceBuy !== 0
-                                  ? `${product.priceBuy} VND`
+                                  ? new Intl.NumberFormat("vi-VN", {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }).format(product.priceBuy)
                                   : "--"}
                               </Text>
                               <Text className="flex items-center truncate">
@@ -243,7 +246,10 @@ const ProductCardViewOfSupplier = () => {
                                 Giá Thuê Theo Giờ:{" "}
                                 {product.pricePerHour &&
                                 product.pricePerHour !== 0
-                                  ? `${product.pricePerHour} VND`
+                                  ? new Intl.NumberFormat("vi-VN", {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }).format(product.pricePerHour)
                                   : "--"}
                               </Text>
                               <Text className="flex items-center truncate">
@@ -251,7 +257,10 @@ const ProductCardViewOfSupplier = () => {
                                 Giá Thuê Theo Ngày:{" "}
                                 {product.pricePerDay &&
                                 product.pricePerDay !== 0
-                                  ? `${product.pricePerDay} VND`
+                                  ? new Intl.NumberFormat("vi-VN", {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }).format(product.pricePerDay)
                                   : "--"}
                               </Text>
                               <Text className="flex items-center truncate">
@@ -259,7 +268,10 @@ const ProductCardViewOfSupplier = () => {
                                 Giá Thuê Theo Tuần:{" "}
                                 {product.pricePerWeek &&
                                 product.pricePerWeek !== 0
-                                  ? `${product.pricePerWeek} VND`
+                                  ? new Intl.NumberFormat("vi-VN", {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }).format(product.pricePerWeek)
                                   : "--"}
                               </Text>
                               <Text className="flex items-center truncate">
@@ -267,7 +279,10 @@ const ProductCardViewOfSupplier = () => {
                                 Giá Thuê Theo Tháng:{" "}
                                 {product.pricePerMonth &&
                                 product.pricePerMonth !== 0
-                                  ? `${product.pricePerMonth} VND`
+                                  ? new Intl.NumberFormat("vi-VN", {
+                                      style: "currency",
+                                      currency: "VND",
+                                    }).format(product.pricePerMonth)
                                   : "--"}
                               </Text>
                               <Text className="flex items-center truncate">
@@ -347,30 +362,52 @@ const ProductCardViewOfSupplier = () => {
             </Paragraph>
             <Text className="flex items-center">
               <DollarOutlined className="mr-2" />
-              Giá Mua: {selectedProduct.priceBuy}
+              Giá Mua:{" "}
+              {selectedProduct.priceBuy
+                ? new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(selectedProduct.priceBuy)
+                : "--"}
             </Text>
             {selectedProduct.pricePerHour && (
               <Text className="flex items-center">
                 <ClockCircleOutlined className="mr-2" />
-                Giá Thuê Theo Giờ: {selectedProduct.pricePerHour}
+                Giá Thuê Theo Giờ:{" "}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(selectedProduct.pricePerHour)}
               </Text>
             )}
             {selectedProduct.pricePerDay && (
               <Text className="flex items-center">
                 <ClockCircleOutlined className="mr-2" />
-                Giá Thuê Theo Ngày: {selectedProduct.pricePerDay}
+                Giá Thuê Theo Ngày:{" "}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(selectedProduct.pricePerDay)}
               </Text>
             )}
             {selectedProduct.pricePerWeek && (
               <Text className="flex items-center">
                 <ClockCircleOutlined className="mr-2" />
-                Giá Thuê Theo Tuần: {selectedProduct.pricePerWeek}
+                Giá Thuê Theo Tuần:{" "}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(selectedProduct.pricePerWeek)}
               </Text>
             )}
             {selectedProduct.pricePerMonth && (
               <Text className="flex items-center">
                 <ClockCircleOutlined className="mr-2" />
-                Giá Thuê Theo Tháng: {selectedProduct.pricePerMonth}
+                Giá Thuê Theo Tháng:{" "}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(selectedProduct.pricePerMonth)}
               </Text>
             )}
             <Text className="flex items-center">

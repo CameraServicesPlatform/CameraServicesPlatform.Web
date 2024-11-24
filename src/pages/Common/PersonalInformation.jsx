@@ -565,7 +565,10 @@ const PersonalInformation = () => {
                             {orderdetails.product.productName || "N/A"}
                           </td>
                           <td className="py-2 px-4 border-b">
-                            {formatPrice(
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(
                               orderdetails.product.priceBuy ||
                                 orderdetails.productPrice
                             )}
@@ -574,7 +577,10 @@ const PersonalInformation = () => {
                             {orderdetails.product.quality}
                           </td>
                           <td className="py-2 px-4 border-b">
-                            {formatPrice(orderdetails.productPriceTotal)}
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(orderdetails.productPriceTotal)}
                           </td>
                           <td className="py-2 px-4 border-b">
                             {orderdetails.product.serialNumber || "N/A"}
