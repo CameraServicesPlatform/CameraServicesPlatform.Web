@@ -1,7 +1,6 @@
 import {
   AppstoreAddOutlined,
   CalendarOutlined,
-  DollarOutlined,
   EditOutlined,
   InfoCircleOutlined,
   SearchOutlined,
@@ -204,17 +203,65 @@ const ProductPage = () => {
                   <p className="text-gray-700 text-left">
                     {product.productDescription}
                   </p>
-                  {product.priceRent != null && (
-                    <p className="font-bold text-left text-green-500">
-                      <DollarOutlined className="inline mr-1" />
-                      Giá thuê: VND/giờ {product.priceRent.toFixed(2)}
-                    </p>
+                  {productDetail.priceRent != null && (
+                    <Descriptions.Item label="Giá (Thuê)">
+                      <span style={{ color: "blue" }}>
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(productDetail.priceRent)}
+                      </span>
+                    </Descriptions.Item>
                   )}
-                  {product.priceBuy != null && (
-                    <p className="font-bold text-left text-green-500">
-                      <DollarOutlined className="inline mr-1" />
-                      Giá mua: VND {product.priceBuy.toFixed(2)}
-                    </p>
+                  {productDetail.priceBuy != null && (
+                    <Descriptions.Item label="Giá (Mua)">
+                      <span style={{ color: "green", fontWeight: "bold" }}>
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(productDetail.priceBuy)}
+                      </span>
+                    </Descriptions.Item>
+                  )}
+                  {productDetail.pricePerHour != null && (
+                    <Descriptions.Item label="Giá (Thuê)/giờ">
+                      <span style={{ color: "blue" }}>
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(productDetail.pricePerHour)}
+                      </span>
+                    </Descriptions.Item>
+                  )}
+                  {productDetail.pricePerDay != null && (
+                    <Descriptions.Item label="Giá (Thuê)/ngày">
+                      <span style={{ color: "blue" }}>
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(productDetail.pricePerDay)}
+                      </span>
+                    </Descriptions.Item>
+                  )}
+                  {productDetail.pricePerWeek != null && (
+                    <Descriptions.Item label="Giá (Thuê)/tuần">
+                      <span style={{ color: "blue" }}>
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(productDetail.pricePerWeek)}
+                      </span>
+                    </Descriptions.Item>
+                  )}
+                  {productDetail.pricePerMonth != null && (
+                    <Descriptions.Item label="Giá (Thuê)/tháng">
+                      <span style={{ color: "blue" }}>
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(productDetail.pricePerMonth)}
+                      </span>
+                    </Descriptions.Item>
                   )}
                   <p className="font-semibold text-left">
                     <TagOutlined className="inline mr-1" />

@@ -468,6 +468,24 @@ const PersonalInformation = () => {
                 {userMap.gender === 0 ? "Nam" : "Nữ"}
               </span>
             </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-university mr-2 text-gray-600"></i>
+              <span>
+                <strong>Ngân hàng:</strong> {userMap.bankName}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-credit-card mr-2 text-gray-600"></i>
+              <span>
+                <strong>Số tài khoản:</strong> {userMap.accountNumber}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <i className="fa-solid fa-user-tie mr-2 text-gray-600"></i>
+              <span>
+                <strong>Chủ tài khoản:</strong> {userMap.accountHolder}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -547,7 +565,10 @@ const PersonalInformation = () => {
                             {orderdetails.product.productName || "N/A"}
                           </td>
                           <td className="py-2 px-4 border-b">
-                            {formatPrice(
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(
                               orderdetails.product.priceBuy ||
                                 orderdetails.productPrice
                             )}
@@ -556,7 +577,10 @@ const PersonalInformation = () => {
                             {orderdetails.product.quality}
                           </td>
                           <td className="py-2 px-4 border-b">
-                            {formatPrice(orderdetails.productPriceTotal)}
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(orderdetails.productPriceTotal)}
                           </td>
                           <td className="py-2 px-4 border-b">
                             {orderdetails.product.serialNumber || "N/A"}

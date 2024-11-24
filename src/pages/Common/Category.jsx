@@ -169,7 +169,10 @@ const Category = () => {
                       <div style={{ marginBottom: "8px" }}>
                         <Text strong>Giá:</Text>{" "}
                         {product.priceBuy
-                          ? `${product.priceBuy.toLocaleString()} VND`
+                          ? new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(product.priceBuy)
                           : "Không có sẵn"}
                       </div>
                       <div style={{ marginBottom: "8px" }}>
