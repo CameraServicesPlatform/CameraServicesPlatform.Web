@@ -43,7 +43,7 @@ const CreateVoucherFormBySuplier = () => {
     try {
       const response = await createVoucher({
         supplierID: supplierId,
-        voucherCode: values.voucherCode,
+        vourcherCode: values.vourcherCode,
         discountAmount: values.discountAmount,
         description: values.description,
         validFrom: values.validFrom,
@@ -85,7 +85,7 @@ const CreateVoucherFormBySuplier = () => {
             <Row gutter={[16, 16]}>
               <Col span={12}>
                 <Form.Item
-                  name="voucherCode"
+                  name="vourcherCode"
                   label="Mã Voucher"
                   rules={[
                     { required: true, message: "Vui lòng nhập mã voucher!" },
