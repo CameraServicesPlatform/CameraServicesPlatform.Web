@@ -286,15 +286,12 @@ const PersonalInformation = () => {
                 console.log("API Response:", result); // Log the API response
                 if (result && result.isSuccess) {
                   console.log("Order canceled successfully:", result);
-                  // Handle successful cancellation (e.g., update UI, show a message)
                   window.location.reload(); // Reload the page
                 } else {
                   console.error("Failed to cancel order:", result.messages);
-                  // Handle cancellation error (e.g., show an error message)
                 }
               } catch (err) {
                 console.error("Error canceling order:", err);
-                // Handle error (e.g., show an error message)
               }
             }}
           >
@@ -303,7 +300,7 @@ const PersonalInformation = () => {
               className="mr-2 group-hover:hidden"
             />
             <span className="hidden group-hover:inline">
-              Cancel Order Request
+              Yêu cầu hủy đơn hàng
             </span>
           </button>
         </div>
@@ -403,7 +400,7 @@ const PersonalInformation = () => {
               <button
                 className="bg-blue-500 text-white rounded-md py-2 px-4 my-2"
                 onClick={async (e) => {
-                  e.stopPropagation(); // Prevent triggering the row click event
+                  e.stopPropagation();
                   await updateOrderStatusPlaced(order.orderID);
                 }}
               >
