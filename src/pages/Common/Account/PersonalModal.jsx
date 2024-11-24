@@ -17,6 +17,9 @@ const validationSchema = Yup.object({
   gender: Yup.number().nullable(),
   frontOfCitizenIdentificationCard: Yup.mixed().nullable(),
   backOfCitizenIdentificationCard: Yup.mixed().nullable(),
+  bankName: Yup.string().required("Tên ngân hàng là bắt buộc"),
+  accountNumber: Yup.string().required("Số tài khoản là bắt buộc"),
+  accountHolder: Yup.string().required("Chủ tài khoản là bắt buộc"),
 });
 
 const PersonalModal = ({ onClose }) => {
@@ -34,6 +37,9 @@ const PersonalModal = ({ onClose }) => {
     gender: user?.gender || null,
     frontOfCitizenIdentificationCard: null,
     backOfCitizenIdentificationCard: null,
+    bankName: user?.bankName || "",
+    accountNumber: user?.accountNumber || "",
+    accountHolder: user?.accountHolder || "",
   };
 
   return (
@@ -302,6 +308,62 @@ const PersonalModal = ({ onClose }) => {
                 />
                 <ErrorMessage
                   name="backOfCitizenIdentificationCard"
+                  component="div"
+                  className="text-error mt-1"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="bankName" className="label font-semibold">
+                  Tên ngân hàng
+                </label>
+                <Field
+                  id="bankName"
+                  name="bankName"
+                  type="text"
+                  className={`input input-bordered w-full`}
+                  placeholder="Nhập tên ngân hàng của bạn"
+                />
+                <ErrorMessage
+                  name="bankName"
+                  component="div"
+                  className="text-error mt-1"
+                />
+              </div>
+
+              {/* Account Number Field */}
+              <div>
+                <label htmlFor="accountNumber" className="label font-semibold">
+                  Số tài khoản
+                </label>
+                <Field
+                  id="accountNumber"
+                  name="accountNumber"
+                  type="text"
+                  className={`input input-bordered w-full`}
+                  placeholder="Nhập số tài khoản"
+                />
+                <ErrorMessage
+                  name="accountNumber"
+                  component="div"
+                  className="text-error mt-1"
+                />
+              </div>
+
+              {/* Account Holder Field */}
+              <div>
+                <label htmlFor="accountHolder" className="label font-semibold">
+                  Chủ tài khoản
+                </label>
+                <Field
+                  id="accountHolder"
+                  name="accountHolder"
+                  type="text"
+                  className={`input input-bordered w-full`}
+                  placeholder="Nhập tên chủ tài khoản"
+                />
+                <ErrorMessage
+                  name="accountHolder"
                   component="div"
                   className="text-error mt-1"
                 />
