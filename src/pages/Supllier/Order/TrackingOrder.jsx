@@ -16,6 +16,7 @@ import {
   cancelOrder,
   updateOrderStatusApproved,
   updateOrderStatusCompleted,
+  updateOrderStatusPendingRefund,
   updateOrderStatusShipped,
 } from "../../../api/orderApi";
 import { getOrderDetails } from "../../../api/orderDetailApi";
@@ -30,6 +31,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
   const [returnInitiated, setReturnInitiated] = useState(false);
   const [beforeImageUrl, setBeforeImageUrl] = useState(null);
   const [afterImageUrl, setAfterImageUrl] = useState(null);
+
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
@@ -144,6 +146,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
       message.error("Lỗi khi thêm ảnh sau khi giao hàng.");
     }
   };
+
   const handlePendingRefund = async (orderId) => {
     try {
       const response = await updateOrderStatusPendingRefund(orderId);
@@ -157,6 +160,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
       message.error("Lỗi khi cập nhật trạng thái chờ hoàn tiền.");
     }
   };
+
   const showConfirm = (action, orderId) => {
     Modal.confirm({
       title: "Bạn có chắc chắn?",
@@ -213,7 +217,6 @@ const TrackingOrder = ({ order, onUpdate }) => {
       icon: <CheckCircleOutlined />,
       action: "accept-cancel",
     },
-
     {
       title: "Đợi khách hàng đến nhận",
       status: 1,
@@ -226,16 +229,15 @@ const TrackingOrder = ({ order, onUpdate }) => {
       icon: <CarOutlined />,
       action: "ship",
     },
-
     {
       title: "Hoàn thành",
-      status: [3, 4, 5],
+      status: [3, 4],
       icon: <CheckCircleOutlined />,
       action: "complete",
     },
     {
       title: "Chờ hoàn tiền",
-      status: 5,
+      status: 2,
       icon: <CheckCircleOutlined />,
       action: "pending-refund",
     },
@@ -355,17 +357,6 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Giao hàng
           </Button>
         )}
-        {order.orderStatus === 1 && !order.shippingAddress && (
-          <Button
-            type="default"
-            onClick={() => showConfirm("complete", order.orderID)}
-            className="ml-2"
-            icon={<CheckCircleOutlined />}
-            style={{ marginRight: 8, marginBottom: 8 }}
-          >
-            Hoàn thành
-          </Button>
-        )}
         {(order.orderStatus === 4 || returnInitiated) && (
           <Button
             type="primary"
@@ -374,7 +365,18 @@ const TrackingOrder = ({ order, onUpdate }) => {
             icon={<CheckCircleOutlined />}
             style={{ marginRight: 8, marginBottom: 8 }}
           >
-            Hoàn thành
+            Kết thúc đơn thuê
+          </Button>
+        )}
+        {(order.orderStatus === 4 || returnInitiated) && (
+          <Button
+            type="primary"
+            onClick={() => showConfirm("pending-refund", order.orderID)}
+            className="ml-2"
+            icon={<CheckCircleOutlined />}
+            style={{ marginRight: 8, marginBottom: 8 }}
+          >
+            Chờ hoàn tiền
           </Button>
         )}
         {order.orderStatus === 1 && (

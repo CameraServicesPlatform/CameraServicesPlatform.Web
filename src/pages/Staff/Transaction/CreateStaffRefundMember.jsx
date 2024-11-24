@@ -167,7 +167,7 @@ const CreateStaffRefundMember = () => {
         (orderStatus === 7 && orderType === 0)
       ) {
         response = await createStaffRefundReturnDetail(orderID, staffId);
-      } else if (orderStatus === 2 && orderType === 1) {
+      } else if (orderStatus === 9 && orderType === 1) {
         response = await createStaffRefundDeposit(orderID, staffId);
       }
 
@@ -295,7 +295,7 @@ const CreateStaffRefundMember = () => {
       render: (text, record) =>
         ((record.orderStatus === 7 && record.orderType === 0) ||
           (record.orderStatus === 7 && record.orderType === 1) ||
-          (record.orderStatus === 2 && record.orderType === 1)) && (
+          (record.orderStatus === 9 && record.orderType === 1)) && (
           <Button
             type="primary"
             onClick={() =>
