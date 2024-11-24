@@ -118,30 +118,6 @@ export const createOrderBuy = async (orderData) => {
   }
 };
 
-export const updateOrderStatusCompleted = async (orderId) => {
-  try {
-    const res = await api.put(
-      `/order/update-order-status-completed/${orderId}`,
-      {}
-    );
-    return res.data;
-  } catch (err) {
-    console.error("Error updating order status:", err);
-    return null;
-  }
-};
-export const cancelOrder = async (orderId) => {
-  try {
-    const res = await api.put(
-      `/order/cancel-order/${orderId}`,
-      {} // Sending an empty object as the request body
-    );
-    return res.data;
-  } catch (err) {
-    console.error("Error canceling order:", err);
-    return null;
-  }
-};
 export const createOrderRent = async (orderData) => {
   try {
     const res = await api.post("/order/create-order-rent", orderData, {});
@@ -164,28 +140,6 @@ export const updateOrderStatusShipped = async (orderId) => {
     return response.data;
   } catch (error) {
     console.error("Error updating order status to Shipped:", error);
-    return (
-      error.response?.data || {
-        isSuccess: false,
-        messages: ["Error updating order status"],
-      }
-    );
-  }
-};
-export const updateOrderStatusApproved = async (orderId) => {
-  try {
-    const response = await api.put(
-      `/order/update-order-status-Approved/${orderId}`,
-      {},
-      {
-        headers: {
-          accept: "text/plain",
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error updating order status to Approved:", error);
     return (
       error.response?.data || {
         isSuccess: false,
@@ -261,6 +215,134 @@ export const updateOrderStatusPlaced = async (orderId) => {
       err.response?.data || {
         isSuccess: false,
         messages: ["Error updating order status to placed"],
+      }
+    );
+  }
+};
+export const updateOrderStatusPendingRefund = async (orderId) => {
+  try {
+    const response = await api.put(
+      `/order/update-order-status-pending-refund/${orderId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating order status to pending refund:", error);
+    throw error;
+  }
+};
+
+// Function to update order status to refund
+export const updateOrderStatusRefund = async (orderId) => {
+  try {
+    const response = await api.put(
+      `/order/update-order-status-refund/${orderId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating order status to refund:", error);
+    throw error;
+  }
+};
+
+// Function to update order status to deposit refund
+export const updateOrderStatusDepositRefund = async (orderId) => {
+  try {
+    const response = await api.put(
+      `/order/update-order-status-deposit-refund/${orderId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating order status to deposit refund:", error);
+    throw error;
+  }
+};
+export const updateOrderStatusApproved = async (orderId) => {
+  try {
+    const response = await api.put(
+      `/order/update-order-status-Approved/${orderId}`,
+      {},
+      {
+        headers: {
+          accept: "text/plain",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating order status to Approved:", error);
+    return (
+      error.response?.data || {
+        isSuccess: false,
+        messages: ["Error updating order status"],
+      }
+    );
+  }
+};
+export const cancelOrder = async (orderId) => {
+  try {
+    const res = await api.put(
+      `/order/cancel-order/${orderId}`,
+      {} // Sending an empty object as the request body
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error canceling order:", err);
+    return null;
+  }
+};
+export const updateOrderStatusCompleted = async (orderId) => {
+  try {
+    const res = await api.put(
+      `/order/update-order-status-completed/${orderId}`,
+      {}
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error updating order status:", err);
+    return null;
+  }
+};
+export const addImgProductAfter = async (orderId, imgFile) => {
+  const formData = new FormData();
+  formData.append("OrderID", orderId);
+  formData.append("Img", imgFile);
+
+  try {
+    const response = await api.post("/order/add-img-product-after", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error adding image to product after:", error);
+    return (
+      error.response?.data || {
+        isSuccess: false,
+        messages: ["Error adding image to product after"],
+      }
+    );
+  }
+};
+
+export const addImgProductBefore = async (orderId, imgFile) => {
+  const formData = new FormData();
+  formData.append("OrderID", orderId);
+  formData.append("Img", imgFile);
+
+  try {
+    const response = await api.post("/order/add-img-product-before", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error adding image to product before:", error);
+    return (
+      error.response?.data || {
+        isSuccess: false,
+        messages: ["Error adding image to product before"],
       }
     );
   }
