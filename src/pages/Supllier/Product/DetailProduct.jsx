@@ -1,7 +1,7 @@
 import { Col, Image, message, Row, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getProductById } from "../../../api/productApi"; // Adjust path as necessary
+import { getProductById } from "../../../api/productApi"; 
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
 
 const DetailProduct = ({ product, loading, onClose }) => {

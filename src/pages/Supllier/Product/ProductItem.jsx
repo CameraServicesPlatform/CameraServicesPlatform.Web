@@ -22,13 +22,14 @@ const getStatusClass = (status) => {
   }
 };
 
-const ProductCard = ({
-  product,
-  categoryNames,
-  handleExpandDescription,
-  expandedDescriptions,
-  handleView,
-}) => (
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(value);
+};
+
+const ProductCard = ({ product, handleView }) => (
   <Card
     hoverable
     cover={
@@ -68,22 +69,31 @@ const ProductCard = ({
               product.productDescription.length > 50 &&
               "..."}
           </Paragraph>
-          {product.productDescription &&
-            product.productDescription.length > 100 && (
-              <Typography.Link
-                onClick={() => handleExpandDescription(product.productID)}
-              >
-                {expandedDescriptions[product.productID]
-                  ? "See Less"
-                  : "See More"}
-              </Typography.Link>
-            )}
           <p>
-            <strong>Giá (Cọc):</strong> {product.depositProduct}
+            <strong>Giá Mua:</strong> {formatCurrency(product.priceBuy)}
           </p>
-          <p>
-            <strong>Giá (Thuê):</strong> {product.pricePerMonth} VND
-          </p>
+          {product.pricePerHour && (
+            <p>
+              <strong>Giá (Giờ):</strong> {formatCurrency(product.pricePerHour)}
+            </p>
+          )}
+          {product.pricePerDay && (
+            <p>
+              <strong>Giá (Ngày):</strong> {formatCurrency(product.pricePerDay)}
+            </p>
+          )}
+          {product.pricePerWeek && (
+            <p>
+              <strong>Giá (Tuần):</strong>{" "}
+              {formatCurrency(product.pricePerWeek)}
+            </p>
+          )}
+          {product.pricePerMonth && (
+            <p>
+              <strong>Giá (Tháng):</strong>{" "}
+              {formatCurrency(product.pricePerMonth)}
+            </p>
+          )}
           <p>
             <strong>Thương Hiệu:</strong> {getBrandName(product.brand)}
           </p>
