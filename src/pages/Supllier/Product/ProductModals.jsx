@@ -1,23 +1,30 @@
+import { Button, Modal, Spin } from "antd";
 import React from "react";
-import { Modal, Button } from "antd";
 import DetailProduct from "./DetailProduct";
 import EditProductForm from "./EditProductForm";
 
+// Edit Product Modal Component
 export const EditProductModal = ({
   isEditModalVisible,
   handleModalClose,
   selectedProduct,
   handleUpdateSuccess,
-}) =>
-  isEditModalVisible && (
+}) => (
+  <Modal
+    title="Chỉnh Sửa Sản Phẩm"
+    open={isEditModalVisible}
+    onCancel={handleModalClose}
+    footer={null}
+  >
     <EditProductForm
-      visible={isEditModalVisible}
-      onClose={handleModalClose}
       product={selectedProduct}
       onUpdateSuccess={handleUpdateSuccess}
+      onClose={handleModalClose}
     />
-  );
+  </Modal>
+);
 
+// View Product Modal Component
 export const ViewProductModal = ({
   isModalVisible,
   handleClose,
@@ -28,7 +35,7 @@ export const ViewProductModal = ({
 }) => (
   <Modal
     title="Chi Tiết Sản Phẩm"
-    visible={isModalVisible}
+    open={isModalVisible}
     onCancel={handleClose}
     footer={[
       <Button
@@ -36,25 +43,26 @@ export const ViewProductModal = ({
         type="primary"
         onClick={() => handleEdit(selectedProduct)}
       >
-        Edit
+        Chỉnh Sửa
       </Button>,
       <Button
         key="delete"
-        type="danger"
-        onClick={() => handleDelete(selectedProduct.productID)}
+        danger
+        onClick={() => handleDelete(selectedProduct?.productID)}
       >
-        Delete
+        Xóa
       </Button>,
       <Button key="close" onClick={handleClose}>
-        Close
+        Đóng
       </Button>,
     ]}
   >
-    <DetailProduct
-      product={selectedProduct}
-      loading={loading}
-      onClose={handleClose}
-    />
+    {loading ? (
+      <Spin tip="Đang tải...">
+        <div style={{ minHeight: "200px" }} />
+      </Spin>
+    ) : (
+      <DetailProduct product={selectedProduct} />
+    )}
   </Modal>
 );
-

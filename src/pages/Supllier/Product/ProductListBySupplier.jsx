@@ -2,12 +2,12 @@ import { Col, message, Pagination, Row, Typography } from "antd";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { getProductById } from "../../../api/productApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 import HandleSearchAndFilter from "./HandleSearchAndFilter"; // Import the HandleSearchAndFilter component
 import ProductCard from "./ProductItem";
 import { EditProductModal, ViewProductModal } from "./ProductModals";
 import useFetchProducts from "./useFetchProducts";
-
 const { Title } = Typography;
 
 const ProductListBySupplier = () => {
