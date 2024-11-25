@@ -1,11 +1,16 @@
-import { Button, Table, Tag, Typography, message } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import { Button, message, Modal, Table, Tag, Typography, Upload } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getStaffByAccountId, getUserById } from "../../../api/accountApi";
 import { getAllOrders } from "../../../api/orderApi";
 import { getSupplierById } from "../../../api/supplierApi";
-import { createStaffRefundSupplier } from "../../../api/transactionApi";
+import {
+  addImagePayment,
+  createStaffRefundSupplier,
+  getTransactionImage,
+} from "../../../api/transactionApi";
 
 const { Title } = Typography;
 
@@ -48,6 +53,9 @@ const CreateStaffRefundSupplier = () => {
   const [supplierNames, setSupplierNames] = useState({});
   const [accountNames, setAccountNames] = useState({});
   const [staffId, setStaffId] = useState("");
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [imageUrls, setImageUrls] = useState({});
 
   const user = useSelector((state) => state.user.user || {});
 
@@ -145,29 +153,51 @@ const CreateStaffRefundSupplier = () => {
       return;
     }
 
-    const staffData = await getStaffByAccountId(user.id);
-    if (!staffData || !staffData.isSuccess) {
-      console.error(
-        "Failed to fetch staffId:",
-        staffData ? staffData.messages : "No response"
-      );
-      return;
-    }
-
-    const staffId = staffData.result;
-    console.log("Staff ID:", staffId);
-
     try {
-      let response;
-      if (orderStatus === 2) {
-        response = await createStaffRefundSupplier(orderID, staffId);
+      const staffData = await getStaffByAccountId(user.id);
+      if (!staffData || !staffData.isSuccess) {
+        console.error(
+          "Failed to fetch staffId:",
+          staffData ? staffData.messages : "No response"
+        );
+        return;
       }
 
+      const staffId = staffData.result;
+      console.log("Staff ID:", staffId);
+
+      let response = await createStaffRefundSupplier(orderID, staffId);
+
       if (response && response.isSuccess) {
-        message.success(
-          "Tạo đơn hàng thành công. Đang chuyển hướng đến thanh toán..."
-        );
-        window.location.href = response.result;
+        setSelectedOrderId(orderID);
+        Modal.success({
+          title: "Thông tin hoàn tiền",
+          content: (
+            <div>
+              <p>Ngân hàng: {response.result.bankName}</p>
+              <p>Số tài khoản: {response.result.accountNumber}</p>
+              <p>Chủ tài khoản: {response.result.accountHolder}</p>
+              <p>Mã đơn hàng: {response.result.orderId}</p>
+              <p>
+                Tổng số tiền:{" "}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(response.result.totalAmount)}
+              </p>
+              <Upload
+                name="img"
+                beforeUpload={(file) => {
+                  handleUpload(file);
+                  return false;
+                }}
+                showUploadList={false}
+              >
+                <Button icon={<UploadOutlined />}>Upload Image</Button>
+              </Upload>
+            </div>
+          ),
+        });
       } else {
         message.error("Không thể khởi tạo thanh toán.");
       }
@@ -175,7 +205,58 @@ const CreateStaffRefundSupplier = () => {
       message.error(
         "Không thể tạo đơn hàng. " + (error.response?.data?.title || "")
       );
-      console.error(error);
+      console.error("Error creating refund:", error);
+    }
+  };
+
+  const handleUpload = async (file) => {
+    if (!selectedOrderId) {
+      message.error("Order ID is not available.");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const response = await addImagePayment(selectedOrderId, file);
+      if (response.isSuccess) {
+        message.success("Image uploaded successfully.");
+        setImageUrls((prev) => ({
+          ...prev,
+          [selectedOrderId]: URL.createObjectURL(file),
+        }));
+      } else {
+        message.error("Failed to upload image.");
+      }
+    } catch (error) {
+      message.error("Error uploading image.");
+      console.error("Error uploading image:", error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleViewImage = async (orderID) => {
+    try {
+      const response = await getTransactionImage(orderID);
+      if (response.isSuccess) {
+        Modal.info({
+          title: "Hình ảnh giao dịch",
+          content: (
+            <div>
+              <img
+                src={response.result}
+                alt="Transaction"
+                style={{ width: "100%", marginBottom: "10px" }}
+              />
+            </div>
+          ),
+        });
+      } else {
+        message.error("Không thể lấy hình ảnh giao dịch.");
+      }
+    } catch (error) {
+      message.error("Error fetching transaction image.");
+      console.error("Error fetching transaction image:", error);
     }
   };
 
@@ -270,19 +351,45 @@ const CreateStaffRefundSupplier = () => {
     {
       title: "Hành động",
       key: "action",
-      render: (text, record) =>
-        ((record.orderStatus === 7 && record.orderType === 0) ||
-          (record.orderStatus === 7 && record.orderType === 1) ||
-          (record.orderStatus === 2 && record.orderType === 1)) && (
-          <Button
-            type="primary"
-            onClick={() =>
-              handleRefund(record.orderID, record.orderStatus, record.orderType)
-            }
+      render: (text, record) => (
+        <Button
+          type="primary"
+          onClick={() =>
+            handleRefund(record.orderID, record.orderStatus, record.orderType)
+          }
+        >
+          Thanh toán cho nhà cung cấp
+        </Button>
+      ),
+    },
+    {
+      title: "Hình ảnh giao dịch",
+      key: "upload",
+      render: (text, record) => (
+        <div>
+          <Upload
+            name="img"
+            beforeUpload={(file) => {
+              setSelectedOrderId(record.orderID);
+              handleUpload(file);
+              return false;
+            }}
+            showUploadList={false}
           >
-            Hoàn tiền
+            <Button icon={<UploadOutlined />}>Upload Image</Button>
+          </Upload>
+          {imageUrls[record.orderID] && (
+            <img
+              src={imageUrls[record.orderID]}
+              alt="Transaction"
+              style={{ width: "100px", marginTop: "10px" }}
+            />
+          )}
+          <Button type="link" onClick={() => handleViewImage(record.orderID)}>
+            Xem
           </Button>
-        ),
+        </div>
+      ),
     },
   ];
 
