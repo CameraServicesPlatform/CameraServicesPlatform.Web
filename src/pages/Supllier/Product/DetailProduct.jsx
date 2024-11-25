@@ -1,9 +1,8 @@
 import { Col, Image, message, Row, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
-import { getCategoryById } from "../../../api/categoryApi";
+import { getCategoryById } from "../../../api/categoryApi"; // Import the getCategoryById function
 import { getProductById } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
-import useFetchProducts from "./useFetchProducts";
 
 const DetailProduct = ({ product, loading, onClose }) => {
   const [productDetails, setProductDetails] = useState(product);
@@ -11,8 +10,6 @@ const DetailProduct = ({ product, loading, onClose }) => {
   const [error, setError] = useState(null);
   const [categoryName, setCategoryName] = useState("");
   const [supplierName, setSupplierName] = useState("");
-
-  const { categoryNames } = useFetchProducts(product?.categoryID);
 
   useEffect(() => {
     if (product?.supplierID) {
@@ -38,17 +35,17 @@ const DetailProduct = ({ product, loading, onClose }) => {
       try {
         setIsLoading(true);
         const fetchedProduct = await getProductById(product?.id);
+        console.log("Fetched Product:", fetchedProduct);
         setProductDetails(fetchedProduct);
 
-        if (fetchedProduct.result.categoryID) {
+        if (fetchedProduct?.categoryID) {
           const categoryResponse = await getCategoryById(
-            fetchedProduct.result.categoryID
+            fetchedProduct.categoryID
           );
-          if (categoryResponse?.isSuccess) {
+          if (categoryResponse && categoryResponse.result) {
             setCategoryName(categoryResponse.result.categoryName);
           } else {
-            console.error("Failed to fetch category name.");
-            message.error("Failed to fetch category name.");
+            console.error("Category not found");
           }
         }
       } catch (err) {
@@ -101,6 +98,7 @@ const DetailProduct = ({ product, loading, onClose }) => {
     listProductSpecification,
     originalPrice,
     countRent,
+    category,
   } = productDetails;
 
   const renderImages = () => {
@@ -130,7 +128,9 @@ const DetailProduct = ({ product, loading, onClose }) => {
       dataIndex: "value",
       key: "value",
       render: (text, record) =>
-        typeof text === "number" && record.field !== "Đánh Giá"
+        typeof text === "number" &&
+        record.field !== "Đánh Giá" &&
+        record.field !== "Số Lần Thuê"
           ? new Intl.NumberFormat("vi-VN", {
               style: "currency",
               currency: "VND",
@@ -143,7 +143,7 @@ const DetailProduct = ({ product, loading, onClose }) => {
     { key: "1", field: "Mã Sản Phẩm", value: productID },
     { key: "2", field: "Số Serial", value: serialNumber },
     { key: "3", field: "Mã Nhà Cung Cấp", value: supplierName },
-    { key: "4", field: "Tên Loại Hàng", value: categoryName },
+    { key: "4", field: "Tên Loại Hàng", value: cate },
     { key: "5", field: "Tên Sản Phẩm", value: productName },
     { key: "6", field: "Mô Tả", value: productDescription },
     {
@@ -183,6 +183,7 @@ const DetailProduct = ({ product, loading, onClose }) => {
     },
     { key: "21", field: "Số Lần Thuê", value: countRent },
     { key: "22", field: "Đánh Giá", value: rating },
+    { key: "23", field: "Hình ảnh", value: renderImages() },
   ].filter((item) => item.value !== null);
 
   const voucherColumns = [
@@ -251,3 +252,4 @@ const DetailProduct = ({ product, loading, onClose }) => {
 };
 
 export default DetailProduct;
+S
