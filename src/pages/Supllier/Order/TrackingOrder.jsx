@@ -17,9 +17,11 @@ import {
   updateOrderStatusApproved,
   updateOrderStatusCompleted,
   updateOrderStatusPendingRefund,
+  updateOrderStatusPlaced,
   updateOrderStatusShipped,
 } from "../../../api/orderApi";
 import { getOrderDetails } from "../../../api/orderDetailApi";
+import CreateReturnDetailForm from "../ReturnDetail/CreateReturnDetailForm";
 
 const { Step } = Steps;
 
@@ -160,6 +162,19 @@ const TrackingOrder = ({ order, onUpdate }) => {
       message.error("Lỗi khi cập nhật trạng thái chờ hoàn tiền.");
     }
   };
+  const handleUpdateOrderStatusPlaced = async (orderId) => {
+    try {
+      const response = await updateOrderStatusPlaced(orderId);
+      if (response?.isSuccess) {
+        message.success("Đơn hàng đã được cập nhật trạng thái 'Placed'!");
+        onUpdate(orderId, 1); // Assuming 1 is the status for 'Placed'
+      } else {
+        message.error("Không thể cập nhật trạng thái 'Placed'.");
+      }
+    } catch (error) {
+      message.error("Lỗi khi cập nhật trạng thái 'Placed'.");
+    }
+  };
 
   const showConfirm = (action, orderId) => {
     Modal.confirm({
@@ -190,6 +205,9 @@ const TrackingOrder = ({ order, onUpdate }) => {
             break;
           case "pending-refund":
             handlePendingRefund(orderId);
+            break;
+          case "update-placed":
+            handleUpdateOrderStatusPlaced(orderId);
             break;
           default:
             break;
@@ -357,6 +375,23 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Giao hàng
           </Button>
         )}
+        {(order.orderStatus === 4 ||
+          (order.orderStatus === 3 && order.orderType === 1)) && (
+          <Button onClick={() => handleReturnClick(order.orderID)}>
+            Trả hàng
+          </Button>
+        )}
+        <Modal
+          title="Create Return Detail"
+          visible={showReturnDetailForm}
+          onCancel={() => setShowReturnDetailForm(false)}
+          footer={null}
+        >
+          <CreateReturnDetailForm
+            orderID={selectedOrderID}
+            onSuccess={() => setShowReturnDetailForm(false)}
+          />
+        </Modal>
         {(order.orderStatus === 4 || returnInitiated) && (
           <Button
             type="primary"
@@ -390,6 +425,19 @@ const TrackingOrder = ({ order, onUpdate }) => {
             Gửi yêu cầu hoàn tiền cho hệ thống
           </Button>
         )}
+        {order.orderStatus === 1 &&
+          order.deliveriesMethod === 0 &&
+          order.orderType === 1 && (
+            <Button
+              type="primary"
+              onClick={() => showConfirm("update-placed", order.orderID)}
+              className="ml-2"
+              icon={<CheckCircleOutlined />}
+              style={{ marginRight: 8, marginBottom: 8 }}
+            >
+              Khách đã đến nhận hàng
+            </Button>
+          )}
         {order.orderStatus === 1 && (
           <Upload
             customRequest={({ file }) => handleUploadBefore(file)}

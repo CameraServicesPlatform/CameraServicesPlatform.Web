@@ -320,126 +320,101 @@ const PersonalInformation = () => {
     );
   };
 
-  const renderOrderItems = (order) => (
-    <tr
-      key={order.orderID}
-      className={
-        order.orderStatus === 1 && order.deliveryMethod === 0
-          ? "bg-yellow-100"
-          : "cursor-pointer hover:bg-gray-50 transition-colors"
-      }
-      onClick={() => handleClick(order)}
-    >
-      <td className="py-3 px-4 border-b">{order.orderID}</td>
-      <td className="py-3 px-4 border-b">
-        <div>
-          <strong>Tên nhà cung cấp:</strong>{" "}
-          {supplierMap[order.supplierID]?.supplierName || " "}
-        </div>
-        <div>
-          <strong>Địa chỉ:</strong>{" "}
-          {supplierMap[order.supplierID]?.supplierAddress || " "}
-        </div>
-        <div>
-          <strong>Mô tả:</strong>{" "}
-          {supplierMap[order.supplierID]?.supplierDescription || " "}
-        </div>
-        <div>
-          <strong>Số điện thoại liên hệ:</strong>{" "}
-          {supplierMap[order.supplierID]?.contactNumber || ""}
-        </div>
-      </td>
-      <td className="py-3 px-4 border-b">
-        <StatusBadge status={order.orderStatus} map={orderStatusMap} />
-      </td>
-      <td className="py-3 px-4 border-b hidden md:table-cell">
-        {order.shippingAddress}
-      </td>
-      <td className="py-3 px-4 border-b hidden lg:table-cell">
-        <StatusBadge status={order.deliveriesMethod} map={deliveryStatusMap} />
-      </td>
-      <td className="py-3 px-4 border-b">
-        <StatusBadge status={order.orderType} map={orderTypeMap} />
-      </td>
-      <td className="py-3 px-4 border-b hidden sm:table-cell">
-        {formatDateTime(order.orderDate)}
-      </td>
-      <td className="py-3 px-4 border-b">{formatPrice(order.totalAmount)}</td>
-      <td>
-        {order.orderStatus === 0 && (
-          <div className="flex justify-center">
-            <button
-              className="bg-primary text-white rounded-md py-2 px-4 my-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                handlePaymentAgain(order.orderID);
-              }}
-            >
-              Thanh toán ngay
-            </button>
-          </div>
-        )}
-      </td>
-      <td>
-        <OrderCancelButton order={order} />
-        {order.orderStatus === 1 &&
-          order.deliveryMethod === 0 &&
-          order.orderType === 0 && (
-            <>
-              <div style={{ color: "red", marginTop: "10px" }}>
-                Vui lòng nhận sản phẩm tại cửa hàng trong vòng 3 ngày. Sau 3
-                ngày, đơn hàng của bạn sẽ bị hủy.
-              </div>
-              <button
-                className="bg-blue-500 text-white rounded-md py-2 px-4 my-2"
-                onClick={async (e) => {
-                  e.stopPropagation(); // Prevent triggering the row click event
-                  await updateOrderStatusPlaced(order.orderID);
-                }}
-              >
-                Nhận hàng
-              </button>
-            </>
-          )}
-        {order.orderStatus === 1 &&
-          order.deliveryMethod === 0 &&
-          order.orderType === 1 && (
-            <>
-              <div style={{ color: "red", marginTop: "10px" }}>
-                Vui lòng đến trước 30 phút thời gian thuê để có thể nhận và kiểm
-                tra sản phẩm.
-              </div>
-              <button
-                className="bg-blue-500 text-white rounded-md py-2 px-4 my-2"
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  await updateOrderStatusPlaced(order.orderID);
-                }}
-              >
-                Nhận hàng
-              </button>
-            </>
-          )}
-      </td>
-      <td>
-        {order.orderStatus === 1 &&
-          order.deliveryMethod === 0 &&
-          order.orderType === 1 && (
-            <button
-              className="bg-green-500 text-white rounded-md py-2 px-4 my-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                openUploadPopup(order.orderID, "after");
-              }}
-            >
-              Thêm ảnh sản phẩm trước khi trả hàng
-            </button>
-          )}
-      </td>
+ const renderOrderItems = (order) => (
+   <tr
+     key={order.orderID}
+     className={
+       order.orderStatus === 1 && order.deliveriesMethod === 0
+         ? "bg-yellow-100"
+         : "cursor-pointer hover:bg-gray-50 transition-colors"
+     }
+     onClick={() => handleClick(order)}
+   >
+     <td className="py-3 px-4 border-b">{order.orderID}</td>
+     <td className="py-3 px-4 border-b">
+       <div>
+         <strong>Tên nhà cung cấp:</strong>{" "}
+         {supplierMap[order.supplierID]?.supplierName || " "}
+       </div>
+       <div>
+         <strong>Địa chỉ:</strong>{" "}
+         {supplierMap[order.supplierID]?.supplierAddress || " "}
+       </div>
+       <div>
+         <strong>Mô tả:</strong>{" "}
+         {supplierMap[order.supplierID]?.supplierDescription || " "}
+       </div>
+       <div>
+         <strong>Số điện thoại liên hệ:</strong>{" "}
+         {supplierMap[order.supplierID]?.contactNumber || ""}
+       </div>
+     </td>
+     <td className="py-3 px-4 border-b">
+       <StatusBadge status={order.orderStatus} map={orderStatusMap} />
+     </td>
+     <td className="py-3 px-4 border-b hidden md:table-cell">
+       {order.shippingAddress}
+     </td>
+     <td className="py-3 px-4 border-b hidden lg:table-cell">
+       <StatusBadge status={order.deliveriesMethod} map={deliveryStatusMap} />
+     </td>
+     <td className="py-3 px-4 border-b">
+       <StatusBadge status={order.orderType} map={orderTypeMap} />
+     </td>
+     <td className="py-3 px-4 border-b hidden sm:table-cell">
+       {formatDateTime(order.orderDate)}
+     </td>
+     <td className="py-3 px-4 border-b">{formatPrice(order.totalAmount)}</td>
+     <td>
+       {order.orderStatus === 0 && (
+         <div className="flex justify-center">
+           <button
+             className="bg-primary text-white rounded-md py-2 px-4 my-2"
+             onClick={(e) => {
+               e.stopPropagation();
+               handlePaymentAgain(order.orderID);
+             }}
+           >
+             Thanh toán ngay
+           </button>
+         </div>
+       )}
+     </td>
+     <td>
+       <OrderCancelButton order={order} />
+       {order.orderStatus === 1 &&
+         order.orderType === 1 &&
+         order.deliveriesMethod === 0 && (
+           <button
+             className="bg-blue-500 text-white rounded-md py-2 px-4 my-2"
+             onClick={async (e) => {
+               e.stopPropagation();
+               await updateOrderStatusPlaced(order.orderID);
+             }}
+           >
+             Cập nhật trạng thái đơn hàng
+           </button>
+         )}
+     </td>
+     <td>
+       {order.orderStatus === 1 &&
+         order.deliveriesMethod === 0 &&
+         order.orderType === 1 && (
+           <button
+             className="bg-green-500 text-white rounded-md py-2 px-4 my-2"
+             onClick={(e) => {
+               e.stopPropagation();
+               openUploadPopup(order.orderID, "after");
+             }}
+           >
+             Thêm ảnh sản phẩm trước khi trả hàng
+           </button>
+         )}
+     </td>
+     <td></td>
+   </tr>
+ );
 
-      <td></td>
-    </tr>
-  );
   const openUploadPopup = (orderId, type) => {
     setSelectedOrderId(orderId);
     setUploadType(type);
