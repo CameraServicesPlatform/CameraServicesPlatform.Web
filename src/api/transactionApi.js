@@ -150,3 +150,28 @@ export const createStaffRefundDeposit = async (orderID, staffId) => {
     return null;
   }
 };
+
+export const addImagePayment = async (orderId, imgFile) => {
+  const formData = new FormData();
+  formData.append("OrderID", orderId);
+  formData.append("Img", imgFile);
+
+  try {
+    const response = await api.post(
+      "/transaction/add-image-payment",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding image payment:", error);
+    return {
+      isSuccess: false,
+      messages: ["Error adding image payment"],
+    };
+  }
+};
