@@ -67,15 +67,15 @@ const ProductListBySupplier = () => {
   };
 
   const handleView = async (productID) => {
-    setIsLoading(true); // Update this line
+    setIsLoading(true);
     try {
       const fetchedProduct = await getProductById(productID);
       setSelectedProduct(fetchedProduct);
       setIsModalVisible(true);
     } catch (error) {
-      message.error("Failed to fetch product details.");
+      message.error("Hệ thống loading sản phẩm bị lỗi, vui lòng quay lại sau.");
     } finally {
-      setIsLoading(false); // Update this line
+      setIsLoading(false);
     }
   };
 
@@ -109,7 +109,7 @@ const ProductListBySupplier = () => {
       <LoadingComponent isLoading={isLoading} title="Đang tải dữ liệu..." />{" "}
       {/* Add this line */}
       {loading ? (
-        <p>Loading products...</p>
+        <p>Hệ thống đang loading sản phẩm </p>
       ) : (
         <div>
           {filteredProducts.length > 0 ? (

@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined } from "@ant-design/icons";
 import {
   Button,
   Input,
@@ -200,7 +200,7 @@ const ProductListTable = () => {
       setSelectedProduct(fetchedProduct);
       setIsModalVisible(true); // Show the modal after fetching the product
     } catch (error) {
-      message.error("Failed to fetch product details.");
+      message.error("Hệ thống loading sản phẩm bị lỗi, vui lòng quay lại sau.");
     } finally {
       setLoading(false);
     }
@@ -371,7 +371,6 @@ const ProductListTable = () => {
               borderColor: "#1890ff",
             }}
           ></Button>
-          
         </div>
       ),
     },
@@ -394,7 +393,7 @@ const ProductListTable = () => {
       />
 
       {loading ? (
-        <p>Loading products...</p>
+        <p>Hệ thống đang loading sản phẩm </p>
       ) : (
         <div>
           {filteredProducts.length > 0 ? (

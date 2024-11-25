@@ -119,7 +119,7 @@ const ProductCardViewOfSupplier = () => {
       setSelectedProduct(fetchedProduct);
       setIsModalVisible(true);
     } catch (error) {
-      message.error("Failed to fetch product details.");
+      message.error("Hệ thống loading sản phẩm bị lỗi, vui lòng quay lại sau.");
     } finally {
       setLoading(false);
     }
