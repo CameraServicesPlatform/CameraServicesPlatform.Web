@@ -7,6 +7,8 @@ import "tailwindcss/tailwind.css";
 import { getCategoryById } from "../../api/categoryApi";
 import {
   cancelOrder,
+  getImageProductAfterByOrderId,
+  getImageProductBeforeByOrderId,
   getOrderDetailsById,
   getOrdersByAccount,
   purchaseOrder,
@@ -16,6 +18,7 @@ import { getSupplierById } from "../../api/supplierApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
+import ImageUploadPopup from "./ImageUploadPopup";
 const jobDescriptions = {
   0: "Sinh viên",
   1: "Nhiếp ảnh gia chuyên nghiệp",
@@ -76,6 +79,11 @@ const PersonalInformation = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [categoryMap, setCategoryMap] = useState({});
   const [supplierMap, setSupplierMap] = useState({});
+  const [isUploadPopupOpen, setIsUploadPopupOpen] = useState(false);
+  const [uploadType, setUploadType] = useState(null);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [beforeImage, setBeforeImage] = useState(null);
+  const [afterImage, setAfterImage] = useState(null);
 
   const fetchOrders = async () => {
     try {
@@ -119,6 +127,10 @@ const PersonalInformation = () => {
       const response = await getOrderDetailsById(id, 1, 100); // Adjust pageSize as needed
       if (response.isSuccess) {
         setData(response.result || []);
+        const beforeImageResponse = await getImageProductBeforeByOrderId(id);
+        const afterImageResponse = await getImageProductAfterByOrderId(id);
+        setBeforeImage(beforeImageResponse.result);
+        setAfterImage(afterImageResponse.result);
       } else {
         message.error("Failed to fetch order details.");
       }
@@ -409,9 +421,31 @@ const PersonalInformation = () => {
             </>
           )}
       </td>
+      <td>
+        <button
+          className="bg-green-500 text-white rounded-md py-2 px-4 my-2"
+          onClick={(e) => {
+            e.stopPropagation();
+            openUploadPopup(order.orderID, "after");
+          }}
+        >
+          Upload After Image
+        </button>
+      </td>
       <td></td>
     </tr>
   );
+  const openUploadPopup = (orderId, type) => {
+    setSelectedOrderId(orderId);
+    setUploadType(type);
+    setIsUploadPopupOpen(true);
+  };
+
+  const closeUploadPopup = () => {
+    setIsUploadPopupOpen(false);
+    setUploadType(null);
+    setSelectedOrderId(null);
+  };
   return (
     <div className="container mx-auto py-8 px-4">
       <LoadingComponent isLoading={isLoading} title="Loading data..." />
@@ -537,7 +571,7 @@ const PersonalInformation = () => {
             </button>
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-teal-600 text-center">
-                THông tin chi tiết
+                Thông tin chi tiết
               </h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white">
@@ -630,12 +664,46 @@ const PersonalInformation = () => {
                   </tbody>
                 </table>
               </div>
+              <div className="flex justify-center space-x-4 mt-4">
+                {beforeImage && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-teal-600">
+                      Ảnh sản phẩm trước khi thuê
+                    </h4>
+                    <img
+                      src={beforeImage}
+                      alt="Before"
+                      className="max-w-xs rounded-lg shadow-md"
+                    />
+                  </div>
+                )}
+                {afterImage && (
+                  <div>
+                    <h4 className="text-lg font-semibold text-teal-600">
+                     Ảnh sản phẩm sau khi thuê
+                    </h4>
+                    <img
+                      src={afterImage}
+                      alt="After"
+                      className="max-w-xs rounded-lg shadow-md"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
 
         {isUpdateModalOpen && (
           <PersonalModal onClose={() => setIsUpdateModalOpen(false)} />
+        )}
+
+        {isUploadPopupOpen && (
+          <ImageUploadPopup
+            orderId={selectedOrderId}
+            type={uploadType}
+            onClose={closeUploadPopup}
+          />
         )}
       </div>
     </div>

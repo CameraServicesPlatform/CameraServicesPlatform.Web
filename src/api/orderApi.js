@@ -347,3 +347,26 @@ export const addImgProductBefore = async (orderId, imgFile) => {
     );
   }
 };
+export const getImageProductAfterByOrderId = async (orderId) => {
+  try {
+    const res = await api.get(
+      `/order/get-image-product-after-by-order-id?orderID=${orderId}`
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching image product after by order ID:", err);
+    return null;
+  }
+};
+
+export const getImageProductBeforeByOrderId = async (orderId) => {
+  try {
+    const res = await api.get(
+      `/order/get-image-product-before-by-order-id?orderID=${orderId}`
+    );
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching image product before by order ID:", err);
+    return null;
+  }
+};
