@@ -422,16 +422,21 @@ const PersonalInformation = () => {
           )}
       </td>
       <td>
-        <button
-          className="bg-green-500 text-white rounded-md py-2 px-4 my-2"
-          onClick={(e) => {
-            e.stopPropagation();
-            openUploadPopup(order.orderID, "after");
-          }}
-        >
-          Upload After Image
-        </button>
+        {order.orderStatus === 1 &&
+          order.deliveryMethod === 0 &&
+          order.orderType === 1 && (
+            <button
+              className="bg-green-500 text-white rounded-md py-2 px-4 my-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                openUploadPopup(order.orderID, "after");
+              }}
+            >
+              Thêm ảnh sản phẩm trước khi trả hàng
+            </button>
+          )}
       </td>
+
       <td></td>
     </tr>
   );
@@ -680,7 +685,7 @@ const PersonalInformation = () => {
                 {afterImage && (
                   <div>
                     <h4 className="text-lg font-semibold text-teal-600">
-                     Ảnh sản phẩm sau khi thuê
+                      Ảnh sản phẩm sau khi thuê
                     </h4>
                     <img
                       src={afterImage}
