@@ -175,3 +175,37 @@ export const addImagePayment = async (orderId, imgFile) => {
     };
   }
 };
+
+export const createStaffRefundSupplier = async (orderId, staffId) => {
+  try {
+    const response = await api.post(
+      "/transaction/create-staff-refund-supplier",
+      {
+        orderID: orderId,
+        staffId: staffId,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error creating staff refund supplier:", error);
+    return {
+      isSuccess: false,
+      messages: ["Error creating staff refund supplier"],
+    };
+  }
+};
+
+export const updateOrderStatusRefund = async (orderId) => {
+  try {
+    const response = await api.put(
+      `/order/update-order-status-refund/${orderId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating order status to refund:", error);
+    return {
+      isSuccess: false,
+      messages: ["Error updating order status to refund"],
+    };
+  }
+};

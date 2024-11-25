@@ -10,6 +10,7 @@ import {
   addImagePayment,
   createStaffRefundDeposit,
   createStaffRefundReturnDetail,
+  updateOrderStatusRefund,
 } from "../../../api/transactionApi";
 
 const { Title } = Typography;
@@ -194,6 +195,16 @@ const CreateStaffRefundMember = () => {
                   currency: "VND",
                 }).format(response.result.totalAmount)}
               </p>
+              <Upload
+                name="img"
+                beforeUpload={(file) => {
+                  handleUpload(file);
+                  return false;
+                }}
+                showUploadList={false}
+              >
+                <Button icon={<UploadOutlined />}>Upload Image</Button>
+              </Upload>
             </div>
           ),
         });
@@ -209,11 +220,20 @@ const CreateStaffRefundMember = () => {
   };
 
   const handleUpload = async (file) => {
+    if (!selectedOrderId) {
+      message.error("Order ID is not available.");
+      return;
+    }
+
     setUploading(true);
     try {
       const response = await addImagePayment(selectedOrderId, file);
       if (response.isSuccess) {
         message.success("Image uploaded successfully.");
+        setImageUrls((prev) => ({
+          ...prev,
+          [selectedOrderId]: URL.createObjectURL(file),
+        }));
       } else {
         message.error("Failed to upload image.");
       }
@@ -222,6 +242,22 @@ const CreateStaffRefundMember = () => {
       console.error("Error uploading image:", error);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleUpdateOrderStatus = async (orderID) => {
+    try {
+      const response = await updateOrderStatusRefund(orderID);
+      if (response.isSuccess) {
+        message.success("Order status updated to refund successfully.");
+        // Optionally, refresh the orders list
+        fetchOrders();
+      } else {
+        message.error("Failed to update order status to refund.");
+      }
+    } catch (error) {
+      message.error("Error updating order status to refund.");
+      console.error("Error updating order status to refund:", error);
     }
   };
 
@@ -327,6 +363,19 @@ const CreateStaffRefundMember = () => {
             }
           >
             Hoàn tiền
+          </Button>
+        ),
+    },
+    {
+      title: "Cập nhật trạng thái",
+      key: "updateStatus",
+      render: (text, record) =>
+        record.orderStatus === 10 && (
+          <Button
+            type="default"
+            onClick={() => handleUpdateOrderStatus(record.orderID)}
+          >
+            Cập nhật trạng thái hoàn tiền
           </Button>
         ),
     },

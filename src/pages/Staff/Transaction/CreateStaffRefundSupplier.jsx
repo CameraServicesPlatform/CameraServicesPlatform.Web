@@ -5,10 +5,7 @@ import { useSelector } from "react-redux";
 import { getStaffByAccountId, getUserById } from "../../../api/accountApi";
 import { getAllOrders } from "../../../api/orderApi";
 import { getSupplierById } from "../../../api/supplierApi";
-import {
-  createStaffRefundDeposit,
-  createStaffRefundReturnDetail,
-} from "../../../api/transactionApi";
+import { createStaffRefundSupplier } from "../../../api/transactionApi";
 
 const { Title } = Typography;
 
@@ -42,7 +39,7 @@ const deliveryStatusMap = {
   2: { text: "Trả lại", color: "red", icon: "fa-undo" },
 };
 
-const CreateStaffRefundMember = () => {
+const CreateStaffRefundSupplier = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(1);
@@ -162,13 +159,8 @@ const CreateStaffRefundMember = () => {
 
     try {
       let response;
-      if (
-        (orderStatus === 7 && orderType === 1) ||
-        (orderStatus === 7 && orderType === 0)
-      ) {
-        response = await createStaffRefundReturnDetail(orderID, staffId);
-      } else if (orderStatus === 2 && orderType === 1) {
-        response = await createStaffRefundDeposit(orderID, staffId);
+      if (orderStatus === 2) {
+        response = await createStaffRefundSupplier(orderID, staffId);
       }
 
       if (response && response.isSuccess) {
@@ -318,4 +310,4 @@ const CreateStaffRefundMember = () => {
   );
 };
 
-export default CreateStaffRefundMember;
+export default CreateStaffRefundSupplier;
