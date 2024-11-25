@@ -4,13 +4,17 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getStaffByAccountId, getUserById } from "../../../api/accountApi";
-import { getAllOrders } from "../../../api/orderApi";
+import {
+  getAllOrders,
+  updateOrderStatusDepositRefund,
+  updateOrderStatusRefund,
+} from "../../../api/orderApi";
 import { getSupplierById } from "../../../api/supplierApi";
 import {
   addImagePayment,
   createStaffRefundDeposit,
   createStaffRefundReturnDetail,
-  updateOrderStatusRefund,
+  getTransactionImage,
 } from "../../../api/transactionApi";
 
 const { Title } = Typography;
@@ -83,68 +87,68 @@ const CreateStaffRefundMember = () => {
     fetchStaffId();
   }, [user]);
 
+  const fetchOrders = async () => {
+    setLoading(true);
+    const result = await getAllOrders(pageIndex, pageSize);
+    if (result && result.isSuccess) {
+      setOrders(result.result);
+      setTotal(result.totalCount);
+
+      // Fetch supplier and account names
+      const supplierNamesMap = {};
+      const accountNamesMap = {};
+      await Promise.all(
+        result.result.map(async (order) => {
+          if (order.supplierID) {
+            try {
+              const supplierData = await getSupplierById(order.supplierID);
+              if (
+                supplierData &&
+                supplierData.isSuccess &&
+                supplierData.result.items.length > 0
+              ) {
+                supplierNamesMap[order.supplierID] =
+                  supplierData.result.items[0].supplierName;
+              } else {
+                console.error(
+                  `No data found for supplierID: ${order.supplierID}`
+                );
+              }
+            } catch (error) {
+              console.error(
+                `Error fetching supplierID: ${order.supplierID}`,
+                error
+              );
+            }
+          }
+          if (order.accountID) {
+            try {
+              const accountData = await getUserById(order.accountID);
+              if (accountData && accountData.isSuccess) {
+                accountNamesMap[
+                  order.accountID
+                ] = `${accountData.result.lastName} ${accountData.result.firstName}`;
+              } else {
+                console.error(
+                  `No data found for accountID: ${order.accountID}`
+                );
+              }
+            } catch (error) {
+              console.error(
+                `Error fetching accountID: ${order.accountID}`,
+                error
+              );
+            }
+          }
+        })
+      );
+      setSupplierNames(supplierNamesMap);
+      setAccountNames(accountNamesMap);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true);
-      const result = await getAllOrders(pageIndex, pageSize);
-      if (result && result.isSuccess) {
-        setOrders(result.result);
-        setTotal(result.totalCount);
-
-        // Fetch supplier and account names
-        const supplierNamesMap = {};
-        const accountNamesMap = {};
-        await Promise.all(
-          result.result.map(async (order) => {
-            if (order.supplierID) {
-              try {
-                const supplierData = await getSupplierById(order.supplierID);
-                if (
-                  supplierData &&
-                  supplierData.isSuccess &&
-                  supplierData.result.items.length > 0
-                ) {
-                  supplierNamesMap[order.supplierID] =
-                    supplierData.result.items[0].supplierName;
-                } else {
-                  console.error(
-                    `No data found for supplierID: ${order.supplierID}`
-                  );
-                }
-              } catch (error) {
-                console.error(
-                  `Error fetching supplierID: ${order.supplierID}`,
-                  error
-                );
-              }
-            }
-            if (order.accountID) {
-              try {
-                const accountData = await getUserById(order.accountID);
-                if (accountData && accountData.isSuccess) {
-                  accountNamesMap[
-                    order.accountID
-                  ] = `${accountData.result.lastName} ${accountData.result.firstName}`;
-                } else {
-                  console.error(
-                    `No data found for accountID: ${order.accountID}`
-                  );
-                }
-              } catch (error) {
-                console.error(
-                  `Error fetching accountID: ${order.accountID}`,
-                  error
-                );
-              }
-            }
-          })
-        );
-        setSupplierNames(supplierNamesMap);
-        setAccountNames(accountNamesMap);
-      }
-      setLoading(false);
-    };
-
     fetchOrders();
   }, [pageIndex, pageSize]);
 
@@ -245,19 +249,50 @@ const CreateStaffRefundMember = () => {
     }
   };
 
-  const handleUpdateOrderStatus = async (orderID) => {
+  const handleUpdateOrderStatus = async (orderID, orderType) => {
     try {
-      const response = await updateOrderStatusRefund(orderID);
+      let response;
+      if (orderType === 0) {
+        response = await updateOrderStatusRefund(orderID);
+      } else if (orderType === 1) {
+        response = await updateOrderStatusDepositRefund(orderID);
+      }
+      console.log("Update Order Status Response:", response); // Log the response
       if (response.isSuccess) {
-        message.success("Order status updated to refund successfully.");
-        // Optionally, refresh the orders list
+        message.success("Order status updated successfully.");
+        // Refresh the orders list
         fetchOrders();
       } else {
-        message.error("Failed to update order status to refund.");
+        message.error("Failed to update order status.");
       }
     } catch (error) {
-      message.error("Error updating order status to refund.");
-      console.error("Error updating order status to refund:", error);
+      message.error("Error updating order status.");
+      console.error("Error updating order status:", error);
+    }
+  };
+
+  const handleViewImage = async (orderID) => {
+    try {
+      const response = await getTransactionImage(orderID);
+      if (response.isSuccess) {
+        Modal.info({
+          title: "Hình ảnh giao dịch",
+          content: (
+            <div>
+              <img
+                src={response.result}
+                alt="Transaction"
+                style={{ width: "100%", marginBottom: "10px" }}
+              />
+            </div>
+          ),
+        });
+      } else {
+        message.error("Không thể lấy hình ảnh giao dịch.");
+      }
+    } catch (error) {
+      message.error("Error fetching transaction image.");
+      console.error("Error fetching transaction image:", error);
     }
   };
 
@@ -370,14 +405,21 @@ const CreateStaffRefundMember = () => {
       title: "Cập nhật trạng thái",
       key: "updateStatus",
       render: (text, record) =>
-        record.orderStatus === 10 && (
+        record.orderStatus === 9 && record.orderType === 0 ? (
           <Button
             type="default"
-            onClick={() => handleUpdateOrderStatus(record.orderID)}
+            onClick={() => handleUpdateOrderStatus(record.orderID, 0)}
           >
             Cập nhật trạng thái hoàn tiền
           </Button>
-        ),
+        ) : record.orderStatus === 9 && record.orderType === 1 ? (
+          <Button
+            type="default"
+            onClick={() => handleUpdateOrderStatus(record.orderID, 1)}
+          >
+            Cập nhật trạng thái hoàn tiền đặt cọc
+          </Button>
+        ) : null,
     },
     {
       title: "Hình ảnh giao dịch",
@@ -402,6 +444,9 @@ const CreateStaffRefundMember = () => {
               style={{ width: "100px", marginTop: "10px" }}
             />
           )}
+          <Button type="link" onClick={() => handleViewImage(record.orderID)}>
+            Xem
+          </Button>
         </div>
       ),
     },

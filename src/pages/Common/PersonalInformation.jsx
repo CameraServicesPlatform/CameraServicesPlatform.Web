@@ -55,7 +55,7 @@ const orderStatusMap = {
   7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
   8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
   9: { text: "Hoàn tiền đang chờ xử lý", color: "pink", icon: "fa-clock" },
-  10: { text: "Hoàn tiền", color: "brown", icon: "fa-undo" },
+  10: { text: "Hoàn tiền thành công ", color: "brown", icon: "fa-undo" },
   11: { text: "Hoàn trả tiền đặt cọc", color: "gold", icon: "fa-piggy-bank" },
 };
 

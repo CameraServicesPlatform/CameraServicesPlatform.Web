@@ -209,3 +209,18 @@ export const updateOrderStatusRefund = async (orderId) => {
     };
   }
 };
+
+export const getTransactionImage = async (orderId) => {
+  try {
+    const response = await api.post(
+      `/transaction/get-image?orderId=${orderId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching transaction image:", error);
+    return {
+      isSuccess: false,
+      messages: ["Error fetching transaction image"],
+    };
+  }
+};
