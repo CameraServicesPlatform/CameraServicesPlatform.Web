@@ -1,8 +1,11 @@
 import { Table } from "antd";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { getAccountOrderStatistics } from "../../api/dashboardApi";
 
-const AccountOrderStatistics = ({ accountId, startDate, endDate }) => {
+const AccountOrderStatistics = ({ startDate, endDate }) => {
+  const user = useSelector((state) => state.user.user || {});
+  const accountId = user.id;
   const [statistics, setStatistics] = useState([]);
   const [loading, setLoading] = useState(true);
 

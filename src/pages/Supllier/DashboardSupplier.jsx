@@ -1,164 +1,266 @@
-import { DatePicker, message, Spin, Table } from "antd"; // Import DatePicker
-import React, { useEffect, useState } from "react";
+import { Card, DatePicker, message, Spin, Table } from "antd";
+import React, { useEffect, useState, useMemo, useCallback } from "react"; // Added useMemo, useCallback
 import { useSelector } from "react-redux";
-import { getVouchersBySupplierId } from "../../api/voucherApi"; // Adjust the import path as needed
-import AccountOrderStatistics from "../Dashboard/AccountOrderStatistics";
-import BestSellingCategories from "../Dashboard/BestSellingCategories";
-import BestSellingCategoriesBySupplier from "../Dashboard/BestSellingCategoriesBySupplier";
-import MonthlyOrderCostStatistics from "../Dashboard/MonthlyOrderCostStatistics";
-import MonthlyRevenueBySupplier from "../Dashboard/MonthlyRevenueBySupplier";
-import SupplierOrderStatistics from "../Dashboard/SupplierOrderStatistics";
-import SupplierProductStatistics from "../Dashboard/SupplierProductStatistics";
-import TotalRevenueBySupplier from "../Dashboard/TotalRevenueBySupplier";
+import { getSupplierIdByAccountId } from "../../api/accountApi";
+import {
+  getBestSellingCategoriesBySupplier,
+  getCalculateMonthlyRevenueBySupplier,
+  getCalculateTotalRevenueBySupplier,
+  getMonthOrderCostStatistics,
+  getSupplierOrderStatistics,
+  getSupplierProductStatistics,
+  getSupplierRatingStatistics,
+} from "../../api/dashboardApi";
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, PieChart, Pie } from 'recharts'; // Add chart components
 
-const { RangePicker } = DatePicker; // Destructure RangePicker from DatePicker
+const { RangePicker } = DatePicker;
 
 const DashboardSupplier = () => {
   const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
-  const supplierID = user.supplierID; // Assuming supplierID is part of the user object
-
-  const [vouchers, setVouchers] = useState([]);
-  const [loadingVouchers, setLoadingVouchers] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalVouchers, setTotalVouchers] = useState(0);
-  const [dateRange, setDateRange] = useState([null, null]); // State for date range
+  const [supplierId, setSupplierId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState({
+    bestSellingCategories: [],
+    productStatistics: [],
+    orderCostStatistics: [],
+    orderStatistics: {},
+    totalRevenue: 0,
+    monthlyRevenue: [],
+    ratingStatistics: [],
+  });
+  const [dateRange, setDateRange] = useState([]);
 
   useEffect(() => {
-    const fetchVouchers = async (page, size, startDate, endDate) => {
-      setLoadingVouchers(true);
-      try {
-        const voucherData = await getVouchersBySupplierId(
-          supplierID,
-          page,
-          size,
-          startDate,
-          endDate
-        );
-        if (voucherData && voucherData.isSuccess) {
-          setVouchers(
-            Array.isArray(voucherData.result) ? voucherData.result : []
-          );
-          setTotalVouchers(voucherData.totalCount || 0); // Assuming the API returns total count
-        } else {
-          message.error("No vouchers available.");
+    const fetchSupplierId = async () => {
+      if (user.id) {
+        try {
+          const response = await getSupplierIdByAccountId(user.id);
+          if (response?.isSuccess) {
+            setSupplierId(response.result);
+          } else {
+            message.error("Không thể lấy ID nhà cung cấp."); // Translated 'Failed to fetch supplier ID.'
+          }
+        } catch (error) {
+          message.error("Lỗi khi lấy ID nhà cung cấp."); // Translated 'Error fetching supplier ID.'
         }
-      } catch (error) {
-        message.error("Failed to fetch vouchers.");
       }
-      setLoadingVouchers(false);
     };
 
-    if (supplierID) {
-      const [start, end] = dateRange;
-      fetchVouchers(
-        currentPage,
-        pageSize,
-        start ? start.format("YYYY-MM-DD") : null,
-        end ? end.format("YYYY-MM-DD") : null
-      );
+    fetchSupplierId();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (supplierId && dateRange.length === 2) {
+        setLoading(true);
+        try {
+          const [startDate, endDate] = dateRange;
+          const bestSellingCategories =
+            await getBestSellingCategoriesBySupplier(
+              supplierId,
+              startDate,
+              endDate
+            );
+          const productStatistics = await getSupplierProductStatistics(
+            supplierId
+          );
+          const orderCostStatistics = await getMonthOrderCostStatistics(
+            supplierId,
+            startDate,
+            endDate
+          );
+          const orderStatistics = await getSupplierOrderStatistics(
+            supplierId,
+            startDate,
+            endDate
+          );
+          const totalRevenue = await getCalculateTotalRevenueBySupplier(
+            supplierId
+          );
+          const monthlyRevenue = await getCalculateMonthlyRevenueBySupplier(
+            supplierId,
+            startDate,
+            endDate
+          );
+          const ratingStatistics = await getSupplierRatingStatistics(
+            supplierId
+          );
+
+          setData({
+            bestSellingCategories: Array.isArray(bestSellingCategories)
+              ? bestSellingCategories
+              : [],
+            productStatistics: Array.isArray(productStatistics)
+              ? productStatistics
+              : [],
+            orderCostStatistics: Array.isArray(orderCostStatistics)
+              ? orderCostStatistics
+              : [],
+            orderStatistics: orderStatistics || {},
+            totalRevenue: totalRevenue || 0,
+            monthlyRevenue: Array.isArray(monthlyRevenue) ? monthlyRevenue : [],
+            ratingStatistics: Array.isArray(ratingStatistics)
+              ? ratingStatistics
+              : [],
+          });
+        } catch (error) {
+          message.error("Lỗi khi lấy dữ liệu."); // Translated 'Error fetching data.'
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [supplierId, dateRange]);
+
+  const handleDateChange = useCallback((dates) => { // Wrapped with useCallback
+    if (dates) {
+      setDateRange([dates[0].format("MM-DD-YY"), dates[1].format("MM-DD-YY")]);
+    } else {
+      setDateRange([]);
     }
-  }, [supplierID, currentPage, pageSize, dateRange]);
+  }, []);
 
-  const handleDateChange = (dates) => {
-    setDateRange(dates);
-    setCurrentPage(1); // Reset to the first page when dates change
-  };
-
-  // Define columns for the Table component
-  const columns = [
+  const columns = useMemo(() => [ // Wrapped with useMemo
     {
-      title: "Voucher ID",
-      dataIndex: "id",
-      key: "id",
+      title: "Product ID",
+      dataIndex: "productId",
+      key: "productId",
     },
     {
-      title: "Voucher Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Product Name",
+      dataIndex: "productName",
+      key: "productName",
+    },
+  ], []);
+
+  const orderCostColumns = useMemo(() => [ // Wrapped with useMemo
+    {
+      title: "Month",
+      dataIndex: "month",
+      key: "month",
+      render: (text) => new Date(text).toLocaleDateString(),
     },
     {
-      title: "Voucher Value",
-      dataIndex: "value",
-      key: "value",
+      title: "Total Cost",
+      dataIndex: "totalCost",
+      key: "totalCost",
     },
-    // Add more columns as needed based on your voucher data structure
-  ];
+  ], []);
 
-  const handleTableChange = (pagination) => {
-    setCurrentPage(pagination.current);
-    setPageSize(pagination.pageSize);
-  };
+  const orderStatisticsColumns = useMemo(() => [ // Wrapped with useMemo
+    {
+      title: "Total Sales",
+      dataIndex: "totalSales",
+      key: "totalSales",
+    },
+    {
+      title: "Total Orders",
+      dataIndex: "totalOrders",
+      key: "totalOrders",
+    },
+    {
+      title: "Pending Orders",
+      dataIndex: "pendingOrders",
+      key: "pendingOrders",
+    },
+    {
+      title: "Completed Orders",
+      dataIndex: "completedOrders",
+      key: "completedOrders",
+    },
+    {
+      title: "Canceled Orders",
+      dataIndex: "canceledOrders",
+      key: "canceledOrders",
+    },
+  ], []);
 
   return (
-    <div>
-      <h1>Dashboard Admin</h1>
-
-      {/* Date Range Picker */}
-      <RangePicker
-        onChange={handleDateChange}
-        format="YYYY-MM-DD"
-        style={{ marginBottom: 16 }} // Add some margin for spacing
-      />
-
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Left Column for Statistics */}
-        <div style={{ flex: 1, marginRight: "16px" }}>
-          <BestSellingCategories
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
-          />
-          <BestSellingCategoriesBySupplier
-            supplierId={supplierID}
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
-          />
-          <SupplierProductStatistics supplierId={supplierID} />
-          <MonthlyOrderCostStatistics
-            supplierId={supplierID}
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
-          />
-          <AccountOrderStatistics
-            accountId={accountId}
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
-          />
-          <SupplierOrderStatistics
-            supplierId={supplierID}
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
-          />
-          <TotalRevenueBySupplier supplierId={supplierID} />
-          <MonthlyRevenueBySupplier
-            supplierId={supplierID}
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
-          />
-        </div>
-
-        {/* Right Column for Vouchers Table */}
-        <div style={{ flex: 1 }}>
-          <h2>Vouchers</h2>
-          {loadingVouchers ? ( // Show loading spinner while fetching
-            <Spin tip="Loading vouchers..." />
-          ) : (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Bảng Điều Khiển Nhà Cung Cấp</h1> {/* Translated 'Dashboard Supplier' */}
+      <Card className="mb-4">
+        <RangePicker onChange={handleDateChange} />
+      </Card>
+      {loading ? (
+        <Spin className="flex justify-center items-center h-64" />
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          <Card title="Các Danh Mục Bán Chạy Nhất"> {/* Translated 'Best Selling Categories' */}
             <Table
-              dataSource={vouchers}
+              dataSource={data.bestSellingCategories}
               columns={columns}
-              rowKey="id"
-              pagination={{
-                current: currentPage,
-                pageSize: pageSize,
-                total: totalVouchers,
-                showSizeChanger: true,
-              }}
-              onChange={handleTableChange}
+              pagination={false}
             />
-          )}
+          </Card>
+          <Card title="Thống Kê Sản Phẩm"> {/* Translated 'Product Statistics' */}
+            <Table
+              dataSource={data.productStatistics}
+              columns={columns}
+              pagination={false}
+            />
+          </Card>
+          <Card title="Thống Kê Chi Phí Đơn Hàng"> {/* Translated 'Order Cost Statistics' */}
+            <Table
+              dataSource={data.orderCostStatistics}
+              columns={orderCostColumns}
+              pagination={false}
+            />
+          </Card>
+          <Card title="Thống Kê Đơn Hàng"> {/* Translated 'Order Statistics' */}
+            <Table
+              dataSource={[data.orderStatistics]}
+              columns={orderStatisticsColumns}
+              pagination={false}
+            />
+          </Card>
+          <Card title="Tổng Doanh Thu"> {/* Translated 'Total Revenue' */}
+            <p className="text-lg">{data.totalRevenue}</p>
+          </Card>
+          <Card title="Doanh Thu Hàng Tháng"> {/* Translated 'Monthly Revenue' */}
+            <Table
+              dataSource={data.monthlyRevenue}
+              columns={orderCostColumns}
+              pagination={false}
+            />
+          </Card>
+          <Card title="Thống Kê Đánh Giá"> {/* Translated 'Rating Statistics' */}
+            <Table
+              dataSource={data.ratingStatistics}
+              columns={columns}
+              pagination={false}
+            />
+          </Card>
+          {/* Add a new card with a line chart for Monthly Revenue */}
+          <Card title="Biểu Đồ Doanh Thu Hàng Tháng"> {/* Translated 'Monthly Revenue Chart' */}
+            <LineChart width={500} height={300} data={data.monthlyRevenue}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="totalRevenue" stroke="#8884d8" />
+            </LineChart>
+          </Card>
+          {/* Add a new card with a pie chart for Rating Statistics */}
+          <Card title="Biểu Đồ Thống Kê Đánh Giá"> {/* Translated 'Rating Statistics Chart' */}
+            <PieChart width={400} height={400}>
+              <Pie
+                data={data.ratingStatistics}
+                dataKey="rating"
+                nameKey="productName"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#82ca9d"
+                label
+              />
+              <Tooltip />
+            </PieChart>
+          </Card>
         </div>
-      </div>
+      )}
     </div>
   );
 };
