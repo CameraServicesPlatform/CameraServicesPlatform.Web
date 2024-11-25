@@ -1,10 +1,11 @@
-import { Input, message, Pagination, Table, Typography } from "antd";
+import { Col, Input, message, Pagination, Row, Typography } from "antd";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import getColumns from "./ProductItem";
+import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
+import ProductCard from "./ProductItem";
 import { EditProductModal, ViewProductModal } from "./ProductModals";
-import useFetchProducts from "./useFetchProducts.jsx";
+import useFetchProducts from "./useFetchProducts";
 
 const { Title } = Typography;
 
@@ -26,6 +27,7 @@ const ProductListBySupplier = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState({});
+  const [isLoading, setIsLoading] = useState(false); // Add this line
 
   const handleDelete = async (productId) => {
     const confirmed = window.confirm(
@@ -65,7 +67,7 @@ const ProductListBySupplier = () => {
   };
 
   const handleView = async (productID) => {
-    setLoading(true);
+    setIsLoading(true); // Update this line
     try {
       const fetchedProduct = await getProductById(productID);
       setSelectedProduct(fetchedProduct);
@@ -73,7 +75,7 @@ const ProductListBySupplier = () => {
     } catch (error) {
       message.error("Failed to fetch product details.");
     } finally {
-      setLoading(false);
+      setIsLoading(false); // Update this line
     }
   };
 
@@ -95,39 +97,36 @@ const ProductListBySupplier = () => {
       )
     : [];
 
-  const columns = getColumns(
-    categoryNames,
-    expandedDescriptions,
-    handleExpandDescription,
-    handleView,
-    handleEdit,
-    handleDelete
-  );
-
   return (
     <div>
       <Title level={2}>DANH SÁCH SẢN PHẨM </Title>
-
       <Input
         placeholder="Tìm kiếm theo tên sản phẩm"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         style={{ marginBottom: "20px", width: "300px" }}
       />
-
+      <LoadingComponent isLoading={isLoading} title="Đang tải dữ liệu..." />{" "}
+      {/* Add this line */}
       {loading ? (
         <p>Loading products...</p>
       ) : (
         <div>
           {filteredProducts.length > 0 ? (
             <>
-              <Table
-                dataSource={filteredProducts}
-                columns={columns}
-                rowKey="productID"
-                pagination={false}
-                bordered
-              />
+              <Row gutter={[16, 16]}>
+                {filteredProducts.map((product) => (
+                  <Col key={product.productID} xs={24} sm={12} md={8} lg={6}>
+                    <ProductCard
+                      product={product}
+                      categoryNames={categoryNames}
+                      handleExpandDescription={handleExpandDescription}
+                      expandedDescriptions={expandedDescriptions}
+                      handleView={handleView}
+                    />
+                  </Col>
+                ))}
+              </Row>
               <Pagination
                 total={filteredProducts.length}
                 showSizeChanger
@@ -142,19 +141,19 @@ const ProductListBySupplier = () => {
           )}
         </div>
       )}
-
       <EditProductModal
         isEditModalVisible={isEditModalVisible}
         handleModalClose={handleModalClose}
         selectedProduct={selectedProduct}
         handleUpdateSuccess={handleUpdateSuccess}
       />
-
       <ViewProductModal
         isModalVisible={isModalVisible}
         handleClose={handleClose}
         selectedProduct={selectedProduct}
         loading={loading}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
       />
     </div>
   );
