@@ -39,14 +39,6 @@ export const ViewProductModal = ({
     open={isModalVisible}
     onCancel={handleClose}
     footer={[
-      <Button
-        key="edit"
-        type="primary"
-        onClick={() => handleEdit(selectedProduct)}
-      >
-        Chỉnh Sửa
-      </Button>,
-
       <Button key="close" onClick={handleClose}>
         Đóng
       </Button>,
@@ -81,6 +73,7 @@ const ProductModals = ({
   };
 
   const handleEdit = (product) => {
+    console.log("handleEdit called with product:", product);
     setIsViewModalVisible(false);
     setIsEditModalVisible(true);
   };

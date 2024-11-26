@@ -6,7 +6,7 @@ import { getProductById } from "../../../api/productApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 import HandleSearchAndFilter from "./HandleSearchAndFilter"; // Import the HandleSearchAndFilter component
 import ProductCard from "./ProductItem";
-import { ViewProductModal } from "./ProductModals";
+import { EditProductModal, ViewProductModal } from "./ProductModals";
 
 import useFetchProducts from "./useFetchProducts";
 const { Title } = Typography;
@@ -31,25 +31,10 @@ const ProductListBySupplier = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState(products);
 
-  const handleDelete = async (productId) => {
-    const confirmed = window.confirm(
-      "Bạn có chắc chắn muốn xóa sản phẩm này không?"
-    );
-    if (confirmed) {
-      try {
-        await deleteProduct(productId);
-        setProducts((prevProducts) =>
-          prevProducts.filter((product) => product.productID !== productId)
-        );
-        message.success("Xóa sản phẩm thành công.");
-      } catch (error) {
-        message.error("Xóa sản phẩm thất bại.");
-      }
-    }
-  };
-
   const handleEdit = (product) => {
+    console.log("handleEdit called with product:", product);
     setSelectedProduct(product);
+    setIsModalVisible(false);
     setIsEditModalVisible(true);
   };
 
@@ -71,13 +56,20 @@ const ProductListBySupplier = () => {
     setSelectedProduct(null);
   };
 
-  const handleExpandDescription = (productId) => {
-    setExpandedDescriptions((prev) => ({
-      ...prev,
-      [productId]: !prev[productId],
-    }));
+  const handleViewClose = () => {
+    setIsModalVisible(false);
   };
 
+  const handleEditClose = () => {
+    setIsEditModalVisible(false);
+  };
+
+  const handleExpandDescription = (productID) => {
+    setExpandedDescriptions((prev) => ({
+      ...prev,
+      [productID]: !prev[productID],
+    }));
+  };
   return (
     <div>
       <Title level={2}>DANH SÁCH SẢN PHẨM</Title>
@@ -100,6 +92,7 @@ const ProductListBySupplier = () => {
                   handleExpandDescription={handleExpandDescription}
                   expandedDescriptions={expandedDescriptions}
                   handleView={handleView}
+                  handleEdit={handleEdit}
                 />
               </Col>
             ))}
@@ -117,11 +110,17 @@ const ProductListBySupplier = () => {
 
       <ViewProductModal
         isModalVisible={isModalVisible}
-        handleClose={handleClose}
+        handleClose={handleViewClose}
         selectedProduct={selectedProduct}
         loading={loading}
         handleEdit={handleEdit}
-        handleDelete={handleDelete}
+        handleDelete={() => {}}
+      />
+      <EditProductModal
+        isEditModalVisible={isEditModalVisible}
+        handleModalClose={handleEditClose}
+        selectedProduct={selectedProduct}
+        handleUpdateSuccess={() => {}}
       />
     </div>
   );

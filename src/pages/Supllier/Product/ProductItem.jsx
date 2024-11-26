@@ -1,4 +1,4 @@
-import { EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined, EditOutlined } from "@ant-design/icons";
 import { Card, Typography } from "antd";
 import React from "react";
 import { getBrandName, getProductStatusEnum } from "../../../utils/constant";
@@ -29,7 +29,13 @@ const formatCurrency = (value) => {
   }).format(value);
 };
 
-const ProductCard = ({ product, handleView }) => (
+const ProductCard = ({
+  product,
+  handleView,
+  handleEdit,
+  handleExpandDescription,
+  expandedDescriptions,
+}) => (
   <Card
     hoverable
     cover={
@@ -54,6 +60,7 @@ const ProductCard = ({ product, handleView }) => (
     }
     actions={[
       <EyeOutlined key="view" onClick={() => handleView(product.productID)} />,
+      <EditOutlined key="edit" onClick={() => handleEdit(product)} />,
     ]}
     style={{ marginBottom: "20px" }}
   >
@@ -61,13 +68,14 @@ const ProductCard = ({ product, handleView }) => (
       title={product.productName}
       description={
         <>
-          <Paragraph ellipsis={{ rows: 1, expandable: false }}>
-            {product.productDescription
-              ? product.productDescription.slice(0, 50)
-              : ""}
-            {product.productDescription &&
-              product.productDescription.length > 50 &&
-              "..."}
+          <Paragraph
+            ellipsis={{
+              rows: expandedDescriptions[product.productID] ? 0 : 1,
+              expandable: true,
+              onExpand: () => handleExpandDescription(product.productID),
+            }}
+          >
+            {product.productDescription}
           </Paragraph>
           <p>
             <strong>Giá Mua:</strong> {formatCurrency(product.priceBuy)}
