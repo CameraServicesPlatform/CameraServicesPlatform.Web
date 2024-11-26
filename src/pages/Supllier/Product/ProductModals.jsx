@@ -17,6 +17,7 @@ export const EditProductModal = ({
     footer={null}
   >
     <EditProductForm
+      visible={isEditModalVisible}
       product={selectedProduct}
       onUpdateSuccess={handleUpdateSuccess}
       onClose={handleModalClose}

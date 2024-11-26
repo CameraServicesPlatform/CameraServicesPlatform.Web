@@ -1,4 +1,4 @@
-import { Col, Image, message, Row, Spin, Table } from "antd";
+import { Image, message, Row, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { getCategoryById } from "../../../api/categoryApi"; // Import the getCategoryById function
 import { getProductById } from "../../../api/productApi";
@@ -29,6 +29,24 @@ const DetailProduct = ({ product, loading, onClose }) => {
       fetchSupplierName();
     }
   }, [product?.supplierID]);
+  useEffect(() => {
+    if (product?.categoryID) {
+      const fetchCategoryName = async () => {
+        try {
+          const supplier = await getCategoryById(product.categoryID);
+          if (supplier && supplier.result) {
+            setCategoryName(supplier.result.categoryName);
+          } else {
+            console.error("Supplier not found");
+          }
+        } catch (error) {
+          console.error("Error fetching supplier name:", error);
+        }
+      };
+
+      fetchCategoryName();
+    }
+  }, [product?.categoryID]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -37,17 +55,6 @@ const DetailProduct = ({ product, loading, onClose }) => {
         const fetchedProduct = await getProductById(product?.id);
         console.log("Fetched Product:", fetchedProduct);
         setProductDetails(fetchedProduct);
-
-        if (fetchedProduct?.categoryID) {
-          const categoryResponse = await getCategoryById(
-            fetchedProduct.categoryID
-          );
-          if (categoryResponse && categoryResponse.result) {
-            setCategoryName(categoryResponse.result.categoryName);
-          } else {
-            console.error("Category not found");
-          }
-        }
       } catch (err) {
         console.error("Failed to fetch product:", err);
         setError("Failed to load product details. Please try again later.");
@@ -143,7 +150,7 @@ const DetailProduct = ({ product, loading, onClose }) => {
     { key: "1", field: "Mã Sản Phẩm", value: productID },
     { key: "2", field: "Số Serial", value: serialNumber },
     { key: "3", field: "Mã Nhà Cung Cấp", value: supplierName },
-    { key: "4", field: "Tên Loại Hàng", value: cate },
+    { key: "4", field: "Tên Loại Hàng", value: categoryName },
     { key: "5", field: "Tên Sản Phẩm", value: productName },
     { key: "6", field: "Mô Tả", value: productDescription },
     {
@@ -221,11 +228,7 @@ const DetailProduct = ({ product, loading, onClose }) => {
 
   return (
     <div className="product-detail-container">
-      <Row justify="space-between" align="middle">
-        <Col>
-          <h1>Chi Tiết Sản Phẩm</h1>
-        </Col>
-      </Row>
+      <Row justify="space-between" align="middle"></Row>
       <Table
         columns={columns}
         dataSource={data}
@@ -252,4 +255,3 @@ const DetailProduct = ({ product, loading, onClose }) => {
 };
 
 export default DetailProduct;
-S

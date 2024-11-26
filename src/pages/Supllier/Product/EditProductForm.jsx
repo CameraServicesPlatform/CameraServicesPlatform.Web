@@ -41,6 +41,7 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
 
   useEffect(() => {
     if (product) {
+      console.log("Setting form values with product:", product);
       form.setFieldsValue({
         productName: product.productName,
         productDescription: product.productDescription,
