@@ -6,7 +6,8 @@ import { getProductById } from "../../../api/productApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
 import HandleSearchAndFilter from "./HandleSearchAndFilter"; // Import the HandleSearchAndFilter component
 import ProductCard from "./ProductItem";
-import { EditProductModal, ViewProductModal } from "./ProductModals";
+import { ViewProductModal } from "./ProductModals";
+
 import useFetchProducts from "./useFetchProducts";
 const { Title } = Typography;
 
@@ -23,7 +24,6 @@ const ProductListBySupplier = () => {
     setPageSize,
     categoryNames,
   } = useFetchProducts(user);
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -51,21 +51,6 @@ const ProductListBySupplier = () => {
   const handleEdit = (product) => {
     setSelectedProduct(product);
     setIsEditModalVisible(true);
-  };
-
-  const handleUpdateSuccess = (updatedProduct) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.productID === updatedProduct.productID
-          ? updatedProduct
-          : product
-      )
-    );
-  };
-
-  const handleModalClose = () => {
-    setIsEditModalVisible(false);
-    setSelectedProduct(null);
   };
 
   const handleView = async (productID) => {
@@ -129,12 +114,7 @@ const ProductListBySupplier = () => {
           />
         </div>
       )}
-      <EditProductModal
-        isEditModalVisible={isEditModalVisible}
-        handleModalClose={handleModalClose}
-        selectedProduct={selectedProduct}
-        handleUpdateSuccess={handleUpdateSuccess}
-      />
+
       <ViewProductModal
         isModalVisible={isModalVisible}
         handleClose={handleClose}

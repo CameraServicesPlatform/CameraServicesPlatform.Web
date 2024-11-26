@@ -8,6 +8,7 @@ const { Option } = Select;
 const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
   const [form] = Form.useForm();
   const [file, setFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState(product?.imageUrl || null);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(
@@ -59,11 +60,22 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
       });
       setSelectedCategory(product.categoryID);
       setStatus(product.status);
+      setImageUrl(product.imageUrl); // Set the initial image URL
     }
   }, [product, form]);
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const file = e.target.files[0];
+    setFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImageUrl(null);
+    }
   };
 
   const handleSubmit = async (values) => {
@@ -75,11 +87,17 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
       formData.append("CategoryID", selectedCategory);
       formData.append("ProductName", values.productName);
       formData.append("ProductDescription", values.productDescription);
-      formData.append("PriceRent", (values.priceRent = 0));
+      formData.append("PriceRent", values.priceRent || 0);
       formData.append("PriceBuy", values.priceBuy);
       formData.append("Brand", values.brand);
       formData.append("Quality", values.quality);
       formData.append("Status", values.status);
+      formData.append("DateOfManufacture", values.dateOfManufacture);
+      formData.append("OriginalPrice", values.originalPrice);
+      formData.append(
+        "listProductSpecification",
+        values.listProductSpecification
+      );
 
       if (file) {
         formData.append("File", file);
@@ -253,10 +271,20 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
         </Form.Item>
         <Form.Item label="Tải Lên Hình Ảnh">
           <Input type="file" accept="image/*" onChange={handleFileChange} />
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt="Selected"
+              style={{ marginTop: "10px", maxWidth: "100%" }}
+            />
+          )}
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" loading={loading}>
             Cập Nhật Sản Phẩm
+          </Button>
+          <Button style={{ marginLeft: "10px" }} onClick={handleClose}>
+            Hủy
           </Button>
         </Form.Item>
       </Form>
