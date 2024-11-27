@@ -119,6 +119,7 @@ const ProductListBySupplier = () => {
       <EditProductModal
         isEditModalVisible={isEditModalVisible}
         handleModalClose={handleEditClose}
+        handleDelete={() => {}}
         selectedProduct={selectedProduct}
         handleUpdateSuccess={() => {}}
       />

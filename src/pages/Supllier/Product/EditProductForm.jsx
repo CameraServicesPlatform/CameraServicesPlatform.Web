@@ -5,7 +5,7 @@ import { updateProduct, updateProductRent } from "../../../api/productApi";
 
 const { Option } = Select;
 
-const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
+const EditProductForm = ({ open, onClose, product, onUpdateSuccess }) => {
   const [form] = Form.useForm();
   const [file, setFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(product?.imageUrl || null);
@@ -18,10 +18,36 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
   const [status, setStatus] = useState(product?.status || 0);
 
   useEffect(() => {
-    if (visible) {
+    if (open) {
       fetchCategories();
     }
-  }, [visible]);
+  }, [open]);
+
+  useEffect(() => {
+    if (product) {
+      form.setFieldsValue({
+        productName: product.productName,
+        productDescription: product.productDescription,
+        priceRent: product.priceRent,
+        priceBuy: product.priceBuy,
+        brand: product.brand,
+        quality: product.quality,
+        status: product.status,
+        serialNumber: product.serialNumber,
+        CategoryID: product.categoryID,
+        pricePerHour: product.pricePerHour,
+        pricePerDay: product.pricePerDay,
+        pricePerWeek: product.pricePerWeek,
+        pricePerMonth: product.pricePerMonth,
+        originalPrice: product.originalPrice,
+        countRent: product.countRent,
+        depositProduct: product.depositProduct,
+      });
+      setSelectedCategory(product.categoryID);
+      setStatus(product.status);
+      setImageUrl(product.imageUrl);
+    }
+  }, [product, form]);
 
   const fetchCategories = async () => {
     setIsLoading(true);
@@ -39,30 +65,6 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (product) {
-      console.log("Setting form values with product:", product);
-      form.setFieldsValue({
-        productName: product.productName,
-        productDescription: product.productDescription,
-        priceRent: product.priceRent,
-        priceBuy: product.priceBuy,
-        brand: product.brand,
-        quality: product.quality,
-        status: product.status,
-        serialNumber: product.serialNumber,
-        CategoryID: product.categoryID,
-        pricePerHour: product.pricePerHour,
-        pricePerDay: product.pricePerDay,
-        pricePerWeek: product.pricePerWeek,
-        pricePerMonth: product.pricePerMonth,
-      });
-      setSelectedCategory(product.categoryID);
-      setStatus(product.status);
-      setImageUrl(product.imageUrl); // Set the initial image URL
-    }
-  }, [product, form]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -94,6 +96,8 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
       formData.append("Status", values.status);
       formData.append("DateOfManufacture", values.dateOfManufacture);
       formData.append("OriginalPrice", values.originalPrice);
+      formData.append("CountRent", values.countRent);
+      formData.append("DepositProduct", values.depositProduct);
       formData.append(
         "listProductSpecification",
         values.listProductSpecification
@@ -120,6 +124,7 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
           brand: values.brand,
           quality: values.quality,
           status: values.status,
+          listProductSpecification: values.listProductSpecification,
         });
       }
 
@@ -150,7 +155,7 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
   return (
     <Modal
       title="Chỉnh Sửa Sản Phẩm"
-      visible={visible}
+      open={open}
       onCancel={handleClose}
       footer={null}
     >
@@ -173,10 +178,9 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
               rules={[{ required: true, message: "Vui lòng nhập giá bán" }]}
             >
               <Input type="number" />
-            </Form.Item>{" "}
+            </Form.Item>
           </>
         )}
-
         <Form.Item
           name="brand"
           label="Thương Hiệu"
@@ -269,6 +273,20 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
             ))}
           </Select>
         </Form.Item>
+        <Form.Item
+          name="originalPrice"
+          label="Giá Gốc"
+          rules={[{ required: true, message: "Vui lòng nhập giá gốc" }]}
+        >
+          <Input type="number" />
+        </Form.Item>
+        <Form.Item
+          name="countRent"
+          label="Số Lần Thuê"
+          rules={[{ required: true, message: "Vui lòng nhập số lần thuê" }]}
+        >
+          <Input type="number" />
+        </Form.Item>
         <Form.Item label="Tải Lên Hình Ảnh">
           <Input type="file" accept="image/*" onChange={handleFileChange} />
           {imageUrl && (
@@ -283,9 +301,7 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
           <Button type="primary" htmlType="submit" loading={loading}>
             Cập Nhật Sản Phẩm
           </Button>
-          <Button style={{ marginLeft: "10px" }} onClick={handleClose}>
-            Hủy
-          </Button>
+          <Button onClick={handleClose}>Cancel</Button>
         </Form.Item>
       </Form>
     </Modal>

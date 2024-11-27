@@ -1,5 +1,5 @@
 import { Button, Modal, Spin } from "antd";
-import React, { useState } from "react";
+import React from "react";
 import DetailProduct from "./DetailProduct";
 import EditProductForm from "./EditProductForm";
 
@@ -14,7 +14,11 @@ export const EditProductModal = ({
     title="Chỉnh Sửa Sản Phẩm"
     open={isEditModalVisible}
     onCancel={handleModalClose}
-    footer={null}
+    footer={[
+      <Button key="close" onClick={handleModalClose}>
+        Đóng
+      </Button>,
+    ]}
   >
     <EditProductForm
       visible={isEditModalVisible}
@@ -53,49 +57,5 @@ export const ViewProductModal = ({
     )}
   </Modal>
 );
-
-// Main Component to manage both modals
-const ProductModals = ({
-  selectedProduct,
-  handleUpdateSuccess,
-  handleDelete,
-}) => {
-  const [isViewModalVisible, setIsViewModalVisible] = useState(false);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleViewClose = () => {
-    setIsViewModalVisible(false);
-  };
-
-  const handleEditClose = () => {
-    setIsEditModalVisible(false);
-  };
-
-  const handleEdit = (product) => {
-    console.log("handleEdit called with product:", product);
-    setIsViewModalVisible(false);
-    setIsEditModalVisible(true);
-  };
-
-  return (
-    <>
-      <ViewProductModal
-        isModalVisible={isViewModalVisible}
-        handleClose={handleViewClose}
-        selectedProduct={selectedProduct}
-        loading={loading}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-      />
-      <EditProductModal
-        isEditModalVisible={isEditModalVisible}
-        handleModalClose={handleEditClose}
-        selectedProduct={selectedProduct}
-        handleUpdateSuccess={handleUpdateSuccess}
-      />
-    </>
-  );
-};
 
 export default ProductModals;
