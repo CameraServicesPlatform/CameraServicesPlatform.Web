@@ -3,7 +3,7 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { getUserById } from "../../../api/accountApi";
 import { getStaffById } from "../../../api/staffApi";
-import { getAllHistoryTransactions } from "../../../api/transactionApi"; // Adjust the import path as necessary
+import { getAllHistoryTransactions } from "../../../api/transactionApi";
 
 const HistoryTransactionList = () => {
   const [transactions, setTransactions] = useState([]);

@@ -42,6 +42,7 @@ import ManageProductOfSuplier from "../pages/Supllier/Product/ManageProductOfSup
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 import PersonalPage from "../pages/Supllier/PersonalPage";
+import ManageCombo from "../pages/Staff/Combo/ManageCombo";
 
 function Routers() {
   const routing = useRoutes([
@@ -163,6 +164,7 @@ function Routers() {
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
         { path: "manage-voucher", element: <ManageVoucher /> },
+        { path: "manage-combo", element: <ManageCombo /> },
         {
           path: "manage-transaction-system",
           element: <ManageTransactionSystem />,
