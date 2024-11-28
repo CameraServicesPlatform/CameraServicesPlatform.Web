@@ -283,7 +283,9 @@ const VoucherListBySupplierId = () => {
 
   return (
     <div className="bg-gray-100 p-4 rounded-lg">
-      <h1 className="text-blue-500 mb-4 text-2xl font-semibold">DANH SÁCH VOUCHER</h1>
+      <h1 className="text-blue-500 mb-4 text-2xl font-semibold">
+        DANH SÁCH VOUCHER
+      </h1>
       <Input
         placeholder="Search by Voucher Code"
         prefix={<SearchOutlined />}
@@ -375,11 +377,7 @@ const VoucherListBySupplierId = () => {
           onOk={handleUpdateVoucher}
           onCancel={() => setUpdateModalVisible(false)}
         >
-          <Form
-            form={form}
-            layout="vertical"
-            className="mb-4 font-bold"
-          >
+          <Form form={form} layout="vertical" className="mb-4 font-bold">
             <Form.Item name="vourcherID" label="Mã Voucher">
               <Input disabled />
             </Form.Item>
@@ -399,7 +397,9 @@ const VoucherListBySupplierId = () => {
             >
               <DatePicker
                 showTime
-                disabled={dayjs(selectedVoucher.expirationDate).isBefore(dayjs())}
+                disabled={dayjs(selectedVoucher.expirationDate).isBefore(
+                  dayjs()
+                )}
                 className="w-full"
               />
             </Form.Item>

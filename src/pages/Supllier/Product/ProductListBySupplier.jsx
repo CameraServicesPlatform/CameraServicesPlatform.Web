@@ -1,4 +1,4 @@
-import { Button, Input, message, Modal, Pagination, Typography } from "antd";
+import { Button, Col, message, Modal, Pagination, Row, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -9,9 +9,11 @@ import {
   getProductById,
   getProductBySupplierId,
 } from "../../../api/productApi";
-import CreateProduct from "./CreateProduct"; // Import CreateProduct
+import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
+import CreateProduct from "./CreateProduct";
 import DetailProduct from "./DetailProduct";
 import EditProductForm from "./EditProductForm";
+import HandleSearchAndFilter from "./ManageProductCard/HandleSearchAndFilter";
 import ProductCard from "./ManageProductCard/ProductCard";
 
 const { Title } = Typography;
@@ -31,7 +33,9 @@ const ProductListBySupplier = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState({});
   const { id } = useParams();
-  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false); // State for create modal
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchSupplierId = async () => {
@@ -134,12 +138,6 @@ const ProductListBySupplier = () => {
     setSelectedProduct(null);
   };
 
-  const filteredProducts = Array.isArray(products)
-    ? products.filter((product) =>
-        product.productName.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [];
-
   const handleView = async (productID) => {
     setLoading(true);
     try {
@@ -184,47 +182,40 @@ const ProductListBySupplier = () => {
       >
         <CreateProduct />
       </Modal>
+
       <Title level={2}>DANH SÁCH SẢN PHẨM</Title>
 
-      <Input
-        placeholder="Tìm kiếm theo tên sản phẩm"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="mb-5 w-72"
-      />
-
+      <LoadingComponent isLoading={isLoading} title="Đang tải dữ liệu..." />
       {loading ? (
-        <p>Loading products...</p>
+        <p>Hệ thống đang loading sản phẩm</p>
       ) : (
         <div>
-          {filteredProducts.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.productID}
-                    product={product}
-                    categoryNames={categoryNames}
-                    handleView={handleView}
-                    handleEdit={handleEdit}
-                    handleDelete={handleDelete}
-                    handleExpandDescription={handleExpandDescription}
-                    expandedDescriptions={expandedDescriptions}
-                  />
-                ))}
-              </div>
-              <Pagination
-                total={total}
-                showSizeChanger
-                onShowSizeChange={(current, size) => {
-                  setPageSize(size);
-                }}
-                className="mt-5 text-center"
-              />
-            </>
-          ) : (
-            <p>No products available.</p>
-          )}
+          <HandleSearchAndFilter
+            products={products}
+            onFilter={setFilteredProducts}
+          />
+          <Row gutter={[16, 16]}>
+            {filteredProducts.map((product) => (
+              <Col key={product.productID} xs={24} sm={12} md={8} lg={6}>
+                <ProductCard
+                  product={product}
+                  categoryNames={categoryNames}
+                  handleExpandDescription={handleExpandDescription}
+                  expandedDescriptions={expandedDescriptions}
+                  handleView={handleView}
+                  handleEdit={handleEdit}
+                />
+              </Col>
+            ))}
+          </Row>
+          <Pagination
+            total={filteredProducts.length}
+            showSizeChanger
+            onShowSizeChange={(current, size) => {
+              setPageSize(size);
+            }}
+            style={{ marginTop: "20px", textAlign: "center" }}
+          />
         </div>
       )}
 
