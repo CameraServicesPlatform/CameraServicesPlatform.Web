@@ -1,6 +1,6 @@
 import { Card, Col, Form, Radio, Row, message } from "antd";
 import React, { useEffect, useState } from "react";
-import { getVoucherById } from "../../../../api/voucherApi"; // Adjust the import path as needed
+import { getVoucherById } from "../../../../api/voucherApi";
 
 const VoucherSelection = ({
   vouchers,
@@ -32,11 +32,11 @@ const VoucherSelection = ({
 
     fetchVoucherCodes();
   }, [vouchers]);
-useEffect(() => {
-  if (!selectedVoucher) {
-    handleVoucherSelect({ target: { value: null } });
-  }
-}, [selectedVoucher, handleVoucherSelect]);
+  useEffect(() => {
+    if (!selectedVoucher) {
+      handleVoucherSelect({ target: { value: null } });
+    }
+  }, [selectedVoucher, handleVoucherSelect]);
   const onCardClick = (voucherID) => {
     setSelectedVoucher(voucherID);
     handleVoucherSelect({ target: { value: voucherID } });

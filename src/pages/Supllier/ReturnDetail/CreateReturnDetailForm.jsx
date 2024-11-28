@@ -38,7 +38,7 @@ const CreateReturnDetailForm = ({ orderID, onSuccess }) => {
         rules={[{ required: true, message: "Vui lòng chọn ngày trả hàng" }]}
         initialValue={moment()} // Set the default value to the current date and time
       >
-        <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
+        <DatePicker showTime format="DD-MM-YYYY HH:mm:ss" />
       </Form.Item>
       <Button onClick={setCurrentTime}>Đặt thời gian hiện tại</Button>
 

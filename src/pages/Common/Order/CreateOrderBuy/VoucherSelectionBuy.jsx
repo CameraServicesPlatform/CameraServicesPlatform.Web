@@ -1,6 +1,6 @@
 import { Card, Col, Form, Radio, Row, message } from "antd";
 import React, { useEffect, useState } from "react";
-import { getVoucherById } from "../../../../api/voucherApi"; // Adjust the import path as needed
+import { getVoucherById } from "../../../../api/voucherApi";
 
 const VoucherSelectionBuy = ({
   vouchers,

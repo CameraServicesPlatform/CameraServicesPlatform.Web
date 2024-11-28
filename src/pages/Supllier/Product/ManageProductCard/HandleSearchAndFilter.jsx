@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import ProductCard from "./ProductItem"; // Adjust the import path as needed
+import React, { useEffect, useState } from "react";
+import ProductCard from "./ProductCard";
 
 const ProductStatusEnum = {
   AvailableSell: 0,
@@ -139,4 +139,32 @@ const HandleSearchAndFilter = ({ products, onFilter }) => {
   );
 };
 
-export default HandleSearchAndFilter;
+const ProductList = ({ products }) => {
+  const [filteredProducts, setFilteredProducts] = useState(products);
+
+  const handleFilter = (filtered) => {
+    setFilteredProducts(filtered);
+  };
+
+  return (
+    <div>
+      <HandleSearchAndFilter products={products} onFilter={handleFilter} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredProducts.map((product) => (
+          <ProductCard
+            key={product.productID}
+            product={product}
+            categoryNames={{}} // Pass the appropriate category names
+            handleView={() => {}}
+            handleEdit={() => {}}
+            handleDelete={() => {}}
+            handleExpandDescription={() => {}}
+            expandedDescriptions={{}} // Pass the appropriate expanded descriptions
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default ProductList;

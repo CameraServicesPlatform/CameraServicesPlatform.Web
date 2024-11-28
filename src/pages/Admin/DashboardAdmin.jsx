@@ -1,7 +1,7 @@
-import { Col, DatePicker, message, Row, Spin, Table } from "antd"; // Import Row and Col for layout
+import { Col, DatePicker, message, Row, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getVouchersBySupplierId } from "../../api/voucherApi"; // Adjust the import path as needed
+import { getVouchersBySupplierId } from "../../api/voucherApi";
 import AccountOrderStatistics from "../Dashboard/AccountOrderStatistics";
 import BestSellingCategories from "../Dashboard/BestSellingCategories";
 import BestSellingCategoriesBySupplier from "../Dashboard/BestSellingCategoriesBySupplier";
@@ -11,19 +11,18 @@ import SupplierOrderStatistics from "../Dashboard/SupplierOrderStatistics";
 import SupplierProductStatistics from "../Dashboard/SupplierProductStatistics";
 import TotalRevenueBySupplier from "../Dashboard/TotalRevenueBySupplier";
 
-const { RangePicker } = DatePicker; // Destructure RangePicker from DatePicker
-
+const { RangePicker } = DatePicker;
 const DashboardAdmin = () => {
   const user = useSelector((state) => state.user.user || {});
   const accountId = user.id;
-  const supplierID = user.supplierID; // Assuming supplierID is part of the user object
+  const supplierID = user.supplierID;
 
   const [vouchers, setVouchers] = useState([]);
   const [loadingVouchers, setLoadingVouchers] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalVouchers, setTotalVouchers] = useState(0);
-  const [dateRange, setDateRange] = useState([null, null]); // State for date range
+  const [dateRange, setDateRange] = useState([null, null]);
 
   useEffect(() => {
     const fetchVouchers = async (page, size, startDate, endDate) => {
@@ -40,7 +39,7 @@ const DashboardAdmin = () => {
           setVouchers(
             Array.isArray(voucherData.result) ? voucherData.result : []
           );
-          setTotalVouchers(voucherData.totalCount || 0); // Assuming the API returns total count
+          setTotalVouchers(voucherData.totalCount || 0);
         } else {
           message.error("No vouchers available.");
         }
@@ -55,8 +54,8 @@ const DashboardAdmin = () => {
       fetchVouchers(
         currentPage,
         pageSize,
-        start ? start.format("YYYY-MM-DD") : null,
-        end ? end.format("YYYY-MM-DD") : null
+        start ? start.format("DD-MM-YYYY") : null,
+        end ? end.format("DD-MM-YYYY") : null
       );
     }
   }, [supplierID, currentPage, pageSize, dateRange]);
@@ -98,7 +97,7 @@ const DashboardAdmin = () => {
       {/* Date Range Picker */}
       <RangePicker
         onChange={handleDateChange}
-        format="YYYY-MM-DD"
+        format="DD-MM-YYYY"
         style={{ marginBottom: 16 }} // Add some margin for spacing
       />
 
@@ -110,13 +109,13 @@ const DashboardAdmin = () => {
           {" "}
           {/* Left column - Adjust span as necessary */}
           <BestSellingCategories
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
+            startDate={dateRange[0]?.format("DD-MM-YYYY")}
+            endDate={dateRange[1]?.format("DD-MM-YYYY")}
           />
           <BestSellingCategoriesBySupplier
             supplierId={supplierID}
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
+            startDate={dateRange[0]?.format("DD-MM-YYYY")}
+            endDate={dateRange[1]?.format("DD-MM-YYYY")}
           />
           <SupplierProductStatistics supplierId={supplierID} />
         </Col>
@@ -125,24 +124,24 @@ const DashboardAdmin = () => {
           {/* Right column - Adjust span as necessary */}
           <MonthlyOrderCostStatistics
             supplierId={supplierID}
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
+            startDate={dateRange[0]?.format("DD-MM-YYYY")}
+            endDate={dateRange[1]?.format("DD-MM-YYYY")}
           />
           <AccountOrderStatistics
             accountId={accountId}
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
+            startDate={dateRange[0]?.format("DD-MM-YYYY")}
+            endDate={dateRange[1]?.format("DD-MM-YYYY")}
           />
           <SupplierOrderStatistics
             supplierId={supplierID}
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
+            startDate={dateRange[0]?.format("DD-MM-YYYY")}
+            endDate={dateRange[1]?.format("DD-MM-YYYY")}
           />
           <TotalRevenueBySupplier supplierId={supplierID} />
           <MonthlyRevenueBySupplier
             supplierId={supplierID}
-            startDate={dateRange[0]?.format("YYYY-MM-DD")}
-            endDate={dateRange[1]?.format("YYYY-MM-DD")}
+            startDate={dateRange[0]?.format("DD-MM-YYYY")}
+            endDate={dateRange[1]?.format("DD-MM-YYYY")}
           />
         </Col>
       </Row>

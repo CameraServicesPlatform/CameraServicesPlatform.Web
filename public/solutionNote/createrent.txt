@@ -40,8 +40,7 @@ const CreateOrderRent = () => {
   const { productID, supplierID } = location.state || {};
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [loadingVouchers, setLoadingVouchers] = useState(true);
-  const user = useSelector((state) => state.user.user || {});
-  const accountId = user.id;
+ user = useSelector  const accountId = user.id;
   console.log(accountId);
   const [selectedVoucherDetails, setSelectedVoucherDetails] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
