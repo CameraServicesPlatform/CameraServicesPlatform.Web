@@ -1,6 +1,7 @@
 import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
-import { Button, Card, Typography } from "antd";
-import React from "react";
+import { Button, Card, Form, Input, message, Modal, Typography } from "antd";
+import React, { useState } from "react";
+import { createContractTemplate } from "../../../../api/contractTemplateApi";
 import { getBrandName, getProductStatusEnum } from "../../../../utils/constant";
 
 const { Paragraph } = Typography;
@@ -14,6 +15,9 @@ const ProductCard = ({
   handleExpandDescription,
   expandedDescriptions,
 }) => {
+  const [isContractModalVisible, setIsContractModalVisible] = useState(false);
+  const [form] = Form.useForm();
+
   const renderPriceRent = (record) => {
     const priceLabels = {
       hour: record.pricePerHour,
@@ -87,99 +91,172 @@ const ProductCard = ({
     }).format(value);
   };
 
+  const handleCreateContractTemplate = async (values) => {
+    try {
+      await createContractTemplate({
+        ...values,
+        accountID: user.id,
+        productID: product.productID,
+      });
+      message.success("Tạo mẫu hợp đồng thành công!");
+      setIsContractModalVisible(false);
+    } catch (error) {
+      message.error("Lỗi khi tạo mẫu hợp đồng.");
+    }
+  };
+
   return (
-    <Card
-      title={product.productName}
-      extra={
-        <div>
-          <Button
-            type="default"
-            icon={<EyeOutlined />}
-            onClick={() => handleView(product.productID)}
-            className="mr-2 bg-blue-500 text-white border-blue-500"
-          />
+    <>
+      <Card
+        title={product.productName}
+        extra={
+          <div>
+            <Button
+              type="default"
+              icon={<EyeOutlined />}
+              onClick={() => handleView(product.productID)}
+              className="mr-2 bg-blue-500 text-white border-blue-500"
+            />
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(product)}
+              className="mr-2 bg-green-500 text-white border-green-500"
+            />
+            <Button
+              type="danger"
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(product.productID)}
+              className="bg-red-500 text-white border-red-500"
+            />
+          </div>
+        }
+        className="mb-5 w-full relative"
+      >
+        <div className="relative">
+          {product.listImage && product.listImage.length > 0 ? (
+            <img
+              src={product.listImage[0].image}
+              alt={product.productName}
+              className="w-full h-48 object-cover mb-2"
+            />
+          ) : (
+            <div className="w-full h-48 bg-gray-200 flex items-center justify-center mb-2">
+              <span>Không có hình ảnh</span>
+            </div>
+          )}
+          <div
+            className={`absolute top-0 right-0 m-2 p-1 text-white text-xs rounded ${getStatusClass(
+              product.status
+            )}`}
+          >
+            {getProductStatusEnum(product.status)}
+          </div>
+        </div>
+        <Paragraph ellipsis={{ rows: 2, expandable: true }}>
+          {expandedDescriptions[product.productID]
+            ? product.productDescription
+            : `${
+                product.productDescription
+                  ? product.productDescription.slice(0, 100)
+                  : ""
+              }...`}
+        </Paragraph>
+        {product.productDescription &&
+          product.productDescription.length > 100 && (
+            <Button
+              type="link"
+              onClick={() => handleExpandDescription(product.productID)}
+              className="p-0"
+            >
+              {expandedDescriptions[product.productID] ? "Thu gọn" : "Xem thêm"}
+            </Button>
+          )}
+        <p>
+          <strong>Danh mục:</strong>
+          {categoryNames[product.categoryID] || "Không xác định"}
+        </p>
+        <p>
+          <strong>Thương hiệu:</strong> {getBrandName(product.brand)}
+        </p>
+        <p>
+          <strong>Số lần thuê:</strong> {product.countRent}
+        </p>
+        <p>
+          <span className="mr-2 text-blue-500">
+            <strong>Phí giữ chỗ:</strong>{" "}
+            {formatCurrency(product.depositProduct)}
+          </span>
+        </p>
+        <p>
+          <strong>Giá (Gốc):</strong> {product.originalPrice}
+        </p>
+        <p>
+          <strong>Giá (Thuê):</strong> {renderPriceRent(product)}
+        </p>
+        {product.priceBuy !== null && (
+          <p>
+            <strong>Giá (Mua):</strong> {renderPriceBuy(product.priceBuy)}
+          </p>
+        )}
+        {product.status === 1 && (
           <Button
             type="primary"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(product)}
-            className="mr-2 bg-green-500 text-white border-green-500"
-          />
-          <Button
-            type="danger"
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(product.productID)}
-            className="bg-red-500 text-white border-red-500"
-          />
-        </div>
-      }
-      className="mb-5 w-full relative"
-    >
-      <div className="relative">
-        {product.listImage && product.listImage.length > 0 ? (
-          <img
-            src={product.listImage[0].image}
-            alt={product.productName}
-            className="w-full h-48 object-cover mb-2"
-          />
-        ) : (
-          <div className="w-full h-48 bg-gray-200 flex items-center justify-center mb-2">
-            <span>Không có hình ảnh</span>
-          </div>
-        )}
-        <div
-          className={`absolute top-0 right-0 m-2 p-1 text-white text-xs rounded ${getStatusClass(
-            product.status
-          )}`}
-        >
-          {getProductStatusEnum(product.status)}
-        </div>
-      </div>
-      <Paragraph ellipsis={{ rows: 2, expandable: true }}>
-        {expandedDescriptions[product.productID]
-          ? product.productDescription
-          : `${
-              product.productDescription
-                ? product.productDescription.slice(0, 100)
-                : ""
-            }...`}
-      </Paragraph>
-      {product.productDescription &&
-        product.productDescription.length > 100 && (
-          <Button
-            type="link"
-            onClick={() => handleExpandDescription(product.productID)}
-            className="p-0"
+            onClick={() => setIsContractModalVisible(true)}
+            style={{ marginLeft: "10px" }}
           >
-            {expandedDescriptions[product.productID] ? "Thu gọn" : "Xem thêm"}
+            Thêm điều khoản khác
           </Button>
         )}
-      <p>
-        <strong>Danh mục:</strong>
-        {categoryNames[product.categoryID] || "Không xác định"}
-      </p>
-      <p>
-        <strong>Thương hiệu:</strong> {getBrandName(product.brand)}
-      </p>
-      <p>
-        <strong>Số lần thuê:</strong> {product.countRent}
-      </p>
-      <p>
-        <span className="mr-2 text-blue-500">
-          <strong>Phí giữ chỗ:</strong> {formatCurrency(product.depositProduct)}
-        </span>
-      </p>
-      <p>
-        <strong>Giá (Gốc):</strong> {product.originalPrice}
-      </p>
-      <p>
-        <strong>Giá (Thuê):</strong> {renderPriceRent(product)}
-      </p>
-      {product.priceBuy !== null && (
-        <p>
-          <strong>Giá (Mua):</strong> {renderPriceBuy(product.priceBuy)}
-        </p>
-      )}
-    </Card>
+      </Card>
+
+      <Modal
+        title="Tạo Mẫu Hợp Đồng"
+        visible={isContractModalVisible}
+        onCancel={() => setIsContractModalVisible(false)}
+        footer={null}
+      >
+        <Form form={form} onFinish={handleCreateContractTemplate}>
+          <Form.Item
+            name="templateName"
+            label="Tên Mẫu"
+            rules={[{ required: true, message: "Vui lòng nhập tên mẫu!" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="contractTerms"
+            label="Điều Khoản Hợp Đồng"
+            rules={[
+              { required: true, message: "Vui lòng nhập điều khoản hợp đồng!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="templateDetails"
+            label="Chi Tiết Mẫu"
+            rules={[{ required: true, message: "Vui lòng nhập chi tiết mẫu!" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="penaltyPolicy"
+            label="Chính Sách Phạt"
+            rules={[
+              { required: true, message: "Vui lòng nhập chính sách phạt!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Tạo Mẫu
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
   );
 };
 

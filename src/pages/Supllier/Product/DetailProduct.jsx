@@ -1,6 +1,7 @@
 import { Image, message, Row, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
-import { getCategoryById } from "../../../api/categoryApi"; // Import the getCategoryById function
+import { getCategoryById } from "../../../api/categoryApi";
+import { getContractTemplateByProductId } from "../../../api/contractTemplateApi";
 import { getProductById } from "../../../api/productApi";
 import { getSupplierById } from "../../../api/supplierApi";
 
@@ -10,6 +11,7 @@ const DetailProduct = ({ product, loading, onClose }) => {
   const [error, setError] = useState(null);
   const [categoryName, setCategoryName] = useState("");
   const [supplierName, setSupplierName] = useState("");
+  const [contractTemplates, setContractTemplates] = useState([]);
 
   useEffect(() => {
     if (product?.supplierID) {
@@ -29,18 +31,19 @@ const DetailProduct = ({ product, loading, onClose }) => {
       fetchSupplierName();
     }
   }, [product?.supplierID]);
+
   useEffect(() => {
     if (product?.categoryID) {
       const fetchCategoryName = async () => {
         try {
-          const supplier = await getCategoryById(product.categoryID);
-          if (supplier && supplier.result) {
-            setCategoryName(supplier.result.categoryName);
+          const category = await getCategoryById(product.categoryID);
+          if (category && category.result) {
+            setCategoryName(category.result.categoryName);
           } else {
-            console.error("Supplier not found");
+            console.error("Category not found");
           }
         } catch (error) {
-          console.error("Error fetching supplier name:", error);
+          console.error("Error fetching category name:", error);
         }
       };
 
@@ -68,6 +71,32 @@ const DetailProduct = ({ product, loading, onClose }) => {
       fetchProduct();
     }
   }, [product]);
+
+  useEffect(() => {
+    const fetchContractTemplates = async () => {
+      try {
+        console.log("Product object:", product);
+        console.log(
+          "Fetching contract templates for product ID:",
+          product?.productID
+        );
+        const templates = await getContractTemplateByProductId(
+          product?.productID
+        );
+        console.log("Fetched contract templates:", templates);
+        setContractTemplates(templates);
+      } catch (error) {
+        console.error("Failed to fetch contract templates:", error);
+        message.error(
+          "Failed to load contract templates. Please try again later."
+        );
+      }
+    };
+
+    if (product?.productID) {
+      fetchContractTemplates();
+    }
+  }, [product?.productID]);
 
   if (isLoading) {
     return <Spin size="large" />;
@@ -149,7 +178,7 @@ const DetailProduct = ({ product, loading, onClose }) => {
   const data = [
     { key: "1", field: "Mã Sản Phẩm", value: productID },
     { key: "2", field: "Số Serial", value: serialNumber },
-    { key: "3", field: "Mã Nhà Cung Cấp", value: supplierName },
+    { key: "3", field: "Mã Nhà Cung C Cấp", value: supplierName },
     { key: "4", field: "Tên Loại Hàng", value: categoryName },
     { key: "5", field: "Tên Sản Phẩm", value: productName },
     { key: "6", field: "Mô Tả", value: productDescription },
@@ -226,6 +255,29 @@ const DetailProduct = ({ product, loading, onClose }) => {
     },
   ];
 
+  const contractTemplateColumns = [
+    {
+      title: "Tên Mẫu",
+      dataIndex: "templateName",
+      key: "templateName",
+    },
+    {
+      title: "Điều Khoản Hợp Đồng",
+      dataIndex: "contractTerms",
+      key: "contractTerms",
+    },
+    {
+      title: "Chi Tiết Mẫu",
+      dataIndex: "templateDetails",
+      key: "templateDetails",
+    },
+    {
+      title: "Chính Sách Phạt",
+      dataIndex: "penaltyPolicy",
+      key: "penaltyPolicy",
+    },
+  ];
+
   return (
     <div className="product-detail-container">
       <Row justify="space-between" align="middle"></Row>
@@ -247,6 +299,13 @@ const DetailProduct = ({ product, loading, onClose }) => {
       <Table
         columns={specificationColumns}
         dataSource={listProductSpecification}
+        pagination={false}
+        bordered
+      />
+      <h2>Mẫu Hợp Đồng</h2>
+      <Table
+        columns={contractTemplateColumns}
+        dataSource={contractTemplates}
         pagination={false}
         bordered
       />

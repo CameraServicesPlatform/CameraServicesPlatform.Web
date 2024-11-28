@@ -20,7 +20,7 @@ import { useSelector } from "react-redux";
 import { getSupplierIdByAccountId } from "../../../api/accountApi";
 import { getAllCategories } from "../../../api/categoryApi";
 import { createProductBuy, createProductRent } from "../../../api/productApi";
-import { getAllVouchers } from "../../../api/voucherApi";
+import { getVouchersBySupplierId } from "../../../api/voucherApi";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -41,6 +41,8 @@ const CreateProduct = () => {
   const [vouchers, setVouchers] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [isVoucherModalVisible, setIsVoucherModalVisible] = useState(false);
+  const [canBeRentedByMember, setCanBeRentedByMember] = useState(false);
+  const [isContractModalVisible, setIsContractModalVisible] = useState(false);
 
   // Fetch Supplier ID and Categories
   useEffect(() => {
@@ -83,7 +85,7 @@ const CreateProduct = () => {
   const fetchVouchers = async () => {
     setLoading(true);
     try {
-      const response = await getAllVouchers(1, 100);
+      const response = await getVouchersBySupplierId(supplierId, 1, 100);
       if (response && response.result) {
         setVouchers(response.result);
       } else {
@@ -97,8 +99,10 @@ const CreateProduct = () => {
   };
 
   useEffect(() => {
-    fetchVouchers();
-  }, []);
+    if (supplierId) {
+      fetchVouchers();
+    }
+  }, [supplierId]);
 
   const handleFileChange = (info) => {
     if (info.file.status === "done" || info.file.status === "uploading") {
@@ -165,7 +169,7 @@ const CreateProduct = () => {
       product.PricePerDay = PricePerDay;
       product.PricePerWeek = PricePerWeek;
       product.PricePerMonth = PricePerMonth;
-      product.PriceRent = 0;  
+      product.PriceRent = 0;
     } else {
       product.PriceBuy = Price;
     }
@@ -183,6 +187,10 @@ const CreateProduct = () => {
         message.success("Product created successfully!");
         form.resetFields();
         setFile(null);
+
+        if (canBeRentedByMember) {
+          setIsContractModalVisible(true);
+        }
       } else {
         message.error("Failed to create product.");
       }
@@ -193,6 +201,7 @@ const CreateProduct = () => {
       setLoading(false);
     }
   };
+
   const handlePriceTypeChange = (value) => {
     setPriceType(value);
     if (value === "PricePerHour") {
@@ -237,6 +246,8 @@ const CreateProduct = () => {
     setSelectedVoucher(voucher);
     setIsVoucherModalVisible(false);
   };
+
+
 
   return (
     <Form
@@ -525,7 +536,7 @@ const CreateProduct = () => {
           Tạo sản phẩm
         </Button>
       </Form.Item>
-
+   
       <Modal
         title="Chọn Voucher"
         visible={isVoucherModalVisible}
@@ -558,6 +569,52 @@ const CreateProduct = () => {
             </Col>
           ))}
         </Row>
+      </Modal>
+      <Modal
+        title="Tạo Mẫu Hợp Đồng"
+        visible={isContractModalVisible}
+        onCancel={() => setIsContractModalVisible(false)}
+        footer={null}
+      >
+        <Form onFinish={handleCreateContractTemplate}>
+          <Form.Item
+            name="templateName"
+            label="Tên Mẫu"
+            rules={[{ required: true, message: "Vui lòng nhập tên mẫu!" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="contractTerms"
+            label="Điều Khoản Hợp Đồng"
+            rules={[
+              { required: true, message: "Vui lòng nhập điều khoản hợp đồng!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="templateDetails"
+            label="Chi Tiết Mẫu"
+            rules={[{ required: true, message: "Vui lòng nhập chi tiết mẫu!" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="penaltyPolicy"
+            label="Chính Sách Phạt"
+            rules={[
+              { required: true, message: "Vui lòng nhập chính sách phạt!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Tạo Mẫu
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </Form>
   );
