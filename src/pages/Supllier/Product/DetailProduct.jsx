@@ -221,8 +221,8 @@ const DetailProduct = ({ product, loading, onClose }) => {
     },
     {
       title: "Giá Trị",
-      dataIndex: "value",
-      key: "value",
+      dataIndex: "details",
+      key: "details",
     },
   ];
 

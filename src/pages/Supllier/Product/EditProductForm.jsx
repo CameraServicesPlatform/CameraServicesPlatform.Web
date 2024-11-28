@@ -1,4 +1,14 @@
-import { Button, Form, Input, Modal, Select, message } from "antd";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Space,
+  message,
+} from "antd";
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { getAllCategories } from "../../../api/categoryApi";
 import { updateProduct, updateProductRent } from "../../../api/productApi";
@@ -15,6 +25,12 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState(product?.status || 0);
+  const [specifications, setSpecifications] = useState(
+    product?.listProductSpecification.map((spec) => ({
+      feature: spec.specification,
+      description: spec.details,
+    })) || [{ feature: "", description: "" }]
+  );
 
   useEffect(() => {
     if (visible) {
@@ -55,9 +71,21 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
         pricePerDay: product.pricePerDay,
         pricePerWeek: product.pricePerWeek,
         pricePerMonth: product.pricePerMonth,
+        dateOfManufacture:
+          product.dateOfManufacture !== "0001-01-01T00:00:00"
+            ? dayjs(product.dateOfManufacture)
+            : null,
+        originalPrice: product.originalPrice,
+        depositProduct: product.depositProduct,
       });
       setSelectedCategory(product.categoryID);
       setStatus(product.status);
+      setSpecifications(
+        product.listProductSpecification.map((spec) => ({
+          feature: spec.specification,
+          description: spec.details,
+        })) || [{ feature: "", description: "" }]
+      );
     }
   }, [product, form]);
 
@@ -65,20 +93,54 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
     setFile(e.target.files[0]);
   };
 
+  const handleAddSpecification = () => {
+    setSpecifications([...specifications, { feature: "", description: "" }]);
+  };
+
+  const handleSpecificationChange = (value, index, field) => {
+    const newSpecifications = [...specifications];
+    newSpecifications[index][field] = value;
+    setSpecifications(newSpecifications);
+  };
+
+  const handleRemoveSpecification = (index) => {
+    const newSpecifications = specifications.filter((_, i) => i !== index);
+    setSpecifications(newSpecifications);
+  };
+
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
+      const validSpecifications = specifications.filter(
+        (spec) => spec.feature && spec.description
+      );
+
       const formData = new FormData();
       formData.append("ProductID", product.productID);
       formData.append("SerialNumber", values.serialNumber);
       formData.append("CategoryID", selectedCategory);
       formData.append("ProductName", values.productName);
       formData.append("ProductDescription", values.productDescription);
-      formData.append("PriceRent", (values.priceRent = 0));
       formData.append("PriceBuy", values.priceBuy);
       formData.append("Brand", values.brand);
       formData.append("Quality", values.quality);
       formData.append("Status", values.status);
+      formData.append(
+        "DateOfManufacture",
+        values.dateOfManufacture
+          ? values.dateOfManufacture.format("YYYY-MM-DD")
+          : null
+      );
+      formData.append("OriginalPrice", values.originalPrice);
+      formData.append(
+        "listProductSpecification",
+        JSON.stringify(validSpecifications)
+      );
+      formData.append("DepositProduct", values.depositProduct);
+      formData.append("PricePerHour", values.pricePerHour);
+      formData.append("PricePerDay", values.pricePerDay);
+      formData.append("PricePerWeek", values.pricePerWeek);
+      formData.append("PricePerMonth", values.pricePerMonth);
 
       if (file) {
         formData.append("File", file);
@@ -88,20 +150,7 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
       if (values.status === 0) {
         result = await updateProduct(formData);
       } else if (values.status === 1) {
-        result = await updateProductRent({
-          productID: product.productID,
-          serialNumber: values.serialNumber,
-          categoryID: selectedCategory,
-          productName: values.productName,
-          productDescription: values.productDescription,
-          pricePerHour: values.pricePerHour,
-          pricePerDay: values.pricePerDay,
-          pricePerWeek: values.pricePerWeek,
-          pricePerMonth: values.pricePerMonth,
-          brand: values.brand,
-          quality: values.quality,
-          status: values.status,
-        });
+        result = await updateProductRent(formData);
       }
 
       if (result) {
@@ -154,10 +203,9 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
               rules={[{ required: true, message: "Vui lòng nhập giá bán" }]}
             >
               <Input type="number" />
-            </Form.Item>{" "}
+            </Form.Item>
           </>
         )}
-
         <Form.Item
           name="brand"
           label="Thương Hiệu"
@@ -249,6 +297,55 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
               </Option>
             ))}
           </Select>
+        </Form.Item>
+        <Form.Item
+          name="dateOfManufacture"
+          label="Ngày Sản Xuất"
+          rules={[{ required: true, message: "Vui lòng chọn ngày sản xuất" }]}
+        >
+          <DatePicker />
+        </Form.Item>
+        <Form.Item
+          name="originalPrice"
+          label="Giá Gốc"
+          rules={[{ required: true, message: "Vui lòng nhập giá gốc" }]}
+        >
+          <Input type="number" />
+        </Form.Item>
+        <Form.Item label="Đặc điểm sản phẩm">
+          {specifications.map((specification, index) => (
+            <Space key={index} style={{ display: "flex", marginBottom: 8 }}>
+              <Input
+                value={specification.feature}
+                onChange={(e) =>
+                  handleSpecificationChange(e.target.value, index, "feature")
+                }
+                placeholder={`Đặc điểm ${index + 1}`}
+                style={{ width: "60%" }}
+              />
+              <Input
+                value={specification.description}
+                onChange={(e) =>
+                  handleSpecificationChange(
+                    e.target.value,
+                    index,
+                    "description"
+                  )
+                }
+                placeholder={`Mô tả ${index + 1}`}
+                style={{ width: "40%" }}
+              />
+              <Button
+                type="danger"
+                onClick={() => handleRemoveSpecification(index)}
+              >
+                Xóa
+              </Button>
+            </Space>
+          ))}
+          <Button type="dashed" onClick={handleAddSpecification}>
+            Thêm đặc điểm
+          </Button>
         </Form.Item>
         <Form.Item label="Tải Lên Hình Ảnh">
           <Input type="file" accept="image/*" onChange={handleFileChange} />

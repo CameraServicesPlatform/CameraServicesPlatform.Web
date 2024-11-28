@@ -108,7 +108,7 @@ const CreateProductBuy = () => {
       PriceBuy,
       Brand,
       Status,
-      File: file, // Kiểm tra xem file có cần thiết không
+      File: file,  
       listProductSpecification: validSpecifications,
     };
     console.log("Product Data:", productData);
@@ -119,9 +119,8 @@ const CreateProductBuy = () => {
         message.success("Sản phẩm đã được tạo thành công!");
         form.resetFields();
         setFile(null);
-        setFilePreview(null); // Reset filePreview
-        setSpecifications(["Cảm ứng"]); // Reset specifications
-      } else {
+        setFilePreview(null);  
+       } else {
         message.error("Tạo sản phẩm không thành công.");
       }
     } catch (error) {
