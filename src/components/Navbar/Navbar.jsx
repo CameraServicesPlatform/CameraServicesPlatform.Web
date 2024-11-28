@@ -1,8 +1,11 @@
 import "font-awesome/css/font-awesome.min.css";
+import decode from "jwt-decode";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { Link, NavLink } from "react-router-dom";
+import { message, toast } from "react-toastify";
+import { getSupplierIdByAccountId } from "../../api/accountApi";
+import { createComboOfSupplier, getAllCombos } from "../../api/comboApi";
 import logo from "../../images/image.png";
 import { logout } from "../../redux/features/authSlice";
 import { isEmptyObject } from "../../utils/util";
@@ -13,7 +16,10 @@ const NavBar = () => {
   const [expand, setExpand] = useState(false);
   const [isFixed, setIsFixed] = useState(false);
   const roleName = useSelector((state) => state.user?.role || "");
-  const navigate = useNavigate();
+  const role = decode(localStorage.getItem("accessToken")).role;
+  const [supplierId, setSupplierId] = useState(null);
+  const [combos, setCombos] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const scrollHandler = () => {
@@ -22,6 +28,60 @@ const NavBar = () => {
     window.addEventListener("scroll", scrollHandler);
     return () => window.removeEventListener("scroll", scrollHandler);
   }, []);
+
+  useEffect(() => {
+    const fetchSupplierId = async () => {
+      if (user.id) {
+        try {
+          const response = await getSupplierIdByAccountId(user.id);
+          if (response?.isSuccess) {
+            setSupplierId(response.result);
+          } else {
+            message.error("Failed to fetch supplier ID.");
+          }
+        } catch (error) {
+          message.error("Error fetching supplier ID.");
+        }
+      }
+    };
+
+    fetchSupplierId();
+  }, [user]);
+
+  useEffect(() => {
+    if (role === "Supplier" || role === "SUPPLIER") {
+      const fetchCombos = async () => {
+        setLoading(true);
+        try {
+          const response = await getAllCombos();
+          if (response?.isSuccess) {
+            setCombos(response.result);
+          } else {
+            message.error("Failed to fetch combos.");
+          }
+        } catch (error) {
+          message.error("Error fetching combos.");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchCombos();
+    }
+  }, [role]);
+
+  const handleCreateComboOfSupplier = async (comboData) => {
+    try {
+      const response = await createComboOfSupplier(comboData);
+      if (response?.isSuccess) {
+        message.success("Combo of supplier created successfully.");
+      } else {
+        message.error("Failed to create combo of supplier.");
+      }
+    } catch (error) {
+      message.error("Error creating combo of supplier.");
+    }
+  };
 
   const handleLogOut = () => {
     localStorage.removeItem("accessToken");
@@ -66,7 +126,7 @@ const NavBar = () => {
             </NavLink>
           )}
           {roleName === "SUPPLIER" && (
-            <NavLink to="/supllier">
+            <NavLink to="/supplier">
               <li>
                 <span>Trang quản trị</span>
               </li>

@@ -5,8 +5,7 @@ import { useParams } from "react-router-dom";
 import { getSupplierIdByAccountId } from "../../../api/accountApi";
 import { getCategoryById } from "../../../api/categoryApi";
 import {
-  deleteProduct,
-  getProductById,
+   getProductById,
   getProductBySupplierId,
 } from "../../../api/productApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
@@ -101,22 +100,7 @@ const ProductListBySupplier = () => {
     }
   }, [supplierId, pageIndex, pageSize]);
 
-  const handleDelete = async (productId) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this product?"
-    );
-    if (confirmed) {
-      try {
-        await deleteProduct(productId);
-        setProducts((prevProducts) =>
-          prevProducts.filter((product) => product.productID !== productId)
-        );
-        message.success("Product deleted successfully.");
-      } catch (error) {
-        message.error("Failed to delete product.");
-      }
-    }
-  };
+ 
 
   const handleEdit = (product) => {
     setSelectedProduct(product);

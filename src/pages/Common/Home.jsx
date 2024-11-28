@@ -22,13 +22,13 @@ const Home = () => {
       url: "https://koala.sh/api/image/v2-3cfnz-6x48e.jpg?width=1344&height=768&dream",
       title: "Chạm đến sắc màu",
       description: "Nắm trọn khoẳng khắc",
-      renderOverlay: () => null, // Add renderOverlay for consistency
+      renderOverlay: () => null,
     },
     {
       url: "https://th.bing.com/th/id/OIP.gm94XOQvsa0S89QhcaLtCwAAAA?w=474&h=287&rs=1&pid=ImgDetMain",
       title: "Nút chạm khắc ghi",
       description: "Chỉ cần chạm nhẹ, bạn nắm trọn khoảng khắc bạn muốn ",
-      renderOverlay: () => null, // Add renderOverlay for consistency
+      renderOverlay: () => null,
     },
   ];
   const logoSettings = {

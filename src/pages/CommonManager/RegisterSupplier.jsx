@@ -1,4 +1,10 @@
-import { PlusOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  DollarOutlined,
+  PlusOutlined,
+  InfoCircleOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import {
   Form as AntForm,
   Button,
@@ -10,6 +16,8 @@ import {
   Select,
   Spin,
   Upload,
+  Card,
+  Tooltip
 } from "antd";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -191,15 +199,25 @@ const RegisterSupplier = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-mint min-h-screen">
-      <div className="relative flex flex-col m-6 space-y-8 bg-white shadow-4xl rounded-2xl md:flex-row md:space-y-0 w-full max-w-2xl p-6">
-        <div className="w-full">
-          <h1 className="text-3xl font-bold text-center mb-8">
+    // Use a more responsive grid layout
+    <div className="flex items-center justify-center bg-gradient-to-r from-blue-500 to-indigo-600 min-h-screen p-4">
+      <div className="relative flex flex-col m-6 space-y-8 bg-white shadow-4xl rounded-2xl md:flex-row md:space-y-0 w-full max-w-5xl p-8">
+        {/* Registration Form with Enhanced Typography and Spacing */}
+        <div className="w-full md:w-1/2 pr-4">
+          <h1 className="text-4xl font-extrabold text-center mb-6">
             ĐĂNG KÍ NHÀ CUNG CẤP
           </h1>
           <AntForm layout="vertical" onFinish={onFinish}>
+            {/* Example of enhanced form item with Tooltip */}
             <AntForm.Item
-              label={<strong>Email</strong>}
+              label={
+                <span>
+                  <strong>Email</strong>
+                  <Tooltip title="Chúng tôi sẽ không chia sẻ email của bạn.">
+                    <InfoCircleOutlined style={{ marginLeft: 8 }} />
+                  </Tooltip>
+                </span>
+              }
               name="email"
               rules={[
                 { required: true, message: "Vui lòng nhập email của bạn!" },
@@ -424,15 +442,86 @@ const RegisterSupplier = () => {
                 type="primary"
                 htmlType="submit"
                 loading={loading}
-                style={{ width: "100%" }}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-500 hover:to-yellow-500 transition duration-300"
+                style={{ width: "100%", padding: "12px 0", fontSize: "16px" }}
               >
                 Đăng ký nhà cung cấp
               </Button>
             </AntForm.Item>
           </AntForm>
         </div>
-      </div>
 
+        {/* Enhanced Promotional Section with Illustrative Image */}
+        <Card className="promo-section w-full md:w-1/2 p-6 bg-gray-50 shadow-inner rounded-xl overflow-y-auto flex flex-col">
+          <img
+            src="https://t3.ftcdn.net/jpg/09/04/92/18/360_F_904921876_o7UHFCI9qNH3R9qwkG40kJXxKlC5UIVX.jpg"
+            alt="Promotional"
+            className="w-full h-48 object-cover rounded-md mb-4"
+          />
+          <h2 className="text-2xl font-bold mb-4 text-center flex items-center justify-center">
+            <DollarOutlined className="mr-2" /> Tăng thu nhập thụ động cùng
+            CameraServicePlatform
+          </h2>
+          <div className="space-y-6">
+            <div className="flex items-start">
+              <CheckCircleOutlined className="text-2xl text-green-500 mr-4 mt-1" />
+              <div>
+                <h3 className="text-xl font-semibold">Ưu điểm:</h3>
+                <ul className="list-disc list-inside ml-4 space-y-2">
+                  <li>
+                    Cho thuê thiết bị chụp ảnh, quay phim chuyên nghiệp dễ dàng
+                  </li>
+                  <li>Tận dụng thiết bị nhàn rỗi</li>
+                  <li>Camera vẫn an toàn tại nhà hoặc vị trí tiện lợi</li>
+                  <li>
+                    Thiết bị được bảo quản tại nơi bạn mong muốn và chỉ được sử
+                    dụng khi có đơn thuê
+                  </li>
+                  <li>Thu nhập hấp dẫn lên đến hàng triệu đồng mỗi tháng</li>
+                  <li>Kiếm thêm thu nhập mà không cần nỗ lực nhiều</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex items-start">
+              <UserOutlined className="text-2xl text-purple-500 mr-4 mt-1" />
+              <div>
+                <h3 className="text-xl font-semibold">Dễ sử dụng:</h3>
+                <ol className="list-decimal list-inside ml-4 space-y-2">
+                  <li>Đăng ký tài khoản nhanh chóng</li>
+                  <li>Tạo hồ sơ và liệt kê thiết bị muốn cho thuê</li>
+                  <li>
+                    Xử lý hồ sơ khách thuê và đảm bảo các điều khoản thuê rõ
+                    ràng
+                  </li>
+                  <li>
+                    Quản lý toàn bộ quy trình thuê mà không cần gặp mặt khách
+                    thuê
+                  </li>
+                </ol>
+              </div>
+            </div>
+            <div className="flex items-start">
+              <DollarOutlined className="text-2xl text-yellow-500 mr-4 mt-1" />
+              <div>
+                <h3 className="text-xl font-semibold">Quyền lợi:</h3>
+                <ul className="list-disc list-inside ml-4 space-y-2">
+                  <li>Không tốn công đánh giá khách thuê</li>
+                  <li>
+                    Hồ sơ được xác thực tự động đảm bảo an toàn và chính xác
+                  </li>
+                  <li>
+                    Thiết bị được giao và trả qua hệ thống quản lý thông minh
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <p className="mt-4 text-center font-semibold">
+              Bắt đầu tăng thu nhập từ thiết bị của bạn ngay hôm nay!
+            </p>
+          </div>
+        </Card>
+      </div>
       <Modal
         visible={previewVisible}
         title={previewTitle}

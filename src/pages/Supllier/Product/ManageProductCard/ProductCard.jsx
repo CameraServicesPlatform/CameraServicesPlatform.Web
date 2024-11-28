@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined, EyeOutlined } from "@ant-design/icons";
+import { EditOutlined, EyeOutlined } from "@ant-design/icons";
 import { Button, Card, Form, Input, message, Modal, Typography } from "antd";
 import React, { useState } from "react";
 import { createContractTemplate } from "../../../../api/contractTemplateApi";
@@ -122,12 +122,6 @@ const ProductCard = ({
               icon={<EditOutlined />}
               onClick={() => handleEdit(product)}
               className="mr-2 bg-green-500 text-white border-green-500"
-            />
-            <Button
-              type="danger"
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(product.productID)}
-              className="bg-red-500 text-white border-red-500"
             />
           </div>
         }

@@ -59,3 +59,67 @@ export const updateCombo = async (comboData) => {
     };
   }
 };
+
+// Function to get all combos of supplier with pagination
+export const getAllCombosOfSupplier = async (pageIndex = 1, pageSize = 10) => {
+  try {
+    const response = await api.get(`/comboOfSupplier/get-all-combo`, {
+      params: { pageIndex, pageSize },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch combos of supplier:`, error);
+    return {
+      isSuccess: false,
+      messages: [`Failed to fetch combos of supplier`],
+    };
+  }
+};
+
+// Function to get a combo of supplier by combo ID
+export const getComboOfSupplierById = async (
+  id,
+  pageIndex = 1,
+  pageSize = 10
+) => {
+  try {
+    const response = await api.get(`/comboOfSupplier/get-combo-by-combo-id`, {
+      params: { id, pageIndex, pageSize },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to fetch combo of supplier by ID:`, error);
+    return {
+      isSuccess: false,
+      messages: [`Failed to fetch combo of supplier by ID`],
+    };
+  }
+};
+
+// Function to create a new combo of supplier
+export const createComboOfSupplier = async (comboData) => {
+  try {
+    const response = await api.post(`/comboOfSupplier/create-combo`, comboData);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to create combo of supplier:`, error);
+    return {
+      isSuccess: false,
+      messages: [`Failed to create combo of supplier`],
+    };
+  }
+};
+
+// Function to update an existing combo of supplier
+export const updateComboOfSupplier = async (comboData) => {
+  try {
+    const response = await api.put(`/comboOfSupplier/update-combo`, comboData);
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to update combo of supplier:`, error);
+    return {
+      isSuccess: false,
+      messages: [`Failed to update combo of supplier`],
+    };
+  }
+};
