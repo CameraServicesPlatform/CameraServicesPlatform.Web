@@ -1,4 +1,4 @@
-import { Input, message, Modal, Pagination, Typography } from "antd";
+import { Button, Input, message, Modal, Pagination, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -9,9 +9,11 @@ import {
   getProductById,
   getProductBySupplierId,
 } from "../../../api/productApi";
+import CreateProduct from "./CreateProduct"; // Import CreateProduct
 import DetailProduct from "./DetailProduct";
 import EditProductForm from "./EditProductForm";
 import ProductCard from "./ManageProductCard/ProductCard";
+
 const { Title } = Typography;
 
 const ProductListBySupplier = () => {
@@ -29,6 +31,7 @@ const ProductListBySupplier = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState({});
   const { id } = useParams();
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false); // State for create modal
 
   useEffect(() => {
     const fetchSupplierId = async () => {
@@ -161,9 +164,26 @@ const ProductListBySupplier = () => {
     setIsModalVisible(false);
     setSelectedProduct(null);
   };
+  const showCreateModal = () => {
+    setIsCreateModalVisible(true);
+  };
 
+  const handleCreateModalCancel = () => {
+    setIsCreateModalVisible(false);
+  };
   return (
     <div>
+      <Button type="primary" onClick={showCreateModal}>
+        Tạo sản phẩm mới
+      </Button>
+      <Modal
+        title="Tạo sản phẩm mới"
+        visible={isCreateModalVisible}
+        onCancel={handleCreateModalCancel}
+        footer={null}
+      >
+        <CreateProduct />
+      </Modal>
       <Title level={2}>DANH SÁCH SẢN PHẨM</Title>
 
       <Input

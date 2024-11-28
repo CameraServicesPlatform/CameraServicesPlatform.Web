@@ -1,7 +1,5 @@
 import { Tabs } from "antd";
 import React, { useState } from "react";
-import CreateProductBuy from "./CreateProductBuy";
-import CreateProductForRent from "./CreateProductForRent";
 import ProductListBySupplier from "./ProductListBySupplier";
 const ManageProductOfSupplier = () => {
   const [refreshList, setRefreshList] = useState(false);
@@ -15,24 +13,6 @@ const ManageProductOfSupplier = () => {
         </span>
       ),
       children: <ProductListBySupplier />,
-    },
-    {
-      key: "2",
-      label: (
-        <span className="font-medium text-lg text-gray-700">
-          Tạo sản phẩm để bán
-        </span>
-      ),
-      children: <CreateProductBuy refresh={refreshList} />,
-    },
-    {
-      key: "3",
-      label: (
-        <span className="font-medium text-lg text-gray-700">
-          Tạo sản phẩm để cho thuê
-        </span>
-      ),
-      children: <CreateProductForRent />,
     },
   ];
 

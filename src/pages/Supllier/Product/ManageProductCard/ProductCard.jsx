@@ -167,7 +167,6 @@ const ProductCard = ({
         <span className="mr-2 text-blue-500">
           <strong>Phí giữ chỗ:</strong> {formatCurrency(product.depositProduct)}
         </span>
-        S{" "}
       </p>
       <p>
         <strong>Giá (Gốc):</strong> {product.originalPrice}
