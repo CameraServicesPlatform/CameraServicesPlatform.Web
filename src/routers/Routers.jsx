@@ -41,6 +41,7 @@ import DetailProduct from "../pages/Supllier/Product/DetailProduct";
 import ManageProductOfSuplier from "../pages/Supllier/Product/ManageProductOfSuplier";
 import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSuplier";
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
+import PersonalPage from "../pages/Supllier/PersonalPage";
 
 function Routers() {
   const routing = useRoutes([
@@ -121,6 +122,10 @@ function Routers() {
         {
           path: "dashboard",
           element: <DashboardSupplier />,
+        },
+        {
+          path: "personal-supplier",
+          element: <PersonalPage />,
         },
         {
           path: "manage-voucher-of-supplier",

@@ -30,6 +30,8 @@ const SideBar = () => {
 
     SUPPLIER: [
       { name: "THỐNG KÊ", link: "dashboard", icon: <FaHome /> },
+      { name: "Đăng kí Combo", link: "personal-supplier", icon: <FaHome /> },
+
       { name: "VOUCHER", link: "manage-voucher-of-supplier", icon: <FaGift /> },
       {
         name: "QUẢN LÍ SẢN PHẨM",

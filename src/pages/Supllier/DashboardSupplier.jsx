@@ -12,7 +12,7 @@ import {
   getSupplierRatingStatistics,
 } from "../../api/dashboardApi";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, PieChart, Pie } from 'recharts'; // Add chart components
-
+import InformationSupplier from "../../pages/Common/InformationSupplier"
 const { RangePicker } = DatePicker;
 
 const DashboardSupplier = () => {
@@ -180,53 +180,64 @@ const DashboardSupplier = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Bảng Điều Khiển Nhà Cung Cấp</h1> {/* Translated 'Dashboard Supplier' */}
+      <h1 className="text-2xl font-bold mb-4">Bảng Điều Khiển Nhà Cung Cấp</h1>{" "}
+      {/* Translated 'Dashboard Supplier' */}
       <Card className="mb-4">
         <RangePicker onChange={handleDateChange} />
       </Card>
-      {loading ? (
+       {loading ? (
         <Spin className="flex justify-center items-center h-64" />
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          <Card title="Các Danh Mục Bán Chạy Nhất"> {/* Translated 'Best Selling Categories' */}
+          <Card title="Các Danh Mục Bán Chạy Nhất">
+            {" "}
+            {/* Translated 'Best Selling Categories' */}
             <Table
               dataSource={data.bestSellingCategories}
               columns={columns}
               pagination={false}
             />
           </Card>
-          <Card title="Thống Kê Sản Phẩm"> {/* Translated 'Product Statistics' */}
+          <Card title="Thống Kê Sản Phẩm">
+            {" "}
+            {/* Translated 'Product Statistics' */}
             <Table
               dataSource={data.productStatistics}
               columns={columns}
               pagination={false}
             />
           </Card>
-          <Card title="Thống Kê Chi Phí Đơn Hàng"> {/* Translated 'Order Cost Statistics' */}
+          <Card title="Thống Kê Chi Phí Đơn Hàng">
             <Table
               dataSource={data.orderCostStatistics}
               columns={orderCostColumns}
               pagination={false}
             />
           </Card>
-          <Card title="Thống Kê Đơn Hàng"> {/* Translated 'Order Statistics' */}
+          <Card title="Thống Kê Đơn Hàng">
             <Table
               dataSource={[data.orderStatistics]}
               columns={orderStatisticsColumns}
               pagination={false}
             />
           </Card>
-          <Card title="Tổng Doanh Thu"> {/* Translated 'Total Revenue' */}
+          <Card title="Tổng Doanh Thu">
+            {" "}
+            {/* Translated 'Total Revenue' */}
             <p className="text-lg">{data.totalRevenue}</p>
           </Card>
-          <Card title="Doanh Thu Hàng Tháng"> {/* Translated 'Monthly Revenue' */}
+          <Card title="Doanh Thu Hàng Tháng">
+            {" "}
+            {/* Translated 'Monthly Revenue' */}
             <Table
               dataSource={data.monthlyRevenue}
               columns={orderCostColumns}
               pagination={false}
             />
           </Card>
-          <Card title="Thống Kê Đánh Giá"> {/* Translated 'Rating Statistics' */}
+          <Card title="Thống Kê Đánh Giá">
+            {" "}
+            {/* Translated 'Rating Statistics' */}
             <Table
               dataSource={data.ratingStatistics}
               columns={columns}
@@ -234,7 +245,9 @@ const DashboardSupplier = () => {
             />
           </Card>
           {/* Add a new card with a line chart for Monthly Revenue */}
-          <Card title="Biểu Đồ Doanh Thu Hàng Tháng"> {/* Translated 'Monthly Revenue Chart' */}
+          <Card title="Biểu Đồ Doanh Thu Hàng Tháng">
+            {" "}
+            {/* Translated 'Monthly Revenue Chart' */}
             <LineChart width={500} height={300} data={data.monthlyRevenue}>
               <XAxis dataKey="month" />
               <YAxis />
@@ -244,7 +257,9 @@ const DashboardSupplier = () => {
             </LineChart>
           </Card>
           {/* Add a new card with a pie chart for Rating Statistics */}
-          <Card title="Biểu Đồ Thống Kê Đánh Giá"> {/* Translated 'Rating Statistics Chart' */}
+          <Card title="Biểu Đồ Thống Kê Đánh Giá">
+            {" "}
+            {/* Translated 'Rating Statistics Chart' */}
             <PieChart width={400} height={400}>
               <Pie
                 data={data.ratingStatistics}

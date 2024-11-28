@@ -22,13 +22,13 @@ const Home = () => {
       url: "https://koala.sh/api/image/v2-3cfnz-6x48e.jpg?width=1344&height=768&dream",
       title: "Chạm đến sắc màu",
       description: "Nắm trọn khoẳng khắc",
-      renderOverlay: () => null,
+      renderOverlay: () => null, // Add renderOverlay for consistency
     },
     {
       url: "https://th.bing.com/th/id/OIP.gm94XOQvsa0S89QhcaLtCwAAAA?w=474&h=287&rs=1&pid=ImgDetMain",
       title: "Nút chạm khắc ghi",
       description: "Chỉ cần chạm nhẹ, bạn nắm trọn khoảng khắc bạn muốn ",
-      renderOverlay: () => null,
+      renderOverlay: () => null, // Add renderOverlay for consistency
     },
   ];
   const logoSettings = {
@@ -82,6 +82,7 @@ const Home = () => {
 
       <Slider {...logoSettings}>
         <div className="px-2">
+          {" "}
           <img
             src="https://upload.wikimedia.org/wikipedia/sq/thumb/5/54/Canon_logo.jpg/250px-Canon_logo.jpg"
             alt="Canon"
