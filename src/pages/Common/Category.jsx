@@ -167,7 +167,7 @@ const Category = () => {
                         />
                       </div>
                       <div style={{ marginBottom: "8px" }}>
-                        <Text strong>Giá:</Text>{" "}
+                        <Text strong>Giá:</Text>
                         {product.priceBuy
                           ? new Intl.NumberFormat("vi-VN", {
                               style: "currency",
@@ -189,7 +189,7 @@ const Category = () => {
                         <Rate disabled value={product.rating} />
                       </div>
                       <div style={{ marginBottom: "8px" }}>
-                        <Text strong>Ngày tạo:</Text>{" "}
+                        <Text strong>Ngày tạo:</Text>
                         {new Date(product.createdAt).toLocaleDateString()}
                       </div>
 

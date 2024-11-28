@@ -333,19 +333,19 @@ const PersonalInformation = () => {
       <td className="py-3 px-4 border-b">{order.orderID}</td>
       <td className="py-3 px-4 border-b">
         <div>
-          <strong>Tên nhà cung cấp:</strong>{" "}
+          <strong>Tên nhà cung cấp:</strong>
           {supplierMap[order.supplierID]?.supplierName || " "}
         </div>
         <div>
-          <strong>Địa chỉ:</strong>{" "}
+          <strong>Địa chỉ:</strong>
           {supplierMap[order.supplierID]?.supplierAddress || " "}
         </div>
         <div>
-          <strong>Mô tả:</strong>{" "}
+          <strong>Mô tả:</strong>
           {supplierMap[order.supplierID]?.supplierDescription || " "}
         </div>
         <div>
-          <strong>Số điện thoại liên hệ:</strong>{" "}
+          <strong>Số điện thoại liên hệ:</strong>
           {supplierMap[order.supplierID]?.contactNumber || ""}
         </div>
       </td>
@@ -478,7 +478,7 @@ const PersonalInformation = () => {
             <div className="flex items-center">
               <i className="fa-solid fa-venus-mars mr-2 text-gray-600"></i>
               <span>
-                <strong>Giới tính:</strong>{" "}
+                <strong>Giới tính:</strong>
                 {userMap.gender === 0 ? "Nam" : "Nữ"}
               </span>
             </div>
@@ -601,22 +601,22 @@ const PersonalInformation = () => {
                           </td>
                           <td className="py-3 px-4 border-b">
                             <div>
-                              <strong>Tên nhà cung cấp:</strong>{" "}
+                              <strong>Tên nhà cung cấp:</strong>
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.supplierName || " "}
                             </div>
                             <div>
-                              <strong>Địa chỉ:</strong>{" "}
+                              <strong>Địa chỉ:</strong>
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.supplierAddress || " "}
                             </div>
                             <div>
-                              <strong>Mô tả:</strong>{" "}
+                              <strong>Mô tả:</strong>
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.supplierDescription || " "}
                             </div>
                             <div>
-                              <strong>Số điện thoại liên hệ:</strong>{" "}
+                              <strong>Số điện thoại liên hệ:</strong>
                               {supplierMap[orderdetails.product.supplierID]
                                 ?.contactNumber || ""}
                             </div>

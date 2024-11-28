@@ -225,7 +225,7 @@ const ProductPageBuy = () => {
                   {product.priceBuy != null && (
                     <p className="font-bold text-left text-green-500">
                       <DollarOutlined className="inline mr-1" />
-                      Giá mua:{" "}
+                      Giá mua:
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
                         currency: "VND",
@@ -242,7 +242,7 @@ const ProductPageBuy = () => {
                   </p>
                   <p className="font-semibold text-left">
                     <InfoCircleOutlined className="inline mr-1" />
-                    Trạng thái:{" "}
+                    Trạng thái:
                     <span className={getStatusColor(product.status)}>
                       {getProductStatusEnum(product.status)}
                     </span>
@@ -269,7 +269,7 @@ const ProductPageBuy = () => {
                   </p>
                   <p className="font-semibold text-left">
                     <EditOutlined className="inline mr-1" />
-                    Ngày cập nhật:{" "}
+                    Ngày cập nhật:
                     {new Date(product.updatedAt).toLocaleString()}
                   </p>
                   <Button

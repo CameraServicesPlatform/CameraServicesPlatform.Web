@@ -33,7 +33,6 @@ const SendActivationCode = () => {
       </Title>
       <Form layout="vertical">
         <Form.Item label="Email của Nhà Cung Cấp">
-          {" "}
           <Input
             type="email"
             placeholder="Nhập email của nhà cung cấp"

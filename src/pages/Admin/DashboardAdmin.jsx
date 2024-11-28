@@ -103,10 +103,8 @@ const DashboardAdmin = () => {
 
       {/* Dashboard Sections */}
       <Row gutter={16}>
-        {" "}
         {/* Use Row with gutter for spacing */}
         <Col span={12}>
-          {" "}
           {/* Left column - Adjust span as necessary */}
           <BestSellingCategories
             startDate={dateRange[0]?.format("DD-MM-YYYY")}
@@ -120,7 +118,6 @@ const DashboardAdmin = () => {
           <SupplierProductStatistics supplierId={supplierID} />
         </Col>
         <Col span={12}>
-          {" "}
           {/* Right column - Adjust span as necessary */}
           <MonthlyOrderCostStatistics
             supplierId={supplierID}

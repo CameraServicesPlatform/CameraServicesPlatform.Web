@@ -39,7 +39,7 @@ const ManageProductOfSupplier = () => {
   return (
     <div className="p-8 bg-gradient-to-br from-blue-50 to-white rounded-lg shadow-lg max-w-1xl mx-auto">
       <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
-        TRANG QUẢN LÍ SẢN PHẨM{" "}
+        TRANG QUẢN LÍ SẢN PHẨM
       </h1>
       <Tabs
         defaultActiveKey="1"

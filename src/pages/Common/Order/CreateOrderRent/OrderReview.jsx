@@ -74,28 +74,28 @@ const OrderReview = ({
                         }
                       >
                         <div style={{ color: "#1890ff" }}>
-                          <strong>Ngày:</strong>{" "}
+                          <strong>Ngày:</strong>
                           {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
                             currency: "VND",
                           }).format(product.pricePerDay)}
                         </div>
                         <div style={{ color: "#52c41a" }}>
-                          <strong>Giờ: </strong>{" "}
+                          <strong>Giờ: </strong>
                           {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
                             currency: "VND",
                           }).format(product.pricePerHour)}
                         </div>
                         <div style={{ color: "#faad14" }}>
-                          <strong>Tuần:</strong>{" "}
+                          <strong>Tuần:</strong>
                           {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
                             currency: "VND",
                           }).format(product.pricePerWeek)}
                         </div>
                         <div style={{ color: "#f5222d" }}>
-                          <strong>Tháng:</strong>{" "}
+                          <strong>Tháng:</strong>
                           {new Intl.NumberFormat("vi-VN", {
                             style: "currency",
                             currency: "VND",
@@ -164,15 +164,15 @@ const OrderReview = ({
                               }
                             >
                               <p>
-                                <strong>Điều khoản hợp đồng:</strong>{" "}
+                                <strong>Điều khoản hợp đồng:</strong>
                                 {item.contractTerms}
                               </p>
                               <p>
-                                <strong>Chính sách phạt:</strong>{" "}
+                                <strong>Chính sách phạt:</strong>
                                 {item.penaltyPolicy}
                               </p>
                               <p>
-                                <strong>Chi tiết mẫu:</strong>{" "}
+                                <strong>Chi tiết mẫu:</strong>
                                 {item.templateDetails}
                               </p>
                             </Descriptions.Item>

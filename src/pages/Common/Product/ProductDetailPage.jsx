@@ -178,7 +178,7 @@ const ProductDetailPage = () => {
               <div className="text-center">
                 {product.priceRent != null && (
                   <p className="font-bold">
-                    Giá thuê:{" "}
+                    Giá thuê:
                     <span className="text-green-500">
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
@@ -190,7 +190,7 @@ const ProductDetailPage = () => {
                 )}
                 {product.priceBuy != null && (
                   <p className="font-bold">
-                    Giá mua:{" "}
+                    Giá mua:
                     <span className="text-green-500">
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
@@ -201,7 +201,7 @@ const ProductDetailPage = () => {
                 )}
                 {product.depositProduct != null && (
                   <p className="font-bold">
-                    Tiền đặt cọc:{" "}
+                    Tiền đặt cọc:
                     <span className="text-red-500">
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
@@ -212,7 +212,7 @@ const ProductDetailPage = () => {
                 )}
                 {product.pricePerDay != null && (
                   <p className="font-bold">
-                    Giá thuê theo ngày:{" "}
+                    Giá thuê theo ngày:
                     <span className="text-green-500">
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
@@ -224,7 +224,7 @@ const ProductDetailPage = () => {
                 )}
                 {product.pricePerHour != null && (
                   <p className="font-bold">
-                    Giá thuê theo giờ:{" "}
+                    Giá thuê theo giờ:
                     <span className="text-green-500">
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
@@ -236,7 +236,7 @@ const ProductDetailPage = () => {
                 )}
                 {product.pricePerMonth != null && (
                   <p className="font-bold">
-                    Giá thuê theo tháng:{" "}
+                    Giá thuê theo tháng:
                     <span className="text-green-500">
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
@@ -248,7 +248,7 @@ const ProductDetailPage = () => {
                 )}
                 {product.pricePerWeek != null && (
                   <p className="font-bold">
-                    Giá thuê theo tuần:{" "}
+                    Giá thuê theo tuần:
                     <span className="text-green-500">
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
@@ -271,7 +271,7 @@ const ProductDetailPage = () => {
                   <strong>Danh mục:</strong> {categoryName}
                 </p>
                 <p className="font-semibold text-left">
-                  <strong>Tình trạng:</strong>{" "}
+                  <strong>Tình trạng:</strong>
                   <span
                     className={
                       product.status === 0
@@ -295,11 +295,11 @@ const ProductDetailPage = () => {
                   <strong>Serial Number:</strong> {product.serialNumber}
                 </p>
                 <p>
-                  <strong>Ngày tạo:</strong>{" "}
+                  <strong>Ngày tạo:</strong>
                   {new Date(product.createdAt).toLocaleString()}
                 </p>
                 <p>
-                  <strong>Ngày cập nhật:</strong>{" "}
+                  <strong>Ngày cập nhật:</strong>
                   {new Date(product.updatedAt).toLocaleString()}
                 </p>
                 <div className="mt-4">
@@ -323,7 +323,7 @@ const ProductDetailPage = () => {
                           </p>
                         </div>
                         <p className="text-gray-500 text-sm">
-                          <strong>Date:</strong>{" "}
+                          <strong>Date:</strong>
                           {new Date(rating.createdAt).toLocaleString()}
                         </p>
                       </div>

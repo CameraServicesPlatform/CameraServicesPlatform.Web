@@ -82,7 +82,6 @@ const Home = () => {
 
       <Slider {...logoSettings}>
         <div className="px-2">
-          {" "}
           <img
             src="https://upload.wikimedia.org/wikipedia/sq/thumb/5/54/Canon_logo.jpg/250px-Canon_logo.jpg"
             alt="Canon"

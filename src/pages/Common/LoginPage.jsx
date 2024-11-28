@@ -549,7 +549,6 @@ const LoginPage = () => {
                           onClick={() => setIsSignUp(false)}
                           className="font-bold text-black hover:text-baseGreen"
                         >
-                          {" "}
                           Đăng nhập ngay
                         </a>
                       </div>

@@ -84,7 +84,7 @@ const OrderDetail = () => {
           <Card key={order.orderID} style={{ marginBottom: 20 }}>
             <Title level={4}>Order ID: {order.orderID}</Title>
             <p>
-              <strong>Order Date:</strong>{" "}
+              <strong>Order Date:</strong>
               {new Date(order.orderDate).toLocaleString()}
             </p>
             <p>
@@ -94,7 +94,7 @@ const OrderDetail = () => {
               <strong>Shipping Address:</strong> {order.shippingAddress}
             </p>
             <p>
-              <strong>Order Status:</strong>{" "}
+              <strong>Order Status:</strong>
               {order.orderStatus === 0 ? "Pending" : "Completed"}
             </p>
             <Table

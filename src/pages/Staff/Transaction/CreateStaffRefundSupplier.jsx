@@ -179,7 +179,7 @@ const CreateStaffRefundSupplier = () => {
               <p>Chủ tài khoản: {response.result.accountHolder}</p>
               <p>Mã đơn hàng: {response.result.orderId}</p>
               <p>
-                Tổng số tiền:{" "}
+                Tổng số tiền:
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",

@@ -159,18 +159,18 @@ const PersonalInformation = () => {
   //                     <strong>Mã đơn hàng:</strong> {data.order?.id}
   //                   </p>
   //                   <p>
-  //                     <strong>Số điện thoại:</strong>{" "}
+  //                     <strong>Số điện thoại:</strong>
   //                     {data.order?.account?.phoneNumber}
   //                   </p>
   //                   <p>
-  //                     <strong>Trạng thái:</strong>{" "}
+  //                     <strong>Trạng thái:</strong>
   //                     {orderLabels[data.order?.status]}
   //                   </p>
   //                   <p>
   //                     <strong>Tổng tiền:</strong> {formatPrice(data.order?.total)}
   //                   </p>
   //                   <p>
-  //                     <strong>Thời gian đặt hàng:</strong>{" "}
+  //                     <strong>Thời gian đặt hàng:</strong>
   //                     {formatDateTime(data.order?.purchaseDate)}
   //                   </p>
   //                 </div>

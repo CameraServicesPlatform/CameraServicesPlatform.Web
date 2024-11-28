@@ -215,7 +215,7 @@ const ProductPageRent = () => {
                     {product.depositProduct != null && (
                       <p className="font-bold text-left text-red-500">
                         <DollarOutlined className="inline mr-1" />
-                        Giá Cọc:{" "}
+                        Giá Cọc:
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
@@ -225,7 +225,7 @@ const ProductPageRent = () => {
                     {product.pricePerHour != null && (
                       <p className="font-bold text-left text-green-500">
                         <DollarOutlined className="inline mr-1" />
-                        Giá thuê:{" "}
+                        Giá thuê:
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
@@ -236,7 +236,7 @@ const ProductPageRent = () => {
                     {product.pricePerDay != null && (
                       <p className="font-bold text-left text-green-500">
                         <DollarOutlined className="inline mr-1" />
-                        Giá thuê:{" "}
+                        Giá thuê:
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
@@ -247,7 +247,7 @@ const ProductPageRent = () => {
                     {product.pricePerWeek != null && (
                       <p className="font-bold text-left text-green-500">
                         <DollarOutlined className="inline mr-1" />
-                        Giá thuê:{" "}
+                        Giá thuê:
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
@@ -258,7 +258,7 @@ const ProductPageRent = () => {
                     {product.pricePerMonth != null && (
                       <p className="font-bold text-left text-green-500">
                         <DollarOutlined className="inline mr-1" />
-                        Giá thuê:{" "}
+                        Giá thuê:
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
@@ -269,7 +269,7 @@ const ProductPageRent = () => {
                     {product.priceBuy != null && (
                       <p className="font-bold text-left text-green-500">
                         <DollarOutlined className="inline mr-1" />
-                        Giá mua:{" "}
+                        Giá mua:
                         {new Intl.NumberFormat("vi-VN", {
                           style: "currency",
                           currency: "VND",
@@ -286,7 +286,7 @@ const ProductPageRent = () => {
                     </p>
                     <p className="font-semibold text-left">
                       <InfoCircleOutlined className="inline mr-1" />
-                      Trạng thái:{" "}
+                      Trạng thái:
                       <span className={getStatusColor(product.status)}>
                         {getProductStatusEnum(product.status)}
                       </span>
@@ -313,7 +313,7 @@ const ProductPageRent = () => {
                     </p>
                     <p className="font-semibold text-left">
                       <EditOutlined className="inline mr-1" />
-                      Ngày cập nhật:{" "}
+                      Ngày cập nhật:
                       {new Date(product.updatedAt).toLocaleString()}
                     </p>
                     <Button

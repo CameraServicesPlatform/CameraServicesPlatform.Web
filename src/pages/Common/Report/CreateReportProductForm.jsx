@@ -64,19 +64,19 @@ const CreateReportProductForm = () => {
       <td className="py-3 px-4 border-b">{order.orderID}</td>
       <td className="py-3 px-4 border-b">
         <div>
-          <strong>Tên nhà cung cấp:</strong>{" "}
+          <strong>Tên nhà cung cấp:</strong>
           {supplierMap[order.supplierID]?.supplierName || " "}
         </div>
         <div>
-          <strong>Địa chỉ:</strong>{" "}
+          <strong>Địa chỉ:</strong>
           {supplierMap[order.supplierID]?.supplierAddress || " "}
         </div>
         <div>
-          <strong>Mô tả:</strong>{" "}
+          <strong>Mô tả:</strong>
           {supplierMap[order.supplierID]?.supplierDescription || " "}
         </div>
         <div>
-          <strong>Số điện thoại liên hệ:</strong>{" "}
+          <strong>Số điện thoại liên hệ:</strong>
           {supplierMap[order.supplierID]?.contactNumber || ""}
         </div>
       </td>

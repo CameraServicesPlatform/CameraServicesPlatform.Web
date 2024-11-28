@@ -84,11 +84,11 @@ const VoucherSelectionBuy = ({
                     selectedVoucherDetails && (
                       <>
                         <p>
-                          <strong>Mã Voucher:</strong>{" "}
+                          <strong>Mã Voucher:</strong>
                           {selectedVoucherDetails.vourcherCode}
                         </p>
                         <p>
-                          <strong>Mô tả:</strong>{" "}
+                          <strong>Mô tả:</strong>
                           {selectedVoucherDetails.description}
                         </p>
                       </>

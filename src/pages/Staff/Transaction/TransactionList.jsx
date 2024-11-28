@@ -165,30 +165,30 @@ const TransactionList = () => {
               <strong>Mã đơn hàng:</strong> {selectedTransaction.orderID}
             </p>
             <p>
-              <strong>Ngày giao dịch:</strong>{" "}
+              <strong>Ngày giao dịch:</strong>
               {selectedTransaction.transactionDate}
             </p>
             <p>
               <strong>Số tiền:</strong> {selectedTransaction.amount}
             </p>
             <p>
-              <strong>Loại giao dịch:</strong>{" "}
+              <strong>Loại giao dịch:</strong>
               {TransactionType[selectedTransaction.transactionType]}
             </p>
             <p>
-              <strong>Trạng thái thanh toán:</strong>{" "}
+              <strong>Trạng thái thanh toán:</strong>
               {PaymentStatus[selectedTransaction.paymentStatus]}
             </p>
             <p>
-              <strong>Phương thức thanh toán:</strong>{" "}
+              <strong>Phương thức thanh toán:</strong>
               {PaymentMethod[selectedTransaction.paymentMethod]}
             </p>
             <p>
-              <strong>Mã giao dịch VNPAY:</strong>{" "}
+              <strong>Mã giao dịch VNPAY:</strong>
               {selectedTransaction.vnpayTransactionID}
             </p>
             <p>
-              <strong>Trạng thái giao dịch VNPAY:</strong>{" "}
+              <strong>Trạng thái giao dịch VNPAY:</strong>
               {
                 VNPAYTransactionStatus[
                   selectedTransaction.vnpayTransactionStatus
@@ -196,7 +196,7 @@ const TransactionList = () => {
               }
             </p>
             <p>
-              <strong>Thời gian giao dịch VNPAY:</strong>{" "}
+              <strong>Thời gian giao dịch VNPAY:</strong>
               {selectedTransaction.vnpayTransactionTime}
             </p>
           </div>

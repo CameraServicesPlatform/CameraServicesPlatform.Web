@@ -233,7 +233,7 @@ const ProductCardViewOfSupplier = () => {
                               </Paragraph>
                               <Text className="flex items-center truncate">
                                 <DollarOutlined className="mr-2" />
-                                Giá Bán:{" "}
+                                Giá Bán:
                                 {product.priceBuy && product.priceBuy !== 0
                                   ? new Intl.NumberFormat("vi-VN", {
                                       style: "currency",
@@ -243,7 +243,7 @@ const ProductCardViewOfSupplier = () => {
                               </Text>
                               <Text className="flex items-center truncate">
                                 <ClockCircleOutlined className="mr-2" />
-                                Giá Thuê Theo Giờ:{" "}
+                                Giá Thuê Theo Giờ:
                                 {product.pricePerHour &&
                                 product.pricePerHour !== 0
                                   ? new Intl.NumberFormat("vi-VN", {
@@ -254,7 +254,7 @@ const ProductCardViewOfSupplier = () => {
                               </Text>
                               <Text className="flex items-center truncate">
                                 <ClockCircleOutlined className="mr-2" />
-                                Giá Thuê Theo Ngày:{" "}
+                                Giá Thuê Theo Ngày:
                                 {product.pricePerDay &&
                                 product.pricePerDay !== 0
                                   ? new Intl.NumberFormat("vi-VN", {
@@ -265,7 +265,7 @@ const ProductCardViewOfSupplier = () => {
                               </Text>
                               <Text className="flex items-center truncate">
                                 <ClockCircleOutlined className="mr-2" />
-                                Giá Thuê Theo Tuần:{" "}
+                                Giá Thuê Theo Tuần:
                                 {product.pricePerWeek &&
                                 product.pricePerWeek !== 0
                                   ? new Intl.NumberFormat("vi-VN", {
@@ -276,7 +276,7 @@ const ProductCardViewOfSupplier = () => {
                               </Text>
                               <Text className="flex items-center truncate">
                                 <ClockCircleOutlined className="mr-2" />
-                                Giá Thuê Theo Tháng:{" "}
+                                Giá Thuê Theo Tháng:
                                 {product.pricePerMonth &&
                                 product.pricePerMonth !== 0
                                   ? new Intl.NumberFormat("vi-VN", {
@@ -289,7 +289,7 @@ const ProductCardViewOfSupplier = () => {
                                 Thương Hiệu: {getBrandName(product.brand)}
                               </Text>
                               <Text className="flex items-center truncate">
-                                Trạng Thái:{" "}
+                                Trạng Thái:
                                 {getProductStatusEnum(product.status)}
                               </Text>
                               <Text className="flex items-center truncate">
@@ -362,7 +362,7 @@ const ProductCardViewOfSupplier = () => {
             </Paragraph>
             <Text className="flex items-center">
               <DollarOutlined className="mr-2" />
-              Giá Mua:{" "}
+              Giá Mua:
               {selectedProduct.priceBuy
                 ? new Intl.NumberFormat("vi-VN", {
                     style: "currency",
@@ -373,7 +373,7 @@ const ProductCardViewOfSupplier = () => {
             {selectedProduct.pricePerHour && (
               <Text className="flex items-center">
                 <ClockCircleOutlined className="mr-2" />
-                Giá Thuê Theo Giờ:{" "}
+                Giá Thuê Theo Giờ:
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
@@ -383,7 +383,7 @@ const ProductCardViewOfSupplier = () => {
             {selectedProduct.pricePerDay && (
               <Text className="flex items-center">
                 <ClockCircleOutlined className="mr-2" />
-                Giá Thuê Theo Ngày:{" "}
+                Giá Thuê Theo Ngày:
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
@@ -393,7 +393,7 @@ const ProductCardViewOfSupplier = () => {
             {selectedProduct.pricePerWeek && (
               <Text className="flex items-center">
                 <ClockCircleOutlined className="mr-2" />
-                Giá Thuê Theo Tuần:{" "}
+                Giá Thuê Theo Tuần:
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
@@ -403,7 +403,7 @@ const ProductCardViewOfSupplier = () => {
             {selectedProduct.pricePerMonth && (
               <Text className="flex items-center">
                 <ClockCircleOutlined className="mr-2" />
-                Giá Thuê Theo Tháng:{" "}
+                Giá Thuê Theo Tháng:
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",

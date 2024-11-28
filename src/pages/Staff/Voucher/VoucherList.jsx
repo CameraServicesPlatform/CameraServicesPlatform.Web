@@ -153,21 +153,21 @@ const VoucherList = () => {
                   <strong>Mô tả:</strong> {selectedVoucher.description}
                 </p>
                 <p>
-                  <strong>Số tiền giảm giá:</strong>{" "}
+                  <strong>Số tiền giảm giá:</strong>
                   {selectedVoucher.discountAmount} VND
                 </p>
                 <p>
-                  <strong>Hiệu lực từ:</strong>{" "}
+                  <strong>Hiệu lực từ:</strong>
                   {new Date(selectedVoucher.validFrom).toLocaleDateString()}
                 </p>
                 <p>
-                  <strong>Ngày hết hạn:</strong>{" "}
+                  <strong>Ngày hết hạn:</strong>
                   {new Date(
                     selectedVoucher.expirationDate
                   ).toLocaleDateString()}
                 </p>
                 <p>
-                  <strong>Hoạt động:</strong>{" "}
+                  <strong>Hoạt động:</strong>
                   {selectedVoucher.isActive ? "Có" : "Không"}
                 </p>
               </div>

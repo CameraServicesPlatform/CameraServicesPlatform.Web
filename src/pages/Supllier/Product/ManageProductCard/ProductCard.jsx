@@ -154,7 +154,7 @@ const ProductCard = ({
           </Button>
         )}
       <p>
-        <strong>Danh mục:</strong>{" "}
+        <strong>Danh mục:</strong>
         {categoryNames[product.categoryID] || "Không xác định"}
       </p>
       <p>
@@ -164,7 +164,10 @@ const ProductCard = ({
         <strong>Số lần thuê:</strong> {product.countRent}
       </p>
       <p>
-        <strong>Phí giữ chỗ</strong> {product.depositProduct}
+        <span className="mr-2 text-blue-500">
+          <strong>Phí giữ chỗ:</strong> {formatCurrency(product.depositProduct)}
+        </span>
+        S{" "}
       </p>
       <p>
         <strong>Giá (Gốc):</strong> {product.originalPrice}

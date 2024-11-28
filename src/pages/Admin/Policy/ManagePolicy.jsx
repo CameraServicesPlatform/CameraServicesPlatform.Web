@@ -257,15 +257,15 @@ const ManagePolicy = () => {
               <strong>Policy Content:</strong> {selectedPolicy.policyContent}
             </p>
             <p>
-              <strong>Applicable Object:</strong>{" "}
+              <strong>Applicable Object:</strong>
               {selectedPolicy.applicableObject}
             </p>
             <p>
-              <strong>Effective Date:</strong>{" "}
+              <strong>Effective Date:</strong>
               {new Date(selectedPolicy.effectiveDate).toLocaleDateString()}
             </p>
             <p>
-              <strong>Value:</strong>{" "}
+              <strong>Value:</strong>
               {new Date(selectedPolicy.value).toLocaleDateString()}
             </p>
           </div>

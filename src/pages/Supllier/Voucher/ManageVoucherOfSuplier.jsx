@@ -33,7 +33,7 @@ const ManageVoucherOfSuplier = () => {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
-      <h1 className="text-3xl font-semibold mb-6">Quản Lý Voucher</h1>{" "}
+      <h1 className="text-3xl font-semibold mb-6">Quản Lý Voucher</h1>
       {/* Translated to "Manage Vouchers" */}
       <Tabs defaultActiveKey="1" items={tabItems} />
     </div>

@@ -193,11 +193,11 @@ const Policy = () => {
                         className="mt-4 bg-gray-100 p-4 rounded-lg transition-all duration-300"
                       >
                         <p className="text-gray-700">
-                          <strong>Loại chính sách:</strong>{" "}
+                          <strong>Loại chính sách:</strong>
                           {getPolicyType(policy.policyType)}
                         </p>
                         <p className="text-gray-700">
-                          <strong>Hiệu lực:</strong>{" "}
+                          <strong>Hiệu lực:</strong>
                           {new Date(policy.effectiveDate).toLocaleString()}
                         </p>
                         <p className="text-gray-700">

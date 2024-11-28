@@ -129,7 +129,6 @@ const ForgotPasswordModal = ({ visible, onCancel, onSubmit }) => {
             onClick={handleEmailSubmit}
           >
             <Button type="link">
-              {" "}
               Gửi lại mã OTP {countdown !== null && `(${countdown}s)`}
             </Button>
           </span>

@@ -271,13 +271,7 @@ const EditProductForm = ({ visible, onClose, product, onUpdateSuccess }) => {
             </Form.Item>
           </>
         )}
-        <Form.Item
-          name="serialNumber"
-          label="Số Serial"
-          rules={[{ required: true, message: "Vui lòng nhập số serial" }]}
-        >
-          <Input />
-        </Form.Item>
+
         <Form.Item
           name="CategoryID"
           label="Danh Mục"
