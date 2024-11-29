@@ -8,6 +8,7 @@ import {
 import { message, Modal } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { getAllExtendsByOrderId, getExtendById } from "../../../api/extendApi";
 import {
   acceptCancelOrder,
   addImgProductAfter,
@@ -36,6 +37,36 @@ const TrackingOrder = ({ order, onUpdate }) => {
   const [returnInitiated, setReturnInitiated] = useState(false);
   const [beforeImageUrl, setBeforeImageUrl] = useState(null);
   const [afterImageUrl, setAfterImageUrl] = useState(null);
+  const [extendsData, setExtendsData] = useState([]); // Add this line
+
+  useEffect(() => {
+    const fetchImages = async (orderId) => {
+      try {
+        const beforeImageResponse = await getImageProductBeforeByOrderId(
+          orderId
+        );
+        const afterImageResponse = await getImageProductAfterByOrderId(orderId);
+
+        if (beforeImageResponse) {
+          setBeforeImageUrl(beforeImageResponse.result);
+        } else {
+          message.error("Failed to fetch before image.");
+        }
+
+        if (afterImageResponse) {
+          setAfterImageUrl(afterImageResponse.result);
+        } else {
+          message.error("Failed to fetch after image.");
+        }
+      } catch (error) {
+        message.error("Error fetching images.");
+      }
+    };
+
+    if (order?.orderID) {
+      fetchImages(order.orderID);
+    }
+  }, [order]);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -66,6 +97,22 @@ const TrackingOrder = ({ order, onUpdate }) => {
     }
   }, [order]);
 
+  useEffect(() => {
+    if (order?.orderID) {
+      fetchExtendsByOrderId(order.orderID);
+    }
+  }, [order]);
+
+  const fetchExtendsByOrderId = async (orderID) => {
+    setLoading(true);
+    const result = await getAllExtendsByOrderId(orderID);
+    if (result) {
+      setExtendsData(result);
+    } else {
+      console.error("Failed to fetch extends data.");
+    }
+    setLoading(false);
+  };
   const handleCompleteOrder = async (orderId) => {
     try {
       const response = await updateOrderStatusCompleted(orderId);
@@ -338,7 +385,14 @@ const TrackingOrder = ({ order, onUpdate }) => {
     setShowReturnDetailForm(true);
     setReturnInitiated(true);
   };
-
+  const handleExtendClick = async (extendID) => {
+    const result = await getExtendById(extendID);
+    if (result) {
+      console.log("Extend data:", result);
+    } else {
+      console.error("Failed to fetch extend data.");
+    }
+  };
   return (
     <div>
       <StepsComponent currentStep={currentStep} steps={steps} />
@@ -346,7 +400,10 @@ const TrackingOrder = ({ order, onUpdate }) => {
         order={order}
         showConfirm={showConfirm}
         handleReturnClick={handleReturnClick}
+        handleExtendClick={handleExtendClick}
         returnInitiated={returnInitiated}
+        handleUploadBefore={handleUploadBefore}
+        handleUploadAfter={handleUploadAfter}
       />
       <ImagesComponent
         beforeImageUrl={beforeImageUrl}

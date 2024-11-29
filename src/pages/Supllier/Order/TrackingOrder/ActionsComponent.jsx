@@ -1,8 +1,19 @@
 import React from "react";
-import { Button, Modal, Upload } from "antd";
-import { CheckOutlined, CloseOutlined, CheckCircleOutlined, CarOutlined, UploadOutlined } from "@ant-design/icons";
+import { Button, Upload } from "antd";
+import {
+  CheckOutlined,
+  CloseOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 
-const ActionsComponent = ({ order, showConfirm, handleReturnClick, returnInitiated }) => (
+const ActionsComponent = ({
+  order,
+  showConfirm,
+  handleReturnClick,
+  returnInitiated,
+  handleUploadBefore, // Add this line
+  handleUploadAfter, // Add this line
+}) => (
   <div className="steps-action" style={{ marginTop: 16 }}>
     {(order.orderStatus === 0 || order.orderStatus === 8) && (
       <Button
@@ -31,98 +42,34 @@ const ActionsComponent = ({ order, showConfirm, handleReturnClick, returnInitiat
         type="primary"
         onClick={() => showConfirm("accept-cancel", order.orderID)}
         className="ml-2"
-        icon={<CheckCircleOutlined />}
+        icon={<CheckOutlined />}
         style={{ marginRight: 8, marginBottom: 8 }}
       >
         Chấp nhận hủy
       </Button>
     )}
-    {order.orderStatus === 1 && order.deliveriesMethod === 1 && (
+    <Upload
+      customRequest={({ file }) => handleUploadBefore(file)}
+      showUploadList={false}
+    >
       <Button
-        type="default"
-        onClick={() => showConfirm("ship", order.orderID)}
-        className="ml-2"
-        icon={<CarOutlined />}
+        icon={<UploadOutlined />}
         style={{ marginRight: 8, marginBottom: 8 }}
       >
-        Giao hàng
+        Upload Before Image
       </Button>
-    )}
-    {(order.orderStatus === 4 || (order.orderStatus === 3 && order.orderType === 1)) && (
-      <Button onClick={() => handleReturnClick(order.orderID)}>
-        Trả hàng
-      </Button>
-    )}
-    {(order.orderStatus === 4 || returnInitiated) && (
+    </Upload>
+    <Upload
+      customRequest={({ file }) => handleUploadAfter(file)}
+      showUploadList={false}
+    >
       <Button
-        type="primary"
-        onClick={() => showConfirm("complete", order.orderID)}
-        className="ml-2"
-        icon={<CheckCircleOutlined />}
+        icon={<UploadOutlined />}
         style={{ marginRight: 8, marginBottom: 8 }}
       >
-        Kết thúc đơn thuê
+        Upload After Image
       </Button>
-    )}
-    {(order.orderStatus === 4 || returnInitiated) && (
-      <Button
-        type="primary"
-        onClick={() => showConfirm("pending-refund", order.orderID)}
-        className="ml-2"
-        icon={<CheckCircleOutlined />}
-        style={{ marginRight: 8, marginBottom: 8 }}
-      >
-        Gửi yêu cầu hoàn tiền cho hệ thống
-      </Button>
-    )}
-    {order.orderStatus === 7 && (
-      <Button
-        type="primary"
-        onClick={() => showConfirm("pending-refund", order.orderID)}
-        className="ml-2"
-        icon={<CheckCircleOutlined />}
-        style={{ marginRight: 8, marginBottom: 8 }}
-      >
-        Gửi yêu cầu hoàn tiền cho hệ thống
-      </Button>
-    )}
-    {order.orderStatus === 1 && order.deliveriesMethod === 0 && order.orderType === 1 && (
-      <Button
-        type="primary"
-        onClick={() => showConfirm("update-placed", order.orderID)}
-        className="ml-2"
-        icon={<CheckCircleOutlined />}
-        style={{ marginRight: 8, marginBottom: 8 }}
-      >
-        Khách đã đến nhận hàng
-      </Button>
-    )}
-    {order.orderStatus === 1 && (
-      <Upload
-        customRequest={({ file }) => handleUploadBefore(file)}
-        showUploadList={false}
-      >
-        <Button
-          icon={<UploadOutlined />}
-          style={{ marginRight: 8, marginBottom: 8 }}
-        >
-          Thêm ảnh trước khi giao hàng
-        </Button>
-      </Upload>
-    )}
-    {order.orderStatus === 4 && order.orderType === 1 && (
-      <Upload
-        customRequest={({ file }) => handleUploadAfter(file)}
-        showUploadList={false}
-      >
-        <Button
-          icon={<UploadOutlined />}
-          style={{ marginRight: 8, marginBottom: 8 }}
-        >
-          Thêm ảnh sau khi giao hàng
-        </Button>
-      </Upload>
-    )}
+    </Upload>
   </div>
 );
 
