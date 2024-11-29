@@ -1,12 +1,32 @@
+import {
+  CheckOutlined,
+  CloseOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Checkbox,
+  ConfigProvider,
+  DatePicker,
+  Input,
+  Modal,
+  Select,
+} from "antd";
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import {
+  createComboOfSupplier,
   getAllCombosOfSupplier,
+  getComboById,
   getComboOfSupplierById,
   updateComboOfSupplier,
 } from "../../../api/comboApi";
+import { getAllSuppliers, getSupplierById } from "../../../api/supplierApi";
 
 const ComboSupplierList = ({ refresh }) => {
   const [combos, setCombos] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCombo, setSelectedCombo] = useState(null);
   const [newCombo, setNewCombo] = useState({
@@ -16,37 +36,79 @@ const ComboSupplierList = ({ refresh }) => {
     endTime: "",
     isDisable: false,
   });
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    const fetchCombos = async () => {
+    const fetchCombosAndSuppliers = async () => {
       setLoading(true);
-      const response = await getAllCombosOfSupplier();
-      if (response.isSuccess) {
-        setCombos(response.result);
-      } else {
-        console.error(response.messages);
+      try {
+        const [comboResponse, supplierResponse] = await Promise.all([
+          getAllCombosOfSupplier(),
+          getAllSuppliers(1, 100), // Ensure pageIndex and pageSize are provided
+        ]);
+
+        if (
+          comboResponse &&
+          comboResponse.isSuccess &&
+          supplierResponse &&
+          supplierResponse.isSuccess
+        ) {
+          const combosWithNames = await Promise.all(
+            comboResponse.result.map(async (combo) => {
+              const supplierResponse = await getSupplierById(combo.supplierID);
+              const comboResponse = await getComboById(combo.comboId);
+              if (supplierResponse && comboResponse) {
+                return {
+                  ...combo,
+                  supplierName: supplierResponse.result.items[0].supplierName,
+                  comboName: comboResponse.result.comboName,
+                };
+              }
+              return combo;
+            })
+          );
+          setCombos(combosWithNames);
+          setSuppliers(supplierResponse.result.items);
+        } else {
+          console.error(
+            comboResponse ? comboResponse.messages : "Failed to fetch combos"
+          );
+          console.error(
+            supplierResponse
+              ? supplierResponse.messages
+              : "Failed to fetch suppliers"
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching combos and suppliers:", error);
       }
       setLoading(false);
     };
 
-    fetchCombos();
+    fetchCombosAndSuppliers();
   }, [refresh]);
 
-  const handleDelete = async (comboOfSupplierId) => {
-    const response = await deleteComboOfSupplier(comboOfSupplierId);
+  const handleViewDetails = async (comboSupplierId) => {
+    const response = await getComboOfSupplierById(comboSupplierId);
     if (response.isSuccess) {
-      setCombos(
-        combos.filter((combo) => combo.comboOfSupplierId !== comboOfSupplierId)
+      const supplierResponse = await getSupplierById(
+        response.result.supplierID
       );
-    } else {
-      console.error(response.messages);
-    }
-  };
-
-  const handleViewDetails = async (comboId) => {
-    const response = await getComboOfSupplierById(comboId);
-    if (response.isSuccess) {
-      setSelectedCombo(response.result);
+      const comboResponse = await getComboById(response.result.comboId);
+      if (supplierResponse && comboResponse) {
+        setSelectedCombo({
+          ...response.result,
+          supplierName: supplierResponse.result.items[0].supplierName,
+          comboName: comboResponse.result.comboName,
+          startTime: dayjs(response.result.startTime),
+          endTime: dayjs(response.result.endTime),
+        });
+        setShowUpdateForm(true);
+      } else {
+        console.error("Failed to fetch supplier or combo details");
+      }
     } else {
       console.error(response.messages);
     }
@@ -55,7 +117,22 @@ const ComboSupplierList = ({ refresh }) => {
   const handleCreateCombo = async () => {
     const response = await createComboOfSupplier(newCombo);
     if (response.isSuccess) {
-      setCombos([...combos, response.result]);
+      const supplierResponse = await getSupplierById(
+        response.result.supplierID
+      );
+      const comboResponse = await getComboById(response.result.comboId);
+      if (supplierResponse && comboResponse) {
+        setCombos([
+          ...combos,
+          {
+            ...response.result,
+            supplierName: supplierResponse.result.items[0].supplierName,
+            comboName: comboResponse.result.comboName,
+          },
+        ]);
+      } else {
+        setCombos([...combos, response.result]);
+      }
       setNewCombo({
         comboId: "",
         supplierID: "",
@@ -63,6 +140,7 @@ const ComboSupplierList = ({ refresh }) => {
         endTime: "",
         isDisable: false,
       });
+      setShowCreateForm(false);
     } else {
       console.error(response.messages);
     }
@@ -71,168 +149,250 @@ const ComboSupplierList = ({ refresh }) => {
   const handleUpdateCombo = async () => {
     const response = await updateComboOfSupplier(selectedCombo);
     if (response.isSuccess) {
-      setCombos(
-        combos.map((combo) =>
-          combo.comboOfSupplierId === selectedCombo.comboOfSupplierId
-            ? response.result
-            : combo
-        )
+      const supplierResponse = await getSupplierById(
+        response.result.supplierID
       );
+      const comboResponse = await getComboById(response.result.comboId);
+      if (supplierResponse && comboResponse) {
+        setCombos(
+          combos.map((combo) =>
+            combo.comboOfSupplierId === selectedCombo.comboOfSupplierId
+              ? {
+                  ...response.result,
+                  supplierName: supplierResponse.result.items[0].supplierName,
+                  comboName: comboResponse.result.comboName,
+                }
+              : combo
+          )
+        );
+      } else {
+        setCombos(
+          combos.map((combo) =>
+            combo.comboOfSupplierId === selectedCombo.comboOfSupplierId
+              ? response.result
+              : combo
+          )
+        );
+      }
       setSelectedCombo(null);
+      setShowUpdateForm(false);
     } else {
       console.error(response.messages);
     }
   };
 
+  const filteredCombos = combos.filter(
+    (combo) =>
+      combo.comboName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      combo.supplierName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Đang tải...</div>;
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">
-        Danh sách combo của nhà cung cấp
-      </h2>
-      <ul>
-        {combos.map((combo) => (
-          <li key={combo.comboOfSupplierId} className="mb-2">
-            <div
-              className="p-4 bg-white rounded shadow"
-              onDoubleClick={() => handleViewDetails(combo.comboId)}
-            >
-              <h3 className="text-xl font-semibold">{combo.comboId}</h3>
-              <p>Supplier ID: {combo.supplierID}</p>
-              <p>Start Time: {new Date(combo.startTime).toLocaleString()}</p>
-              <p>End Time: {new Date(combo.endTime).toLocaleString()}</p>
-              <p>Is Disabled: {combo.isDisable ? "Yes" : "No"}</p>
-              <button
-                onClick={() => handleDelete(combo.comboOfSupplierId)}
-                className="text-red-500"
+    <ConfigProvider>
+      <div>
+        <h2 className="text-2xl font-bold mb-4">
+          Danh sách combo của nhà cung cấp
+        </h2>
+        <Input
+          placeholder="Tìm kiếm combo hoặc nhà cung cấp"
+          prefix={<SearchOutlined />}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="mb-4"
+        />
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setShowCreateForm(true)}
+          className="mb-4"
+        >
+          Tạo Combo Mới
+        </Button>
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="py-2">Combo ID</th>
+              <th className="py-2">Tên Combo</th>
+              <th className="py-2">Tên Nhà Cung Cấp</th>
+              <th className="py-2">Thời Gian Bắt Đầu</th>
+              <th className="py-2">Thời Gian Kết Thúc</th>
+              <th className="py-2">Hiệu lực</th>
+              {/* <th className="py-2">Hành Động</th> */}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredCombos.map((combo) => (
+              <tr key={combo.comboOfSupplierId}>
+                <td className="border px-4 py-2">{combo.comboId}</td>
+                <td className="border px-4 py-2">{combo.comboName}</td>
+                <td className="border px-4 py-2">{combo.supplierName}</td>
+                <td className="border px-4 py-2">
+                  {dayjs(combo.startTime).format("YYYY-MM-DD HH:mm:ss")}
+                </td>
+                <td className="border px-4 py-2">
+                  {dayjs(combo.endTime).format("YYYY-MM-DD HH:mm:ss")}
+                </td>
+                <td className="border px-4 py-2">
+                  {combo.isDisable ? (
+                    <span className="text-red-500">
+                      <CloseOutlined />
+                    </span>
+                  ) : (
+                    <span className="text-green-500">
+                      <CheckOutlined />
+                    </span>
+                  )}
+                </td>
+                {/* <td className="border px-4 py-2">
+                  <Button
+                    type="link"
+                    icon={<EditOutlined />}
+                    onClick={() => handleViewDetails(combo.comboOfSupplierId)}
+                  >
+                    Xem
+                  </Button>
+                </td> */}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <Modal
+          title="Cập Nhật Combo của Nhà Cung Cấp"
+          visible={showUpdateForm}
+          onOk={handleUpdateCombo}
+          onCancel={() => setShowUpdateForm(false)}
+        >
+          {selectedCombo && (
+            <div>
+              <Select
+                value={selectedCombo.comboId}
+                onChange={(value) =>
+                  setSelectedCombo({ ...selectedCombo, comboId: value })
+                }
+                placeholder="Chọn Combo"
+                className="mb-2 w-full"
               >
-                Delete
-              </button>
+                {combos.map((combo) => (
+                  <Select.Option key={combo.comboId} value={combo.comboId}>
+                    {combo.comboName}
+                  </Select.Option>
+                ))}
+              </Select>
+              <Select
+                value={selectedCombo.supplierID}
+                onChange={(value) =>
+                  setSelectedCombo({ ...selectedCombo, supplierID: value })
+                }
+                placeholder="Chọn Nhà Cung Cấp"
+                className="mb-2 w-full"
+              >
+                {suppliers.map((supplier) => (
+                  <Select.Option
+                    key={supplier.supplierID}
+                    value={supplier.supplierID}
+                  >
+                    {supplier.supplierName}
+                  </Select.Option>
+                ))}
+              </Select>
+              <DatePicker
+                showTime
+                value={dayjs(selectedCombo.startTime)}
+                onChange={(date) =>
+                  setSelectedCombo({ ...selectedCombo, startTime: date })
+                }
+                placeholder="Thời Gian Bắt Đầu"
+                className="mb-2 w-full"
+              />
+              <DatePicker
+                showTime
+                value={dayjs(selectedCombo.endTime)}
+                onChange={(date) =>
+                  setSelectedCombo({ ...selectedCombo, endTime: date })
+                }
+                placeholder="Thời Gian Kết Thúc"
+                className="mb-2 w-full"
+              />
+              <Checkbox
+                checked={selectedCombo.isDisable}
+                onChange={(e) =>
+                  setSelectedCombo({
+                    ...selectedCombo,
+                    isDisable: e.target.checked,
+                  })
+                }
+              >
+                Bị Vô Hiệu Hóa
+              </Checkbox>
             </div>
-          </li>
-        ))}
-      </ul>
+          )}
+        </Modal>
 
-      {selectedCombo && (
-        <div className="mt-4 p-4 bg-gray-100 rounded shadow">
-          <h3 className="text-xl font-semibold">Update Combo of Supplier</h3>
-          <input
-            type="text"
-            value={selectedCombo.comboId}
-            onChange={(e) =>
-              setSelectedCombo({ ...selectedCombo, comboId: e.target.value })
-            }
-            placeholder="Combo ID"
-            className="mb-2 p-2 border rounded"
-          />
-          <input
-            type="text"
-            value={selectedCombo.supplierID}
-            onChange={(e) =>
-              setSelectedCombo({ ...selectedCombo, supplierID: e.target.value })
-            }
-            placeholder="Supplier ID"
-            className="mb-2 p-2 border rounded"
-          />
-          <input
-            type="datetime-local"
-            value={selectedCombo.startTime}
-            onChange={(e) =>
-              setSelectedCombo({ ...selectedCombo, startTime: e.target.value })
-            }
-            placeholder="Start Time"
-            className="mb-2 p-2 border rounded"
-          />
-          <input
-            type="datetime-local"
-            value={selectedCombo.endTime}
-            onChange={(e) =>
-              setSelectedCombo({ ...selectedCombo, endTime: e.target.value })
-            }
-            placeholder="End Time"
-            className="mb-2 p-2 border rounded"
-          />
-          <label>
-            <input
-              type="checkbox"
-              checked={selectedCombo.isDisable}
-              onChange={(e) =>
-                setSelectedCombo({
-                  ...selectedCombo,
-                  isDisable: e.target.checked,
-                })
-              }
-            />
-            Is Disabled
-          </label>
-          <button
-            onClick={handleUpdateCombo}
-            className="bg-blue-500 text-white p-2 rounded"
+        <Modal
+          title="Tạo Combo Mới của Nhà Cung Cấp"
+          visible={showCreateForm}
+          onOk={handleCreateCombo}
+          onCancel={() => setShowCreateForm(false)}
+        >
+          <Select
+            value={newCombo.comboId}
+            onChange={(value) => setNewCombo({ ...newCombo, comboId: value })}
+            placeholder="Chọn Combo"
+            className="mb-2 w-full"
           >
-            Update Combo
-          </button>
-        </div>
-      )}
-
-      <div className="mt-4 p-4 bg-gray-100 rounded shadow">
-        <h3 className="text-xl font-semibold">Create New Combo of Supplier</h3>
-        <input
-          type="text"
-          value={newCombo.comboId}
-          onChange={(e) =>
-            setNewCombo({ ...newCombo, comboId: e.target.value })
-          }
-          placeholder="Combo ID"
-          className="mb-2 p-2 border rounded"
-        />
-        <input
-          type="text"
-          value={newCombo.supplierID}
-          onChange={(e) =>
-            setNewCombo({ ...newCombo, supplierID: e.target.value })
-          }
-          placeholder="Supplier ID"
-          className="mb-2 p-2 border rounded"
-        />
-        <input
-          type="datetime-local"
-          value={newCombo.startTime}
-          onChange={(e) =>
-            setNewCombo({ ...newCombo, startTime: e.target.value })
-          }
-          placeholder="Start Time"
-          className="mb-2 p-2 border rounded"
-        />
-        <input
-          type="datetime-local"
-          value={newCombo.endTime}
-          onChange={(e) =>
-            setNewCombo({ ...newCombo, endTime: e.target.value })
-          }
-          placeholder="End Time"
-          className="mb-2 p-2 border rounded"
-        />
-        <label>
-          <input
-            type="checkbox"
+            {combos.map((combo) => (
+              <Select.Option key={combo.comboId} value={combo.comboId}>
+                {combo.comboName}
+              </Select.Option>
+            ))}
+          </Select>
+          <Select
+            value={newCombo.supplierID}
+            onChange={(value) =>
+              setNewCombo({ ...newCombo, supplierID: value })
+            }
+            placeholder="Chọn Nhà Cung Cấp"
+            className="mb-2 w-full"
+          >
+            {suppliers.map((supplier) => (
+              <Select.Option
+                key={supplier.supplierID}
+                value={supplier.supplierID}
+              >
+                {supplier.supplierName}
+              </Select.Option>
+            ))}
+          </Select>
+          <DatePicker
+            showTime
+            value={dayjs(newCombo.startTime)}
+            onChange={(date) => setNewCombo({ ...newCombo, startTime: date })}
+            placeholder="Thời Gian Bắt Đầu"
+            className="mb-2 w-full"
+          />
+          <DatePicker
+            showTime
+            value={dayjs(newCombo.endTime)}
+            onChange={(date) => setNewCombo({ ...newCombo, endTime: date })}
+            placeholder="Thời Gian Kết Thúc"
+            className="mb-2 w-full"
+          />
+          <Checkbox
             checked={newCombo.isDisable}
             onChange={(e) =>
               setNewCombo({ ...newCombo, isDisable: e.target.checked })
             }
-          />
-          Is Disabled
-        </label>
-        <button
-          onClick={handleCreateCombo}
-          className="bg-green-500 text-white p-2 rounded"
-        >
-          Create Combo
-        </button>
+          >
+            Bị Vô Hiệu Hóa
+          </Checkbox>
+        </Modal>
       </div>
-    </div>
+    </ConfigProvider>
   );
 };
 

@@ -61,11 +61,14 @@ export const updateCombo = async (comboData) => {
 };
 
 // Function to get all combos of supplier with pagination
-export const getAllCombosOfSupplier = async (pageIndex = 1, pageSize = 10) => {
+export const getAllCombosOfSupplier = async (pageIndex = 1, pageSize = 100) => {
   try {
-    const response = await api.get(`/comboOfSupplier/get-all-combo`, {
-      params: { pageIndex, pageSize },
-    });
+    const response = await api.get(
+      `/comboOfSupplier/get-all-combo-of-supplier`,
+      {
+        params: { pageIndex, pageSize },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(`Failed to fetch combos of supplier:`, error);
@@ -76,16 +79,19 @@ export const getAllCombosOfSupplier = async (pageIndex = 1, pageSize = 10) => {
   }
 };
 
-// Function to get a combo of supplier by combo ID
+// Function to get a combo of supplier by ID
 export const getComboOfSupplierById = async (
-  id,
+  comboSupplierId,
   pageIndex = 1,
-  pageSize = 10
+  pageSize = 100
 ) => {
   try {
-    const response = await api.get(`/comboOfSupplier/get-combo-by-combo-id`, {
-      params: { id, pageIndex, pageSize },
-    });
+    const response = await api.get(
+      `/comboOfSupplier/get-combo-of-supplier-by-combo-supplier-id`,
+      {
+        params: { comboSupplierId, pageIndex, pageSize },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(`Failed to fetch combo of supplier by ID:`, error);
@@ -99,7 +105,10 @@ export const getComboOfSupplierById = async (
 // Function to create a new combo of supplier
 export const createComboOfSupplier = async (comboData) => {
   try {
-    const response = await api.post(`/comboOfSupplier/create-combo`, comboData);
+    const response = await api.post(
+      `/comboOfSupplier/create-combo-of-supplier`,
+      comboData
+    );
     return response.data;
   } catch (error) {
     console.error(`Failed to create combo of supplier:`, error);
@@ -113,7 +122,10 @@ export const createComboOfSupplier = async (comboData) => {
 // Function to update an existing combo of supplier
 export const updateComboOfSupplier = async (comboData) => {
   try {
-    const response = await api.put(`/comboOfSupplier/update-combo`, comboData);
+    const response = await api.put(
+      `/comboOfSupplier/update-combo-of-supplier`,
+      comboData
+    );
     return response.data;
   } catch (error) {
     console.error(`Failed to update combo of supplier:`, error);
