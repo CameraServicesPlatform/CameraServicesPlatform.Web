@@ -4,9 +4,8 @@ import {
   CheckOutlined,
   CloseOutlined,
   SmileOutlined,
-  UploadOutlined,
 } from "@ant-design/icons";
-import { Button, message, Modal, Steps, Table, Upload } from "antd";
+import { message, Modal } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
@@ -14,6 +13,8 @@ import {
   addImgProductAfter,
   addImgProductBefore,
   cancelOrder,
+  getImageProductAfterByOrderId,
+  getImageProductBeforeByOrderId,
   updateOrderStatusApproved,
   updateOrderStatusCompleted,
   updateOrderStatusPendingRefund,
@@ -22,8 +23,10 @@ import {
 } from "../../../api/orderApi";
 import { getOrderDetails } from "../../../api/orderDetailApi";
 import CreateReturnDetailForm from "../ReturnDetail/CreateReturnDetailForm";
-
-const { Step } = Steps;
+import ActionsComponent from "./TrackingOrder/ActionsComponent";
+import ImagesComponent from "./TrackingOrder/ImagesComponent";
+import OrderDetailsTable from "./TrackingOrder/OrderDetailsTable";
+import StepsComponent from "./TrackingOrder/StepsComponent";
 
 const TrackingOrder = ({ order, onUpdate }) => {
   const [orderDetails, setOrderDetails] = useState([]);
@@ -62,6 +65,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
       fetchImages();
     }
   }, [order]);
+
   const handleCompleteOrder = async (orderId) => {
     try {
       const response = await updateOrderStatusCompleted(orderId);
@@ -173,6 +177,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
       message.error("Lỗi khi cập nhật trạng thái chờ hoàn tiền.");
     }
   };
+
   const handleUpdateOrderStatusPlaced = async (orderId) => {
     try {
       const response = await updateOrderStatusPlaced(orderId);
@@ -336,173 +341,21 @@ const TrackingOrder = ({ order, onUpdate }) => {
 
   return (
     <div>
-      <Steps current={currentStep}>
-        {steps.map((step, index) => (
-          <Step key={index} title={step.title} icon={step.icon} />
-        ))}
-      </Steps>
-      <div className="steps-action" style={{ marginTop: 16 }}>
-        {(order.orderStatus === 0 || order.orderStatus === 8) && (
-          <Button
-            type="primary"
-            onClick={() => showConfirm("approve", order.orderID)}
-            className="ml-2"
-            icon={<CheckOutlined />}
-            style={{ marginRight: 8, marginBottom: 8 }}
-          >
-            Phê duyệt
-          </Button>
-        )}
-        {(order.orderStatus === 0 || order.orderStatus === 5) && (
-          <Button
-            type="danger"
-            onClick={() => showConfirm("cancel", order.orderID)}
-            className="ml-2"
-            icon={<CloseOutlined />}
-            style={{ marginRight: 8, marginBottom: 8 }}
-          >
-            Hủy
-          </Button>
-        )}
-        {order.orderStatus === 6 && (
-          <Button
-            type="primary"
-            onClick={() => showConfirm("accept-cancel", order.orderID)}
-            className="ml-2"
-            icon={<CheckCircleOutlined />}
-            style={{ marginRight: 8, marginBottom: 8 }}
-          >
-            Chấp nhận hủy
-          </Button>
-        )}
-        {order.orderStatus === 1 && order.deliveriesMethod === 1 && (
-          <Button
-            type="default"
-            onClick={() => showConfirm("ship", order.orderID)}
-            className="ml-2"
-            icon={<CarOutlined />}
-            style={{ marginRight: 8, marginBottom: 8 }}
-          >
-            Giao hàng
-          </Button>
-        )}
-        {(order.orderStatus === 4 ||
-          (order.orderStatus === 3 && order.orderType === 1)) && (
-          <Button onClick={() => handleReturnClick(order.orderID)}>
-            Trả hàng
-          </Button>
-        )}
-        <Modal
-          title="Create Return Detail"
-          visible={showReturnDetailForm}
-          onCancel={() => setShowReturnDetailForm(false)}
-          footer={null}
-        >
-          <CreateReturnDetailForm
-            orderID={selectedOrderID}
-            onSuccess={() => setShowReturnDetailForm(false)}
-          />
-        </Modal>
-        {(order.orderStatus === 4 || returnInitiated) && (
-          <Button
-            type="primary"
-            onClick={() => showConfirm("complete", order.orderID)}
-            className="ml-2"
-            icon={<CheckCircleOutlined />}
-            style={{ marginRight: 8, marginBottom: 8 }}
-          >
-            Kết thúc đơn thuê
-          </Button>
-        )}
-        {(order.orderStatus === 4 || returnInitiated) && (
-          <Button
-            type="primary"
-            onClick={() => showConfirm("pending-refund", order.orderID)}
-            className="ml-2"
-            icon={<CheckCircleOutlined />}
-            style={{ marginRight: 8, marginBottom: 8 }}
-          >
-            Gửi yêu cầu hoàn tiền cho hệ thống
-          </Button>
-        )}
-        {order.orderStatus === 7 && (
-          <Button
-            type="primary"
-            onClick={() => showConfirm("pending-refund", order.orderID)}
-            className="ml-2"
-            icon={<CheckCircleOutlined />}
-            style={{ marginRight: 8, marginBottom: 8 }}
-          >
-            Gửi yêu cầu hoàn tiền cho hệ thống
-          </Button>
-        )}
-        {order.orderStatus === 1 &&
-          order.deliveriesMethod === 0 &&
-          order.orderType === 1 && (
-            <Button
-              type="primary"
-              onClick={() => showConfirm("update-placed", order.orderID)}
-              className="ml-2"
-              icon={<CheckCircleOutlined />}
-              style={{ marginRight: 8, marginBottom: 8 }}
-            >
-              Khách đã đến nhận hàng
-            </Button>
-          )}
-        {order.orderStatus === 1 && (
-          <Upload
-            customRequest={({ file }) => handleUploadBefore(file)}
-            showUploadList={false}
-          >
-            <Button
-              icon={<UploadOutlined />}
-              style={{ marginRight: 8, marginBottom: 8 }}
-            >
-              Thêm ảnh trước khi giao hàng
-            </Button>
-          </Upload>
-        )}
-        {order.orderStatus === 4 && order.orderType === 1 && (
-          <Upload
-            customRequest={({ file }) => handleUploadAfter(file)}
-            showUploadList={false}
-          >
-            <Button
-              icon={<UploadOutlined />}
-              style={{ marginRight: 8, marginBottom: 8 }}
-            >
-              Thêm ảnh sau khi giao hàng
-            </Button>
-          </Upload>
-        )}
-      </div>
-      {beforeImageUrl && (
-        <div>
-          <h3>Ảnh trước khi giao hàng:</h3>
-          <img
-            src={beforeImageUrl}
-            alt="Before Delivery"
-            style={{ maxWidth: "100%" }}
-          />
-        </div>
-      )}
-      {afterImageUrl && (
-        <div>
-          <h3>Ảnh sau khi giao hàng:</h3>
-          <img
-            src={afterImageUrl}
-            alt="After Delivery"
-            style={{ maxWidth: "100%" }}
-          />
-        </div>
-      )}
-      <Table
-        dataSource={orderDetails}
+      <StepsComponent currentStep={currentStep} steps={steps} />
+      <ActionsComponent
+        order={order}
+        showConfirm={showConfirm}
+        handleReturnClick={handleReturnClick}
+        returnInitiated={returnInitiated}
+      />
+      <ImagesComponent
+        beforeImageUrl={beforeImageUrl}
+        afterImageUrl={afterImageUrl}
+      />
+      <OrderDetailsTable
+        orderDetails={orderDetails}
         columns={columns}
-        rowKey="id"
         loading={loading}
-        pagination={false}
-        style={{ marginTop: 16 }}
       />
       <input
         type="file"
@@ -516,6 +369,17 @@ const TrackingOrder = ({ order, onUpdate }) => {
         style={{ display: "none" }}
         onChange={(e) => handleUploadAfter(e.target.files[0])}
       />
+      <Modal
+        title="Create Return Detail"
+        visible={showReturnDetailForm}
+        onCancel={() => setShowReturnDetailForm(false)}
+        footer={null}
+      >
+        <CreateReturnDetailForm
+          orderID={selectedOrderID}
+          onSuccess={() => setShowReturnDetailForm(false)}
+        />
+      </Modal>
     </div>
   );
 };
