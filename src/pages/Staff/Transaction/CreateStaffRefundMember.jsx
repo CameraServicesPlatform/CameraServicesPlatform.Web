@@ -9,6 +9,7 @@ import {
   updateOrderStatusDepositRefund,
   updateOrderStatusRefund,
 } from "../../../api/orderApi";
+import { getProductById } from "../../../api/productApi"; // Import the function
 import { getSupplierById } from "../../../api/supplierApi";
 import {
   addImagePayment,
@@ -66,6 +67,8 @@ const CreateStaffRefundMember = () => {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [imageUrls, setImageUrls] = useState({});
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
 
   const user = useSelector((state) => state.user.user || {});
 
@@ -301,6 +304,25 @@ const CreateStaffRefundMember = () => {
     }
   };
 
+  const handleViewDetails = async (orderDetails) => {
+    const detailsWithProductNames = await Promise.all(
+      orderDetails.map(async (detail) => {
+        if (!detail.productName) {
+          try {
+            const productData = await getProductById(detail.productID);
+            detail.productName = productData.name || "N/A";
+          } catch (error) {
+            console.error("Error fetching product name:", error);
+            detail.productName = "N/A";
+          }
+        }
+        return detail;
+      })
+    );
+    setSelectedOrderDetails(detailsWithProductNames);
+    setIsModalVisible(true);
+  };
+
   const columns = [
     {
       title: "Mã nhà cung cấp",
@@ -390,6 +412,32 @@ const CreateStaffRefundMember = () => {
         }).format(deposit),
     },
     {
+      title: "Thanh toán",
+      dataIndex: "isPayment",
+      key: "isPayment",
+      render: (isPayment) => (isPayment ? "Đã thanh toán" : "Chưa thanh toán"),
+    },
+    {
+      title: "Chi tiết đơn hàng",
+      dataIndex: "orderDetails",
+      key: "orderDetails",
+      render: (orderDetails) => (
+        <Button type="link" onClick={() => handleViewDetails(orderDetails)}>
+          Xem chi tiết
+        </Button>
+      ),
+    },
+    {
+      title: "Tiền đặt trước",
+      dataIndex: "reservationMoney",
+      key: "reservationMoney",
+      render: (reservationMoney) =>
+        new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(reservationMoney),
+    },
+    {
       title: "Hành động",
       key: "action",
       render: (text, record) =>
@@ -467,16 +515,52 @@ const CreateStaffRefundMember = () => {
         dataSource={orders}
         rowKey="orderID"
         loading={loading}
-        pagination={{
-          current: pageIndex,
-          pageSize: pageSize,
-          total: total,
-          onChange: (page, pageSize) => {
-            setPageIndex(page);
-            setPageSize(pageSize);
-          },
-        }}
       />
+      <Modal
+        title="Chi tiết đơn hàng"
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={null}
+      >
+        {selectedOrderDetails && (
+          <ul>
+            {selectedOrderDetails.map((detail) => (
+              <li key={detail.orderDetailsID}>
+                <p>Product ID: {detail.productID}</p>
+                <p>Product Name: {detail.productName || "N/A"}</p>
+                <p>Product Quality: {detail.productQuality}</p>
+                <p>
+                  Product Price:{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(detail.productPrice)}
+                </p>
+                <p>
+                  Product Price Total:{" "}
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(detail.productPriceTotal)}
+                </p>
+                <p>Discount: {detail.discount}</p>
+                <p>
+                  Period Rental:{" "}
+                  {moment(detail.periodRental).format("DD-MM-YYYY HH:mm")}
+                </p>
+                <p>
+                  Created At:{" "}
+                  {moment(detail.createdAt).format("DD-MM-YYYY HH:mm")}
+                </p>
+                <p>
+                  Updated At:{" "}
+                  {moment(detail.updatedAt).format("DD-MM-YYYY HH:mm")}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Modal>
     </div>
   );
 };

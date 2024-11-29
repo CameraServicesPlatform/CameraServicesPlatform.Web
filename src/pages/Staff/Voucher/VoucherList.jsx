@@ -1,18 +1,19 @@
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { Input, Modal, Pagination, Spin, Table } from "antd";
 import React, { useEffect, useState } from "react";
-import { getAllVouchers } from "../../../api/voucherApi"; // Import your API function
+import { getAllVouchers } from "../../../api/voucherApi";  
+import moment from "moment";
 
 const VoucherList = () => {
   const [vouchers, setVouchers] = useState([]);
-  const [originalVouchers, setOriginalVouchers] = useState([]); // Store original vouchers
+  const [originalVouchers, setOriginalVouchers] = useState([]);  
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [visible, setVisible] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // Search term state
+  const [searchTerm, setSearchTerm] = useState(""); 
 
   useEffect(() => {
     const fetchVouchers = async () => {
@@ -21,8 +22,8 @@ const VoucherList = () => {
         const response = await getAllVouchers(pageIndex, pageSize);
         if (response && response.isSuccess) {
           setVouchers(response.result);
-          setOriginalVouchers(response.result); // Store original vouchers
-          setTotal(response.result.length); // Update this if you have total count
+          setOriginalVouchers(response.result);  
+          setTotal(response.result.length);  
         } else {
           console.error("Không thể tải danh sách voucher:", response.messages);
         }
@@ -59,16 +60,6 @@ const VoucherList = () => {
 
   const columns = [
     {
-      title: "Mã nhà cung cấp",
-      dataIndex: "supplierID",
-      key: "supplierID",
-    },
-    {
-      title: "Mã voucher",
-      dataIndex: "vourcherID",
-      key: "vourcherID",
-    },
-    {
       title: "Mã voucher",
       dataIndex: "vourcherCode",
       key: "vourcherCode",
@@ -84,17 +75,18 @@ const VoucherList = () => {
       key: "discountAmount",
       render: (text) => `${text} VND`,
     },
+
     {
       title: "Hiệu lực từ",
       dataIndex: "validFrom",
       key: "validFrom",
-      render: (text) => new Date(text).toLocaleDateString(),
+      render: (text) => moment(text).format("DD-MM-YYYY HH:mm"),
     },
     {
       title: "Ngày hết hạn",
       dataIndex: "expirationDate",
       key: "expirationDate",
-      render: (text) => new Date(text).toLocaleDateString(),
+      render: (text) => moment(text).format("DD-MM-YYYY HH:mm"),
     },
     {
       title: "Hoạt động",
