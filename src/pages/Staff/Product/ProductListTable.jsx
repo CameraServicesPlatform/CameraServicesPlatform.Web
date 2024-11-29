@@ -1,11 +1,11 @@
-import { message, Pagination, Typography } from "antd";
+import { message, Pagination, Spin, Typography } from "antd";
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import HandleSearchAndFilter from "./HandleSearchFilter"; // Import the HandleSearchAndFilter component
-import ProductTable from "./ProductTable"; // Import the ProductTable component
-import ProductDetailsModal from "./ProductDetailsModal"; // Import the ProductDetailsModal component
-import useFetchProducts from "./useFetchProducts"; // Import the custom hook
+import { getProductById } from "../../../api/productApi";
+import HandleSearchAndFilter from "./HandleSearchFilter";
+import ProductDetailsModal from "./ProductDetailsModal";
+import ProductTable from "./ProductTable";
+import useFetchProducts from "./useFetchProducts";
 
 const { Title } = Typography;
 
@@ -14,16 +14,40 @@ const ProductListTable = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [expandedDescriptions, setExpandedDescriptions] = useState({}); // Track expanded descriptions
-  const [filteredProducts, setFilteredProducts] = useState([]); // Track filtered products
-  const { id } = useParams(); // Assume `id` is passed via URL parameters
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const { id } = useParams();
 
-  const { products, loading, total, categoryNames } = useFetchProducts(
+  const { products, total, categoryNames } = useFetchProducts(
     pageIndex,
     pageSize
   );
+  const [loading, setLoading] = useState(false);
+
+  const handleView = async (productId) => {
+    setLoading(true);
+    try {
+      const product = await getProductById(productId);
+      if (product) {
+        setSelectedProduct(product);
+        setIsModalVisible(true);
+      } else {
+        message.error("Failed to fetch product details");
+      }
+    } catch (error) {
+      console.error("Error fetching product details:", error);
+      message.error("Error fetching product details");
+    }
+    setLoading(false);
+  };
+
+  const handleExpandDescription = (productId) => {
+    setExpandedDescriptions((prev) => ({
+      ...prev,
+      [productId]: !prev[productId],
+    }));
+  };
 
   const handleDelete = async (productId) => {
     const confirmed = window.confirm(
@@ -42,91 +66,43 @@ const ProductListTable = () => {
     }
   };
 
-  const handleEdit = (product) => {
-    setSelectedProduct(product);
-    setIsEditModalVisible(true);
-  };
-
-  const handleUpdateSuccess = (updatedProduct) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.productID === updatedProduct.productID
-          ? updatedProduct
-          : product
-      )
-    );
-  };
-
-  const handleModalClose = () => {
-    setIsEditModalVisible(false);
-    setSelectedProduct(null);
-  };
-
-  const handleView = async (productID) => {
-    setLoading(true);
-    try {
-      const fetchedProduct = await getProductById(productID);
-      setSelectedProduct(fetchedProduct);
-      setIsModalVisible(true); // Show the modal after fetching the product
-    } catch (error) {
-      message.error("Hệ thống loading sản phẩm bị lỗi, vui lòng quay lại sau.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleExpandDescription = (productId) => {
-    setExpandedDescriptions((prev) => ({
-      ...prev,
-      [productId]: !prev[productId],
-    }));
+  const handleFilter = (filteredProducts) => {
+    setFilteredProducts(filteredProducts);
   };
 
   return (
-    <div>
-      <Title level={2}>DANH SÁCH SẢN PHẨM</Title>
-
+    <Spin spinning={loading}>
+      <Title level={2}>Product List</Title>
       <HandleSearchAndFilter
         products={products}
-        onFilter={setFilteredProducts}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onFilter={handleFilter}
       />
-
-      {loading ? (
-        <p>Hệ thống đang loading sản phẩm</p>
-      ) : (
-        <div>
-          {filteredProducts.length > 0 ? (
-            <>
-              <ProductTable
-                products={filteredProducts}
-                categoryNames={categoryNames}
-                expandedDescriptions={expandedDescriptions}
-                handleExpandDescription={handleExpandDescription}
-                handleView={handleView}
-                handleDelete={handleDelete}
-              />
-              <Pagination
-                total={total}
-                showSizeChanger
-                onShowSizeChange={(current, size) => {
-                  setPageSize(size);
-                }}
-                style={{ marginTop: "20px", textAlign: "center" }}
-              />
-            </>
-          ) : (
-            <p>No products available.</p>
-          )}
-        </div>
-      )}
-
+      <ProductTable
+        products={filteredProducts.length > 0 ? filteredProducts : products}
+        categoryNames={categoryNames}
+        expandedDescriptions={expandedDescriptions}
+        handleExpandDescription={handleExpandDescription}
+        handleView={handleView}
+        handleDelete={handleDelete}
+      />
+      <Pagination
+        current={pageIndex}
+        pageSize={pageSize}
+        total={total}
+        onChange={(page, pageSize) => {
+          setPageIndex(page);
+          setPageSize(pageSize);
+        }}
+        style={{ marginTop: "16px", textAlign: "center" }}
+      />
       <ProductDetailsModal
-        isModalVisible={isModalVisible}
-        handleClose={handleModalClose}
-        selectedProduct={selectedProduct}
-        loading={loading}
+        visible={isModalVisible}
+        product={selectedProduct}
+        onClose={() => setIsModalVisible(false)}
       />
-    </div>
+    </Spin>
   );
 };
 

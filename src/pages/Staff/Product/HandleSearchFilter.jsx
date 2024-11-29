@@ -1,12 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { Input, Select } from "antd";
+import React, { useEffect, useState } from "react";
 
-const ProductStatusEnum = {
-  AvailableSell: 0,
-  AvailableRent: 1,
-  Rented: 2,
-  Sold: 3,
-  DiscontinuedProduct: 4,
-};
+const { Option } = Select;
 
 const BrandEnum = {
   Canon: 0,
@@ -21,13 +16,15 @@ const BrandEnum = {
   Sigma: 9,
 };
 
-const HandleSearchFilter = ({ products, onFilter }) => {
+const HandleSearchFilter = ({ products = [], onFilter }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [priceRange, setPriceRange] = useState([0, Infinity]);
 
   useEffect(() => {
+    if (!products) return;
+
     const filteredProducts = products.filter((product) => {
       const matchesSearchTerm = product.productName
         .toLowerCase()
@@ -52,75 +49,40 @@ const HandleSearchFilter = ({ products, onFilter }) => {
     onFilter,
   ]);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleStatusChange = (e) => {
-    setSelectedStatus(e.target.value);
-  };
-
-  const handleBrandChange = (e) => {
-    setSelectedBrand(e.target.value);
-  };
-
-  const handlePriceChange = (e) => {
-    const [min, max] = e.target.value.split("-");
-    setPriceRange([Number(min), Number(max)]);
-  };
-
   return (
-    <div className="mb-4 p-4 bg-white shadow rounded-lg">
-      <div className="flex flex-wrap gap-4">
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          value={searchTerm}
-          onChange={handleSearch}
-          className="border p-2 rounded w-full md:w-1/4"
-        />
-        <select
-          value={selectedStatus}
-          onChange={handleStatusChange}
-          className="border p-2 rounded w-full md:w-1/4"
-        >
-          <option value="">Tất cả trạng thái</option>
-          <option value={ProductStatusEnum.AvailableSell}>Đang bán</option>
-          <option value={ProductStatusEnum.AvailableRent}>Đang cho thuê</option>
-          <option value={ProductStatusEnum.Rented}>Đã cho thuê</option>
-          <option value={ProductStatusEnum.Sold}>Đã bán</option>
-          <option value={ProductStatusEnum.DiscontinuedProduct}>
-            Ngừng kinh doanh
-          </option>
-        </select>
-        <select
-          value={selectedBrand}
-          onChange={handleBrandChange}
-          className="border p-2 rounded w-full md:w-1/4"
-        >
-          <option value="">Tất cả thương hiệu</option>
-          <option value={BrandEnum.Canon}>Canon</option>
-          <option value={BrandEnum.Nikon}>Nikon</option>
-          <option value={BrandEnum.Sony}>Sony</option>
-          <option value={BrandEnum.Fujifilm}>Fujifilm</option>
-          <option value={BrandEnum.Olympus}>Olympus</option>
-          <option value={BrandEnum.Panasonic}>Panasonic</option>
-          <option value={BrandEnum.Leica}>Leica</option>
-          <option value={BrandEnum.Pentax}>Pentax</option>
-          <option value={BrandEnum.Hasselblad}>Hasselblad</option>
-          <option value={BrandEnum.Sigma}>Sigma</option>
-        </select>
-        <select
-          value={priceRange.join("-")}
-          onChange={handlePriceChange}
-          className="border p-2 rounded w-full md:w-1/4"
-        >
-          <option value="0-Infinity">Tất cả giá</option>
-          <option value="0-1000000">Dưới 1,000,000 VND</option>
-          <option value="1000000-5000000">1,000,000 - 5,000,000 VND</option>
-          <option value="5000000-Infinity">Trên 5,000,000 VND</option>
-        </select>
-      </div>
+    <div>
+      <Input
+        placeholder="Search products"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ marginBottom: "16px" }}
+      />
+      <Select
+        placeholder="Select Status"
+        value={selectedStatus}
+        onChange={(value) => setSelectedStatus(value)}
+        style={{ width: "100%", marginBottom: "16px" }}
+      >
+        <Option value="">All Statuses</Option>
+        <Option value="0">For Sale</Option>
+        <Option value="1">For Rent</Option>
+        <Option value="2">Rented Out</Option>
+        <Option value="3">Sold</Option>
+        <Option value="4">Unavailable</Option>
+      </Select>
+      <Select
+        placeholder="Select Brand"
+        value={selectedBrand}
+        onChange={(value) => setSelectedBrand(value)}
+        style={{ width: "100%", marginBottom: "16px" }}
+      >
+        <Option value="">All Brands</Option>
+        {Object.keys(BrandEnum).map((brand) => (
+          <Option key={BrandEnum[brand]} value={BrandEnum[brand]}>
+            {brand}
+          </Option>
+        ))}
+      </Select>
     </div>
   );
 };
