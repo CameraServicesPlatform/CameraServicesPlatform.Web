@@ -383,11 +383,7 @@ const CreateStaffRefundMember = () => {
         );
       },
     },
-    {
-      title: "Địa chỉ giao hàng",
-      dataIndex: "shippingAddress",
-      key: "shippingAddress",
-    },
+
     {
       title: "Phương thức giao hàng",
       dataIndex: "deliveriesMethod",
@@ -428,7 +424,7 @@ const CreateStaffRefundMember = () => {
       ),
     },
     {
-      title: "Tiền đặt trước",
+      title: "Tiền giữ chỗ",
       dataIndex: "reservationMoney",
       key: "reservationMoney",
       render: (reservationMoney) =>

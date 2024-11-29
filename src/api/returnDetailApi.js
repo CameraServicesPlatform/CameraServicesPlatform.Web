@@ -63,3 +63,13 @@ export const getAllReturnDetails = async (pageIndex = 1, pageSize = 100) => {
     return null;
   }
 };
+// Create a new return detail for a member
+export const createReturnDetailForMember = async (data) => {
+  try {
+    const res = await api.post("/returnDetail/create-return-for-member", data);
+    return res.data;
+  } catch (err) {
+    console.error("Error creating return detail for member:", err);
+    return null;
+  }
+};

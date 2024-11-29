@@ -1,12 +1,9 @@
-import { faClock, faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { message } from "antd";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import "tailwindcss/tailwind.css";
 import { getCategoryById } from "../../api/categoryApi";
 import {
-  cancelOrder,
   getImageProductAfterByOrderId,
   getImageProductBeforeByOrderId,
   getOrderDetailsById,
@@ -16,9 +13,12 @@ import {
 } from "../../api/orderApi";
 import { getSupplierById } from "../../api/supplierApi";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
-import { formatDateTime, formatPrice } from "../../utils/util";
 import PersonalModal from "./Account/PersonalModal";
 import ImageUploadPopup from "./ImageUploadPopup";
+import OrderDetails from "./manageinfo/OrderDetails";
+import OrderList from "./manageinfo/OrderList";
+import UserInfo from "./manageinfo/UserInfo";
+
 const jobDescriptions = {
   0: "Sinh viên",
   1: "Nhiếp ảnh gia chuyên nghiệp",
@@ -40,6 +40,7 @@ const hobbyDescriptions = {
   5: "Nhiếp ảnh thể thao",
   6: "Khác",
 };
+
 const orderStatusMap = {
   0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
   1: {
@@ -50,11 +51,7 @@ const orderStatusMap = {
   2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
   3: { text: "Đã nhận sản phẩm", color: "purple", icon: "fa-shopping-cart" },
   4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
-  5: {
-    text: "Thanh toán thất bại",
-    color: "cyan",
-    icon: "fa-money-bill-wave",
-  },
+  5: { text: "Thanh toán thất bại", color: "cyan", icon: "fa-money-bill-wave" },
   6: { text: "Đang hủy", color: "lime", icon: "fa-box-open" },
   7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
   8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
@@ -70,7 +67,7 @@ const orderTypeMap = {
 };
 
 const deliveryStatusMap = {
-  0: { text: "Nhận tại cửa hàng", color: "blue", icon: "fa-store" }, // LPH: Lấy Phát Hàng
+  0: { text: "Nhận tại cửa hàng", color: "blue", icon: "fa-store" },
   1: { text: "Giao hàng tận nơi", color: "green", icon: "fa-truck" },
   2: { text: "Trả lại", color: "red", icon: "fa-undo" },
 };
@@ -214,26 +211,9 @@ const PersonalInformation = () => {
 
   const handleClick = (order) => {
     setIsOrderDetail(true);
-
     fetchOrderDetails(order.orderID);
   };
-  const StatusBadge = ({ status, map }) => {
-    const statusInfo = map[status] || {
-      text: "Thanh toán thất bại",
-      color: "gray",
-      icon: "fa-question-circle",
-    };
-    return (
-      <span className="flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-full bg-opacity-20">
-        <i
-          className={`fa-solid ${statusInfo.icon} text-${statusInfo.color}-500`}
-        ></i>
-        <span className={`text-${statusInfo.color}-700`}>
-          {statusInfo.text}
-        </span>
-      </span>
-    );
-  };
+
   const handlePaymentAgain = async (orderId) => {
     try {
       setIsLoading(true);
@@ -249,176 +229,6 @@ const PersonalInformation = () => {
       setIsLoading(false);
     }
   };
-  const isWithin24Hours = (orderDate) => {
-    const orderTime = new Date(orderDate).getTime();
-    const currentTime = new Date().getTime();
-    const timeDifference = currentTime - orderTime;
-    return timeDifference <= 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-  };
-  const calculateRemainingTime = (orderDate) => {
-    const orderTime = new Date(orderDate).getTime();
-    const currentTime = new Date().getTime();
-    const timeDifference = 24 * 60 * 60 * 1000 - (currentTime - orderTime);
-    return timeDifference > 0 ? timeDifference : 0;
-  };
-
-  const formatTime = (milliseconds) => {
-    const hours = Math.floor(milliseconds / (1000 * 60 * 60));
-    const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
-    return `${hours}h ${minutes}m ${seconds}s`;
-  };
-
-  const OrderCancelButton = ({ order }) => {
-    const [remainingTime, setRemainingTime] = useState(
-      calculateRemainingTime(order.orderDate)
-    );
-
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setRemainingTime(calculateRemainingTime(order.orderDate));
-      }, 1000);
-
-      return () => clearInterval(interval);
-    }, [order.orderDate]);
-
-    return (
-      (order.orderStatus === 0 || order.orderStatus === 8) &&
-      isWithin24Hours(order.orderDate) && (
-        <div className="flex justify-center items-center">
-          <FontAwesomeIcon icon={faClock} className="mr-2" />
-          <span className="mr-2">{formatTime(remainingTime)}</span>
-          <button
-            className="bg-red-500 text-white rounded-md py-2 px-4 my-2 flex items-center group"
-            onClick={async (e) => {
-              e.preventDefault();
-              alert("Cancel Order Request clicked"); // Show alert
-              console.log("Order:", order); // Log the order object
-              if (!order.orderID) {
-                console.error("Order ID is undefined");
-                return;
-              }
-              try {
-                const result = await cancelOrder(order.orderID);
-                console.log("API Response:", result); // Log the API response
-                if (result && result.isSuccess) {
-                  console.log("Order canceled successfully:", result);
-                  window.location.reload(); // Reload the page
-                } else {
-                  console.error("Failed to cancel order:", result.messages);
-                }
-              } catch (err) {
-                console.error("Error canceling order:", err);
-              }
-            }}
-          >
-            <FontAwesomeIcon
-              icon={faTimes}
-              className="mr-2 group-hover:hidden"
-            />
-            <span className="hidden group-hover:inline">
-              Yêu cầu hủy đơn hàng
-            </span>
-          </button>
-        </div>
-      )
-    );
-  };
-
-  const renderOrderItems = (order) => (
-    <tr
-      key={order.orderID}
-      className={
-        order.orderStatus === 1 && order.deliveriesMethod === 0
-          ? "bg-yellow-100"
-          : "cursor-pointer hover:bg-gray-50 transition-colors"
-      }
-      onClick={() => handleClick(order)}
-    >
-      <td className="py-3 px-4 border-b">{order.orderID}</td>
-      <td className="py-3 px-4 border-b">
-        <div>
-          <strong>Tên nhà cung cấp:</strong>
-          {supplierMap[order.supplierID]?.supplierName || " "}
-        </div>
-        <div>
-          <strong>Địa chỉ:</strong>
-          {supplierMap[order.supplierID]?.supplierAddress || " "}
-        </div>
-        <div>
-          <strong>Mô tả:</strong>
-          {supplierMap[order.supplierID]?.supplierDescription || " "}
-        </div>
-        <div>
-          <strong>Số điện thoại liên hệ:</strong>
-          {supplierMap[order.supplierID]?.contactNumber || ""}
-        </div>
-      </td>
-      <td className="py-3 px-4 border-b">
-        <StatusBadge status={order.orderStatus} map={orderStatusMap} />
-      </td>
-      <td className="py-3 px-4 border-b hidden md:table-cell">
-        {order.shippingAddress}
-      </td>
-      <td className="py-3 px-4 border-b hidden lg:table-cell">
-        <StatusBadge status={order.deliveriesMethod} map={deliveryStatusMap} />
-      </td>
-      <td className="py-3 px-4 border-b">
-        <StatusBadge status={order.orderType} map={orderTypeMap} />
-      </td>
-      <td className="py-3 px-4 border-b hidden sm:table-cell">
-        {formatDateTime(order.orderDate)}
-      </td>
-      <td className="py-3 px-4 border-b">{formatPrice(order.totalAmount)}</td>
-      <td>
-        {order.orderStatus === 0 && (
-          <div className="flex justify-center">
-            <button
-              className="bg-primary text-white rounded-md py-2 px-4 my-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                handlePaymentAgain(order.orderID);
-              }}
-            >
-              Thanh toán ngay
-            </button>
-          </div>
-        )}
-      </td>
-      <td>
-        <OrderCancelButton order={order} />
-        {order.orderStatus === 1 &&
-          order.orderType === 1 &&
-          order.deliveriesMethod === 0 && (
-            <button
-              className="bg-blue-500 text-white rounded-md py-2 px-4 my-2"
-              onClick={async (e) => {
-                e.stopPropagation();
-                await updateOrderStatusPlaced(order.orderID);
-              }}
-            >
-              Đến nhận
-            </button>
-          )}
-      </td>
-      <td>
-        {order.orderStatus === 1 &&
-          order.deliveriesMethod === 0 &&
-          order.orderType === 1 && (
-            <button
-              className="bg-green-500 text-white rounded-md py-2 px-4 my-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                openUploadPopup(order.orderID, "after");
-              }}
-            >
-              Thêm ảnh sản phẩm trước khi trả hàng
-            </button>
-          )}
-      </td>
-      <td></td>
-    </tr>
-  );
 
   const openUploadPopup = (orderId, type) => {
     setSelectedOrderId(orderId);
@@ -431,258 +241,42 @@ const PersonalInformation = () => {
     setUploadType(null);
     setSelectedOrderId(null);
   };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <LoadingComponent isLoading={isLoading} title="Loading data..." />
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <div className="flex items-center mb-6">
-            <h2 className="text-2xl font-bold text-teal-600 flex items-center">
-              <i className="fa-solid fa-user mr-2"></i> Thông tin cá nhân
-            </h2>
-            <button
-              className="btn bg-primary text-white flex items-center"
-              onClick={() => setIsUpdateModalOpen(true)}
-            >
-              <FontAwesomeIcon icon={faEdit} className="mr-2" />
-            </button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="flex items-center">
-              <i className="fa-solid fa-user mr-2 text-gray-600"></i>
-              <span>
-                <strong>Tên:</strong> {userMap.name}
-              </span>
-            </div>
-
-            <div className="flex items-center">
-              <i className="fa-solid fa-phone mr-2 text-gray-600"></i>
-              <span>
-                <strong>Điện thoại:</strong> {userMap.phone}
-              </span>
-            </div>
-            <div className="flex items-center flex-wrap">
-              <i className="fa-solid fa-envelope mr-2 text-gray-600"></i>
-              <span className="break-words">
-                <strong>Email:</strong> {userMap.email}
-              </span>
-            </div>
-
-            <div className="flex items-center">
-              <i className="fa-solid fa-briefcase mr-2 text-gray-600"></i>
-              <span>
-                <strong>Công việc:</strong> {jobDescriptions[userMap.job]}
-              </span>
-            </div>
-            <div className="flex items-center">
-              <i className="fa-solid fa-heart mr-2 text-gray-600"></i>
-              <span>
-                <strong>Sở thích:</strong> {hobbyDescriptions[userMap.hobby]}
-              </span>
-            </div>
-            <div className="flex items-center">
-              <i className="fa-solid fa-venus-mars mr-2 text-gray-600"></i>
-              <span>
-                <strong>Giới tính:</strong>
-                {userMap.gender === 0 ? "Nam" : "Nữ"}
-              </span>
-            </div>
-            <div className="flex items-center">
-              <i className="fa-solid fa-university mr-2 text-gray-600"></i>
-              <span>
-                <strong>Ngân hàng:</strong> {userMap.bankName}
-              </span>
-            </div>
-            <div className="flex items-center">
-              <i className="fa-solid fa-credit-card mr-2 text-gray-600"></i>
-              <span>
-                <strong>Số tài khoản:</strong> {userMap.accountNumber}
-              </span>
-            </div>
-            <div className="flex items-center">
-              <i className="fa-solid fa-user-tie mr-2 text-gray-600"></i>
-              <span>
-                <strong>Chủ tài khoản:</strong> {userMap.accountHolder}
-              </span>
-            </div>
-          </div>
-        </div>
-
+        <UserInfo
+          userMap={userMap}
+          jobDescriptions={jobDescriptions}
+          hobbyDescriptions={hobbyDescriptions}
+          setIsUpdateModalOpen={setIsUpdateModalOpen}
+        />
         {!isOrderDetail ? (
-          <div className="lg:col-span-3 bg-white shadow-lg rounded-lg p-6">
-            <h2 className="text-2xl font-bold text-teal-600 mb-6 text-center">
-              Đơn hàng của bạn
-            </h2>
-            {orders.length === 0 ? (
-              <p className="text-center text-gray-500">No orders found.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="py-3 px-4 border-b">Mã đơn hàng</th>
-                      <th className="py-3 px-4 border-b">Mã nhà cung cấp</th>
-                      <th className="py-3 px-4 border-b">Trạng thái</th>
-                      <th className="py-3 px-4 border-b hidden md:table-cell">
-                        Địa chỉ giao hàng
-                      </th>
-                      <th className="py-3 px-4 border-b hidden lg:table-cell">
-                        Phương thức giao hàng
-                      </th>
-                      <th className="py-3 px-4 border-b">Loại</th>
-                      <th className="py-3 px-4 border-b hidden sm:table-cell">
-                        Ngày đặt hàng
-                      </th>
-                      <th className="py-3 px-4 border-b">Tổng số tiền</th>
-                      <th className="py-3 px-6 border-b"> </th>
-                      <th className="py-3 px-6 border-b"> </th>
-                      <th className="py-3 px-6 border-b"> </th>
-                    </tr>
-                  </thead>
-                  <tbody>{orders.map(renderOrderItems)}</tbody>
-                </table>
-              </div>
-            )}
-          </div>
+          <OrderList
+            orders={orders}
+            supplierMap={supplierMap}
+            orderStatusMap={orderStatusMap}
+            deliveryStatusMap={deliveryStatusMap}
+            orderTypeMap={orderTypeMap}
+            handleClick={handleClick}
+            handlePaymentAgain={handlePaymentAgain}
+            updateOrderStatusPlaced={updateOrderStatusPlaced}
+            openUploadPopup={openUploadPopup}
+          />
         ) : (
-          <div className="lg:col-span-3 bg-white shadow-xl rounded-lg p-6">
-            <button
-              onClick={() => {
-                setIsOrderDetail(false);
-              }}
-              className="text-teal-600 hover:text-teal-800 mb-4 flex items-center"
-            >
-              <i className="fa-solid fa-arrow-left mr-2"></i> Back
-            </button>
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-teal-600 text-center">
-                Thông tin chi tiết
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="py-3 px-4 border-b">Tên sản phẩm</th>
-                      <th className="py-3 px-4 border-b">Giá</th>
-                      <th className="py-3 px-4 border-b">Chất lượng</th>
-                      <th className="py-3 px-4 border-b">Tổng giá</th>
-                      <th className="py-3 px-4 border-b">Số seri</th>
-                      <th className="py-3 px-4 border-b">Tên nhà cung cấp</th>
-                      <th className="py-3 px-4 border-b">Tên danh mục</th>
-                      <th className="py-3 px-4 border-b">Ngày tạo</th>
-                      <th className="py-3 px-4 border-b">Ngày cập nhật</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dataDetai.length > 0 ? (
-                      dataDetai.map((orderdetails) => (
-                        <tr
-                          key={orderdetails.productID}
-                          className="hover:bg-gray-50"
-                        >
-                          <td className="py-2 px-4 border-b">
-                            {orderdetails.product.productName || "N/A"}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {new Intl.NumberFormat("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            }).format(
-                              orderdetails.product.priceBuy ||
-                                orderdetails.productPrice
-                            )}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {orderdetails.product.quality}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {new Intl.NumberFormat("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                            }).format(orderdetails.productPriceTotal)}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {orderdetails.product.serialNumber || "N/A"}
-                          </td>
-                          <td className="py-3 px-4 border-b">
-                            <div>
-                              <strong>Tên nhà cung cấp:</strong>
-                              {supplierMap[orderdetails.product.supplierID]
-                                ?.supplierName || " "}
-                            </div>
-                            <div>
-                              <strong>Địa chỉ:</strong>
-                              {supplierMap[orderdetails.product.supplierID]
-                                ?.supplierAddress || " "}
-                            </div>
-                            <div>
-                              <strong>Mô tả:</strong>
-                              {supplierMap[orderdetails.product.supplierID]
-                                ?.supplierDescription || " "}
-                            </div>
-                            <div>
-                              <strong>Số điện thoại liên hệ:</strong>
-                              {supplierMap[orderdetails.product.supplierID]
-                                ?.contactNumber || ""}
-                            </div>
-                          </td>
-
-                          <td className="py-2 px-4 border-b">
-                            {categoryMap[orderdetails.product.categoryID] ||
-                              "N/A"}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {formatDateTime(orderdetails.product.createdAt)}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {formatDateTime(orderdetails.product.updatedAt)}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="9" className="text-center py-4">
-                          No products found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              <div className="flex justify-center space-x-4 mt-4">
-                {beforeImage && (
-                  <div>
-                    <h4 className="text-lg font-semibold text-teal-600">
-                      Ảnh sản phẩm trước khi thuê
-                    </h4>
-                    <img
-                      src={beforeImage}
-                      alt="Before"
-                      className="max-w-xs rounded-lg shadow-md"
-                    />
-                  </div>
-                )}
-                {afterImage && (
-                  <div>
-                    <h4 className="text-lg font-semibold text-teal-600">
-                      Ảnh sản phẩm sau khi thuê
-                    </h4>
-                    <img
-                      src={afterImage}
-                      alt="After"
-                      className="max-w-xs rounded-lg shadow-md"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <OrderDetails
+            dataDetai={dataDetai}
+            supplierMap={supplierMap}
+            categoryMap={categoryMap}
+            beforeImage={beforeImage}
+            afterImage={afterImage}
+            setIsOrderDetail={setIsOrderDetail}
+          />
         )}
-
         {isUpdateModalOpen && (
           <PersonalModal onClose={() => setIsUpdateModalOpen(false)} />
         )}
-
         {isUploadPopupOpen && (
           <ImageUploadPopup
             orderId={selectedOrderId}

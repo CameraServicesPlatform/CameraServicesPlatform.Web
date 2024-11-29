@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getStaffByAccountId, getUserById } from "../../../api/accountApi";
 import { getAllOrders } from "../../../api/orderApi";
+import { getProductById } from "../../../api/productApi"; // Import the function
 import { getSupplierById } from "../../../api/supplierApi";
 import {
   addImagePayment,
@@ -264,7 +265,24 @@ const CreateStaffRefundSupplier = () => {
       console.error("Error fetching transaction image:", error);
     }
   };
-
+  const handleViewDetails = async (orderDetails) => {
+    const detailsWithProductNames = await Promise.all(
+      orderDetails.map(async (detail) => {
+        if (!detail.productName) {
+          try {
+            const productData = await getProductById(detail.productID);
+            detail.productName = productData.name || "N/A";
+          } catch (error) {
+            console.error("Error fetching product name:", error);
+            detail.productName = "N/A";
+          }
+        }
+        return detail;
+      })
+    );
+    setSelectedOrderDetails(detailsWithProductNames);
+    setIsModalVisible(true);
+  };
   const columns = [
     {
       title: "Mã nhà cung cấp",
@@ -350,10 +368,36 @@ const CreateStaffRefundSupplier = () => {
         }).format(deposit),
     },
     {
+      title: "Thanh toán",
+      dataIndex: "isPayment",
+      key: "isPayment",
+      render: (isPayment) => (isPayment ? "Đã thanh toán" : "Chưa thanh toán"),
+    },
+    {
+      title: "Chi tiết đơn hàng",
+      dataIndex: "orderDetails",
+      key: "orderDetails",
+      render: (orderDetails) => (
+        <Button type="link" onClick={() => handleViewDetails(orderDetails)}>
+          Xem chi tiết
+        </Button>
+      ),
+    },
+    {
+      title: "Tiền giữ chỗ",
+      dataIndex: "reservationMoney",
+      key: "reservationMoney",
+      render: (reservationMoney) =>
+        new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(reservationMoney),
+    },
+    {
       title: "Hành động",
       key: "action",
       render: (text, record) =>
-        record.orderType === 0 ? (
+        record.orderType === 0 && record.reservationMoney > 0 ? (
           <Button
             type="primary"
             onClick={() =>
