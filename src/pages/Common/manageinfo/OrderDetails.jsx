@@ -1,7 +1,14 @@
-import React from 'react';
+import React from "react";
 import { formatDateTime } from "../../../utils/util";
 
-const OrderDetails = ({ dataDetai, supplierMap, categoryMap, beforeImage, afterImage, setIsOrderDetail }) => (
+const OrderDetails = ({
+  dataDetai,
+  supplierMap,
+  categoryMap,
+  beforeImage,
+  afterImage,
+  setIsOrderDetail,
+}) => (
   <div className="lg:col-span-3 bg-white shadow-xl rounded-lg p-6">
     <button
       onClick={() => {
@@ -23,6 +30,7 @@ const OrderDetails = ({ dataDetai, supplierMap, categoryMap, beforeImage, afterI
               <th className="py-3 px-4 border-b">Giá</th>
               <th className="py-3 px-4 border-b">Chất lượng</th>
               <th className="py-3 px-4 border-b">Tổng giá</th>
+              <th className="py-3 px-4 border-b">Giảm giá</th>
               <th className="py-3 px-4 border-b">Số seri</th>
               <th className="py-3 px-4 border-b">Tên nhà cung cấp</th>
               <th className="py-3 px-4 border-b">Tên danh mục</th>
@@ -33,10 +41,7 @@ const OrderDetails = ({ dataDetai, supplierMap, categoryMap, beforeImage, afterI
           <tbody>
             {dataDetai.length > 0 ? (
               dataDetai.map((orderdetails) => (
-                <tr
-                  key={orderdetails.productID}
-                  className="hover:bg-gray-50"
-                >
+                <tr key={orderdetails.productID} className="hover:bg-gray-50">
                   <td className="py-2 px-4 border-b">
                     {orderdetails.product.productName || "N/A"}
                   </td>
@@ -45,8 +50,7 @@ const OrderDetails = ({ dataDetai, supplierMap, categoryMap, beforeImage, afterI
                       style: "currency",
                       currency: "VND",
                     }).format(
-                      orderdetails.product.priceBuy ||
-                        orderdetails.productPrice
+                      orderdetails.product.priceBuy || orderdetails.productPrice
                     )}
                   </td>
                   <td className="py-2 px-4 border-b">
@@ -57,6 +61,12 @@ const OrderDetails = ({ dataDetai, supplierMap, categoryMap, beforeImage, afterI
                       style: "currency",
                       currency: "VND",
                     }).format(orderdetails.productPriceTotal)}
+                  </td>
+                  <td className="py-2 px-4 border-b">
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(orderdetails.discount || 0)}
                   </td>
                   <td className="py-2 px-4 border-b">
                     {orderdetails.product.serialNumber || "N/A"}
@@ -84,8 +94,7 @@ const OrderDetails = ({ dataDetai, supplierMap, categoryMap, beforeImage, afterI
                     </div>
                   </td>
                   <td className="py-2 px-4 border-b">
-                    {categoryMap[orderdetails.product.categoryID] ||
-                      "N/A"}
+                    {categoryMap[orderdetails.product.categoryID] || "N/A"}
                   </td>
                   <td className="py-2 px-4 border-b">
                     {formatDateTime(orderdetails.product.createdAt)}
@@ -97,7 +106,7 @@ const OrderDetails = ({ dataDetai, supplierMap, categoryMap, beforeImage, afterI
               ))
             ) : (
               <tr>
-                <td colSpan="9" className="text-center py-4">
+                <td colSpan="10" className="text-center py-4">
                   No products found
                 </td>
               </tr>

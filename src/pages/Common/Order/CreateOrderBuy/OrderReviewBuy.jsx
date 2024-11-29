@@ -29,7 +29,7 @@ const OrderReviewBuy = ({
                 </span>
               }
             >
-              {product.productID}
+              {product.serialNumber}
             </Descriptions.Item>
             <Descriptions.Item
               label={

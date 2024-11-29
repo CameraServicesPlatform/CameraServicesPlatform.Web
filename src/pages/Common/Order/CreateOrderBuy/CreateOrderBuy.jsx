@@ -254,7 +254,12 @@ const CreateOrderBuy = () => {
     },
     {
       title: "Xác nhận",
-      content: <OrderConfirmationBuy totalAmount={totalAmount} />,
+      content: (
+        <OrderConfirmationBuy
+          selectedVoucherDetails={selectedVoucherDetails}
+          totalAmount={totalAmount}
+        />
+      ),
     },
   ];
 

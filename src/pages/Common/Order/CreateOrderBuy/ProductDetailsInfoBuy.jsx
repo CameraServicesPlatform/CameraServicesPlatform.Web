@@ -28,7 +28,7 @@ const ProductDetailsInfoBuy = ({ product, loading }) => {
                   </span>
                 }
               >
-                {product.productID}
+                {product.serialNumber}
               </Descriptions.Item>
               <Descriptions.Item
                 label={
