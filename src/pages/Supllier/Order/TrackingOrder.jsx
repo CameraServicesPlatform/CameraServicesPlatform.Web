@@ -46,11 +46,22 @@ const TrackingOrder = ({ order, onUpdate }) => {
       }
     };
 
+    const fetchImages = async () => {
+      try {
+        const beforeImage = await getImageProductBeforeByOrderId(order.orderID);
+        const afterImage = await getImageProductAfterByOrderId(order.orderID);
+        setBeforeImageUrl(beforeImage?.url || null);
+        setAfterImageUrl(afterImage?.url || null);
+      } catch (error) {
+        console.error("Error fetching images:", error);
+      }
+    };
+
     if (order) {
       fetchOrderDetails();
+      fetchImages();
     }
   }, [order]);
-
   const handleCompleteOrder = async (orderId) => {
     try {
       const response = await updateOrderStatusCompleted(orderId);

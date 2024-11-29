@@ -1,7 +1,8 @@
 import { Tabs } from "antd";
 import React, { useState } from "react";
-import GetOrderBySupplier from "./GetOrderBySupplier";
+import OrderBuyListBySuplier from "./OrderBuyListBySuplier";
 import OrderListBySuplier from "./OrderListBySuplier";
+import OrderRentListBySuplier from "./OrderRentListBySuplier";
 
 const ManageOrder = () => {
   const [refreshList, setRefreshList] = useState(false);
@@ -16,13 +17,23 @@ const ManageOrder = () => {
       ),
       children: <OrderListBySuplier refresh={refreshList} />,
     },
-
     {
       key: "2",
       label: (
-        <span className="font-medium text-lg text-gray-700">Lọc đơn hàng</span>
+        <span className="font-medium text-lg text-gray-700">
+          Danh sách đơn hàng mua
+        </span>
       ),
-      children: <GetOrderBySupplier />,
+      children: <OrderBuyListBySuplier refresh={refreshList} />,
+    },
+    {
+      key: "3",
+      label: (
+        <span className="font-medium text-lg text-gray-700">
+          Danh sách đơn hàng thuê
+        </span>
+      ),
+      children: <OrderRentListBySuplier refresh={refreshList} />,
     },
   ];
 
