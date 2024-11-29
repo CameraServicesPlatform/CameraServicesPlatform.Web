@@ -123,7 +123,7 @@ const CreateStaffRefundSupplier = () => {
                 if (accountData && accountData.isSuccess) {
                   accountNamesMap[
                     order.accountID
-                  ] = `${accountData.result.lastName} ${accountData.result.firstName}`;
+                  ] = ` ${accountData.result.firstName} ${accountData.result.lastName}`;
                 } else {
                   console.error(
                     `No data found for accountID: ${order.accountID}`
@@ -320,11 +320,7 @@ const CreateStaffRefundSupplier = () => {
         );
       },
     },
-    {
-      title: "Địa chỉ giao hàng",
-      dataIndex: "shippingAddress",
-      key: "shippingAddress",
-    },
+
     {
       title: "Phương thức giao hàng",
       dataIndex: "deliveriesMethod",
@@ -351,16 +347,17 @@ const CreateStaffRefundSupplier = () => {
     {
       title: "Hành động",
       key: "action",
-      render: (text, record) => (
-        <Button
-          type="primary"
-          onClick={() =>
-            handleRefund(record.orderID, record.orderStatus, record.orderType)
-          }
-        >
-          Thanh toán cho nhà cung cấp
-        </Button>
-      ),
+      render: (text, record) =>
+        record.orderType === 0 ? (
+          <Button
+            type="primary"
+            onClick={() =>
+              handleRefund(record.orderID, record.orderStatus, record.orderType)
+            }
+          >
+            Thanh toán cho nhà cung cấp
+          </Button>
+        ) : null,
     },
     {
       title: "Hình ảnh giao dịch",
