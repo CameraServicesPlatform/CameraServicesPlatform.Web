@@ -31,10 +31,10 @@ const DeliveryMethod = ({
           value={deliveryMethod}
         >
           <Radio value={0}>Nhận tại cửa hàng</Radio>
-          <Radio value={1}>Giao hàng tận nơi</Radio>
+          {/* <Radio value={0}>Giao hàng tận nơi</Radio> */}
         </Radio.Group>
       </Form.Item>
-      {deliveryMethod === 1 && (
+      {/* {deliveryMethod === 1 && (
         <Form.Item
           label="Địa chỉ giao hàng"
           name="shippingAddress"
@@ -50,7 +50,7 @@ const DeliveryMethod = ({
             onChange={handleShippingAddressChange}
           />
         </Form.Item>
-      )}
+      )} */}
 
       {deliveryMethod === 0 && supplierInfo && (
         <Descriptions bordered>
@@ -70,4 +70,3 @@ const DeliveryMethod = ({
 };
 
 export default DeliveryMethod;
-

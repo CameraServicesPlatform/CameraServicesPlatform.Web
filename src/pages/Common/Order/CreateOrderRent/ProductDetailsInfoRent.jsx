@@ -234,7 +234,7 @@ const ProductDetailsInfoRent = ({
                     </span>
                   }
                 >
-                  {product.productID}
+                  {product.serialNumber}
                 </Descriptions.Item>
                 <Descriptions.Item
                   label={
@@ -266,7 +266,18 @@ const ProductDetailsInfoRent = ({
                     currency: "VND",
                   }).format(product.depositProduct)}
                 </Descriptions.Item>
-
+                <Descriptions.Item
+                  label={
+                    <span>
+                      <FileTextOutlined /> Giá Gốc
+                    </span>
+                  }
+                >
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(product.originalPrice)}
+                </Descriptions.Item>
                 <Descriptions.Item
                   label={
                     <span>

@@ -1,4 +1,4 @@
-import { Card, Descriptions } from "antd";
+import { Card, Descriptions, Typography } from "antd";
 import React from "react";
 
 const OrderConfirmation = ({
@@ -6,6 +6,7 @@ const OrderConfirmation = ({
   depositProduct,
   productPriceRent,
   selectedVoucherDetails,
+  reservationMoney,
 }) => {
   return (
     <Card title="Xác nhận đơn hàng" bordered={false}>
@@ -35,7 +36,15 @@ const OrderConfirmation = ({
             }).format(selectedVoucherDetails.discountAmount)}
           </Descriptions.Item>
         )}
-        <Descriptions.Item label="Tổng số tiền">
+         <Descriptions.Item label="Tiền giữ sản phẩm">
+          {new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+          }).format(reservationMoney)}
+        </Descriptions.Item>
+       
+        {/* Other Descriptions.Items */}
+         <Descriptions.Item label="Tổng số tiền">
           {new Intl.NumberFormat("vi-VN", {
             style: "currency",
             currency: "VND",

@@ -32,6 +32,7 @@ const CreateOrderRent = () => {
   const [rentalEndDate, setRentalEndDate] = useState(null);
   const [shippingAddress, setShippingAddress] = useState("");
   const [returnDate, setReturnDate] = useState(null);
+  const [reservationMoney, setReservationMoney] = useState(300000); // Default value
   const location = useLocation();
   const { productID, supplierID } = location.state || {};
   const [loadingProduct, setLoadingProduct] = useState(true);
@@ -174,42 +175,25 @@ const CreateOrderRent = () => {
       supplierID: supplierID || "",
       accountID: accountId || "",
       productID: product?.productID || "",
-      vourcherID: selectedVoucher,
       productPriceRent: productPriceRent,
+      voucherID: selectedVoucher,
       orderDate: new Date().toISOString(),
       orderStatus: 0,
       totalAmount: totalAmount,
-      products: [
-        {
-          productID: product?.productID || "",
-          productName: product?.productName || "",
-          productDescription: product?.productDescription || "",
-          priceRent: productPriceRent,
-          quality: product?.quality,
-        },
-      ],
-      orderDetailRequests: [
-        {
-          productID: product?.productID || "",
-          productPrice: product?.priceBuy || 0,
-          productQuality: product?.quality,
-          discount: selectedVoucher
-            ? vouchers.find((voucher) => voucher.vourcherID === selectedVoucher)
-                ?.discountAmount || 0
-            : 0,
-          productPriceTotal: totalAmount,
-        },
-      ],
       orderType: 0,
       shippingAddress: shippingAddress,
-      rentalStartDate: rentalStartDate,
-      rentalEndDate: rentalEndDate,
+      deposit: product?.depositProduct || 0,
+      rentalStartDate: rentalStartDate.toISOString(),
+      rentalEndDate: rentalEndDate.toISOString(),
       durationUnit: durationUnit,
       durationValue: durationValue,
-      returnDate: returnDate,
-      deliveryMethod: deliveryMethod, 
+      returnDate: returnDate.toISOString(),
+      deliveryMethod: deliveryMethod,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      isExtend: false,
+      isPayment: true,
+      reservationMoney: reservationMoney,
     };
 
     try {
@@ -263,7 +247,8 @@ const CreateOrderRent = () => {
           setShippingAddress={setShippingAddress}
           deliveryMethod={deliveryMethod}
           setDeliveryMethod={setDeliveryMethod}
-          supplierInfo={supplierInfo}/>
+          supplierInfo={supplierInfo}
+        />
       ),
     },
     {
@@ -291,6 +276,7 @@ const CreateOrderRent = () => {
           contractTemplate={contractTemplate}
           depositProduct={product?.depositProduct}
           productPriceRent={productPriceRent}
+          reservationMoney={reservationMoney}
         />
       ),
     },
@@ -302,6 +288,7 @@ const CreateOrderRent = () => {
           depositProduct={product?.depositProduct}
           selectedVoucherDetails={selectedVoucherDetails}
           productPriceRent={productPriceRent}
+          reservationMoney={reservationMoney}
         />
       ),
     },

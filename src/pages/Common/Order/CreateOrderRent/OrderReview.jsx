@@ -19,6 +19,7 @@ const OrderReview = ({
   loading,
   depositProduct,
   productPriceRent,
+  reservationMoney,
 }) => {
   const totalAmountWithDeposit = totalAmount;
 
@@ -283,6 +284,12 @@ const OrderReview = ({
                   style: "currency",
                   currency: "VND",
                 }).format(depositProduct)}
+              </Descriptions.Item>
+              <Descriptions.Item label="Tiền giữ sản phẩm">
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(reservationMoney)}
               </Descriptions.Item>
               <Descriptions.Item label="Tổng số tiền">
                 {new Intl.NumberFormat("vi-VN", {
