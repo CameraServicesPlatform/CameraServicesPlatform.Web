@@ -43,6 +43,7 @@ import ManageVoucherOfSuplier from "../pages/Supllier/Voucher/ManageVoucherOfSup
 import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 import PersonalPage from "../pages/Supllier/PersonalPage";
 import ManageCombo from "../pages/Staff/Combo/ManageCombo";
+import Dashboard from "../pages/Staff/DashboardStaff";
 
 function Routers() {
   const routing = useRoutes([
@@ -97,10 +98,7 @@ function Routers() {
       ),
       children: [
         { index: true, element: <Navigate to="dashboard" replace /> },
-        {
-          path: "dashboard",
-          element: <DashboardAdmin />,
-        },
+
         {
           path: "manage-user",
           element: <ManageUser />,
@@ -160,7 +158,7 @@ function Routers() {
       element: <ManagementLayOut />,
       children: [
         { index: true, element: <Navigate to="dashboard" replace /> },
-        { path: "dashboard", element: <div>Dashboard</div> },
+        { path: "dashboard", element: <Dashboard /> },
         { path: "manage-category", element: <ManageCategory /> },
         { path: "manage-product", element: <ManageProduct /> },
         { path: "manage-voucher", element: <ManageVoucher /> },
