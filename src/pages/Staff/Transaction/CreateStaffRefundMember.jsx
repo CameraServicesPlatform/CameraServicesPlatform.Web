@@ -40,7 +40,11 @@ const orderStatusMap = {
   8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
   9: { text: "Hoàn tiền đang chờ xử lý", color: "pink", icon: "fa-clock" },
   10: { text: "Hoàn tiền thành công ", color: "brown", icon: "fa-undo" },
-  11: { text: "Hoàn trả tiền đặt cọc", color: "gold", icon: "fa-piggy-bank" },
+  11: {
+    text: "Hoàn tiền đang chờ xử lý",
+    color: "gold",
+    icon: "fa-piggy-bank",
+  },
   12: { text: "Gia hạn", color: "violet", icon: "fa-calendar-plus" },
 };
 
@@ -183,7 +187,8 @@ const CreateStaffRefundMember = () => {
       if (
         (orderStatus === 7 && orderType === 1) ||
         (orderStatus === 7 && orderType === 0) ||
-        orderStatus === 9
+        orderStatus === 9 ||
+        orderStatus === 11
       ) {
         response = await createStaffRefundReturnDetail(orderID, staffId);
       } else if (orderStatus === 9 && orderType === 1) {
@@ -439,6 +444,7 @@ const CreateStaffRefundMember = () => {
       render: (text, record) =>
         ((record.orderStatus === 7 && record.orderType === 0) ||
           (record.orderStatus === 7 && record.orderType === 1) ||
+          record.orderStatus === 11 ||
           record.orderStatus === 9) && (
           <Button
             type="primary"

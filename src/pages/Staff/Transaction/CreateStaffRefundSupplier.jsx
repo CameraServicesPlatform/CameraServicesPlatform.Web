@@ -397,7 +397,8 @@ const CreateStaffRefundSupplier = () => {
       title: "Hành động",
       key: "action",
       render: (text, record) =>
-        record.orderType === 0 && record.reservationMoney > 0 ? (
+        (record.orderType === 0 && record.reservationMoney > 0) ||
+        record.orderStatus === 2 ? (
           <Button
             type="primary"
             onClick={() =>
