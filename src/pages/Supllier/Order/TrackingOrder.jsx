@@ -5,7 +5,7 @@ import {
   CloseOutlined,
   SmileOutlined,
 } from "@ant-design/icons";
-import { message, Modal } from "antd";
+import { message, Modal, Table } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { getAllExtendsByOrderId, getExtendById } from "../../../api/extendApi";
@@ -37,7 +37,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
   const [returnInitiated, setReturnInitiated] = useState(false);
   const [beforeImageUrl, setBeforeImageUrl] = useState(null);
   const [afterImageUrl, setAfterImageUrl] = useState(null);
-  const [extendsData, setExtendsData] = useState([]); // Add this line
+  const [extendsData, setExtendsData] = useState([]);
 
   useEffect(() => {
     const fetchImages = async (orderId) => {
@@ -105,14 +105,22 @@ const TrackingOrder = ({ order, onUpdate }) => {
 
   const fetchExtendsByOrderId = async (orderID) => {
     setLoading(true);
-    const result = await getAllExtendsByOrderId(orderID);
-    if (result) {
-      setExtendsData(result);
-    } else {
-      console.error("Failed to fetch extends data.");
+    try {
+      const result = await getAllExtendsByOrderId(orderID);
+      console.log("API response:", result);
+      if (result && result.isSuccess) {
+        console.log("Fetched extends data:", result.result.items);
+        setExtendsData(result.result.items || []);
+      } else {
+        console.error("Failed to fetch extends data.");
+      }
+    } catch (error) {
+      console.error("Error fetching extends data:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+
   const handleCompleteOrder = async (orderId) => {
     try {
       const response = await updateOrderStatusCompleted(orderId);
@@ -311,11 +319,18 @@ const TrackingOrder = ({ order, onUpdate }) => {
       action: "ship",
     },
     {
+      title: "Đợi khách hàng trả hàng",
+      status: [12, 3],
+      icon: <SmileOutlined />,
+      action: "ship",
+    },
+    {
       title: "Hoàn thành",
       status: [3, 4],
       icon: <CheckCircleOutlined />,
       action: "complete",
     },
+
     {
       title: "Chờ hoàn tiền",
       status: [2, 7],
@@ -330,8 +345,72 @@ const TrackingOrder = ({ order, onUpdate }) => {
       (Array.isArray(step.status) && step.status.includes(order.orderStatus))
   );
 
-  // Define the columns for the Table component
-  const columns = [
+  const extendColumns = [
+    {
+      title: "Mã gia hạn",
+      dataIndex: "extendId",
+      key: "extendId",
+    },
+    {
+      title: "Mã đơn hàng",
+      dataIndex: "orderID",
+      key: "orderID",
+    },
+    {
+      title: "Đơn vị thời gian",
+      dataIndex: "durationUnit",
+      key: "durationUnit",
+      render: (text) => {
+        switch (text) {
+          case 0:
+            return "Giờ";
+          case 1:
+            return "Ngày";
+          case 2:
+            return "Tuần";
+          case 3:
+            return "Tháng";
+          default:
+            return text;
+        }
+      },
+    },
+    {
+      title: "Giá trị thời gian",
+      dataIndex: "durationValue",
+      key: "durationValue",
+    },
+    {
+      title: "Ngày trả gia hạn",
+      dataIndex: "extendReturnDate",
+      key: "extendReturnDate",
+      render: (text) => moment(text).format("DD/MM/YYYY HH:mm"),
+    },
+    {
+      title: "Ngày bắt đầu gia hạn",
+      dataIndex: "rentalExtendStartDate",
+      key: "rentalExtendStartDate",
+      render: (text) => moment(text).format("DD/MM/YYYY HH:mm"),
+    },
+    {
+      title: "Ngày kết thúc gia hạn",
+      dataIndex: "rentalExtendEndDate",
+      key: "rentalExtendEndDate",
+      render: (text) => moment(text).format("DD/MM/YYYY HH:mm"),
+    },
+    {
+      title: "Tổng số tiền",
+      dataIndex: "totalAmount",
+      key: "totalAmount",
+      render: (text) =>
+        new Intl.NumberFormat("vi-VN", {
+          style: "currency",
+          currency: "VND",
+        }).format(text),
+    },
+  ];
+
+  const orderDetailsColumns = [
     {
       title: "Mã chi tiết đơn hàng",
       dataIndex: "orderDetailsID",
@@ -385,6 +464,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
     setShowReturnDetailForm(true);
     setReturnInitiated(true);
   };
+
   const handleExtendClick = async (extendID) => {
     const result = await getExtendById(extendID);
     if (result) {
@@ -393,6 +473,7 @@ const TrackingOrder = ({ order, onUpdate }) => {
       console.error("Failed to fetch extend data.");
     }
   };
+
   return (
     <div>
       <StepsComponent currentStep={currentStep} steps={steps} />
@@ -411,9 +492,17 @@ const TrackingOrder = ({ order, onUpdate }) => {
       />
       <OrderDetailsTable
         orderDetails={orderDetails}
-        columns={columns}
+        columns={orderDetailsColumns}
         loading={loading}
       />
+      {order.orderStatus === 12 && (
+        <Table
+          columns={extendColumns}
+          dataSource={extendsData}
+          rowKey="extendId"
+          pagination={false}
+        />
+      )}
       <input
         type="file"
         id="uploadBeforeInput"
