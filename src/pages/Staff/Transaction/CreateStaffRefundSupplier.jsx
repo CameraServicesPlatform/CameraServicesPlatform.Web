@@ -189,7 +189,7 @@ const CreateStaffRefundSupplier = () => {
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(response.result.totalAmount)}
+                }).format(response.result.refundAmount)}
               </p>
               <Upload
                 name="img"

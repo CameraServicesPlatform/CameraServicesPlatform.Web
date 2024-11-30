@@ -460,7 +460,8 @@ const CreateStaffRefundMember = () => {
       title: "Cập nhật trạng thái",
       key: "updateStatus",
       render: (text, record) =>
-        record.orderStatus === 9 && record.orderType === 0 ? (
+        (record.orderStatus === 9 && record.orderType === 0) ||
+        record.orderStatus === 11 ? (
           <Button
             type="default"
             onClick={() => handleUpdateOrderStatus(record.orderID, 0)}
