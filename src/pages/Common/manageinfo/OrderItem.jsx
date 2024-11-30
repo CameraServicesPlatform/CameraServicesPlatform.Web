@@ -1,8 +1,10 @@
-import { Form, Input, message, Modal } from "antd";
+import { Form, Input, message, Modal, InputNumber, DatePicker } from "antd";
 import React, { useState } from "react";
 import { createReturnDetailForMember } from "../../../api/returnDetailApi";
+import { createExtend } from "../../../api/extendApi";
 import { formatDateTime, formatPrice } from "../../../utils/util";
 import OrderCancelButton from "./OrderCancelButton";
+import moment from "moment";
 
 const StatusBadge = ({ status, map }) => {
   const statusInfo = map[status] || {
@@ -31,7 +33,9 @@ const OrderItem = ({
   updateOrderStatusPlaced,
 }) => {
   const [isFormModalVisible, setIsFormModalVisible] = useState(false);
+  const [isExtendModalVisible, setIsExtendModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [extendForm] = Form.useForm();
 
   const handleCreateReturnDetail = async () => {
     try {
@@ -46,8 +50,37 @@ const OrderItem = ({
         message.success("Return detail created successfully");
         setIsFormModalVisible(false);
       } else {
+        message.error("Failed to create return detail");
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error creating return detail:", error);
+      message.error("An error occurred, please try again later.");
+    }
+  };
+
+  const handleCreateExtend = async () => {
+    try {
+      const values = await extendForm.validateFields();
+      const data = {
+        orderID: order.orderID,
+        durationUnit: values.durationUnit,
+        durationValue: values.durationValue,
+        extendReturnDate: values.extendReturnDate.toISOString(),
+        rentalExtendStartDate: values.rentalExtendStartDate.toISOString(),
+        totalAmount: values.totalAmount,
+        rentalExtendEndDate: values.rentalExtendEndDate.toISOString(),
+      };
+      const result = await createExtend(data);
+      if (result) {
+        message.success("Extend created successfully");
+        setIsExtendModalVisible(false);
+      } else {
+        message.error("Failed to create extend");
+      }
+    } catch (error) {
+      console.error("Error creating extend:", error);
+      message.error("An error occurred, please try again later.");
+    }
   };
 
   return (
@@ -143,6 +176,19 @@ const OrderItem = ({
               </button>
             </>
           )}
+          {order.orderStatus === 3 && order.orderType === 1 && (
+            <>
+              <button
+                className="bg-orange-500 text-white rounded-md py-2 px-4 my-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExtendModalVisible(true);
+                }}
+              >
+                Extend
+              </button>
+            </>
+          )}
         </td>
         <td></td>
       </tr>
@@ -168,6 +214,71 @@ const OrderItem = ({
             rules={[{ required: true, message: "Vui lòng nhập tình trạng" }]}
           >
             <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Modal: Extend Form Data */}
+      <Modal
+        title="Extend Order"
+        visible={isExtendModalVisible}
+        onCancel={() => setIsExtendModalVisible(false)}
+        onOk={handleCreateExtend}
+      >
+        <Form form={extendForm} layout="vertical">
+          <Form.Item
+            name="durationUnit"
+            label="Duration Unit"
+            rules={[{ required: true, message: "Please enter duration unit" }]}
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+          <Form.Item
+            name="durationValue"
+            label="Duration Value"
+            rules={[{ required: true, message: "Please enter duration value" }]}
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+          <Form.Item
+            name="extendReturnDate"
+            label="Extend Return Date"
+            rules={[
+              { required: true, message: "Please select extend return date" },
+            ]}
+          >
+            <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
+          </Form.Item>
+          <Form.Item
+            name="rentalExtendStartDate"
+            label="Rental Extend Start Date"
+            rules={[
+              {
+                required: true,
+                message: "Please select rental extend start date",
+              },
+            ]}
+          >
+            <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
+          </Form.Item>
+          <Form.Item
+            name="totalAmount"
+            label="Total Amount"
+            rules={[{ required: true, message: "Please enter total amount" }]}
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+          <Form.Item
+            name="rentalExtendEndDate"
+            label="Rental Extend End Date"
+            rules={[
+              {
+                required: true,
+                message: "Please select rental extend end date",
+              },
+            ]}
+          >
+            <DatePicker showTime format="YYYY-MM-DD HH:mm:ss" />
           </Form.Item>
         </Form>
       </Modal>
