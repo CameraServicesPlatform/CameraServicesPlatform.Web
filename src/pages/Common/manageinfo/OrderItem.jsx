@@ -1,10 +1,19 @@
-import { Form, Input, message, Modal, InputNumber, DatePicker } from "antd";
-import React, { useState } from "react";
-import { createReturnDetailForMember } from "../../../api/returnDetailApi";
+import {
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  message,
+  Modal,
+  Select,
+} from "antd"; // Import Select from antd
+import moment from "moment";
+import React, { useEffect, useState } from "react";
 import { createExtend } from "../../../api/extendApi";
+import { getProductById } from "../../../api/productApi"; // Import the getProductById function
+import { createReturnDetailForMember } from "../../../api/returnDetailApi";
 import { formatDateTime, formatPrice } from "../../../utils/util";
 import OrderCancelButton from "./OrderCancelButton";
-import moment from "moment";
 
 const StatusBadge = ({ status, map }) => {
   const statusInfo = map[status] || {
@@ -36,6 +45,164 @@ const OrderItem = ({
   const [isExtendModalVisible, setIsExtendModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [extendForm] = Form.useForm();
+  const [durationUnit, setDurationUnit] = useState(0);
+  const [durationValue, setDurationValue] = useState(1);
+  const [productPriceRent, setProductPriceRent] = useState(0);
+  const [rentalStartDate, setRentalStartDate] = useState(null);
+  const [rentalEndDate, setRentalEndDate] = useState(null);
+  const [returnDate, setReturnDate] = useState(null);
+  const [product, setProduct] = useState(null);
+
+  const durationOptions = {
+    0: { min: 2, max: 8 }, // Hour
+    1: { min: 1, max: 3 }, // Day
+    2: { min: 1, max: 2 }, // Week
+    3: { min: 1, max: 1 }, // Month
+  };
+
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      if (order.orderDetails && order.orderDetails.length > 0) {
+        const productId = order.orderDetails[0].productID;
+        try {
+          const productData = await getProductById(productId);
+          setProduct(productData);
+        } catch (error) {
+          message.error("Failed to fetch product details");
+        }
+      }
+    };
+
+    fetchProductDetails();
+  }, [order]);
+
+  const handleDurationValueChange = (value) => {
+    setDurationValue(value);
+  };
+
+  useEffect(() => {
+    if (durationUnit !== undefined && durationValue && rentalStartDate) {
+      calculateProductPriceRent();
+      const endDate = calculateRentalEndTime(
+        rentalStartDate.toDate(),
+        durationValue,
+        durationUnit
+      );
+      setRentalEndDate(moment(endDate));
+
+      // Calculate Return Date after setting rentalEndDate
+      const calculatedReturnDate = calculateReturnDate(endDate);
+      setReturnDate(moment(calculatedReturnDate));
+    }
+  }, [durationUnit, durationValue, rentalStartDate]);
+
+  const handleDurationUnitChange = (value) => {
+    setDurationUnit(value);
+    setDurationValue(durationOptions[value].min);
+    const { min, max } = durationOptions[value];
+    message.info(`Please select a duration between ${min} and ${max}.`);
+  };
+
+  const calculateReturnDate = (endDate) => {
+    if (!endDate) return null;
+    return moment(endDate).clone().add(1, "hours");
+  };
+
+  const calculateProductPriceRent = () => {
+    if (!durationOptions[durationUnit] || !product) {
+      return;
+    }
+
+    if (!durationValue || durationValue <= 0) {
+      return;
+    }
+
+    const { min, max } = durationOptions[durationUnit];
+    if (durationValue < min || durationValue > max) {
+      return;
+    }
+
+    let price = 0;
+    switch (durationUnit) {
+      case 0:
+        price = durationValue * (product.pricePerHour || 0);
+        break;
+      case 1:
+        price = durationValue * (product.pricePerDay || 0);
+        break;
+      case 2:
+        price = durationValue * (product.pricePerWeek || 0);
+        break;
+      case 3:
+        price = durationValue * (product.pricePerMonth || 0);
+        break;
+      default:
+        price = 0;
+    }
+
+    setProductPriceRent(price);
+    extendForm.setFieldsValue({ totalAmount: price });
+  };
+
+  useEffect(() => {
+    if (durationUnit !== undefined && durationValue > 0) {
+      calculateProductPriceRent();
+    }
+  }, [durationUnit, durationValue]);
+
+  const handleRentalStartDateChange = (date) => {
+    if (!date) {
+      message.error("Vui lòng chọn ngày bắt đầu thuê");
+      return;
+    }
+
+    setRentalStartDate(date);
+
+    const calculatedEndDate = calculateRentalEndTime(
+      date.toDate(),
+      durationValue,
+      durationUnit
+    );
+    if (calculatedEndDate) {
+      setRentalEndDate(moment(calculatedEndDate));
+
+      const calculatedReturnDate = calculateReturnDate(calculatedEndDate);
+      setReturnDate(moment(calculatedReturnDate));
+    }
+  };
+
+  const calculateRentalEndTime = (
+    rentalStartTime,
+    rentalDuration,
+    durationType
+  ) => {
+    let rentalEndTime;
+    switch (durationType) {
+      case 0:
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 60 * 60 * 1000
+        );
+        break;
+      case 1:
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 24 * 60 * 60 * 1000
+        );
+        break;
+      case 2:
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 7 * 24 * 60 * 60 * 1000
+        );
+        break;
+      case 3:
+        rentalEndTime = new Date(
+          rentalStartTime.getTime() + rentalDuration * 30 * 24 * 60 * 60 * 1000
+        );
+        break;
+      default:
+        throw new Error("Invalid duration type");
+    }
+    return rentalEndTime;
+  };
 
   const handleCreateReturnDetail = async () => {
     try {
@@ -231,14 +398,24 @@ const OrderItem = ({
             label="Duration Unit"
             rules={[{ required: true, message: "Please enter duration unit" }]}
           >
-            <InputNumber min={0} />
+            <Select onChange={handleDurationUnitChange}>
+              <Select.Option value={0}>Hour</Select.Option>
+              <Select.Option value={1}>Day</Select.Option>
+              <Select.Option value={2}>Week</Select.Option>
+              <Select.Option value={3}>Month</Select.Option>
+            </Select>
           </Form.Item>
           <Form.Item
             name="durationValue"
             label="Duration Value"
             rules={[{ required: true, message: "Please enter duration value" }]}
           >
-            <InputNumber min={0} />
+            <InputNumber
+              min={durationOptions[durationUnit]?.min || 1}
+              max={durationOptions[durationUnit]?.max || 1}
+              value={durationValue}
+              onChange={handleDurationValueChange}
+            />
           </Form.Item>
           <Form.Item
             name="extendReturnDate"
