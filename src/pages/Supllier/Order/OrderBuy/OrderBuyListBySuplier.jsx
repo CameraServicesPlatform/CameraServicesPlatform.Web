@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { getSupplierIdByAccountId } from "../../../../api/accountApi";
 import { getOrderOfSupplierId } from "../../../../api/orderApi";
 import ContractModal from "./ContractModal";
-import OrderTable from "./OrderTable";
+import OrderTable from "./OrderBuyTable";
 import TrackingModal from "./TrackingModal";
 import { getColumnSearchProps } from "./utils";
 

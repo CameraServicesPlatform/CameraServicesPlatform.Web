@@ -2,7 +2,7 @@ import { Tabs } from "antd";
 import React, { useState } from "react";
 import OrderBuyListBySuplier from "./OrderBuy/OrderBuyListBySuplier";
 import OrderListBySuplier from "./OrderListBySuplier";
-import OrderRentListBySuplier from "./OrderRentListBySuplier";
+import OrderRentListBySuplier from "./OrderRent/OrderRentListBySuplier";
 
 const ManageOrder = () => {
   const [refreshList, setRefreshList] = useState(false);
