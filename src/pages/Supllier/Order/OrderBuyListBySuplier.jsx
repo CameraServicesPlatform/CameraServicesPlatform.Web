@@ -1,22 +1,13 @@
-import { SearchOutlined } from "@ant-design/icons";
-import {
-  Button,
-  DatePicker,
-  Input,
-  message,
-  Modal,
-  Spin,
-  Table,
-  Tag,
-} from "antd";
+import { Button, message, Spin, Tag } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import Highlighter from "react-highlight-words";
 import { useSelector } from "react-redux";
 import { getSupplierIdByAccountId } from "../../../api/accountApi";
 import { getOrderOfSupplierId } from "../../../api/orderApi";
-import ContractOrder from "../Contract/ContractOrder";
-import TrackingOrder from "./TrackingOrder";
+import ContractModal from "./ContractModal";
+import OrderTable from "./OrderTable";
+import TrackingModal from "./TrackingModal";
+import { getColumnSearchProps } from "./utils";
 
 const OrderBuyListBySuplier = ({ refresh }) => {
   const user = useSelector((state) => state.user.user || {});
@@ -30,7 +21,6 @@ const OrderBuyListBySuplier = ({ refresh }) => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
-  const [trackingModalVisible, setTrackingModalVisible] = useState(false);
   const [contractModalVisible, setContractModalVisible] = useState(false);
 
   const orderStatusMap = {
@@ -53,7 +43,11 @@ const OrderBuyListBySuplier = ({ refresh }) => {
     8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
     9: { text: "Hoàn tiền đang chờ xử lý", color: "pink", icon: "fa-clock" },
     10: { text: "Hoàn tiền thành công ", color: "brown", icon: "fa-undo" },
-    11: { text: "Hoàn trả tiền đặt cọc", color: "gold", icon: "fa-piggy-bank" },
+    11: {
+      text: "Hoàn trả tiền đặt cọc",
+      color: "gold",
+      icon: "fa-piggy-bank",
+    },
     12: { text: "Gia hạn", color: "violet", icon: "fa-calendar-plus" },
   };
 
@@ -68,7 +62,6 @@ const OrderBuyListBySuplier = ({ refresh }) => {
     2: { text: "Đã trả lại", color: "red" },
   };
 
-  // Lấy ID Nhà cung cấp
   useEffect(() => {
     const fetchSupplierId = async () => {
       if (user.id) {
@@ -87,7 +80,6 @@ const OrderBuyListBySuplier = ({ refresh }) => {
     fetchSupplierId();
   }, [user.id]);
 
-  // Lấy đơn hàng
   useEffect(() => {
     const fetchOrders = async () => {
       if (supplierId) {
@@ -135,136 +127,11 @@ const OrderBuyListBySuplier = ({ refresh }) => {
     setSelectedOrder(null);
   };
 
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Button
-          type="primary"
-          onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          icon={<SearchOutlined />}
-          size="small"
-          style={{ width: 90, marginRight: 8 }}
-        >
-          Search
-        </Button>
-        <Button
-          onClick={() => handleReset(clearFilters)}
-          size="small"
-          style={{ width: 90 }}
-        >
-          Reset
-        </Button>
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-    ),
-    onFilter: (value, record) =>
-      record[dataIndex]
-        ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
-        : "",
-    onFilterDropdownOpenChange: (visible) => {
-      if (visible) {
-        setTimeout(() => document.getElementById("search-input").select(), 100);
-      }
-    },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ""}
-        />
-      ) : (
-        text
-      ),
-  });
-
-  const getColumnDateSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) => (
-      <div style={{ padding: 8 }}>
-        <DatePicker
-          onChange={(date, dateString) =>
-            setSelectedKeys(dateString ? [dateString] : [])
-          }
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Button
-          type="primary"
-          onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          icon={<SearchOutlined />}
-          size="small"
-          style={{ width: 90, marginRight: 8 }}
-        >
-          Search
-        </Button>
-        <Button
-          onClick={() => handleReset(clearFilters)}
-          size="small"
-          style={{ width: 90 }}
-        >
-          Reset
-        </Button>
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-    ),
-    onFilter: (value, record) =>
-      record[dataIndex]
-        ? moment(record[dataIndex]).format("DD-MM-YYYY") === value
-        : "",
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ""}
-        />
-      ) : (
-        text
-      ),
-  });
-
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
-  };
-
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    setSearchText("");
-  };
-
   const handleOpenContractModal = (record) => {
     setSelectedOrder(record);
     setContractModalVisible(true);
   };
+
   const handleCloseContractModal = () => {
     setContractModalVisible(false);
     setSelectedOrder(null);
@@ -276,14 +143,26 @@ const OrderBuyListBySuplier = ({ refresh }) => {
       dataIndex: "orderID",
       key: "orderID",
       sorter: (a, b) => a.orderID.localeCompare(b.orderID),
-      ...getColumnSearchProps("orderID"),
+      ...getColumnSearchProps(
+        "orderID",
+        searchText,
+        setSearchText,
+        searchedColumn,
+        setSearchedColumn
+      ),
     },
     {
       title: "Mã tài khoản",
       dataIndex: "accountID",
       key: "accountID",
       sorter: (a, b) => a.accountID.localeCompare(b.accountID),
-      ...getColumnSearchProps("accountID"),
+      ...getColumnSearchProps(
+        "accountID",
+        searchText,
+        setSearchText,
+        searchedColumn,
+        setSearchedColumn
+      ),
     },
     {
       title: "Ngày đặt hàng",
@@ -380,45 +259,27 @@ const OrderBuyListBySuplier = ({ refresh }) => {
 
   return (
     <>
-      <Table
-        dataSource={orders}
+      <OrderTable
+        orders={orders}
         columns={columns}
-        rowKey="orderID"
-        pagination={{
-          current: pageIndex,
-          pageSize: pageSize,
-          total: orders.length,
-          onChange: (page, pageSize) => {
-            setPageIndex(page);
-            setPageSize(pageSize);
-          },
-        }}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        setPageIndex={setPageIndex}
+        setPageSize={setPageSize}
+        handleOpenTrackingModal={handleOpenTrackingModal}
+        handleOpenContractModal={handleOpenContractModal}
       />
-      <Modal
-        title="Theo dõi đơn hàng"
-        open={isTrackingModalVisible}
-        onCancel={handleCloseTrackingModal}
-        footer={null}
-        width="80%" // Adjust the width as needed
-        style={{ top: 20 }} // Adjust the top position if needed
-        styles={{ body: { maxHeight: "80vh", overflowY: "auto" } }}
-      >
-        {selectedOrder && (
-          <TrackingOrder
-            order={selectedOrder}
-            onUpdate={handleUpdateOrderStatus}
-          />
-        )}
-      </Modal>
-      <Modal
-        title="Hợp đồng"
-        visible={contractModalVisible}
-        onCancel={handleCloseContractModal}
-        footer={null}
-        width={800}
-      >
-        {selectedOrder && <ContractOrder orderID={selectedOrder.orderID} />}
-      </Modal>
+      <TrackingModal
+        isTrackingModalVisible={isTrackingModalVisible}
+        handleCloseTrackingModal={handleCloseTrackingModal}
+        selectedOrder={selectedOrder}
+        handleUpdateOrderStatus={handleUpdateOrderStatus}
+      />
+      <ContractModal
+        contractModalVisible={contractModalVisible}
+        handleCloseContractModal={handleCloseContractModal}
+        selectedOrder={selectedOrder}
+      />
     </>
   );
 };
