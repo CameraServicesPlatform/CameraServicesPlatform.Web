@@ -1,6 +1,6 @@
-import React from "react";
 import { Modal } from "antd";
-import ContractOrder from "../Contract/ContractOrder";
+import React from "react";
+import ContractOrder from "../../Contract/ContractOrder";
 
 const ContractModal = ({
   contractModalVisible,

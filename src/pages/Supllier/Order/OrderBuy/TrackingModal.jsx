@@ -1,6 +1,6 @@
-import React from "react";
 import { Modal } from "antd";
-import TrackingOrder from "./TrackingOrder";
+import React from "react";
+import TrackingOrder from "../TrackingOrder";
 
 const TrackingModal = ({
   isTrackingModalVisible,

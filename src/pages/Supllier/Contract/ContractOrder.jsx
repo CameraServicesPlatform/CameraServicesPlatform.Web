@@ -1,4 +1,4 @@
-import { Input, Table, message } from "antd";
+import { Table, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { getAllContractsByOrderId } from "../../../api/contractApi"; // Adjust the import path according to your project structure
 
@@ -35,17 +35,6 @@ const ContractOrder = ({ orderID }) => {
   }, [orderID, pageIndex, pageSize, searchText]);
 
   const columns = [
-    {
-      title: "Mã hợp đồng",
-      dataIndex: "contractID",
-      key: "contractID",
-      sorter: true,
-    },
-    {
-      title: "Mã đơn hàng",
-      dataIndex: "orderID",
-      key: "orderID",
-    },
     {
       title: "Chi tiết mẫu",
       dataIndex: "templateDetails",
