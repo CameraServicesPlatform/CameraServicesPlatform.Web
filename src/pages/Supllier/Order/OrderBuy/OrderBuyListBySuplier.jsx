@@ -2,7 +2,10 @@ import { Button, message, Spin, Tag } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getSupplierIdByAccountId } from "../../../../api/accountApi";
+import {
+  getSupplierIdByAccountId,
+  getUserById,
+} from "../../../../api/accountApi";
 import { getOrderOfSupplierId } from "../../../../api/orderApi";
 import ContractModal from "./ContractModal";
 import OrderTable from "./OrderBuyTable";
@@ -24,31 +27,19 @@ const OrderBuyListBySuplier = ({ refresh }) => {
   const [contractModalVisible, setContractModalVisible] = useState(false);
 
   const orderStatusMap = {
-    0: { text: "Chờ xử lý", color: "blue", icon: "fa-hourglass-start" },
-    1: {
-      text: "Sản phẩm sẵn sàng được giao",
-      color: "green",
-      icon: "fa-check-circle",
-    },
-    2: { text: "Hoàn thành", color: "yellow", icon: "fa-clipboard-check" },
-    3: { text: "Đã nhận sản phẩm", color: "purple", icon: "fa-shopping-cart" },
-    4: { text: "Đã giao hàng", color: "cyan", icon: "fa-truck" },
-    5: {
-      text: "Thanh toán thất bại",
-      color: "cyan",
-      icon: "fa-money-bill-wave",
-    },
-    6: { text: "Đang hủy", color: "lime", icon: "fa-box-open" },
-    7: { text: "Đã hủy thành công", color: "red", icon: "fa-times-circle" },
-    8: { text: "Đã Thanh toán", color: "orange", icon: "fa-money-bill-wave" },
-    9: { text: "Hoàn tiền đang chờ xử lý", color: "pink", icon: "fa-clock" },
-    10: { text: "Hoàn tiền thành công ", color: "brown", icon: "fa-undo" },
-    11: {
-      text: "Hoàn trả tiền đặt cọc",
-      color: "gold",
-      icon: "fa-piggy-bank",
-    },
-    12: { text: "Gia hạn", color: "violet", icon: "fa-calendar-plus" },
+    0: { text: "Chờ xử lý", color: "blue" },
+    1: { text: "Sản phẩm sẵn sàng được giao", color: "green" },
+    2: { text: "Hoàn thành", color: "yellow" },
+    3: { text: "Đã nhận sản phẩm", color: "purple" },
+    4: { text: "Đã giao hàng", color: "cyan" },
+    5: { text: "Thanh toán thất bại", color: "cyan" },
+    6: { text: "Đang hủy", color: "lime" },
+    7: { text: "Đã hủy thành công", color: "red" },
+    8: { text: "Đã Thanh toán", color: "orange" },
+    9: { text: "Hoàn tiền đang chờ xử lý", color: "pink" },
+    10: { text: "Hoàn tiền thành công ", color: "brown" },
+    11: { text: "Hoàn trả tiền đặt cọc", color: "gold" },
+    12: { text: "Gia hạn", color: "violet" },
   };
 
   const orderTypeMap = {
@@ -94,7 +85,22 @@ const OrderBuyListBySuplier = ({ refresh }) => {
             const filteredOrders = data.result.filter(
               (order) => order.orderType === 0
             );
-            setOrders(filteredOrders || []);
+
+            // Fetch account names and include them in the orders
+            const ordersWithAccountNames = await Promise.all(
+              filteredOrders.map(async (order) => {
+                const accountData = await getUserById(order.accountID);
+                if (accountData?.isSuccess) {
+                  return {
+                    ...order,
+                    accountName: `${accountData.result.firstName} ${accountData.result.lastName}`,
+                  };
+                }
+                return order;
+              })
+            );
+
+            setOrders(ordersWithAccountNames || []);
           } else {
             message.error("Lấy đơn hàng không thành công.");
           }
@@ -152,17 +158,11 @@ const OrderBuyListBySuplier = ({ refresh }) => {
       ),
     },
     {
-      title: "Mã tài khoản",
-      dataIndex: "accountID",
-      key: "accountID",
-      sorter: (a, b) => a.accountID.localeCompare(b.accountID),
-      ...getColumnSearchProps(
-        "accountID",
-        searchText,
-        setSearchText,
-        searchedColumn,
-        setSearchedColumn
-      ),
+      title: "Tên tài khoản",
+      dataIndex: "accountName",
+      key: "accountName",
+      sorter: (a, b) => a.accountName.localeCompare(b.accountName),
+      ...getColumnSearchProps("accountName"),
     },
     {
       title: "Ngày đặt hàng",
@@ -270,15 +270,15 @@ const OrderBuyListBySuplier = ({ refresh }) => {
         handleOpenContractModal={handleOpenContractModal}
       />
       <TrackingModal
-        isTrackingModalVisible={isTrackingModalVisible}
-        handleCloseTrackingModal={handleCloseTrackingModal}
-        selectedOrder={selectedOrder}
+        isVisible={isTrackingModalVisible}
+        order={selectedOrder}
+        handleClose={handleCloseTrackingModal}
         handleUpdateOrderStatus={handleUpdateOrderStatus}
       />
       <ContractModal
-        contractModalVisible={contractModalVisible}
-        handleCloseContractModal={handleCloseContractModal}
-        selectedOrder={selectedOrder}
+        isVisible={contractModalVisible}
+        order={selectedOrder}
+        handleClose={handleCloseContractModal}
       />
     </>
   );
