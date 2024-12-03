@@ -1,10 +1,10 @@
+import { message, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { message, Spin } from "antd";
-import { getSupplierIdByAccountId } from "../../../api/accountApi";
+import { getSupplierIdByAccountId, getUserById } from "../../../api/accountApi";
 import { getOrderOfSupplierId } from "../../../api/orderApi";
-import OrderBothTable from "./OrderBoth/OrderBothTable";
 import OrderBothModals from "./OrderBoth/OrderBothModals";
+import OrderBothTable from "./OrderBoth/OrderBothTable";
 
 const OrderListBySupplier = ({ refresh }) => {
   const user = useSelector((state) => state.user.user || {});
@@ -41,14 +41,39 @@ const OrderListBySupplier = ({ refresh }) => {
       if (supplierId) {
         setLoading(true);
         try {
-          const data = await getOrderOfSupplierId(supplierId, pageIndex, pageSize);
+          const data = await getOrderOfSupplierId(
+            supplierId,
+            pageIndex,
+            pageSize
+          );
           if (data?.isSuccess) {
-            setOrders(data.result || []);
+            // Fetch account names and include them in the orders
+            const ordersWithAccountNames = await Promise.all(
+              data.result.map(async (order) => {
+                try {
+                  const accountData = await getUserById(order.accountID);
+                  if (accountData?.isSuccess) {
+                    return {
+                      ...order,
+                      accountName: `${accountData.result.firstName} ${accountData.result.lastName}`,
+                    };
+                  }
+                } catch (err) {
+                  console.error(
+                    `Error fetching account data for order ${order.orderID}:`,
+                    err
+                  );
+                }
+                return order;
+              })
+            );
+            setOrders(ordersWithAccountNames || []);
           } else {
             message.error("Lấy đơn hàng không thành công.");
           }
         } catch (err) {
-          setError("Lỗi khi lấy đơn hàng.");
+          console.error("Error fetching orders:", err);
+          setError("Lỗi khi lấy đơn hàng. Vui lòng thử lại sau.");
         } finally {
           setLoading(false);
         }

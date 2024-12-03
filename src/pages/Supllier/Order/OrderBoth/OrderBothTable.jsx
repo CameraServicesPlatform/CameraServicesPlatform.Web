@@ -100,11 +100,11 @@ const OrderBothTable = ({
       ...getColumnSearchProps("orderID"),
     },
     {
-      title: "Mã tài khoản",
-      dataIndex: "accountID",
-      key: "accountID",
-      sorter: (a, b) => a.accountID.localeCompare(b.accountID),
-      ...getColumnSearchProps("accountID"),
+      title: "Tên tài khoản",
+      dataIndex: "accountName",
+      key: "accountName",
+      sorter: (a, b) => a.accountName.localeCompare(b.accountName),
+      ...getColumnSearchProps("accountName"),
     },
     {
       title: "Ngày đặt hàng",
