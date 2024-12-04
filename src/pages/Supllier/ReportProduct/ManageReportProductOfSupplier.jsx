@@ -20,7 +20,7 @@ const ManageReportProductOfSupplier = () => {
   ];
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
+    <div className="p-6 bg-gradient-to-tr from-blue-100 to-white rounded-2xl shadow-lg max-w-8xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6">Quản Lý Báo Cáo Sản Phẩm</h1>
       <Tabs defaultActiveKey="1" items={tabItems} />
     </div>

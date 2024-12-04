@@ -226,7 +226,7 @@ const ManageOrder = () => {
   ];
 
   return (
-    <div className=" bg-white rounded-2xl shadow-md max-w-8xl mx-auto">
+    <div className="p-6 bg-gradient-to-tr from-blue-100 to-white rounded-2xl shadow-lg max-w-8xl mx-auto">
       <h1 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
         TRANG QUẢN LÍ ĐƠN HÀNG
       </h1>
@@ -277,22 +277,21 @@ const ManageOrder = () => {
               />
             </Card>
           </Col>
-          <Col xs={24} lg={12}>
-            <Card
-              title="Thống Kê Đơn Hàng"
-              className="custom-card"
-              bordered={false}
-            >
-              <Table
-                dataSource={[data.orderStatistics]}
-                columns={orderStatisticsColumns}
-                pagination={false}
-                rowKey="key"
-                className="custom-table"
-              />
-            </Card>
-          </Col>
+          <Col xs={24} lg={12}></Col>
         </Row>
+        <Card
+          title="Thống Kê Đơn Hàng"
+          className="custom-card"
+          bordered={false}
+        >
+          <Table
+            dataSource={[data.orderStatistics]}
+            columns={orderStatisticsColumns}
+            pagination={false}
+            rowKey="key"
+            className="custom-table"
+          />
+        </Card>
         <Card
           title="Danh Sách Đơn Hàng"
           className="custom-card"

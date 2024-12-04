@@ -77,16 +77,16 @@ const PersonalPage = () => {
   return (
     <div>
       <h1>Trang Cá Nhân</h1>
-      <div className="combo-cards">
+      <div className="combo-cards" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
         {combos.map((combo) => (
           <Card
             key={combo.comboId}
             title={combo.comboName}
+            hoverable
             style={{
-              marginTop: 16,
-              borderColor:
-                selectedComboId === combo.comboId ? "blue" : "default",
+              borderColor: selectedComboId === combo.comboId ? "blue" : "#f0f0f0",
               borderWidth: selectedComboId === combo.comboId ? 2 : 1,
+              width: 300,
             }}
             onClick={() => handleCardClick(combo.comboId)}
           >
@@ -105,7 +105,7 @@ const PersonalPage = () => {
             { required: true, message: "Vui lòng chọn thời gian bắt đầu!" },
           ]}
         >
-          <DatePicker showTime />
+          <DatePicker showTime style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">

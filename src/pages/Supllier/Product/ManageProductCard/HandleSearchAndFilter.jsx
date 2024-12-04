@@ -132,7 +132,7 @@ const HandleSearchAndFilter = ({ products, onFilter }) => {
           onClick={handleReset}
           className="bg-blue-500 text-white p-2 rounded"
         >
-          Reset Filters
+          Xóa
         </button>
       </div>
     </div>
