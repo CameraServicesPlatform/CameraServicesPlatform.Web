@@ -13,9 +13,9 @@ import {
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getSupplierIdByAccountId } from "../../../api/accountApi";
-import { getAllCategories } from "../../../api/categoryApi";
-import { createProductBuy, createProductRent } from "../../../api/productApi";
+import { getSupplierIdByAccountId } from "../../../../api/accountApi";
+import { getAllCategories } from "../../../../api/categoryApi";
+import { createProductBuy, createProductRent } from "../../../../api/productApi";
 
 const { Option } = Select;
 

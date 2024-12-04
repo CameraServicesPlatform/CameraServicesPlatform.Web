@@ -5,11 +5,11 @@ import { useParams } from "react-router-dom";
 import { getSupplierIdByAccountId } from "../../../api/accountApi";
 import { getCategoryById } from "../../../api/categoryApi";
 import {
-   getProductById,
+  getProductById,
   getProductBySupplierId,
 } from "../../../api/productApi";
 import LoadingComponent from "../../../components/LoadingComponent/LoadingComponent";
-import CreateProduct from "./CreateProduct";
+import CreateProduct from "./CreateProduct/CreateProduct";
 import DetailProduct from "./DetailProduct";
 import EditProductForm from "./EditProductForm";
 import HandleSearchAndFilter from "./ManageProductCard/HandleSearchAndFilter";
@@ -99,8 +99,6 @@ const ProductListBySupplier = () => {
       fetchProducts();
     }
   }, [supplierId, pageIndex, pageSize]);
-
- 
 
   const handleEdit = (product) => {
     setSelectedProduct(product);
