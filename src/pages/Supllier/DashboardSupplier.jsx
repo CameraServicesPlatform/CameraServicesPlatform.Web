@@ -1,17 +1,29 @@
-import { EditOutlined } from "@ant-design/icons";
+import {
+  AppstoreOutlined,
+  BarChartOutlined,
+  DollarOutlined,
+  EditOutlined,
+  ShoppingCartOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   Card,
+  Col,
   DatePicker,
+  Descriptions,
   Form,
   Input,
+  List,
   message,
   Modal,
+  Row,
   Spin,
   Table,
   Typography,
 } from "antd";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import dayjs from "dayjs";
+import moment from "moment";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 import { getSupplierIdByAccountId } from "../../api/accountApi";
@@ -29,9 +41,22 @@ import {
   getSupplierTransactionStatistics,
 } from "../../api/dashboardApi";
 import { getSupplierById, updateSupplier } from "../../api/supplierApi";
-
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
+
+// Add formatter at the top
+const formatter = new Intl.NumberFormat('vi-VN', {
+  style: 'currency',
+  currency: 'VND',
+});
+
+// Define duration mapping
+const durationMap = {
+  0: "Một tháng",
+  1: "Hai tháng",
+  2: "Ba tháng",
+  3: "Năm tháng",
+};
 
 const DashboardSupplier = () => {
   const user = useSelector((state) => state.user.user || {});
@@ -50,11 +75,18 @@ const DashboardSupplier = () => {
     transactionStatistics: [],
     orderStatusStatistics: [],
   });
-  const [dateRange, setDateRange] = useState([]);
+  const [dateRange, setDateRange] = useState([
+    moment().subtract(1, "months"),
+    moment(),
+  ]);
   const [supplierDetails, setSupplierDetails] = useState(null);
   const [combos, setCombos] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
+  const [addComboForm] = Form.useForm();
+  const [startDate, setStartDate] = useState(() =>
+    dayjs().subtract(1, "month")
+  );
+  const [endDate, setEndDate] = useState(() => dayjs());
   useEffect(() => {
     const fetchSupplierId = async () => {
       if (user.id) {
@@ -134,7 +166,10 @@ const DashboardSupplier = () => {
       if (supplierId && dateRange.length === 2) {
         setLoading(true);
         try {
-          const [startDate, endDate] = dateRange;
+          const [startDate, endDate] = dateRange.map((date) =>
+            date.format("YYYY-MM-DD")
+          ); // Format dates
+
           const bestSellingCategories =
             await getBestSellingCategoriesBySupplier(
               supplierId,
@@ -205,6 +240,7 @@ const DashboardSupplier = () => {
               : [],
           });
         } catch (error) {
+          console.error("Error fetching data:", error); // Added logging
           message.error("Lỗi khi lấy dữ liệu.");
         } finally {
           setLoading(false);
@@ -215,25 +251,24 @@ const DashboardSupplier = () => {
     fetchData();
   }, [supplierId, dateRange]);
 
-  const handleDateChange = useCallback((dates) => {
+  const handleDateChange = (dates) => {
     if (dates) {
-      setDateRange([
-        dates[0].format("YYYY-MM-DD"),
-        dates[1].format("YYYY-MM-DD"),
-      ]);
+      setStartDate(dates[0]);
+      setEndDate(dates[1]);
     } else {
-      setDateRange([]);
+      setStartDate(dayjs().subtract(1, "month"));
+      setEndDate(dayjs());
     }
-  }, []);
+  };
 
   const handleUpdateSupplier = async (formData) => {
     const result = await updateSupplier(formData);
     if (result) {
-      message.success("Supplier updated successfully");
+      message.success("Cập nhật nhà cung cấp thành công");
       setSupplierDetails(result);
       setIsModalVisible(false);
     } else {
-      message.error("Failed to update supplier");
+      message.error("Cập nhật nhà cung cấp thất bại");
     }
   };
 
@@ -245,15 +280,29 @@ const DashboardSupplier = () => {
     setIsModalVisible(false);
   };
 
+  const handleAddCombo = () => {
+    setIsAddComboModalVisible(true);
+  };
+
+  const handleAddComboCancel = () => {
+    setIsAddComboModalVisible(false);
+    addComboForm.resetFields();
+  };
+
+  const handleAddComboSubmit = (values) => {
+    // Implement the logic to add the new combo, e.g., API call
+    console.log("New Combo Details:", values);
+    // Example: After successful addition
+    message.success("Combo đã được thêm thành công.");
+    setIsAddComboModalVisible(false);
+    addComboForm.resetFields();
+    // Optionally, refresh the combos list
+  };
+
   const columns = useMemo(
     () => [
       {
-        title: "Product ID",
-        dataIndex: "productId",
-        key: "productId",
-      },
-      {
-        title: "Product Name",
+        title: "Tên Sản Phẩm",
         dataIndex: "productName",
         key: "productName",
       },
@@ -264,15 +313,16 @@ const DashboardSupplier = () => {
   const orderCostColumns = useMemo(
     () => [
       {
-        title: "Month",
+        title: "Tháng",
         dataIndex: "month",
         key: "month",
         render: (text) => new Date(text).toLocaleDateString(),
       },
       {
-        title: "Total Cost",
+        title: "Tổng Chi Phí",
         dataIndex: "totalCost",
         key: "totalCost",
+        render: (text) => formatter.format(text),
       },
     ],
     []
@@ -281,130 +331,298 @@ const DashboardSupplier = () => {
   const orderStatisticsColumns = useMemo(
     () => [
       {
-        title: "Total Sales",
+        title: "Tổng Doanh Thu",
         dataIndex: "totalSales",
         key: "totalSales",
+        render: (text) => formatter.format(text),
       },
       {
-        title: "Total Orders",
+        title: "Tổng Số Đơn Hàng",
         dataIndex: "totalOrders",
         key: "totalOrders",
       },
       {
-        title: "Pending Orders",
+        title: "Chờ Xử Lý",
         dataIndex: "pendingOrders",
         key: "pendingOrders",
       },
       {
-        title: "Completed Orders",
+        title: "Hoàn Thành",
         dataIndex: "completedOrders",
         key: "completedOrders",
       },
       {
-        title: "Canceled Orders",
+        title: "Bị Hủy",
         dataIndex: "canceledOrders",
         key: "canceledOrders",
+      },
+      {
+        title: "Được Duyệt",
+        dataIndex: "approvedOrders",
+        key: "approvedOrders",
+      },
+      {
+        title: "Đã Đặt",
+        dataIndex: "placedOrders",
+        key: "placedOrders",
+      },
+      {
+        title: "Đã Giao",
+        dataIndex: "shippedOrders",
+        key: "shippedOrders",
+      },
+      {
+        title: "Thanh Toán Thất Bại",
+        dataIndex: "paymentFailOrders",
+        key: "paymentFailOrders",
+      },
+      {
+        title: "Đang Hủy",
+        dataIndex: "cancelingOrders",
+        key: "cancelingOrders",
+      },
+      {
+        title: "Thanh Toán",
+        dataIndex: "paymentOrders",
+        key: "paymentOrders",
+      },
+      {
+        title: "Chờ Hoàn Tiền",
+        dataIndex: "pendingRefundOrders",
+        key: "pendingRefundOrders",
+      },
+      {
+        title: "Đã Hoàn Tiền",
+        dataIndex: "refundOrders",
+        key: "refundOrders",
+      },
+      {
+        title: "Trả Lại Tiền Đặt Cọc",
+        dataIndex: "depositReturnOrders",
+        key: "depositReturnOrders",
+      },
+      {
+        title: "Gia Hạn",
+        dataIndex: "extendOrders",
+        key: "extendOrders",
       },
     ],
     []
   );
 
   return (
-    <div className="container mx-auto p-4">
-      <Title level={1} className="text-center mb-8">
+    <div className="container mx-auto p-4 bg-gray-50">
+      <Title level={1} className="text-center mb-8 text-blue-600">
         Bảng Điều Khiển Nhà Cung Cấp
       </Title>
       {supplierDetails && (
-        <div className="flex flex-wrap gap-4">
-          <Card title="Supplier Details" className="flex-1">
-            <p>Supplier Name: {supplierDetails.supplierName}</p>
-            <p>Supplier Description: {supplierDetails.supplierDescription}</p>
-            <p>Supplier Address: {supplierDetails.supplierAddress}</p>
-            <p>Contact Number: {supplierDetails.contactNumber}</p>
-            <Button type="primary" icon={<EditOutlined />} onClick={showModal}>
-              Update
-            </Button>
-          </Card>
-          <Card title="Combos" className="flex-1">
-            {combos.map((combo) => (
-              <Card key={combo.comboOfSupplierId} className="mb-4">
-                <p>Combo Name: {combo.comboName}</p>
-                <p>Combo Price: {combo.comboPrice}</p>
-                <p>Duration: {combo.durationCombo}</p>
-              </Card>
-            ))}
-          </Card>
-        </div>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={12}>
+            <Card
+              title={
+                <span>
+                  <EditOutlined /> Thông Tin Nhà Cung Cấp
+                </span>
+              }
+              className="flex-1 shadow-lg"
+            >
+              <Descriptions bordered column={1} size="small">
+                <Descriptions.Item label="Tên Nhà Cung Cấp">
+                  {supplierDetails.supplierName}
+                </Descriptions.Item>
+                <Descriptions.Item label="Mô Tả Nhà Cung Cấp">
+                  {supplierDetails.supplierDescription}
+                </Descriptions.Item>
+                <Descriptions.Item label="Địa Chỉ Nhà Cung Cấp">
+                  {supplierDetails.supplierAddress}
+                </Descriptions.Item>
+                <Descriptions.Item label="Số Điện Thoại Liên Hệ">
+                  {supplierDetails.contactNumber}
+                </Descriptions.Item>
+              </Descriptions>
+              <Button
+                type="primary"
+                icon={<EditOutlined />}
+                onClick={showModal}
+                className="mt-4"
+              >
+                Cập Nhật
+              </Button>
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card
+              title={
+                <span>
+                  <AppstoreOutlined /> Combo
+                </span>
+              }
+            >
+              <List
+                grid={{ gutter: 16, column: 1 }}
+                dataSource={combos}
+                renderItem={(combo) => (
+                  <List.Item>
+                    <Card>
+                      <Descriptions bordered column={1} size="small">
+                        <Descriptions.Item label="Tên Combo">
+                          {combo.comboName}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Giá Combo">
+                          {formatter.format(combo.comboPrice)}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Thời Hạn">
+                          {durationMap[combo.durationCombo]}
+                        </Descriptions.Item>
+                      </Descriptions>
+                    </Card>
+                  </List.Item>
+                )}
+                locale={{ emptyText: "Không có Combo nào." }}
+              />
+            </Card>
+          </Col>
+        </Row>
       )}
       <Modal
-        title="Update Supplier Details"
+        title="Cập Nhật Thông Tin Nhà Cung Cấp"
         visible={isModalVisible}
         onCancel={handleCancel}
         footer={null}
+        bodyStyle={{ padding: "20px" }}
       >
-        <Form initialValues={supplierDetails} onFinish={handleUpdateSupplier}>
-          <Form.Item name="supplierName" label="Supplier Name">
+        <Form
+          layout="vertical"
+          initialValues={supplierDetails}
+          onFinish={handleUpdateSupplier}
+        >
+          <Form.Item name="supplierName" label="Tên Nhà Cung Cấp">
             <Input />
           </Form.Item>
-          <Form.Item name="supplierDescription" label="Supplier Description">
+          <Form.Item name="supplierDescription" label="Mô Tả Nhà Cung Cấp">
             <Input />
           </Form.Item>
-          <Form.Item name="supplierAddress" label="Supplier Address">
+          <Form.Item name="supplierAddress" label="Địa Chỉ Nhà Cung Cấp">
             <Input />
           </Form.Item>
-          <Form.Item name="contactNumber" label="Contact Number">
+          <Form.Item name="contactNumber" label="Số Điện Thoại Liên Hệ">
             <Input />
           </Form.Item>
-          <Form.Item name="supplierLogo" label="Supplier Logo">
+          <Form.Item name="supplierLogo" label="Logo Nhà Cung Cấp">
             <Input type="file" />
           </Form.Item>
           <Button type="primary" htmlType="submit">
-            Update
+            Cập Nhật
           </Button>
         </Form>
       </Modal>
-      <Card className="mb-4">
-        <RangePicker onChange={handleDateChange} />
+
+      <Card className="mb-4 shadow-md">
+        <RangePicker
+          onChange={handleDateChange}
+          defaultValue={[startDate, endDate]}
+          className="rounded-md"
+          allowClear
+          ranges={{
+            "Last 7 Days": [moment().subtract(7, "days"), moment()],
+            "Last 30 Days": [moment().subtract(30, "days"), moment()],
+            "This Month": [moment().startOf("month"), moment().endOf("month")],
+            "Last Month": [
+              moment().subtract(1, "months").startOf("month"),
+              moment().subtract(1, "months").endOf("month"),
+            ],
+          }}
+        />
       </Card>
       {loading ? (
-        <Spin className="flex justify-center items-center h-64" />
+        <Spin className="flex justify-center items-center h-64" size="large" />
       ) : (
-        <div className="grid grid-cols-1 gap-4">
-          <Card title="Thống Kê Đơn Hàng">
-            <Table
-              dataSource={[data.orderStatistics]}
-              columns={orderStatisticsColumns}
-              pagination={false}
-            />
-          </Card>
-          <Card title="Thống Kê Sản Phẩm">
-            <Table
-              dataSource={data.productStatistics}
-              columns={columns}
-              pagination={false}
-            />
-          </Card>
-          <Card title="Thống Kê Chi Phí Đơn Hàng">
-            <Table
-              dataSource={data.orderCostStatistics}
-              columns={orderCostColumns}
-              pagination={false}
-            />
-          </Card>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={12}>
+            <Card
+              title={
+                <span>
+                  <DollarOutlined /> Tổng Doanh Thu
+                </span>
+              }
+              className="shadow-sm"
+            >
+              <Text className="text-32 text-green-600">
+                {formatter.format(data.totalRevenue)}
+              </Text>
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card
+              title={
+                <span>
+                  <ShoppingCartOutlined /> Thống Kê Chi Phí Đơn Hàng
+                </span>
+              }
+              className="shadow-sm"
+            >
+              <Table
+                dataSource={data.orderCostStatistics}
+                columns={orderCostColumns}
+                pagination={{ pageSize: 5 }}
+                scroll={{ y: 240 }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24}>
+            <Card
+              title={
+                <span>
+                  <ShoppingCartOutlined /> Thống Kê Đơn Hàng
+                </span>
+              }
+              className="shadow-sm"
+            >
+              <Table
+                dataSource={[data.orderStatistics]}
+                columns={orderStatisticsColumns}
+                pagination={{ pageSize: 5 }}
+                scroll={{ y: 240 }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card
+              title={
+                <span>
+                  <AppstoreOutlined /> Thống Kê Sản Phẩm
+                </span>
+              }
+              className="shadow-sm"
+            >
+              <Table
+                dataSource={data.productStatistics}
+                columns={columns}
+                pagination={{ pageSize: 5 }}
+                scroll={{ y: 240 }}
+              />
+            </Card>
+          </Col>
 
-          <Card title="Tổng Doanh Thu">
-            <Text className="text-lg">{data.totalRevenue}</Text>
-          </Card>
-          <Card title="Biểu Đồ Doanh Thu Hàng Tháng">
-            <LineChart width={500} height={300} data={data.monthlyRevenue}>
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="totalRevenue" stroke="#8884d8" />
-            </LineChart>
-          </Card>
-        </div>
+          <Col xs={24}>
+            <Card
+              title={
+                <span>
+                  <BarChartOutlined /> Biểu Đồ Doanh Thu Hàng Tháng
+                </span>
+              }
+              className="shadow-sm"
+            >
+              <LineChart width="100%" height={300} data={data.monthlyRevenue}>
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="totalRevenue" stroke="#8884d8" />
+              </LineChart>
+            </Card>
+          </Col>
+        </Row>
       )}
     </div>
   );
