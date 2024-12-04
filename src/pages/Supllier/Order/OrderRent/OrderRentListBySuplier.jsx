@@ -7,7 +7,7 @@ import {
 } from "../../../../api/accountApi";
 import { getOrderOfSupplierId } from "../../../../api/orderApi";
 import ContractModal from "./ContractModal";
-import OrderTable from "./OrderRentTable";
+import OrderRentTable from "./OrderRentTable";
 import TrackingModal from "./TrackingRentModal";
 
 const OrderRentListBySuplier = ({ refresh }) => {
@@ -16,7 +16,7 @@ const OrderRentListBySuplier = ({ refresh }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
   const [supplierId, setSupplierId] = useState(null);
   const [isTrackingModalVisible, setIsTrackingModalVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -123,7 +123,7 @@ const OrderRentListBySuplier = ({ refresh }) => {
 
   return (
     <>
-      <OrderTable
+      <OrderRentTable
         orders={orders}
         accountNames={accountNames}
         pageIndex={pageIndex}

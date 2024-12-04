@@ -162,7 +162,6 @@ const OrderBuyListBySuplier = ({ refresh }) => {
       dataIndex: "accountName",
       key: "accountName",
       sorter: (a, b) => a.accountName.localeCompare(b.accountName),
-      ...getColumnSearchProps("accountName"),
     },
     {
       title: "Ngày đặt hàng",

@@ -1,43 +1,134 @@
-import { Button, Table, Tag } from "antd";
+import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Input, Select, Table, Tag } from "antd";
 import moment from "moment";
-import React from "react";
-import { getColumnSearchProps } from "./handle";
+import React, { useRef, useState } from "react";
+import {
+  deliveryStatusMap,
+  orderStatusMap,
+  orderTypeMap,
+} from "../OrderBoth/OrderStatusMaps";
+
+const { Option } = Select;
+
+const OrderTableFilters = ({ onSearch, onReset, onFilter }) => {
+  const [searchText, setSearchText] = useState("");
+  const [orderStatus, setOrderStatus] = useState(null);
+  const [orderType, setOrderType] = useState(null);
+  const searchInput = useRef(null);
+
+  const handleSearch = () => {
+    onSearch(searchText);
+  };
+
+  const handleReset = () => {
+    setSearchText("");
+    setOrderStatus(null);
+    setOrderType(null);
+    onReset();
+  };
+
+  const handleOrderStatusChange = (value) => {
+    setOrderStatus(value);
+    onFilter({ orderStatus: value, orderType });
+  };
+
+  const handleOrderTypeChange = (value) => {
+    setOrderType(value);
+    onFilter({ orderStatus, orderType: value });
+  };
+
+  return (
+    <div
+      style={{
+        marginBottom: 16,
+        display: "flex",
+        alignItems: "center",
+        flexWrap: "wrap",
+      }}
+    >
+      <Input
+        ref={searchInput}
+        placeholder="Tìm kiếm tên tài khoản"
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        onPressEnter={handleSearch}
+        style={{ width: 200, marginRight: 8, marginBottom: 8 }}
+      />
+      <Button
+        type="primary"
+        onClick={handleSearch}
+        icon={<SearchOutlined />}
+        style={{ marginRight: 8, marginBottom: 8 }}
+      >
+        Tìm kiếm
+      </Button>
+      <Button
+        onClick={handleReset}
+        icon={<ReloadOutlined />}
+        style={{ marginRight: 8, marginBottom: 8 }}
+      >
+        Đặt lại
+      </Button>
+      <Select
+        placeholder="Trạng thái đơn hàng"
+        value={orderStatus}
+        onChange={handleOrderStatusChange}
+        style={{ width: 200, marginRight: 8, marginBottom: 8 }}
+      >
+        {Object.keys(orderStatusMap).map((key) => (
+          <Option key={key} value={parseInt(key)}>
+            {orderStatusMap[key].text}
+          </Option>
+        ))}
+      </Select>
+      <Select
+        placeholder="Loại đơn hàng"
+        value={orderType}
+        onChange={handleOrderTypeChange}
+        style={{ width: 200, marginRight: 8, marginBottom: 8 }}
+      >
+        {Object.keys(orderTypeMap).map((key) => (
+          <Option key={key} value={parseInt(key)}>
+            {orderTypeMap[key].text}
+          </Option>
+        ))}
+      </Select>
+    </div>
+  );
+};
 
 const OrderRentTable = ({
   orders,
-  accountNames,
   pageIndex,
   pageSize,
   setPageIndex,
   setPageSize,
-  handleOpenTrackingModal,
-  handleOpenContractModal,
+  setSelectedOrder,
+  setIsTrackingModalVisible,
+  setContractModalVisible,
 }) => {
-  const orderStatusMap = {
-    0: { text: "Chờ xử lý", color: "blue" },
-    1: { text: "Sản phẩm sẵn sàng được giao", color: "green" },
-    2: { text: "Hoàn thành", color: "yellow" },
-    3: { text: "Đã nhận sản phẩm", color: "purple" },
-    4: { text: "Đã giao hàng", color: "cyan" },
-    5: { text: "Thanh toán thất bại", color: "cyan" },
-    6: { text: "Đang hủy", color: "lime" },
-    7: { text: "Đã hủy thành công", color: "red" },
-    8: { text: "Đã Thanh toán", color: "orange" },
-    9: { text: "Hoàn tiền đang chờ xử lý", color: "pink" },
-    10: { text: "Hoàn tiền thành công ", color: "brown" },
-    11: { text: "Hoàn trả tiền đặt cọc", color: "gold" },
-    12: { text: "Gia hạn", color: "violet" },
+  const [filteredOrders, setFilteredOrders] = useState(orders);
+
+  const handleSearch = (searchText) => {
+    const filtered = orders.filter((order) =>
+      order.accountName.toLowerCase().includes(searchText.toLowerCase())
+    );
+    setFilteredOrders(filtered);
   };
 
-  const orderTypeMap = {
-    0: { text: "Mua", color: "blue" },
-    1: { text: "Thuê", color: "green" },
+  const handleReset = () => {
+    setFilteredOrders(orders);
   };
 
-  const deliveryStatusMap = {
-    0: { text: "Đến cửa hàng lấy hàng", color: "blue" },
-    1: { text: "Cửa hàng giao hàng", color: "green" },
-    2: { text: "Đã trả lại", color: "red" },
+  const handleFilter = ({ orderStatus, orderType }) => {
+    let filtered = orders;
+    if (orderStatus !== null) {
+      filtered = filtered.filter((order) => order.orderStatus === orderStatus);
+    }
+    if (orderType !== null) {
+      filtered = filtered.filter((order) => order.orderType === orderType);
+    }
+    setFilteredOrders(filtered);
   };
 
   const columns = [
@@ -46,14 +137,12 @@ const OrderRentTable = ({
       dataIndex: "orderID",
       key: "orderID",
       sorter: (a, b) => a.orderID.localeCompare(b.orderID),
-      ...getColumnSearchProps("orderID"),
     },
     {
       title: "Tên tài khoản",
       dataIndex: "accountName",
       key: "accountName",
       sorter: (a, b) => a.accountName.localeCompare(b.accountName),
-      ...getColumnSearchProps("accountName"),
     },
     {
       title: "Ngày đặt hàng",
@@ -122,14 +211,20 @@ const OrderRentTable = ({
         <>
           <Button
             type="primary"
-            onClick={() => handleOpenTrackingModal(record)}
+            onClick={() => {
+              setSelectedOrder(record);
+              setIsTrackingModalVisible(true);
+            }}
           >
             Theo dõi đơn hàng
           </Button>
           {record.orderType === 1 && (
             <Button
               type="default"
-              onClick={() => handleOpenContractModal(record)}
+              onClick={() => {
+                setSelectedOrder(record);
+                setContractModalVisible(true);
+              }}
               style={{ marginLeft: 8 }}
             >
               Hợp đồng
@@ -141,20 +236,27 @@ const OrderRentTable = ({
   ];
 
   return (
-    <Table
-      dataSource={orders}
-      columns={columns}
-      rowKey="orderID"
-      pagination={{
-        current: pageIndex,
-        pageSize: pageSize,
-        total: orders.length,
-        onChange: (page, pageSize) => {
-          setPageIndex(page);
-          setPageSize(pageSize);
-        },
-      }}
-    />
+    <>
+      <OrderTableFilters
+        onSearch={handleSearch}
+        onReset={handleReset}
+        onFilter={handleFilter}
+      />
+      <Table
+        dataSource={filteredOrders}
+        columns={columns}
+        rowKey="orderID"
+        pagination={{
+          current: pageIndex,
+          pageSize: pageSize,
+          total: filteredOrders.length,
+          onChange: (page, pageSize) => {
+            setPageIndex(page);
+            setPageSize(pageSize);
+          },
+        }}
+      />
+    </>
   );
 };
 

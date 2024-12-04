@@ -1,7 +1,7 @@
-import { ReloadOutlined } from "@ant-design/icons";
-import { Button, Input, Select, Table } from "antd";
+import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Input, Select } from "antd";
 import React, { useRef, useState } from "react";
-import { orderStatusMap, orderTypeMap } from "../OrderBoth/OrderStatusMaps";
+import { orderStatusMap, orderTypeMap } from "./OrderStatusMaps";
 
 const { Option } = Select;
 
@@ -49,7 +49,14 @@ const OrderTableFilters = ({ onSearch, onReset, onFilter }) => {
         onPressEnter={handleSearch}
         style={{ width: 200, marginRight: 8, marginBottom: 8 }}
       />
-
+      <Button
+        type="primary"
+        onClick={handleSearch}
+        icon={<SearchOutlined />}
+        style={{ marginRight: 8, marginBottom: 8 }}
+      >
+        Tìm kiếm
+      </Button>
       <Button
         onClick={handleReset}
         icon={<ReloadOutlined />}
@@ -85,63 +92,4 @@ const OrderTableFilters = ({ onSearch, onReset, onFilter }) => {
   );
 };
 
-const OrderTable = ({
-  orders,
-  columns,
-  pageIndex,
-  pageSize,
-  setPageIndex,
-  setPageSize,
-  handleOpenTrackingModal,
-  handleOpenContractModal,
-}) => {
-  const [filteredOrders, setFilteredOrders] = useState(orders);
-
-  const handleSearch = (searchText) => {
-    const filtered = orders.filter((order) =>
-      order.accountName.toLowerCase().includes(searchText.toLowerCase())
-    );
-    setFilteredOrders(filtered);
-  };
-
-  const handleReset = () => {
-    setFilteredOrders(orders);
-  };
-
-  const handleFilter = ({ orderStatus, orderType }) => {
-    let filtered = orders;
-    if (orderStatus !== null) {
-      filtered = filtered.filter((order) => order.orderStatus === orderStatus);
-    }
-    if (orderType !== null) {
-      filtered = filtered.filter((order) => order.orderType === orderType);
-    }
-    setFilteredOrders(filtered);
-  };
-
-  return (
-    <>
-      <OrderTableFilters
-        onSearch={handleSearch}
-        onReset={handleReset}
-        onFilter={handleFilter}
-      />
-      <Table
-        dataSource={filteredOrders}
-        columns={columns}
-        rowKey="orderID"
-        pagination={{
-          current: pageIndex,
-          pageSize: pageSize,
-          total: filteredOrders.length,
-          onChange: (page, pageSize) => {
-            setPageIndex(page);
-            setPageSize(pageSize);
-          },
-        }}
-      />
-    </>
-  );
-};
-
-export default OrderTable;
+export default OrderTableFilters;

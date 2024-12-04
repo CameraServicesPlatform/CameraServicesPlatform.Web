@@ -1,8 +1,7 @@
-import { SearchOutlined } from "@ant-design/icons";
-import { Button, Input, DatePicker } from "antd";
+import { DatePicker, Input } from "antd";
 import moment from "moment";
-import Highlighter from "react-highlight-words";
 import React from "react";
+import Highlighter from "react-highlight-words";
 
 export const getColumnSearchProps = (
   dataIndex,
@@ -35,35 +34,9 @@ export const getColumnSearchProps = (
         }
         style={{ marginBottom: 8, display: "block" }}
       />
-      <Button
-        type="primary"
-        onClick={() =>
-          handleSearch(
-            selectedKeys,
-            confirm,
-            dataIndex,
-            setSearchText,
-            setSearchedColumn
-          )
-        }
-        icon={<SearchOutlined />}
-        size="small"
-        style={{ width: 90, marginRight: 8 }}
-      >
-        Search
-      </Button>
-      <Button
-        onClick={() => handleReset(clearFilters, setSearchText)}
-        size="small"
-        style={{ width: 90 }}
-      >
-        Reset
-      </Button>
     </div>
   ),
-  filterIcon: (filtered) => (
-    <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-  ),
+
   onFilter: (value, record) =>
     record[dataIndex]
       ? record[dataIndex].toString().toLowerCase().includes(value.toLowerCase())
@@ -86,19 +59,8 @@ export const getColumnSearchProps = (
     ),
 });
 
-export const getColumnDateSearchProps = (
-  dataIndex,
-  searchText,
-  setSearchText,
-  searchedColumn,
-  setSearchedColumn
-) => ({
-  filterDropdown: ({
-    setSelectedKeys,
-    selectedKeys,
-    confirm,
-    clearFilters,
-  }) => (
+export const getColumnDateSearchProps = (dataIndex) => ({
+  filterDropdown: ({ setSelectedKeys }) => (
     <div style={{ padding: 8 }}>
       <DatePicker
         onChange={(date, dateString) =>
@@ -106,65 +68,11 @@ export const getColumnDateSearchProps = (
         }
         style={{ marginBottom: 8, display: "block" }}
       />
-      <Button
-        type="primary"
-        onClick={() =>
-          handleSearch(
-            selectedKeys,
-            confirm,
-            dataIndex,
-            setSearchText,
-            setSearchedColumn
-          )
-        }
-        icon={<SearchOutlined />}
-        size="small"
-        style={{ width: 90, marginRight: 8 }}
-      >
-        Search
-      </Button>
-      <Button
-        onClick={() => handleReset(clearFilters, setSearchText)}
-        size="small"
-        style={{ width: 90 }}
-      >
-        Reset
-      </Button>
     </div>
   ),
-  filterIcon: (filtered) => (
-    <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-  ),
+
   onFilter: (value, record) =>
     record[dataIndex]
       ? moment(record[dataIndex]).format("DD-MM-YYYY") === value
       : "",
-  render: (text) =>
-    searchedColumn === dataIndex ? (
-      <Highlighter
-        highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-        searchWords={[searchText]}
-        autoEscape
-        textToHighlight={text ? text.toString() : ""}
-      />
-    ) : (
-      text
-    ),
 });
-
-const handleSearch = (
-  selectedKeys,
-  confirm,
-  dataIndex,
-  setSearchText,
-  setSearchedColumn
-) => {
-  confirm();
-  setSearchText(selectedKeys[0]);
-  setSearchedColumn(dataIndex);
-};
-
-const handleReset = (clearFilters, setSearchText) => {
-  clearFilters();
-  setSearchText("");
-};

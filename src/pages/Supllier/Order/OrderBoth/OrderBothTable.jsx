@@ -1,13 +1,12 @@
-import { SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Table, Tag } from "antd";
+import { Button, Table, Tag } from "antd";
 import moment from "moment";
 import React, { useState } from "react";
-import Highlighter from "react-highlight-words";
 import {
   deliveryStatusMap,
   orderStatusMap,
   orderTypeMap,
 } from "./OrderStatusMaps";
+import OrderTableFilters from "./OrderTableFilters";
 
 const OrderBothTable = ({
   orders,
@@ -19,77 +18,29 @@ const OrderBothTable = ({
   setIsTrackingModalVisible,
   setContractModalVisible,
 }) => {
-  const [searchText, setSearchText] = useState("");
-  const [searchedColumn, setSearchedColumn] = useState("");
+  const [filteredOrders, setFilteredOrders] = useState(orders);
 
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
+  const handleSearch = (searchText) => {
+    const filtered = orders.filter((order) =>
+      order.accountName.toLowerCase().includes(searchText.toLowerCase())
+    );
+    setFilteredOrders(filtered);
   };
 
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    setSearchText("");
+  const handleReset = () => {
+    setFilteredOrders(orders);
   };
 
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) => (
-      <div style={{ padding: 8 }}>
-        <Input
-          placeholder={`Search ${dataIndex}`}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Button
-          type="primary"
-          onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-          icon={<SearchOutlined />}
-          size="small"
-          style={{ width: 90, marginRight: 8 }}
-        >
-          Search
-        </Button>
-        <Button
-          onClick={() => handleReset(clearFilters)}
-          size="small"
-          style={{ width: 90 }}
-        >
-          Reset
-        </Button>
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
-    ),
-    onFilter: (value, record) =>
-      record[dataIndex]
-        ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
-        : "",
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text ? text.toString() : ""}
-        />
-      ) : (
-        text
-      ),
-  });
+  const handleFilter = ({ orderStatus, orderType }) => {
+    let filtered = orders;
+    if (orderStatus !== null) {
+      filtered = filtered.filter((order) => order.orderStatus === orderStatus);
+    }
+    if (orderType !== null) {
+      filtered = filtered.filter((order) => order.orderType === orderType);
+    }
+    setFilteredOrders(filtered);
+  };
 
   const columns = [
     {
@@ -97,14 +48,12 @@ const OrderBothTable = ({
       dataIndex: "orderID",
       key: "orderID",
       sorter: (a, b) => a.orderID.localeCompare(b.orderID),
-      ...getColumnSearchProps("orderID"),
     },
     {
       title: "Tên tài khoản",
       dataIndex: "accountName",
       key: "accountName",
       sorter: (a, b) => a.accountName.localeCompare(b.accountName),
-      ...getColumnSearchProps("accountName"),
     },
     {
       title: "Ngày đặt hàng",
@@ -198,20 +147,27 @@ const OrderBothTable = ({
   ];
 
   return (
-    <Table
-      dataSource={orders}
-      columns={columns}
-      rowKey="orderID"
-      pagination={{
-        current: pageIndex,
-        pageSize: pageSize,
-        total: orders.length,
-        onChange: (page, pageSize) => {
-          setPageIndex(page);
-          setPageSize(pageSize);
-        },
-      }}
-    />
+    <>
+      <OrderTableFilters
+        onSearch={handleSearch}
+        onReset={handleReset}
+        onFilter={handleFilter}
+      />
+      <Table
+        dataSource={filteredOrders}
+        columns={columns}
+        rowKey="orderID"
+        pagination={{
+          current: pageIndex,
+          pageSize: pageSize,
+          total: filteredOrders.length,
+          onChange: (page, pageSize) => {
+            setPageIndex(page);
+            setPageSize(pageSize);
+          },
+        }}
+      />
+    </>
   );
 };
 
