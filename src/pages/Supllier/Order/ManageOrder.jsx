@@ -1,6 +1,5 @@
 import {
   DollarOutlined,
-  DownloadOutlined,
   FileDoneOutlined,
   ReloadOutlined,
   ShoppingCartOutlined,
@@ -206,11 +205,6 @@ const ManageOrder = () => {
     setRefreshList(!refreshList);
   };
 
-  const exportData = () => {
-    // Implement export functionality
-    message.success("Exported successfully!");
-  };
-
   const summaryItems = [
     {
       title: "Tổng Doanh Thu",
@@ -251,13 +245,6 @@ const ManageOrder = () => {
               onClick={refreshData}
             >
               Refresh
-            </Button>
-            <Button
-              type="default"
-              icon={<DownloadOutlined />}
-              onClick={exportData}
-            >
-              Export
             </Button>
           </Space>
         </div>
