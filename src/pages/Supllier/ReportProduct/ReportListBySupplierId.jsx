@@ -1,13 +1,16 @@
 import { Card, List, message } from "antd";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getSupplierIdByAccountId } from "../../../api/accountApi";
-import { getProductReportBySupplierId } from "../../../api/ProductVoucherApi";
+import { getSupplierIdByAccountId, getUserById } from "../../../api/accountApi"; // Import the new API function
+import { getProductById } from "../../../api/productApi"; // Import the new API function
+import { getProductReportBySupplierId } from "../../../api/productReportApi";
 
 const ReportListBySupplierId = () => {
   const user = useSelector((state) => state.user.user || {});
   const [supplierId, setSupplierId] = useState(null);
   const [reportData, setReportData] = useState([]);
+  const [productNames, setProductNames] = useState({}); // New state for product names
+  const [userNames, setUserNames] = useState({}); // New state for user names
 
   const fetchSupplierId = async () => {
     if (user.id) {
@@ -39,6 +42,31 @@ const ReportListBySupplierId = () => {
     }
   };
 
+  const fetchProductName = async (productId) => {
+    try {
+      const product = await getProductById(productId);
+      setProductNames((prev) => ({
+        ...prev,
+        [productId]: product.productName,
+      }));
+    } catch (error) {
+      message.error("Error fetching product name.");
+    }
+  };
+
+  const fetchUserName = async (accountId) => {
+    try {
+      const response = await getUserById(accountId);
+      const user = response.result; // Correctly access the result property
+      setUserNames((prev) => ({
+        ...prev,
+        [accountId]: `${user?.lastName} ${user?.firstName} `,
+      }));
+    } catch (error) {
+      message.error("Error fetching user name.");
+    }
+  };
+
   useEffect(() => {
     fetchSupplierId();
   }, [user.id]);
@@ -49,6 +77,19 @@ const ReportListBySupplierId = () => {
     }
   }, [supplierId]);
 
+  useEffect(() => {
+    if (reportData.length > 0) {
+      reportData.forEach((report) => {
+        if (!productNames[report.productID]) {
+          fetchProductName(report.productID);
+        }
+        if (!userNames[report.accountID]) {
+          fetchUserName(report.accountID);
+        }
+      });
+    }
+  }, [reportData]);
+
   return (
     <div className="p-4">
       {reportData.length > 0 ? (
@@ -57,19 +98,32 @@ const ReportListBySupplierId = () => {
           dataSource={reportData}
           renderItem={(report) => (
             <List.Item>
-              <Card title={`Product ID: ${report.productID}`}>
-                <p>Supplier ID: {report.supplierID}</p>
-                <p>Status Type: {report.statusType}</p>
-                <p>Start Date: {report.startDate}</p>
-                <p>End Date: {report.endDate}</p>
-                <p>Reason: {report.reason}</p>
-                <p>Account ID: {report.accountID}</p>
+              <Card
+                title={`Tên sản phẩm: ${
+                  productNames[report.productID] || "Đang tải..."
+                }`}
+                extra={`Tên tài khoản: ${
+                  userNames[report.accountID] || "Đang tải..."
+                }`}
+              >
+                <p>
+                  <strong>Loại trạng thái:</strong> {report.statusType}
+                </p>
+                <p>
+                  <strong>Ngày bắt đầu:</strong> {report.startDate}
+                </p>
+                <p>
+                  <strong>Ngày kết thúc:</strong> {report.endDate}
+                </p>
+                <p>
+                  <strong>Lý do:</strong> {report.reason}
+                </p>
               </Card>
             </List.Item>
           )}
         />
       ) : (
-        <p className="text-center text-gray-500">No reports available.</p>
+        <p className="text-center text-gray-500">Không có báo cáo nào.</p>
       )}
     </div>
   );

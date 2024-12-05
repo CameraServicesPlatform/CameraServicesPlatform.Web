@@ -1,13 +1,15 @@
 import { useState } from "react";
 import {
   FaBoxOpen,
+  FaChartPie,
   FaClipboardList,
+  FaCogs,
   FaGift,
   FaHome,
   FaTags,
   FaUser,
 } from "react-icons/fa";
-import { MdClose, MdMenu } from "react-icons/md"; // Import MdMenu and MdClose
+import { MdClose, MdMenu } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { NavLink, useLocation } from "react-router-dom";
 import "tailwindcss/tailwind.css";
@@ -21,18 +23,21 @@ const SideBar = () => {
 
   const menuItems = {
     STAFF: [
-      { name: "THỐNG KÊ", link: "dashboard", icon: <FaHome /> },
+      { name: "THỐNG KÊ", link: "dashboard", icon: <FaChartPie /> },
       { name: "DANH MỤC", link: "manage-category", icon: <FaTags /> },
       { name: "SẢN PHẨM", link: "manage-product", icon: <FaBoxOpen /> },
       { name: "VOUCHER", link: "manage-voucher", icon: <FaGift /> },
-      { name: "GIAO DỊCH", link: "manage-transaction-system" },
-      { name: "QUẢN LÍ GÓI ĐĂNG KÍ", link: "manage-combo" },
+      {
+        name: "GIAO DỊCH",
+        link: "manage-transaction-system",
+        icon: <FaClipboardList />,
+      },
+      { name: "QUẢN LÍ GÓI ĐĂNG KÍ", link: "manage-combo", icon: <FaCogs /> },
     ],
 
     SUPPLIER: [
-      { name: "THỐNG KÊ", link: "dashboard", icon: <FaHome /> },
+      { name: "THỐNG KÊ", link: "dashboard", icon: <FaChartPie /> },
       { name: "Đăng kí Combo", link: "personal-supplier", icon: <FaHome /> },
-
       { name: "VOUCHER", link: "manage-voucher-of-supplier", icon: <FaGift /> },
       {
         name: "QUẢN LÍ SẢN PHẨM",
@@ -47,16 +52,16 @@ const SideBar = () => {
       {
         name: "QUẢN LÍ ĐIỂU KHOẢN HỢP ĐÔNG",
         link: "manage-contract-template",
+        icon: <FaCogs />,
+      },
+      {
+        name: "SẢN PHẨM BỊ BÁO CÁO",
+        link: "manage-product-report-by-supplier",
         icon: <FaClipboardList />,
       },
-      // {
-      //   name: "QUẢN LÍ   KHOẢN HỢP ĐÔNG",
-      //   link: "manage-order",
-      //   icon: <FaClipboardList />,
-      // },
     ],
     ADMIN: [
-      { name: "THỐNG KÊ", link: "dashboard", icon: <FaHome /> },
+      { name: "THỐNG KÊ", link: "dashboard", icon: <FaChartPie /> },
       { name: "Người dùng", link: "manage-user", icon: <FaUser /> },
       {
         name: "Tổng quản lí sản phẩm hệ thống",
@@ -70,6 +75,7 @@ const SideBar = () => {
       },
     ],
   };
+
   const renderMenu = (items) => {
     if (!items) return null;
     return items.map((item) => (

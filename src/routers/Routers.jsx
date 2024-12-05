@@ -44,6 +44,8 @@ import ProtectedRouteAdmin from "./PrivateRoute/ProtectedRouteAdmin";
 import PersonalPage from "../pages/Supllier/PersonalPage";
 import ManageCombo from "../pages/Staff/Combo/ManageCombo";
 import Dashboard from "../pages/Staff/DashboardStaff";
+import ReportListBySupplierId from "../pages/Supllier/ReportProduct/ReportListBySupplierId";
+import ManageReportProductOfSupplier from "../pages/Supllier/ReportProduct/ManageReportProductOfSupplier";
 
 function Routers() {
   const routing = useRoutes([
@@ -149,6 +151,10 @@ function Routers() {
         {
           path: "manage-contract-template",
           element: <ManageContractTemplate />,
+        },
+        {
+          path: "manage-product-report-by-supplier",
+          element: <ManageReportProductOfSupplier />,
         },
       ],
     },
