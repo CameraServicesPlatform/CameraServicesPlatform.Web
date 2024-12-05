@@ -1,61 +1,35 @@
-import {
-  AppstoreOutlined,
-  BarChartOutlined,
-  DollarOutlined,
-  EditOutlined,
-  ShoppingCartOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  DatePicker,
-  Descriptions,
-  Form,
-  Input,
-  List,
-  message,
-  Modal,
-  Row,
-  Spin,
-  Table,
-  Typography,
-} from "antd";
-import dayjs from "dayjs";
-import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
+import { Button, Card, Carousel, Col, DatePicker, Descriptions, Form, Input, message, Modal, Row, Spin, Table, Typography } from "antd";
+import dayjs from "dayjs";
+import moment from "moment";
 import { getSupplierIdByAccountId } from "../../api/accountApi";
 import { getComboById, getCombosBySupplierId } from "../../api/comboApi";
-import {
-  getBestSellingCategoriesBySupplier,
-  getCalculateMonthlyRevenueBySupplier,
-  getCalculateTotalRevenueBySupplier,
-  getMonthOrderCostStatistics,
-  getOrderStatusStatisticsBySupplier,
-  getSupplierOrderStatistics,
-  getSupplierPaymentStatistics,
-  getSupplierProductStatistics,
-  getSupplierRatingStatistics,
-  getSupplierTransactionStatistics,
-} from "../../api/dashboardApi";
+import { getBestSellingCategoriesBySupplier, getCalculateMonthlyRevenueBySupplier, getCalculateTotalRevenueBySupplier, getMonthOrderCostStatistics, getOrderStatusStatisticsBySupplier, getSupplierOrderStatistics, getSupplierPaymentStatistics, getSupplierProductStatistics, getSupplierRatingStatistics, getSupplierTransactionStatistics } from "../../api/dashboardApi";
 import { getSupplierById, updateSupplier } from "../../api/supplierApi";
+import SupplierInfoCard from "./DashboardComponent/SupplierInfoCard";
+import ComboCarousel from "./DashboardComponent/ComboCarousel";
+import RevenueCard from "./DashboardComponent/RevenueCard";
+import OrderCostStatisticsTable from "./DashboardComponent/OrderCostStatisticsTable";
+import OrderStatisticsTable from "./DashboardComponent/OrderStatisticsTable";
+import ProductStatisticsTable from "./DashboardComponent/ProductStatisticsTable";
+import MonthlyRevenueChart from "./DashboardComponent/MonthlyRevenueChart";
+
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 
 // Add formatter at the top
-const formatter = new Intl.NumberFormat('vi-VN', {
-  style: 'currency',
-  currency: 'VND',
+const formatter = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
 });
 
 // Define duration mapping
 const durationMap = {
-  0: "Một tháng",
-  1: "Hai tháng",
-  2: "Ba tháng",
-  3: "Năm tháng",
+  0: "1",
+  1: "2",
+  2: "3",
+  3: "5",
 };
 
 const DashboardSupplier = () => {
@@ -87,6 +61,9 @@ const DashboardSupplier = () => {
     dayjs().subtract(1, "month")
   );
   const [endDate, setEndDate] = useState(() => dayjs());
+  const [totalCombos, setTotalCombos] = useState(0); // New state for total combos
+  const [totalDuration, setTotalDuration] = useState(0); // New state for total duration
+
   useEffect(() => {
     const fetchSupplierId = async () => {
       if (user.id) {
@@ -129,25 +106,27 @@ const DashboardSupplier = () => {
           const response = await getCombosBySupplierId(supplierId);
           console.log("Response from getCombosBySupplierId:", response);
 
-          if (response?.isSuccess && response.result) {
-            const combo = response.result;
-            console.log("Fetching details for comboId:", combo.comboId);
-            const comboDetail = await getComboById(combo.comboId);
-            console.log("Response from getComboById:", comboDetail);
+          if (response?.isSuccess && Array.isArray(response.result)) {
+            const comboDetailsPromises = response.result.map(async (combo) => {
+              console.log("Fetching details for comboId:", combo.comboId);
+              const comboDetail = await getComboById(combo.comboId);
+              console.log("Response from getComboById:", comboDetail);
 
-            const comboDetails = {
-              ...combo,
-              comboName: comboDetail?.result?.comboName || "N/A",
-              comboPrice: comboDetail?.result?.comboPrice || "N/A",
-              durationCombo: comboDetail?.result?.durationCombo || "N/A",
-              startTime: combo.startTime || "N/A",
-              endTime: combo.endTime || "N/A",
-              isDisable:
-                combo.isDisable !== undefined ? combo.isDisable : "N/A",
-            };
+              return {
+                ...combo,
+                comboName: comboDetail?.result?.comboName || "N/A",
+                comboPrice: comboDetail?.result?.comboPrice || "N/A",
+                durationCombo: comboDetail?.result?.durationCombo || "N/A",
+                startTime: combo.startTime || "N/A",
+                endTime: combo.endTime || "N/A",
+                isDisable:
+                  combo.isDisable !== undefined ? combo.isDisable : "N/A",
+              };
+            });
 
-            console.log("Combo details:", comboDetails);
-            setCombos([comboDetails]);
+            const comboDetails = await Promise.all(comboDetailsPromises);
+            console.log("All combo details:", comboDetails);
+            setCombos(comboDetails);
           } else {
             message.error("Không thể lấy thông tin combo.");
           }
@@ -251,6 +230,20 @@ const DashboardSupplier = () => {
     fetchData();
   }, [supplierId, dateRange]);
 
+  useEffect(() => {
+    if (combos.length > 0) {
+      setTotalCombos(combos.length);
+      const duration = combos.reduce(
+        (sum, combo) => sum + (parseInt(combo.durationCombo) || 0),
+        0
+      );
+      setTotalDuration(duration);
+    } else {
+      setTotalCombos(0);
+      setTotalDuration(0);
+    }
+  }, [combos]);
+
   const handleDateChange = (dates) => {
     if (dates) {
       setStartDate(dates[0]);
@@ -282,21 +275,6 @@ const DashboardSupplier = () => {
 
   const handleAddCombo = () => {
     setIsAddComboModalVisible(true);
-  };
-
-  const handleAddComboCancel = () => {
-    setIsAddComboModalVisible(false);
-    addComboForm.resetFields();
-  };
-
-  const handleAddComboSubmit = (values) => {
-    // Implement the logic to add the new combo, e.g., API call
-    console.log("New Combo Details:", values);
-    // Example: After successful addition
-    message.success("Combo đã được thêm thành công.");
-    setIsAddComboModalVisible(false);
-    addComboForm.resetFields();
-    // Optionally, refresh the combos list
   };
 
   const columns = useMemo(
@@ -418,69 +396,10 @@ const DashboardSupplier = () => {
       {supplierDetails && (
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
-            <Card
-              title={
-                <span>
-                  <EditOutlined /> Thông Tin Nhà Cung Cấp
-                </span>
-              }
-              className="flex-1 shadow-lg"
-            >
-              <Descriptions bordered column={1} size="small">
-                <Descriptions.Item label="Tên Nhà Cung Cấp">
-                  {supplierDetails.supplierName}
-                </Descriptions.Item>
-                <Descriptions.Item label="Mô Tả Nhà Cung Cấp">
-                  {supplierDetails.supplierDescription}
-                </Descriptions.Item>
-                <Descriptions.Item label="Địa Chỉ Nhà Cung Cấp">
-                  {supplierDetails.supplierAddress}
-                </Descriptions.Item>
-                <Descriptions.Item label="Số Điện Thoại Liên Hệ">
-                  {supplierDetails.contactNumber}
-                </Descriptions.Item>
-              </Descriptions>
-              <Button
-                type="primary"
-                icon={<EditOutlined />}
-                onClick={showModal}
-                className="mt-4"
-              >
-                Cập Nhật
-              </Button>
-            </Card>
+            <SupplierInfoCard supplierDetails={supplierDetails} showModal={showModal} />
           </Col>
           <Col xs={24} lg={12}>
-            <Card
-              title={
-                <span>
-                  <AppstoreOutlined /> Combo
-                </span>
-              }
-            >
-              <List
-                grid={{ gutter: 16, column: 1 }}
-                dataSource={combos}
-                renderItem={(combo) => (
-                  <List.Item>
-                    <Card>
-                      <Descriptions bordered column={1} size="small">
-                        <Descriptions.Item label="Tên Combo">
-                          {combo.comboName}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Giá Combo">
-                          {formatter.format(combo.comboPrice)}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Thời Hạn">
-                          {durationMap[combo.durationCombo]}
-                        </Descriptions.Item>
-                      </Descriptions>
-                    </Card>
-                  </List.Item>
-                )}
-                locale={{ emptyText: "Không có Combo nào." }}
-              />
-            </Card>
+            <ComboCarousel combos={combos} totalCombos={totalCombos} totalDuration={totalDuration} />
           </Col>
         </Row>
       )}
@@ -539,88 +458,19 @@ const DashboardSupplier = () => {
       ) : (
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
-            <Card
-              title={
-                <span>
-                  <DollarOutlined /> Tổng Doanh Thu
-                </span>
-              }
-              className="shadow-sm"
-            >
-              <Text className="text-32 text-green-600">
-                {formatter.format(data.totalRevenue)}
-              </Text>
-            </Card>
+            <RevenueCard totalRevenue={data.totalRevenue} />
           </Col>
           <Col xs={24} lg={12}>
-            <Card
-              title={
-                <span>
-                  <ShoppingCartOutlined /> Thống Kê Chi Phí Đơn Hàng
-                </span>
-              }
-              className="shadow-sm"
-            >
-              <Table
-                dataSource={data.orderCostStatistics}
-                columns={orderCostColumns}
-                pagination={{ pageSize: 5 }}
-                scroll={{ y: 240 }}
-              />
-            </Card>
+            <OrderCostStatisticsTable orderCostStatistics={data.orderCostStatistics} />
           </Col>
           <Col xs={24}>
-            <Card
-              title={
-                <span>
-                  <ShoppingCartOutlined /> Thống Kê Đơn Hàng
-                </span>
-              }
-              className="shadow-sm"
-            >
-              <Table
-                dataSource={[data.orderStatistics]}
-                columns={orderStatisticsColumns}
-                pagination={{ pageSize: 5 }}
-                scroll={{ y: 240 }}
-              />
-            </Card>
+            <OrderStatisticsTable orderStatistics={data.orderStatistics} />
           </Col>
           <Col xs={24} lg={12}>
-            <Card
-              title={
-                <span>
-                  <AppstoreOutlined /> Thống Kê Sản Phẩm
-                </span>
-              }
-              className="shadow-sm"
-            >
-              <Table
-                dataSource={data.productStatistics}
-                columns={columns}
-                pagination={{ pageSize: 5 }}
-                scroll={{ y: 240 }}
-              />
-            </Card>
+            <ProductStatisticsTable productStatistics={data.productStatistics} />
           </Col>
-
           <Col xs={24}>
-            <Card
-              title={
-                <span>
-                  <BarChartOutlined /> Biểu Đồ Doanh Thu Hàng Tháng
-                </span>
-              }
-              className="shadow-sm"
-            >
-              <LineChart width="100%" height={300} data={data.monthlyRevenue}>
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="totalRevenue" stroke="#8884d8" />
-              </LineChart>
-            </Card>
+            <MonthlyRevenueChart monthlyRevenue={data.monthlyRevenue} />
           </Col>
         </Row>
       )}
