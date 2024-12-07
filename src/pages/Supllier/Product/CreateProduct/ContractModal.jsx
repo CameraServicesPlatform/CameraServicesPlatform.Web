@@ -9,7 +9,7 @@ const ContractModal = ({
   return (
     <Modal
       title="Tạo Mẫu Hợp Đồng"
-      visible={isContractModalVisible}
+      open={isContractModalVisible}
       onCancel={() => setIsContractModalVisible(false)}
       footer={null}
     >

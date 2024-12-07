@@ -1,6 +1,5 @@
+import { Button, Form, message, Select, Typography } from "antd";
 import React, { useEffect, useState } from "react";
-import { Form, message, Button, Card } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { getSupplierIdByAccountId } from "../../../../api/accountApi";
 import { getAllCategories } from "../../../../api/categoryApi";
@@ -9,9 +8,9 @@ import {
   createProductRent,
 } from "../../../../api/productApi";
 import { getVouchersBySupplierId } from "../../../../api/voucherApi";
-import CreateProductForm from "./CreateProductForm";
-import VoucherModal from "./VoucherModal";
-import ContractModal from "./ContractModal";
+
+const { Option } = Select;
+const { Title } = Typography;
 
 const CreateProduct = () => {
   const [form] = Form.useForm();
@@ -32,43 +31,48 @@ const CreateProduct = () => {
   const [canBeRentedByMember, setCanBeRentedByMember] = useState(false);
   const [isContractModalVisible, setIsContractModalVisible] = useState(false);
 
-  // Fetch Supplier ID and Categories
   useEffect(() => {
-    const fetchSupplierId = async () => {
-      if (user.id) {
-        try {
-          const response = await getSupplierIdByAccountId(user.id);
-          if (response?.isSuccess) {
-            setSupplierId(response.result);
-          } else {
-            message.error("Lấy ID Nhà cung cấp không thành công.");
-          }
-        } catch (error) {
-          message.error("Lỗi khi lấy ID Nhà cung cấp.");
-        }
-      }
-    };
+    if (user.id) {
+      fetchSupplierId();
+      fetchCategories();
+    }
+  }, [user.id]);
 
-    const fetchCategories = async () => {
-      setLoading(true);
-      try {
-        const data = await getAllCategories(1, 100);
-        if (data?.result) {
-          setCategories(data.result);
-        } else {
-          message.error("Tải danh mục không thành công.");
-        }
-      } catch (error) {
-        console.error("Lỗi tải:", error);
-        message.error("Đã xảy ra lỗi khi tải danh mục.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  useEffect(() => {
+    if (supplierId) {
+      fetchVouchers();
+    }
+  }, [supplierId]);
 
-    fetchSupplierId();
-    fetchCategories();
-  }, [user]);
+  const fetchSupplierId = async () => {
+    try {
+      const response = await getSupplierIdByAccountId(user.id);
+      if (response?.isSuccess) {
+        setSupplierId(response.result);
+      } else {
+        message.error("Lấy ID Nhà cung cấp không thành công.");
+      }
+    } catch (error) {
+      message.error("Lỗi khi lấy ID Nhà cung cấp.");
+    }
+  };
+
+  const fetchCategories = async () => {
+    setLoading(true);
+    try {
+      const data = await getAllCategories(1, 100);
+      if (data?.result) {
+        setCategories(data.result);
+      } else {
+        message.error("Tải danh mục không thành công.");
+      }
+    } catch (error) {
+      console.error("Lỗi tải:", error);
+      message.error("Đã xảy ra lỗi khi tải danh mục.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchVouchers = async () => {
     setLoading(true);
@@ -85,12 +89,6 @@ const CreateProduct = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (supplierId) {
-      fetchVouchers();
-    }
-  }, [supplierId]);
 
   const handleFileChange = (info) => {
     if (info.file.status === "done" || info.file.status === "uploading") {
@@ -112,43 +110,122 @@ const CreateProduct = () => {
     const validSpecifications = specifications.filter(
       (spec) => spec.feature && spec.description
     );
+    const {
+      SerialNumber,
+      CategoryID,
+      ProductName,
+      ProductDescription,
+      Quality,
+      DepositProduct,
+      PricePerHour = 0,
+      PricePerDay = 0,
+      PricePerWeek = 0,
+      PricePerMonth = 0,
+      Brand,
+      Price,
+      DateOfManufacture,
+      OriginalPrice,
+    } = values;
 
-    const productData = {
-      ...values,
-      specifications: validSpecifications,
-      file,
-      supplierId,
-      selectedVoucher,
-      canBeRentedByMember,
+    if (!supplierId) {
+      message.error("Supplier ID is missing or invalid.");
+      return;
+    }
+
+    const product = {
+      SerialNumber,
+      SupplierID: supplierId,
+      CategoryID,
+      ProductName,
+      ProductDescription,
+      Quality,
+      Brand,
+      File: file,
+      listProductSpecification: validSpecifications,
+      DateOfManufacture,
+      OriginalPrice,
+      VoucherID: selectedVoucher ? selectedVoucher.vourcherID : null,
+      Status: 1,
+      PriceRent: 0,
     };
 
-    setLoading(true);
+    if (productType === "rent") {
+      product.DepositProduct = DepositProduct;
+      product.PricePerHour = PricePerHour;
+      product.PricePerDay = PricePerDay;
+      product.PricePerWeek = PricePerWeek;
+      product.PricePerMonth = PricePerMonth;
+      product.PriceRent = 0;
+    } else {
+      product.PriceBuy = Price;
+    }
+
     try {
-      let response;
+      setLoading(true);
+      let result;
       if (productType === "rent") {
-        response = await createProductRent(productData);
+        result = await createProductRent(product);
       } else {
-        response = await createProductBuy(productData);
+        result = await createProductBuy(product);
       }
 
-      if (response?.isSuccess) {
-        message.success("Tạo sản phẩm thành công!");
+      if (result) {
+        message.success("Product created successfully!");
         form.resetFields();
         setFile(null);
-        setFilePreview(null);
-        setSpecifications([{ feature: "", description: "" }]);
-        setPriceType([]);
-        setProductType("rent");
-        setSelectedVoucher(null);
-        setCanBeRentedByMember(false);
+
+        if (canBeRentedByMember) {
+          setIsContractModalVisible(true);
+        }
       } else {
-        message.error("Tạo sản phẩm thất bại.");
+        message.error("Failed to create product.");
       }
     } catch (error) {
-      message.error("Đã xảy ra lỗi khi tạo sản phẩm.");
+      console.error("Error when creating product:", error);
+      message.error("An error occurred while creating the product.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePriceTypeChange = (value) => {
+    setPriceType(value);
+    if (value === "PricePerHour") {
+      form.setFieldsValue({
+        PricePerDay: 0,
+        PricePerWeek: 0,
+        PricePerMonth: 0,
+      });
+    } else if (value === "PricePerDay") {
+      form.setFieldsValue({
+        PricePerHour: 0,
+        PricePerWeek: 0,
+        PricePerMonth: 0,
+      });
+    } else if (value === "PricePerWeek") {
+      form.setFieldsValue({
+        PricePerHour: 0,
+        PricePerDay: 0,
+        PricePerMonth: 0,
+      });
+    } else if (value === "PricePerMonth") {
+      form.setFieldsValue({ PricePerHour: 0, PricePerDay: 0, PricePerWeek: 0 });
+    }
+  };
+
+  const handleAddSpecification = () => {
+    setSpecifications([...specifications, { feature: "", description: "" }]);
+  };
+
+  const handleSpecificationChange = (value, index) => {
+    const newSpecifications = [...specifications];
+    newSpecifications[index] = value;
+    setSpecifications(newSpecifications);
+  };
+
+  const handleRemoveSpecification = (index) => {
+    const newSpecifications = specifications.filter((_, i) => i !== index);
+    setSpecifications(newSpecifications);
   };
 
   const handleVoucherSelect = (voucher) => {
@@ -156,51 +233,74 @@ const CreateProduct = () => {
     setIsVoucherModalVisible(false);
   };
 
-  const handleCreateContractTemplate = (values) => {
-    // Handle contract template creation logic here
-    setIsContractModalVisible(false);
-  };
-
   return (
-    <Card title="Tạo sản phẩm mới">
-      <CreateProductForm
-        form={form}
-        categories={categories}
+    <Form
+      form={form}
+      onFinish={handleCreateProduct}
+      initialValues={{
+        Quality: 0,
+        DepositProduct: "",
+        PricePerHour: 0,
+        PricePerDay: 0,
+        PricePerWeek: 0,
+        PricePerMonth: 0,
+      }}
+    >
+      <ProductTypeRadioGroup
         productType={productType}
         setProductType={setProductType}
-        priceType={priceType}
-        setPriceType={setPriceType}
+      />
+      <SerialNumberInput />
+      <CategorySelect categories={categories} />
+      <ProductNameInput />
+      <ProductDescriptionInput />
+      <QualitySelect />
+      <DateOfManufactureInput />
+      <OriginalPriceInput />
+      {productType === "rent" && (
+        <RentPriceInputs
+          priceType={priceType}
+          handlePriceTypeChange={handlePriceTypeChange}
+        />
+      )}
+      {productType === "buy" && <BuyPriceInput />}
+      <BrandSelect />
+      <Specifications
         specifications={specifications}
-        setSpecifications={setSpecifications}
-        handleCreateProduct={handleCreateProduct}
+        handleAddSpecification={handleAddSpecification}
+        handleSpecificationChange={handleSpecificationChange}
+        handleRemoveSpecification={handleRemoveSpecification}
+      />
+      <ImageUpload
+        filePreview={filePreview}
         handleFileChange={handleFileChange}
         handleRemoveFile={handleRemoveFile}
-        filePreview={filePreview}
-        loading={loading}
-        canBeRentedByMember={canBeRentedByMember}
-        setIsContractModalVisible={setIsContractModalVisible}
       />
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={() => setIsVoucherModalVisible(true)}
-      >
-        Chọn Voucher
-      </Button>
+      <VoucherSelect
+        selectedVoucher={selectedVoucher}
+        setIsVoucherModalVisible={setIsVoucherModalVisible}
+      />
+      <Form.Item>
+        <Button type="primary" htmlType="submit" loading={loading}>
+          Tạo sản phẩm
+        </Button>
+      </Form.Item>
       <VoucherModal
         isVoucherModalVisible={isVoucherModalVisible}
         setIsVoucherModalVisible={setIsVoucherModalVisible}
         vouchers={vouchers}
-        selectedVoucher={selectedVoucher}
         handleVoucherSelect={handleVoucherSelect}
+        selectedVoucher={selectedVoucher}
       />
       <ContractModal
         isContractModalVisible={isContractModalVisible}
         setIsContractModalVisible={setIsContractModalVisible}
         handleCreateContractTemplate={handleCreateContractTemplate}
       />
-    </Card>
+    </Form>
   );
 };
 
 export default CreateProduct;
+
+// ...other components like ProductTypeRadioGroup, SerialNumberInput, CategorySelect, etc.

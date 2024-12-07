@@ -1,17 +1,17 @@
+import { Modal, Card, Col, Row } from "antd";
 import React from "react";
-import { Modal, Row, Col, Card } from "antd";
 
 const VoucherModal = ({
   isVoucherModalVisible,
   setIsVoucherModalVisible,
   vouchers,
-  selectedVoucher,
   handleVoucherSelect,
+  selectedVoucher,
 }) => {
   return (
     <Modal
       title="Chọn Voucher"
-      visible={isVoucherModalVisible}
+      open={isVoucherModalVisible}
       onCancel={() => setIsVoucherModalVisible(false)}
       footer={null}
     >

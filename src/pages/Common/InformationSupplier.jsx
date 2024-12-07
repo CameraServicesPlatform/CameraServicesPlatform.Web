@@ -2,8 +2,7 @@ import { Card, Pagination, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllSuppliers } from "../../api/supplierApi";
-import "tailwindcss/tailwind.css";
-
+ 
 const InformationSupplier = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);

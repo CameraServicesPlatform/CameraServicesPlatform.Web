@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
+import { UploadOutlined } from "@ant-design/icons";
 import {
+  Button,
+  Checkbox,
+  DatePicker,
   Form,
   Input,
-  Select,
-  Radio,
-  Checkbox,
-  Button,
-  Space,
-  Upload,
   message,
+  Pagination,
+  Radio,
+  Select,
+  Upload,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import React from "react";
 import Specifications from "./Specifications";
 
 const { Option } = Select;
@@ -29,8 +30,6 @@ const CreateProductForm = ({
   handleRemoveFile,
   filePreview,
   loading,
-  canBeRentedByMember,
-  setIsContractModalVisible,
 }) => {
   const handlePriceTypeChange = (value) => {
     setPriceType(value);
@@ -56,13 +55,62 @@ const CreateProductForm = ({
       form.setFieldsValue({ PricePerHour: 0, PricePerDay: 0, PricePerWeek: 0 });
     }
   };
+  const [selectedDate, setSelectedDate] = React.useState(null);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    if (date && (date.year() === 2024 || date.year() === 2025)) {
+      form.setFieldsValue({ Quality: 0 });
+    } else {
+      form.setFieldsValue({ Quality: 1 });
+    }
+  };
+
+  const isNewProduct =
+    selectedDate &&
+    (selectedDate.year() === 2024 || selectedDate.year() === 2025);
+
+  const handleSubmit = (values) => {
+    const formData = new FormData();
+    formData.append("SerialNumber", values.SerialNumber);
+    formData.append("SupplierID", "your_supplier_id"); // Replace with actual supplier ID
+    formData.append("CategoryID", values.CategoryID);
+    formData.append("ProductName", values.ProductName);
+    formData.append("ProductDescription", values.ProductDescription);
+    formData.append("Quality", values.Quality);
+    formData.append("PriceBuy", values.Price);
+    formData.append("Brand", values.Brand);
+    formData.append("Status", 1); // Assuming status is always 1 for new products
+    formData.append(
+      "DateOfManufacture",
+      values.DateOfManufacture.format("YYYY-MM-DD")
+    );
+    formData.append("OriginalPrice", values.OriginalPrice);
+    if (values.file) {
+      formData.append("File", values.file.file.originFileObj);
+    }
+    formData.append("listProductSpecification", JSON.stringify(specifications));
+
+    // Make the API call with pagination parameters
+    fetch("/product/create-product-buy", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        message.success("Product created successfully!");
+      })
+      .catch((error) => {
+        message.error("Failed to create product.");
+      });
+  };
 
   return (
     <Form
       form={form}
-      onFinish={handleCreateProduct}
+      onFinish={handleSubmit}
       initialValues={{
-        Quality: 0,
+        Quality: isNewProduct ? 0 : 1,
         DepositProduct: "",
         PricePerHour: 0,
         PricePerDay: 0,
@@ -79,7 +127,13 @@ const CreateProductForm = ({
           <Radio value="buy">Mua</Radio>
         </Radio.Group>
       </Form.Item>
-
+      <Form.Item
+        name="ProductName"
+        label="Tên sản phẩm"
+        rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]}
+      >
+        <Input />
+      </Form.Item>
       <Form.Item
         name="SerialNumber"
         label="Số Serial"
@@ -103,14 +157,6 @@ const CreateProductForm = ({
       </Form.Item>
 
       <Form.Item
-        name="ProductName"
-        label="Tên sản phẩm"
-        rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm!" }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
         name="ProductDescription"
         label="Mô tả"
         rules={[{ required: true, message: "Vui lòng nhập mô tả sản phẩm!" }]}
@@ -131,27 +177,27 @@ const CreateProductForm = ({
         </Select>
       </Form.Item>
 
-      <Form.Item
-        name="DateOfManufacture"
-        label="Ngày sản xuất"
-        rules={[{ required: true, message: "Vui lòng nhập ngày sản xuất!" }]}
-      >
-        <Input type="date" />
+      <Form.Item name="DateOfManufacture" label="Ngày sản xuất">
+        <DatePicker
+          selected={selectedDate}
+          onChange={handleDateChange}
+          dateFormat="dd/MM/yyyy"
+          customInput={<Input />}
+        />
       </Form.Item>
-
-      <Form.Item
-        name="OriginalPrice"
-        label="Giá gốc"
-        rules={[
-          { required: true, message: "Vui lòng nhập giá gốc!" },
-          { type: "number", transform: (value) => Number(value) },
-        ]}
-      >
-        <Input type="number" placeholder="Nhập giá gốc" />
-      </Form.Item>
-
+   <Form.Item
+            name="OriginalPrice"
+            label="Giá gốc"
+            rules={[
+              { required: true, message: "Vui lòng nhập giá gốc!" },
+              { type: "number", transform: (value) => Number(value) },
+            ]}
+          >
+            <Input type="number" placeholder="Nhập giá gốc" />
+          </Form.Item>
       {productType === "rent" && (
         <>
+       
           <Form.Item
             name="DepositProduct"
             label="Cọc"
@@ -172,7 +218,6 @@ const CreateProductForm = ({
               <Checkbox value="PricePerMonth">Giá theo tháng</Checkbox>
             </Checkbox.Group>
           </Form.Item>
-
           {priceType.includes("PricePerHour") && (
             <Form.Item
               name="PricePerHour"
@@ -185,7 +230,6 @@ const CreateProductForm = ({
               <Input type="number" placeholder="Nhập giá theo giờ" />
             </Form.Item>
           )}
-
           {priceType.includes("PricePerDay") && (
             <Form.Item
               name="PricePerDay"
@@ -198,7 +242,6 @@ const CreateProductForm = ({
               <Input type="number" placeholder="Nhập giá theo ngày" />
             </Form.Item>
           )}
-
           {priceType.includes("PricePerWeek") && (
             <Form.Item
               name="PricePerWeek"
@@ -211,7 +254,6 @@ const CreateProductForm = ({
               <Input type="number" placeholder="Nhập giá theo tuần" />
             </Form.Item>
           )}
-
           {priceType.includes("PricePerMonth") && (
             <Form.Item
               name="PricePerMonth"
@@ -263,7 +305,12 @@ const CreateProductForm = ({
         setSpecifications={setSpecifications}
       />
 
-      <Form.Item label="Hình ảnh">
+      <Form.Item
+        name="file"
+        label="Hình ảnh"
+        valuePropName="file"
+        getValueFromEvent={(e) => (Array.isArray(e) ? e : e && e.file)}
+      >
         <Upload
           name="file"
           listType="picture"
@@ -298,6 +345,8 @@ const CreateProductForm = ({
           Tạo sản phẩm
         </Button>
       </Form.Item>
+
+       
     </Form>
   );
 };
