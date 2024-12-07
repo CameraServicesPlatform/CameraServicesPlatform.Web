@@ -1,5 +1,17 @@
-import { Button, Col, message, Modal, Pagination, Row, Typography } from "antd";
-import React, { useEffect, useState } from "react";
+import {
+  Button,
+  Col,
+  message,
+  Modal,
+  Pagination,
+  Row,
+  Select,
+  Typography,
+  Form,
+  Input,
+  Space
+} from "antd";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { getSupplierIdByAccountId } from "../../../api/accountApi";
@@ -14,8 +26,8 @@ import DetailProduct from "./DetailProduct";
 import EditProductForm from "./EditProductForm";
 import HandleSearchAndFilter from "./ManageProductCard/HandleSearchAndFilter";
 import ProductCard from "./ManageProductCard/ProductCard";
-
 const { Title } = Typography;
+const { Option } = Select;
 
 const ProductListBySupplier = () => {
   const [products, setProducts] = useState([]);
@@ -25,16 +37,17 @@ const ProductListBySupplier = () => {
   const [total, setTotal] = useState(0);
   const user = useSelector((state) => state.user.user || {});
   const [supplierId, setSupplierId] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [categoryNames, setCategoryNames] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState({});
   const { id } = useParams();
-  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [filters, setFilters] = useState({ searchTerm: "", filter: "" });
+  const [sortOrder, setSortOrder] = useState("createdAt");
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchSupplierId = async () => {
@@ -98,7 +111,7 @@ const ProductListBySupplier = () => {
     if (supplierId) {
       fetchProducts();
     }
-  }, [supplierId, pageIndex, pageSize]);
+  }, [supplierId, pageIndex, pageSize, sortOrder]);
 
   const handleEdit = (product) => {
     setSelectedProduct(product);
@@ -144,6 +157,11 @@ const ProductListBySupplier = () => {
     setIsModalVisible(false);
     setSelectedProduct(null);
   };
+
+  const handleFilterChange = useCallback((newFilters) => {
+    setFilters(newFilters);
+  }, []);
+
   const showCreateModal = () => {
     setIsCreateModalVisible(true);
   };
@@ -151,6 +169,7 @@ const ProductListBySupplier = () => {
   const handleCreateModalCancel = () => {
     setIsCreateModalVisible(false);
   };
+
   return (
     <div>
       <Button type="primary" onClick={showCreateModal}>
@@ -158,11 +177,14 @@ const ProductListBySupplier = () => {
       </Button>
       <Modal
         title="Tạo sản phẩm mới"
-        visible={isCreateModalVisible}
+        open={isCreateModalVisible}
         onCancel={handleCreateModalCancel}
         footer={null}
       >
-        <CreateProduct />
+        <CreateProduct
+          isCreateModalVisible={isCreateModalVisible}
+          handleCreateModalCancel={handleCreateModalCancel}
+        />
       </Modal>
 
       <Title level={2}>DANH SÁCH SẢN PHẨM</Title>
@@ -175,20 +197,22 @@ const ProductListBySupplier = () => {
           <HandleSearchAndFilter
             products={products}
             onFilter={setFilteredProducts}
+            onFilterChange={handleFilterChange}
           />
           <Row gutter={[16, 16]}>
-            {filteredProducts.map((product) => (
-              <Col key={product.productID} xs={24} sm={12} md={8} lg={6}>
-                <ProductCard
-                  product={product}
-                  categoryNames={categoryNames}
-                  handleExpandDescription={handleExpandDescription}
-                  expandedDescriptions={expandedDescriptions}
-                  handleView={handleView}
-                  handleEdit={handleEdit}
-                />
-              </Col>
-            ))}
+            {Array.isArray(filteredProducts) &&
+              filteredProducts.map((product) => (
+                <Col key={product.productID} xs={24} sm={12} md={8} lg={6}>
+                  <ProductCard
+                    product={product}
+                    categoryNames={categoryNames}
+                    handleExpandDescription={handleExpandDescription}
+                    expandedDescriptions={expandedDescriptions}
+                    handleView={handleView}
+                    handleEdit={handleEdit}
+                  />
+                </Col>
+              ))}
           </Row>
           <Pagination
             total={filteredProducts.length}
@@ -203,7 +227,7 @@ const ProductListBySupplier = () => {
 
       {isEditModalVisible && (
         <EditProductForm
-          visible={isEditModalVisible}
+          open={isEditModalVisible}
           onClose={handleModalClose}
           product={selectedProduct}
           onUpdateSuccess={handleUpdateSuccess}
@@ -211,7 +235,7 @@ const ProductListBySupplier = () => {
       )}
       <Modal
         title="Chi Tiết Sản Phẩm"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleClose}
         footer={null}
       >

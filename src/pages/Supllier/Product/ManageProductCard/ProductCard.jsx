@@ -3,6 +3,7 @@ import { Button, Card, Form, Input, message, Modal, Typography } from "antd";
 import React, { useState } from "react";
 import { createContractTemplate } from "../../../../api/contractTemplateApi";
 import { getBrandName, getProductStatusEnum } from "../../../../utils/constant";
+import PropTypes from "prop-types";
 
 const { Paragraph } = Typography;
 
@@ -126,6 +127,8 @@ const ProductCard = ({
           </div>
         }
         className="mb-5 w-full relative"
+        // Ensure the card takes full width of the column
+        style={{ width: "100%" }}
       >
         <div className="relative">
           {product.listImage && product.listImage.length > 0 ? (
@@ -252,6 +255,16 @@ const ProductCard = ({
       </Modal>
     </>
   );
+};
+
+ProductCard.propTypes = {
+  product: PropTypes.object.isRequired,
+  categoryNames: PropTypes.object.isRequired,
+  handleView: PropTypes.func.isRequired,
+  handleEdit: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired,
+  handleExpandDescription: PropTypes.func.isRequired,
+  expandedDescriptions: PropTypes.object.isRequired,
 };
 
 export default ProductCard;

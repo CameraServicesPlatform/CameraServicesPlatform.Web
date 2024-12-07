@@ -1,7 +1,6 @@
 import { Table, message } from "antd";
 import React, { useEffect, useState } from "react";
-import { getAllContractsByOrderId } from "../../../api/contractApi"; // Adjust the import path according to your project structure
-
+import { getAllContractsByOrderId } from "../../../api/contractApi";  
 const ContractOrder = ({ orderID }) => {
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);

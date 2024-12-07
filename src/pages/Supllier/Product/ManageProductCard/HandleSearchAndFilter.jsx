@@ -27,21 +27,31 @@ const HandleSearchAndFilter = ({ products, onFilter }) => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [priceRange, setPriceRange] = useState([0, Infinity]);
+  const [sortField, setSortField] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   useEffect(() => {
-    const filteredProducts = products.filter((product) => {
-      const matchesSearchTerm = product.productName
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const matchesStatus =
-        selectedStatus === "" || product.status === Number(selectedStatus);
-      const matchesBrand =
-        selectedBrand === "" || product.brand === Number(selectedBrand);
-      const matchesPrice =
-        product.priceBuy >= priceRange[0] && product.priceBuy <= priceRange[1];
+    const filteredProducts = products
+      .filter((product) => {
+        const matchesSearchTerm = product.productName
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+        const matchesStatus =
+          selectedStatus === "" || product.status === Number(selectedStatus);
+        const matchesBrand =
+          selectedBrand === "" || product.brand === Number(selectedBrand);
+        const matchesPrice =
+          product.priceBuy >= priceRange[0] && product.priceBuy <= priceRange[1];
 
-      return matchesSearchTerm && matchesStatus && matchesBrand && matchesPrice;
-    });
+        return matchesSearchTerm && matchesStatus && matchesBrand && matchesPrice;
+      })
+      .sort((a, b) => {
+        if (sortOrder === "asc") {
+          return new Date(a[sortField]) - new Date(b[sortField]);
+        } else {
+          return new Date(b[sortField]) - new Date(a[sortField]);
+        }
+      });
 
     onFilter(filteredProducts);
   }, [
@@ -49,6 +59,8 @@ const HandleSearchAndFilter = ({ products, onFilter }) => {
     selectedStatus,
     selectedBrand,
     priceRange,
+    sortField,
+    sortOrder,
     products,
     onFilter,
   ]);
@@ -75,6 +87,14 @@ const HandleSearchAndFilter = ({ products, onFilter }) => {
     setSelectedStatus("");
     setSelectedBrand("");
     setPriceRange([0, Infinity]);
+  };
+
+  const handleSortFieldChange = (e) => {
+    setSortField(e.target.value);
+  };
+
+  const handleSortOrderChange = (e) => {
+    setSortOrder(e.target.value);
   };
 
   return (
@@ -128,6 +148,22 @@ const HandleSearchAndFilter = ({ products, onFilter }) => {
           <option value="1000000-5000000">1,000,000 - 5,000,000 VND</option>
           <option value="5000000-Infinity">Trên 5,000,000 VND</option>
         </select>
+        <select
+          value={sortField}
+          onChange={handleSortFieldChange}
+          className="border p-2 rounded w-full md:w-1/4"
+        >
+          <option value="createdAt">Ngày tạo</option>
+          <option value="updatedAt">Ngày cập nhật</option>
+        </select>
+        <select
+          value={sortOrder}
+          onChange={handleSortOrderChange}
+          className="border p-2 rounded w-full md:w-1/4"
+        >
+          <option value="asc">Tăng dần</option>
+          <option value="desc">Giảm dần</option>
+        </select>
         <button
           onClick={handleReset}
           className="bg-blue-500 text-white p-2 rounded"
@@ -154,12 +190,12 @@ const ProductList = ({ products }) => {
           <ProductCard
             key={product.productID}
             product={product}
-            categoryNames={{}} // Pass the appropriate category names
+            categoryNames={{}}
             handleView={() => {}}
             handleEdit={() => {}}
             handleDelete={() => {}}
             handleExpandDescription={() => {}}
-            expandedDescriptions={{}} // Pass the appropriate expanded descriptions
+            expandedDescriptions={{}}
           />
         ))}
       </div>
