@@ -52,25 +52,23 @@ const DetailProduct = ({ product, loading, onClose }) => {
   }, [product?.categoryID]);
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setIsLoading(true);
-        const fetchedProduct = await getProductById(product?.id);
-        console.log("Fetched Product:", fetchedProduct);
-        setProductDetails(fetchedProduct);
-      } catch (err) {
-        console.error("Failed to fetch product:", err);
-        setError("Failed to load product details. Please try again later.");
-        message.error(err.message);
-      } finally {
-        setIsLoading(false);
+    const fetchProductDetails = async () => {
+      if (product?.productID) {
+        try {
+          setIsLoading(true);
+          const fetchedProduct = await getProductById(product.productID);
+          setProductDetails(fetchedProduct);
+        } catch (error) {
+          setError("Failed to load product details. Please try again later.");
+          message.error(error.message);
+        } finally {
+          setIsLoading(false);
+        }
       }
     };
 
-    if (!product) {
-      fetchProduct();
-    }
-  }, [product]);
+    fetchProductDetails();
+  }, [product?.productID]);
 
   useEffect(() => {
     const fetchContractTemplates = async () => {

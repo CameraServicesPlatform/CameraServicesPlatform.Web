@@ -1,16 +1,4 @@
-import {
-  Button,
-  Col,
-  message,
-  Modal,
-  Pagination,
-  Row,
-  Select,
-  Typography,
-  Form,
-  Input,
-  Space
-} from "antd";
+import { Button, Col, message, Modal, Row, Select, Typography, DatePicker, InputNumber, Spin, Tooltip } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -34,7 +22,6 @@ const ProductListBySupplier = () => {
   const [loading, setLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [total, setTotal] = useState(0);
   const user = useSelector((state) => state.user.user || {});
   const [supplierId, setSupplierId] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -46,8 +33,8 @@ const ProductListBySupplier = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState({ searchTerm: "", filter: "" });
-  const [sortOrder, setSortOrder] = useState("createdAt");
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const fetchSupplierId = async () => {
@@ -78,6 +65,7 @@ const ProductListBySupplier = () => {
         pageIndex,
         pageSize
       );
+
       if (Array.isArray(result)) {
         setProducts(result);
         setTotal(result.totalCount || 0);
@@ -85,7 +73,8 @@ const ProductListBySupplier = () => {
         const categoryPromises = result.map(async (product) => {
           if (product.categoryID) {
             const categoryResponse = await getCategoryById(product.categoryID);
-            if (categoryResponse?.isSuccess) {
+
+            if (categoryResponse?.isSuccess && categoryResponse.result) {
               setCategoryNames((prev) => ({
                 ...prev,
                 [product.categoryID]: categoryResponse.result.categoryName,
@@ -111,7 +100,7 @@ const ProductListBySupplier = () => {
     if (supplierId) {
       fetchProducts();
     }
-  }, [supplierId, pageIndex, pageSize, sortOrder]);
+  }, [supplierId, pageIndex, pageSize]);
 
   const handleEdit = (product) => {
     setSelectedProduct(product);
@@ -137,8 +126,12 @@ const ProductListBySupplier = () => {
     setLoading(true);
     try {
       const fetchedProduct = await getProductById(productID);
-      setSelectedProduct(fetchedProduct);
-      setIsModalVisible(true);
+      if (fetchedProduct) {
+        setSelectedProduct(fetchedProduct);
+        setIsModalVisible(true);
+      } else {
+        message.error("Failed to fetch product details.");
+      }
     } catch (error) {
       message.error("Failed to fetch product details.");
     } finally {
@@ -214,14 +207,6 @@ const ProductListBySupplier = () => {
                 </Col>
               ))}
           </Row>
-          <Pagination
-            total={filteredProducts.length}
-            showSizeChanger
-            onShowSizeChange={(current, size) => {
-              setPageSize(size);
-            }}
-            style={{ marginTop: "20px", textAlign: "center" }}
-          />
         </div>
       )}
 
@@ -239,11 +224,13 @@ const ProductListBySupplier = () => {
         onCancel={handleClose}
         footer={null}
       >
-        <DetailProduct
-          product={selectedProduct}
-          loading={loading}
-          onClose={handleClose}
-        />
+        {selectedProduct && (
+          <DetailProduct
+            product={selectedProduct}
+            loading={loading}
+            onClose={handleClose}
+          />
+        )}
       </Modal>
     </div>
   );

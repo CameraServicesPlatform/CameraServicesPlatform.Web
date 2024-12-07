@@ -22,13 +22,14 @@ const BrandEnum = {
   Sigma: 9,
 };
 
-const HandleSearchAndFilter = ({ products, onFilter }) => {
+const HandleSearchAndFilter = ({ products, onFilter, onFilterChange }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [priceRange, setPriceRange] = useState([0, Infinity]);
   const [sortField, setSortField] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [filter, setFilter] = useState("");
 
   useEffect(() => {
     const filteredProducts = products
@@ -54,19 +55,11 @@ const HandleSearchAndFilter = ({ products, onFilter }) => {
       });
 
     onFilter(filteredProducts);
-  }, [
-    searchTerm,
-    selectedStatus,
-    selectedBrand,
-    priceRange,
-    sortField,
-    sortOrder,
-    products,
-    onFilter,
-  ]);
+  }, [searchTerm, selectedStatus, selectedBrand, priceRange, sortField, sortOrder, products]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
+    onFilterChange({ searchTerm: e.target.value, filter });
   };
 
   const handleStatusChange = (e) => {
@@ -95,6 +88,11 @@ const HandleSearchAndFilter = ({ products, onFilter }) => {
 
   const handleSortOrderChange = (e) => {
     setSortOrder(e.target.value);
+  };
+
+  const handleFilterChange = (value) => {
+    setFilter(value);
+    onFilterChange({ searchTerm, filter: value });
   };
 
   return (

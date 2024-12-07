@@ -3,7 +3,6 @@ import { Button, Card, Form, Input, message, Modal, Typography } from "antd";
 import React, { useState } from "react";
 import { createContractTemplate } from "../../../../api/contractTemplateApi";
 import { getBrandName, getProductStatusEnum } from "../../../../utils/constant";
-import PropTypes from "prop-types";
 
 const { Paragraph } = Typography;
 
@@ -12,7 +11,6 @@ const ProductCard = ({
   categoryNames,
   handleView,
   handleEdit,
-  handleDelete,
   handleExpandDescription,
   expandedDescriptions,
 }) => {
@@ -127,7 +125,6 @@ const ProductCard = ({
           </div>
         }
         className="mb-5 w-full relative"
-        // Ensure the card takes full width of the column
         style={{ width: "100%" }}
       >
         <div className="relative">
@@ -165,14 +162,12 @@ const ProductCard = ({
               type="link"
               onClick={() => handleExpandDescription(product.productID)}
               className="p-0"
-            >
-              {expandedDescriptions[product.productID] ? "Thu gọn" : "Xem thêm"}
-            </Button>
+            ></Button>
           )}
-        <p>
+        <div>
           <strong>Danh mục:</strong>
-          {categoryNames[product.categoryID] || "Không xác định"}
-        </p>
+          {categoryNames[product.categoryID]}
+        </div>
         <p>
           <strong>Thương hiệu:</strong> {getBrandName(product.brand)}
         </p>
@@ -209,7 +204,7 @@ const ProductCard = ({
 
       <Modal
         title="Tạo Mẫu Hợp Đồng"
-        visible={isContractModalVisible}
+        open={isContractModalVisible}
         onCancel={() => setIsContractModalVisible(false)}
         footer={null}
       >
@@ -255,16 +250,6 @@ const ProductCard = ({
       </Modal>
     </>
   );
-};
-
-ProductCard.propTypes = {
-  product: PropTypes.object.isRequired,
-  categoryNames: PropTypes.object.isRequired,
-  handleView: PropTypes.func.isRequired,
-  handleEdit: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
-  handleExpandDescription: PropTypes.func.isRequired,
-  expandedDescriptions: PropTypes.object.isRequired,
 };
 
 export default ProductCard;

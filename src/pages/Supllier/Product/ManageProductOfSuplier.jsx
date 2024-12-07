@@ -39,7 +39,7 @@ const ManageProductOfSupplier = () => {
           fontSize: "1rem",
         }}
       />
-      <style jsx>{`
+      <style jsx="true">{`
         .custom-tabs .ant-tabs-tab {
           padding: 12px 20px;
           border-radius: 8px;
