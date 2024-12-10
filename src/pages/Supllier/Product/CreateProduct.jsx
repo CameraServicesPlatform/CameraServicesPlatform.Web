@@ -25,14 +25,14 @@ import { getVouchersBySupplierId } from "../../../api/voucherApi";
 const { Option } = Select;
 const { Title } = Typography;
 
-const CreateProduct = () => {
+const CreateProduct = ({ isRent }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [file, setFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
   const user = useSelector((state) => state.user.user || {});
   const [supplierId, setSupplierId] = useState(null);
-  const [filePreview, setFilePreview] = useState(null);
   const [specifications, setSpecifications] = useState([
     { feature: "", description: "" },
   ]);
@@ -41,10 +41,8 @@ const CreateProduct = () => {
   const [vouchers, setVouchers] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [isVoucherModalVisible, setIsVoucherModalVisible] = useState(false);
-  const [canBeRentedByMember, setCanBeRentedByMember] = useState(false);
   const [isContractModalVisible, setIsContractModalVisible] = useState(false);
 
-  // Fetch Supplier ID and Categories
   useEffect(() => {
     const fetchSupplierId = async () => {
       if (user.id) {
@@ -103,7 +101,6 @@ const CreateProduct = () => {
       fetchVouchers();
     }
   }, [supplierId]);
-
   const handleFileChange = (info) => {
     if (info.file.status === "done" || info.file.status === "uploading") {
       setFile(info.file.originFileObj);
@@ -135,8 +132,9 @@ const CreateProduct = () => {
       PricePerDay = 0,
       PricePerWeek = 0,
       PricePerMonth = 0,
+      PriceBuy,
       Brand,
-      Price,
+      Status = 0,
       DateOfManufacture,
       OriginalPrice,
     } = values;
@@ -153,16 +151,20 @@ const CreateProduct = () => {
       ProductName,
       ProductDescription,
       Quality,
+      DepositProduct,
+      PricePerHour,
+      PricePerDay,
+      PricePerWeek,
+      PricePerMonth,
+      PriceBuy,
       Brand,
+      Status,
       File: file,
       listProductSpecification: validSpecifications,
+      VoucherID: selectedVoucher ? selectedVoucher.vourcherID : null,
       DateOfManufacture,
       OriginalPrice,
-      VoucherID: selectedVoucher ? selectedVoucher.vourcherID : null,
-      Status: 1,
-      PriceRent: 0,
     };
-
     if (productType === "rent") {
       product.DepositProduct = DepositProduct;
       product.PricePerHour = PricePerHour;
@@ -171,26 +173,21 @@ const CreateProduct = () => {
       product.PricePerMonth = PricePerMonth;
       product.PriceRent = 0;
     } else {
-      product.PriceBuy = Price;
+      product.PriceRent = 0;
+      product.PriceBuy = PriceBuy;
     }
-
     try {
       setLoading(true);
-      let result;
-      if (productType === "rent") {
-        result = await createProductRent(product);
-      } else {
-        result = await createProductBuy(product);
-      }
+      const result = isRent
+        ? await createProductRent(product)
+        : await createProductBuy(product);
 
       if (result) {
         message.success("Product created successfully!");
         form.resetFields();
         setFile(null);
-
-        if (canBeRentedByMember) {
-          setIsContractModalVisible(true);
-        }
+        setFilePreview(null);
+        setSpecifications([{ feature: "", description: "" }]);
       } else {
         message.error("Failed to create product.");
       }
@@ -246,7 +243,6 @@ const CreateProduct = () => {
     setSelectedVoucher(voucher);
     setIsVoucherModalVisible(false);
   };
-
   return (
     <Form
       form={form}
@@ -258,8 +254,10 @@ const CreateProduct = () => {
         PricePerDay: 0,
         PricePerWeek: 0,
         PricePerMonth: 0,
+        Status: 0,
       }}
     >
+      {" "}
       <Form.Item label="Loại sản phẩm">
         <Radio.Group
           onChange={(e) => setProductType(e.target.value)}
@@ -269,29 +267,6 @@ const CreateProduct = () => {
           <Radio value="buy">Mua</Radio>
         </Radio.Group>
       </Form.Item>
-
-      <Form.Item
-        name="SerialNumber"
-        label="Số Serial"
-        rules={[{ required: true, message: "Vui lòng nhập số serial!" }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        name="CategoryID"
-        label="Danh mục"
-        rules={[{ required: true, message: "Vui lòng chọn một danh mục!" }]}
-      >
-        <Select placeholder="Chọn một danh mục">
-          {categories.map((category) => (
-            <Option key={category.categoryID} value={category.categoryID}>
-              {category.categoryName}
-            </Option>
-          ))}
-        </Select>
-      </Form.Item>
-
       <Form.Item
         name="ProductName"
         label="Tên sản phẩm"
@@ -299,47 +274,6 @@ const CreateProduct = () => {
       >
         <Input />
       </Form.Item>
-
-      <Form.Item
-        name="ProductDescription"
-        label="Mô tả"
-        rules={[{ required: true, message: "Vui lòng nhập mô tả sản phẩm!" }]}
-      >
-        <Input.TextArea />
-      </Form.Item>
-
-      <Form.Item
-        name="Quality"
-        label="Chất lượng"
-        rules={[
-          { required: true, message: "Vui lòng nhập chất lượng sản phẩm!" },
-        ]}
-      >
-        <Select placeholder="Đánh giá chất lượng sản phẩm">
-          <Option value={0}>Mới</Option>
-          <Option value={1}>Đã qua sử dụng</Option>
-        </Select>
-      </Form.Item>
-
-      <Form.Item
-        name="DateOfManufacture"
-        label="Ngày sản xuất"
-        rules={[{ required: true, message: "Vui lòng nhập ngày sản xuất!" }]}
-      >
-        <Input type="date" />
-      </Form.Item>
-
-      <Form.Item
-        name="OriginalPrice"
-        label="Giá gốc"
-        rules={[
-          { required: true, message: "Vui lòng nhập giá gốc!" },
-          { type: "number", transform: (value) => Number(value) },
-        ]}
-      >
-        <Input type="number" placeholder="Nhập giá gốc" />
-      </Form.Item>
-
       {productType === "rent" && (
         <>
           <Form.Item
@@ -416,10 +350,9 @@ const CreateProduct = () => {
           )}
         </>
       )}
-
       {productType === "buy" && (
         <Form.Item
-          name="Price"
+          name="PriceBuy"
           label="Giá"
           rules={[
             { required: true, message: "Vui lòng nhập giá sản phẩm!" },
@@ -429,7 +362,144 @@ const CreateProduct = () => {
           <Input type="number" placeholder="Nhập giá sản phẩm" />
         </Form.Item>
       )}
+      <Form.Item
+        name="SerialNumber"
+        label="Số Serial"
+        rules={[{ required: true, message: "Vui lòng nhập số serial!" }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        name="CategoryID"
+        label="Danh mục"
+        rules={[{ required: true, message: "Vui lòng chọn một danh mục!" }]}
+      >
+        <Select placeholder="Chọn một danh mục">
+          {categories.map((category) => (
+            <Option key={category.categoryID} value={category.categoryID}>
+              {category.categoryName}
+            </Option>
+          ))}
+        </Select>
+      </Form.Item>
+      <Form.Item
+        name="ProductDescription"
+        label="Mô tả"
+        rules={[{ required: true, message: "Vui lòng nhập mô tả sản phẩm!" }]}
+      >
+        <Input.TextArea />
+      </Form.Item>
+      <Form.Item
+        name="Quality"
+        label="Chất lượng"
+        rules={[
+          { required: true, message: "Vui lòng nhập chất lượng sản phẩm!" },
+        ]}
+      >
+        <Select placeholder="Đánh giá chất lượng sản phẩm">
+          <Option value={0}>Mới</Option>
+          <Option value={1}>Đã qua sử dụng</Option>
+        </Select>
+      </Form.Item>
+      {isRent && (
+        <>
+          <Form.Item
+            name="DepositProduct"
+            label="Cọc"
+            rules={[
+              {
+                required: true,
+                message: "Vui lòng nhập tiền cọc cho sản phẩm!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item label="Chọn loại giá">
+            <Checkbox.Group onChange={handlePriceTypeChange} value={priceType}>
+              <Checkbox value="PricePerHour">Giá theo giờ</Checkbox>
+              <Checkbox value="PricePerDay">Giá theo ngày</Checkbox>
+              <Checkbox value="PricePerWeek">Giá theo tuần</Checkbox>
+              <Checkbox value="PricePerMonth">Giá theo tháng</Checkbox>
+            </Checkbox.Group>
+          </Form.Item>
 
+          {priceType.includes("PricePerHour") && (
+            <Form.Item
+              name="PricePerHour"
+              label="Giá theo giờ"
+              rules={[
+                { required: true, message: "Vui lòng nhập giá theo giờ!" },
+                { type: "number", transform: (value) => Number(value) },
+              ]}
+            >
+              <Input type="number" placeholder="Nhập giá theo giờ" />
+            </Form.Item>
+          )}
+
+          {priceType.includes("PricePerDay") && (
+            <Form.Item
+              name="PricePerDay"
+              label="Giá theo ngày"
+              rules={[
+                { required: true, message: "Vui lòng nhập giá theo ngày!" },
+                { type: "number", transform: (value) => Number(value) },
+              ]}
+            >
+              <Input type="number" placeholder="Nhập giá theo ngày" />
+            </Form.Item>
+          )}
+
+          {priceType.includes("PricePerWeek") && (
+            <Form.Item
+              name="PricePerWeek"
+              label="Giá theo tuần"
+              rules={[
+                { required: true, message: "Vui lòng nhập giá theo tuần!" },
+                { type: "number", transform: (value) => Number(value) },
+              ]}
+            >
+              <Input type="number" placeholder="Nhập giá theo tuần" />
+            </Form.Item>
+          )}
+
+          {priceType.includes("PricePerMonth") && (
+            <Form.Item
+              name="PricePerMonth"
+              label="Giá theo tháng"
+              rules={[
+                { required: true, message: "Vui lòng nhập giá theo tháng!" },
+                { type: "number", transform: (value) => Number(value) },
+              ]}
+            >
+              <Input type="number" placeholder="Nhập giá theo tháng" />
+            </Form.Item>
+          )}
+        </>
+      )}
+      {!isRent && (
+        <Form.Item
+          name="PriceBuy"
+          label="Giá (Mua)"
+          rules={[{ required: true, message: "Vui lòng nhập giá mua!" }]}
+        >
+          <Input type="number" />
+        </Form.Item>
+      )}
+      <Form.Item
+        name="DateOfManufacture"
+        label="Ngày sản xuất"
+        rules={[{ required: true, message: "Vui lòng nhập ngày sản xuất!" }]}
+      >
+        <Input type="date" />
+      </Form.Item>
+      <Form.Item
+        name="OriginalPrice"
+        label="Giá gốc"
+        rules={[{ required: true, message: "Vui lòng nhập giá gốc!" }]}
+      >
+        <Input type="number" />
+      </Form.Item>
       <Form.Item
         name="Brand"
         label="Thương hiệu"
@@ -445,9 +515,10 @@ const CreateProduct = () => {
           <Option value={6}>Leica</Option>
           <Option value={7}>Pentax</Option>
           <Option value={8}>Hasselblad</Option>
+          <Option value={9}>Sigma</Option>
+          <Option value={10}>Khác</Option>
         </Select>
       </Form.Item>
-
       <Form.Item label="Đặc điểm sản phẩm">
         {specifications.map((specification, index) => (
           <Space key={index} style={{ display: "flex", marginBottom: 8 }}>
@@ -508,7 +579,6 @@ const CreateProduct = () => {
           />
         )}
       </Form.Item>
-
       <Form.Item label="Voucher">
         <Button
           type="primary"
@@ -528,13 +598,6 @@ const CreateProduct = () => {
           </div>
         )}
       </Form.Item>
-
-      <Form.Item>
-        <Button type="primary" htmlType="submit" loading={loading}>
-          Tạo sản phẩm
-        </Button>
-      </Form.Item>
-
       <Modal
         title="Chọn Voucher"
         visible={isVoucherModalVisible}
@@ -568,52 +631,22 @@ const CreateProduct = () => {
           ))}
         </Row>
       </Modal>
-      {/* <Modal
-        title="Tạo Mẫu Hợp Đồng"
-        visible={isContractModalVisible}
-        onCancel={() => setIsContractModalVisible(false)}
-        footer={null}
-      >
-        <Form onFinish={handleCreateContractTemplate}>
-          <Form.Item
-            name="templateName"
-            label="Tên Mẫu"
-            rules={[{ required: true, message: "Vui lòng nhập tên mẫu!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="contractTerms"
-            label="Điều Khoản Hợp Đồng"
-            rules={[
-              { required: true, message: "Vui lòng nhập điều khoản hợp đồng!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="templateDetails"
-            label="Chi Tiết Mẫu"
-            rules={[{ required: true, message: "Vui lòng nhập chi tiết mẫu!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="penaltyPolicy"
-            label="Chính Sách Phạt"
-            rules={[
-              { required: true, message: "Vui lòng nhập chính sách phạt!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Tạo Mẫu
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal> */}
+      {!isRent && (
+        <Form.Item
+          name="Status"
+          label="Trạng thái"
+          rules={[{ required: true, message: "Trạng thái là bắt buộc!" }]}
+        >
+          <Select placeholder="Chọn trạng thái">
+            <Option value={0}>Sản phẩm để bán</Option>
+          </Select>
+        </Form.Item>
+      )}
+      <Form.Item>
+        <Button type="primary" htmlType="submit" loading={loading}>
+          Tạo sản phẩm
+        </Button>
+      </Form.Item>
     </Form>
   );
 };
