@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import ProductCard from "./ProductCard";
+import React, { useState, useEffect } from "react";
+import ProductCard from "./ProductItem"; // Adjust the import path as needed
 
 const ProductStatusEnum = {
   AvailableSell: 0,
@@ -22,44 +22,39 @@ const BrandEnum = {
   Sigma: 9,
 };
 
-const HandleSearchAndFilter = ({ products, onFilter, onFilterChange }) => {
+const HandleSearchAndFilter = ({ products, onFilter }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [priceRange, setPriceRange] = useState([0, Infinity]);
-  const [sortField, setSortField] = useState("createdAt");
-  const [sortOrder, setSortOrder] = useState("desc");
-  const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    const filteredProducts = products
-      .filter((product) => {
-        const matchesSearchTerm = product.productName
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
-        const matchesStatus =
-          selectedStatus === "" || product.status === Number(selectedStatus);
-        const matchesBrand =
-          selectedBrand === "" || product.brand === Number(selectedBrand);
-        const matchesPrice =
-          product.priceBuy >= priceRange[0] && product.priceBuy <= priceRange[1];
+    const filteredProducts = products.filter((product) => {
+      const matchesSearchTerm = product.productName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        selectedStatus === "" || product.status === Number(selectedStatus);
+      const matchesBrand =
+        selectedBrand === "" || product.brand === Number(selectedBrand);
+      const matchesPrice =
+        product.priceBuy >= priceRange[0] && product.priceBuy <= priceRange[1];
 
-        return matchesSearchTerm && matchesStatus && matchesBrand && matchesPrice;
-      })
-      .sort((a, b) => {
-        if (sortOrder === "asc") {
-          return new Date(a[sortField]) - new Date(b[sortField]);
-        } else {
-          return new Date(b[sortField]) - new Date(a[sortField]);
-        }
-      });
+      return matchesSearchTerm && matchesStatus && matchesBrand && matchesPrice;
+    });
 
     onFilter(filteredProducts);
-  }, [searchTerm, selectedStatus, selectedBrand, priceRange, sortField, sortOrder, products]);
+  }, [
+    searchTerm,
+    selectedStatus,
+    selectedBrand,
+    priceRange,
+    products,
+    onFilter,
+  ]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
-    onFilterChange({ searchTerm: e.target.value, filter });
   };
 
   const handleStatusChange = (e) => {
@@ -80,19 +75,6 @@ const HandleSearchAndFilter = ({ products, onFilter, onFilterChange }) => {
     setSelectedStatus("");
     setSelectedBrand("");
     setPriceRange([0, Infinity]);
-  };
-
-  const handleSortFieldChange = (e) => {
-    setSortField(e.target.value);
-  };
-
-  const handleSortOrderChange = (e) => {
-    setSortOrder(e.target.value);
-  };
-
-  const handleFilterChange = (value) => {
-    setFilter(value);
-    onFilterChange({ searchTerm, filter: value });
   };
 
   return (
@@ -146,59 +128,15 @@ const HandleSearchAndFilter = ({ products, onFilter, onFilterChange }) => {
           <option value="1000000-5000000">1,000,000 - 5,000,000 VND</option>
           <option value="5000000-Infinity">Trên 5,000,000 VND</option>
         </select>
-        <select
-          value={sortField}
-          onChange={handleSortFieldChange}
-          className="border p-2 rounded w-full md:w-1/4"
-        >
-          <option value="createdAt">Ngày tạo</option>
-          <option value="updatedAt">Ngày cập nhật</option>
-        </select>
-        <select
-          value={sortOrder}
-          onChange={handleSortOrderChange}
-          className="border p-2 rounded w-full md:w-1/4"
-        >
-          <option value="asc">Tăng dần</option>
-          <option value="desc">Giảm dần</option>
-        </select>
         <button
           onClick={handleReset}
           className="bg-blue-500 text-white p-2 rounded"
         >
-          Xóa
+          Reset Filters
         </button>
       </div>
     </div>
   );
 };
 
-const ProductList = ({ products }) => {
-  const [filteredProducts, setFilteredProducts] = useState(products);
-
-  const handleFilter = (filtered) => {
-    setFilteredProducts(filtered);
-  };
-
-  return (
-    <div>
-      <HandleSearchAndFilter products={products} onFilter={handleFilter} />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredProducts.map((product) => (
-          <ProductCard
-            key={product.productID}
-            product={product}
-            categoryNames={{}}
-            handleView={() => {}}
-            handleEdit={() => {}}
-            handleDelete={() => {}}
-            handleExpandDescription={() => {}}
-            expandedDescriptions={{}}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export default ProductList;
+export default HandleSearchAndFilter;
