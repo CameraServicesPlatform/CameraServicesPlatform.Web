@@ -257,7 +257,6 @@ const CreateProduct = ({ isRent }) => {
         Status: 0,
       }}
     >
-      {" "}
       <Form.Item label="Loại sản phẩm">
         <Radio.Group
           onChange={(e) => setProductType(e.target.value)}

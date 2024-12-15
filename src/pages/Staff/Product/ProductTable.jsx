@@ -80,7 +80,7 @@ const ProductCard = ({
           <Text strong>Mã Nhà Cung Cấp:</Text> {product.supplierID}
         </p>
         <p>
-          <Text strong>Tên Loại Hàng:</Text>{" "}
+          <Text strong>Tên Loại Hàng:</Text>
           {categoryNames[product.categoryID] || "Không xác định"}
         </p>
         <p>
@@ -99,7 +99,7 @@ const ProductCard = ({
           <Text strong>Chất Lượng:</Text> {product.quality}
         </p>
         <p>
-          <Text strong>Trạng Thái:</Text>{" "}
+          <Text strong>Trạng Thái:</Text>
           <span className={getStatusClass(product.status)}>
             {getProductStatusEnum(product.status)}
           </span>

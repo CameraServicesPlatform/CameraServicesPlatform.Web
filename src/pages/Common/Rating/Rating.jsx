@@ -91,7 +91,7 @@ const Rating = () => {
             )}
             <p className="font-semibold">Tên tài khoản: {userMap.name}</p>
             <p className="font-semibold flex items-center">
-              Giá trị đánh giá:
+              Đánh giá:
               {[...Array(5)].map((_, i) => (
                 <FaStar
                   key={i}

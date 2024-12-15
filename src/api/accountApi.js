@@ -148,7 +148,7 @@ export const getAccountById = async (accountId, token) => {
 };
 export const getUserById = async (accountId) => {
   try {
-    const res = await api.post(`/account/get-account-by-userId/${accountId}`);
+    const res = await api.get(`/account/get-account-by-userId/${accountId}`);
     return res.data;
   } catch (err) {
     console.error("Error fetching account by ID:", err);

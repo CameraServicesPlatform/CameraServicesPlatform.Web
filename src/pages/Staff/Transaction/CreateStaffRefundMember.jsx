@@ -533,14 +533,14 @@ const CreateStaffRefundMember = () => {
                 <p>Product Name: {detail.productName || "N/A"}</p>
                 <p>Product Quality: {detail.productQuality}</p>
                 <p>
-                  Product Price:{" "}
+                  Product Price:
                   {new Intl.NumberFormat("vi-VN", {
                     style: "currency",
                     currency: "VND",
                   }).format(detail.productPrice)}
                 </p>
                 <p>
-                  Product Price Total:{" "}
+                  Product Price Total:
                   {new Intl.NumberFormat("vi-VN", {
                     style: "currency",
                     currency: "VND",
@@ -548,15 +548,15 @@ const CreateStaffRefundMember = () => {
                 </p>
                 <p>Discount: {detail.discount}</p>
                 <p>
-                  Period Rental:{" "}
+                  Period Rental:
                   {moment(detail.periodRental).format("DD-MM-YYYY HH:mm")}
                 </p>
                 <p>
-                  Created At:{" "}
+                  Created At:
                   {moment(detail.createdAt).format("DD-MM-YYYY HH:mm")}
                 </p>
                 <p>
-                  Updated At:{" "}
+                  Updated At:
                   {moment(detail.updatedAt).format("DD-MM-YYYY HH:mm")}
                 </p>
               </li>

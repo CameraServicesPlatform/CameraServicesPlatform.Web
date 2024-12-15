@@ -123,85 +123,85 @@ const ManageOrder = () => {
   );
 
   const orderStatisticsColumns = useMemo(
-  () => [
-    {
-      title: "Tổng Doanh Thu",
-      dataIndex: "totalSales",
-      key: "totalSales",
-    },
-    {
-      title: "Tổng Số Đơn Hàng",
-      dataIndex: "totalOrders",
-      key: "totalOrders",
-    },
-    {
-      title: "Đơn Hàng Chờ Xử Lý",
-      dataIndex: "pendingOrders",
-      key: "pendingOrders",
-    },
-    {
-      title: "Đơn Hàng Hoàn Thành",
-      dataIndex: "completedOrders",
-      key: "completedOrders",
-    },
-    {
-      title: "Đơn Hàng Bị Hủy",
-      dataIndex: "canceledOrders",
-      key: "canceledOrders",
-    },
-    {
-      title: "Đơn Hàng Được Duyệt",
-      dataIndex: "approvedOrders",
-      key: "approvedOrders",
-    },
-    {
-      title: "Đơn Hàng Đã Đặt",
-      dataIndex: "placedOrders",
-      key: "placedOrders",
-    },
-    {
-      title: "Đơn Hàng Đã Giao",
-      dataIndex: "shippedOrders",
-      key: "shippedOrders",
-    },
-    {
-      title: "Đơn Hàng Thanh Toán Thất Bại",
-      dataIndex: "paymentFailOrders",
-      key: "paymentFailOrders",
-    },
-    {
-      title: "Đơn Hàng Đang Hủy",
-      dataIndex: "cancelingOrders",
-      key: "cancelingOrders",
-    },
-    {
-      title: "Đơn Hàng Thanh Toán",
-      dataIndex: "paymentOrders",
-      key: "paymentOrders",
-    },
-    {
-      title: "Đơn Hàng Chờ Hoàn Tiền",
-      dataIndex: "pendingRefundOrders",
-      key: "pendingRefundOrders",
-    },
-    {
-      title: "Đơn Hàng Đã Hoàn Tiền",
-      dataIndex: "refundOrders",
-      key: "refundOrders",
-    },
-    {
-      title: "Đơn Hàng Trả Lại Tiền Đặt Cọc",
-      dataIndex: "depositReturnOrders",
-      key: "depositReturnOrders",
-    },
-    {
-      title: "Đơn Hàng Gia Hạn",
-      dataIndex: "extendOrders",
-      key: "extendOrders",
-    },
-  ],
-  []
-);
+    () => [
+      {
+        title: "Tổng Doanh Thu",
+        dataIndex: "totalSales",
+        key: "totalSales",
+      },
+      {
+        title: "Tổng Số Đơn Hàng",
+        dataIndex: "totalOrders",
+        key: "totalOrders",
+      },
+      {
+        title: "Đơn Hàng Chờ Xử Lý",
+        dataIndex: "pendingOrders",
+        key: "pendingOrders",
+      },
+      {
+        title: "Đơn Hàng Hoàn Thành",
+        dataIndex: "completedOrders",
+        key: "completedOrders",
+      },
+      {
+        title: "Đơn Hàng Bị Hủy",
+        dataIndex: "canceledOrders",
+        key: "canceledOrders",
+      },
+      {
+        title: "Đơn Hàng Được Duyệt",
+        dataIndex: "approvedOrders",
+        key: "approvedOrders",
+      },
+      {
+        title: "Đơn Hàng Đã Đặt",
+        dataIndex: "placedOrders",
+        key: "placedOrders",
+      },
+      {
+        title: "Đơn Hàng Đã Giao",
+        dataIndex: "shippedOrders",
+        key: "shippedOrders",
+      },
+      {
+        title: "Đơn Hàng Thanh Toán Thất Bại",
+        dataIndex: "paymentFailOrders",
+        key: "paymentFailOrders",
+      },
+      {
+        title: "Đơn Hàng Đang Hủy",
+        dataIndex: "cancelingOrders",
+        key: "cancelingOrders",
+      },
+      {
+        title: "Đơn Hàng Thanh Toán",
+        dataIndex: "paymentOrders",
+        key: "paymentOrders",
+      },
+      {
+        title: "Đơn Hàng Chờ Hoàn Tiền",
+        dataIndex: "pendingRefundOrders",
+        key: "pendingRefundOrders",
+      },
+      {
+        title: "Đơn Hàng Đã Hoàn Tiền",
+        dataIndex: "refundOrders",
+        key: "refundOrders",
+      },
+      {
+        title: "Đơn Hàng Trả Lại Tiền Đặt Cọc",
+        dataIndex: "depositReturnOrders",
+        key: "depositReturnOrders",
+      },
+      {
+        title: "Đơn Hàng Gia Hạn",
+        dataIndex: "extendOrders",
+        key: "extendOrders",
+      },
+    ],
+    []
+  );
 
   const tabItems = [
     {

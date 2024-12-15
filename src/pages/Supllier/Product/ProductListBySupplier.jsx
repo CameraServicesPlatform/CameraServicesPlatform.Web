@@ -185,22 +185,22 @@ const ProductListBySupplier = () => {
       <div>
         {record.pricePerHour !== null && record.pricePerHour !== 0 && (
           <span style={{ marginRight: "10px" }}>
-            <strong>Per Hour:</strong> {record.pricePerHour} VND
+            <strong>Giờ:</strong> {record.pricePerHour} VND
           </span>
         )}
         {record.pricePerDay !== null && record.pricePerDay !== 0 && (
           <span style={{ marginRight: "10px" }}>
-            <strong>Per Day:</strong> {record.pricePerDay} VND
+            <strong>Ngày:</strong> {record.pricePerDay} VND
           </span>
         )}
         {record.pricePerWeek !== null && record.pricePerWeek !== 0 && (
           <span style={{ marginRight: "10px" }}>
-            <strong>Per Week:</strong> {record.pricePerWeek} VND
+            <strong>Tuần:</strong> {record.pricePerWeek} VND
           </span>
         )}
         {record.pricePerMonth !== null && record.pricePerMonth !== 0 && (
           <span style={{ marginRight: "10px" }}>
-            <strong>Per Month:</strong> {record.pricePerMonth} VND
+            <strong>Tháng:</strong> {record.pricePerMonth} VND
           </span>
         )}
         {Object.values(priceLabels).every(
